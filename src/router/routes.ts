@@ -1,0 +1,28 @@
+import AllQuestionPage from "@/views/AllQuestionPage.vue";
+import HtmlQuestionsPage from "@/views/HtmlQuestionsPage.vue";
+import WhatIsHtml from "@/views/html/WhatIsHtml.vue";
+import SemanticHtml from "@/views/html/SemanticHtml.vue";
+import Accessibility from "@/views/html/Accessibility.vue";
+
+export const routes = [
+  {
+    path: '/',
+    component: AllQuestionPage,
+  },
+  {
+    path: '/html',
+    component: HtmlQuestionsPage,
+  },
+  {
+    path: '/html/what-is-html',
+    component: WhatIsHtml,
+  },
+  {
+    path: '/html/semantic-html',
+    component: SemanticHtml,
+  },
+  {
+    path: '/html/accessibility',
+    component: Accessibility,
+  },
+]
