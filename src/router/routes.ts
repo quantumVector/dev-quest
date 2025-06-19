@@ -6,6 +6,7 @@ import Accessibility from "@/views/html/Accessibility.vue";
 import ResponsiveImage from "@/views/html/ResponsiveImage.vue";
 import Specificity from "@/views/css/Specificity.vue";
 import StyleIsolation from "@/views/css/StyleIsolation.vue";
+import IsolationMethods from "@/views/css/IsolationMethods.vue";
 
 export const routes = [
   {
@@ -39,5 +40,9 @@ export const routes = [
   {
     path: '/css/style-isolation',
     component: StyleIsolation,
+  },
+  {
+    path: '/css/isolation-methods',
+    component: IsolationMethods,
   },
 ]

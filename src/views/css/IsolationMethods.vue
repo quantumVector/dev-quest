@@ -704,4 +704,62 @@ onMounted(() => {
                 <v-card class="pa-4 h-100">
                   <h3 class="text-h6 font-weight-bold mb-2">Container Queries</h3>
                   <ul class="pl-4">
-                    <li>@container
+                    <li>@container rules</li>
+                    <li>Element-based isolation</li>
+                    <li>Context-aware styling</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="3">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">Native CSS</h3>
+                  <ul class="pl-4">
+                    <li>@layer cascade layers</li>
+                    <li>CSS Nesting</li>
+                    <li>:where() / :is()</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Рекомендации по выбору</h2>
+            <v-alert type="info" class="mb-6">
+              <template v-slot:prepend>
+                <v-icon>mdi-lightbulb-outline</v-icon>
+              </template>
+              <div>
+                <p class="mb-2 font-weight-bold">Для новых проектов в 2024-2025:</p>
+                <ul class="pl-4 ma-0">
+                  <li><strong>React:</strong> CSS Modules + Zero-runtime CSS-in-JS для динамики</li>
+                  <li><strong>Vue:</strong> Scoped Styles + CSS Modules для переиспользуемых компонентов</li>
+                  <li><strong>Angular:</strong> ViewEncapsulation + CSS Modules</li>
+                  <li><strong>Vanilla JS:</strong> Shadow DOM + BEM для фоллбека</li>
+                  <li><strong>Библиотеки компонентов:</strong> Shadow DOM или Zero-runtime решения</li>
+                </ul>
+              </div>
+            </v-alert>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Итог</h2>
+            <p class="font-weight-regular mb-6">
+              Выбор метода изоляции стилей зависит от проекта, команды и требований к производительности.
+              Современные подходы стремятся к балансу между DX (Developer Experience) и производительностью.
+              Zero-runtime CSS-in-JS и улучшенные CSS Modules становятся стандартом для новых проектов,
+              а Shadow DOM обеспечивает самую сильную изоляцию для библиотек компонентов.
+            </p>
+
+            <div class="d-flex justify-end">
+              <v-btn
+                color='second'
+                size="small"
+                variant="elevated"
+                href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Scoping"
+                target="_blank">
+                MDN: CSS Scoping
+              </v-btn>
+            </div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-app>
+</template>

@@ -32,6 +32,9 @@
           <v-list-item to="/css/style-isolation">
             <v-list-item-title>6. Какие проблемы решает изоляция стилей в CSS?</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/css/isolation-methods">
+            <v-list-item-title>7. Какие методы или подходы можно использовать для изоляции стилей в CSS?</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
