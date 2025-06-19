@@ -4,6 +4,8 @@ import WhatIsHtml from "@/views/html/WhatIsHtml.vue";
 import SemanticHtml from "@/views/html/SemanticHtml.vue";
 import Accessibility from "@/views/html/Accessibility.vue";
 import ResponsiveImage from "@/views/html/ResponsiveImage.vue";
+import Specificity from "@/views/css/Specificity.vue";
+import StyleIsolation from "@/views/css/StyleIsolation.vue";
 
 export const routes = [
   {
@@ -29,5 +31,13 @@ export const routes = [
   {
     path: '/html/responsive-image',
     component: ResponsiveImage,
+  },
+  {
+    path: '/css/specificity',
+    component: Specificity,
+  },
+  {
+    path: '/css/style-isolation',
+    component: StyleIsolation,
   },
 ]
