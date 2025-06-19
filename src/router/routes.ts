@@ -3,6 +3,7 @@ import HtmlQuestionsPage from "@/views/HtmlQuestionsPage.vue";
 import WhatIsHtml from "@/views/html/WhatIsHtml.vue";
 import SemanticHtml from "@/views/html/SemanticHtml.vue";
 import Accessibility from "@/views/html/Accessibility.vue";
+import ResponsiveImage from "@/views/html/ResponsiveImage.vue";
 
 export const routes = [
   {
@@ -24,5 +25,9 @@ export const routes = [
   {
     path: '/html/accessibility',
     component: Accessibility,
+  },
+  {
+    path: '/html/responsive-image',
+    component: ResponsiveImage,
   },
 ]

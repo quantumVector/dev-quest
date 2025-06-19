@@ -16,6 +16,9 @@
           <v-list-item to="/html/accessibility">
             <v-list-item-title>3. Доступность в Web</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/html/responsive-image">
+            <v-list-item-title>4. Как эффективно сделать адаптивное изображение в HTML?</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
