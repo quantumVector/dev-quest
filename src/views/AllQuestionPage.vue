@@ -38,6 +38,9 @@
           <v-list-item to="/css/scoped-selectors">
             <v-list-item-title>8. Как работает использование селекторов с областью видимости (scoped selectors) для изоляции стилей?</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/css/isolation-libs">
+            <v-list-item-title>9. Какие инструменты или библиотеки помогают в реализации изоляции стилей в CSS?</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

@@ -8,6 +8,7 @@ import Specificity from "@/views/css/Specificity.vue";
 import StyleIsolation from "@/views/css/StyleIsolation.vue";
 import IsolationMethods from "@/views/css/IsolationMethods.vue";
 import ScopedSelectors from "@/views/css/ScopedSelectors.vue";
+import IsolationLibs from '@/views/css/IsolationLibs.vue'
 
 export const routes = [
   {
@@ -49,5 +50,9 @@ export const routes = [
   {
     path: '/css/scoped-selectors',
     component: ScopedSelectors,
+  },
+  {
+    path: '/css/isolation-libs',
+    component: IsolationLibs,
   },
 ]

@@ -988,4 +988,248 @@ onMounted(() => {
 
             <h2 class="text-h5 font-weight-bold mb-3">8. Vanilla Extract</h2>
             <p class="font-weight-regular mb-4">
-              Type-
+              Type-safe CSS-in-TypeScript с нулевым runtime:
+            </p>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet8"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">9. Build инструменты</h2>
+            <p class="font-weight-regular mb-4">
+              Интеграция CSS изоляции с современными сборщиками:
+            </p>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet9"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">10. TypeScript интеграция</h2>
+            <p class="font-weight-regular mb-4">
+              Настройка типизации для CSS-in-JS и CSS Modules:
+            </p>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet10"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Сравнение инструментов</h2>
+            <v-table density="comfortable" class="mb-8">
+              <thead>
+              <tr>
+                <th class="text-left font-weight-bold">Инструмент</th>
+                <th class="text-left font-weight-bold">Bundle Size</th>
+                <th class="text-left font-weight-bold">Performance</th>
+                <th class="text-left font-weight-bold">DX</th>
+                <th class="text-left font-weight-bold">TypeScript</th>
+                <th class="text-left font-weight-bold">SSR</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td class="pt-2 pb-2"><b>CSS Modules</b></td>
+                <td class="pt-2 pb-2">0kb</td>
+                <td class="pt-2 pb-2">⭐⭐⭐⭐⭐</td>
+                <td class="pt-2 pb-2">⭐⭐⭐</td>
+                <td class="pt-2 pb-2">⭐⭐⭐</td>
+                <td class="pt-2 pb-2">⭐⭐⭐⭐⭐</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>Styled Components</b></td>
+                <td class="pt-2 pb-2">12.8kb</td>
+                <td class="pt-2 pb-2">⭐⭐⭐</td>
+                <td class="pt-2 pb-2">⭐⭐⭐⭐⭐</td>
+                <td class="pt-2 pb-2">⭐⭐⭐⭐</td>
+                <td class="pt-2 pb-2">⭐⭐⭐⭐</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>Emotion</b></td>
+                <td class="pt-2 pb-2">7.9kb</td>
+                <td class="pt-2 pb-2">⭐⭐⭐⭐</td>
+                <td class="pt-2 pb-2">⭐⭐⭐⭐⭐</td>
+                <td class="pt-2 pb-2">⭐⭐⭐⭐</td>
+                <td class="pt-2 pb-2">⭐⭐⭐⭐</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>Linaria</b></td>
+                <td class="pt-2 pb-2">0kb</td>
+                <td class="pt-2 pb-2">⭐⭐⭐⭐⭐</td>
+                <td class="pt-2 pb-2">⭐⭐⭐⭐</td>
+                <td class="pt-2 pb-2">⭐⭐⭐⭐</td>
+                <td class="pt-2 pb-2">⭐⭐⭐⭐⭐</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>Vanilla Extract</b></td>
+                <td class="pt-2 pb-2">0kb</td>
+                <td class="pt-2 pb-2">⭐⭐⭐⭐⭐</td>
+                <td class="pt-2 pb-2">⭐⭐⭐⭐</td>
+                <td class="pt-2 pb-2">⭐⭐⭐⭐⭐</td>
+                <td class="pt-2 pb-2">⭐⭐⭐⭐⭐</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>Stitches</b></td>
+                <td class="pt-2 pb-2">5.7kb</td>
+                <td class="pt-2 pb-2">⭐⭐⭐⭐</td>
+                <td class="pt-2 pb-2">⭐⭐⭐⭐⭐</td>
+                <td class="pt-2 pb-2">⭐⭐⭐⭐⭐</td>
+                <td class="pt-2 pb-2">⭐⭐⭐⭐</td>
+              </tr>
+              </tbody>
+            </v-table>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Критерии выбора</h2>
+            <v-row class="mb-6">
+              <v-col md="6">
+                <v-card class="pa-4 h-100">
+                  <v-card-title class="text-h6 pb-2">Build-time решения</v-card-title>
+                  <v-card-text>
+                    <p class="mb-2"><strong>Плюсы:</strong></p>
+                    <ul class="mb-3">
+                      <li>Нулевое влияние на runtime</li>
+                      <li>Меньший размер bundle</li>
+                      <li>Лучшая производительность</li>
+                      <li>Совместимость с любыми фреймворками</li>
+                    </ul>
+                    <p class="mb-2"><strong>Минусы:</strong></p>
+                    <ul>
+                      <li>Сложность настройки</li>
+                      <li>Ограниченная динамика</li>
+                      <li>Зависимость от сборщика</li>
+                    </ul>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+              <v-col md="6">
+                <v-card class="pa-4 h-100">
+                  <v-card-title class="text-h6 pb-2">Runtime решения</v-card-title>
+                  <v-card-text>
+                    <p class="mb-2"><strong>Плюсы:</strong></p>
+                    <ul class="mb-3">
+                      <li>Простота использования</li>
+                      <li>Полная динамика стилей</li>
+                      <li>Богатый API</li>
+                      <li>Быстрый старт</li>
+                    </ul>
+                    <p class="mb-2"><strong>Минусы:</strong></p>
+                    <ul>
+                      <li>Влияние на производительность</li>
+                      <li>Увеличение размера bundle</li>
+                      <li>Сложность SSR</li>
+                    </ul>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Рекомендации по выбору</h2>
+            <v-alert
+              type="info"
+              variant="tonal"
+              class="mb-4"
+            >
+              <template v-slot:title>
+                Для новых проектов
+              </template>
+              <ul class="mt-2">
+                <li><strong>Vanilla Extract</strong> - максимальная type-safety и производительность</li>
+                <li><strong>Stitches</strong> - баланс между DX и производительностью</li>
+                <li><strong>CSS Modules</strong> - простота и надежность</li>
+              </ul>
+            </v-alert>
+
+            <v-alert
+              type="success"
+              variant="tonal"
+              class="mb-4"
+            >
+              <template v-slot:title>
+                Для существующих проектов
+              </template>
+              <ul class="mt-2">
+                <li><strong>Emotion</strong> - миграция с Styled Components</li>
+                <li><strong>PostCSS Modules</strong> - добавление к существующей PostCSS конфигурации</li>
+                <li><strong>Linaria</strong> - переход с runtime CSS-in-JS</li>
+              </ul>
+            </v-alert>
+
+            <v-alert
+              type="warning"
+              variant="tonal"
+              class="mb-6"
+            >
+              <template v-slot:title>
+                Enterprise проекты
+              </template>
+              <ul class="mt-2">
+                <li><strong>CSS Modules</strong> - проверенное временем решение</li>
+                <li><strong>Styled Components</strong> - большая экосистема и сообщество</li>
+                <li><strong>Vanilla Extract</strong> - для TypeScript-first команд</li>
+              </ul>
+            </v-alert>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Заключение</h2>
+            <p class="font-weight-regular mb-4">
+              Выбор инструмента для изоляции стилей зависит от требований проекта, команды и архитектуры приложения.
+              Build-time решения предпочтительны для производительности, runtime решения - для гибкости разработки.
+              Современные zero-runtime CSS-in-JS библиотеки объединяют преимущества обоих подходов.
+            </p>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-app>
+</template>
+
+<style scoped>
+.custom-code {
+  background-color: #2d2d2d;
+  color: #f8f8f2;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.custom-code code {
+  background: none !important;
+  color: inherit !important;
+  font-size: inherit !important;
+  padding: 0 !important;
+}
+
+:deep(.token.comment) {
+  color: #6272a4;
+}
+
+:deep(.token.string) {
+  color: #f1fa8c;
+}
+
+:deep(.token.keyword) {
+  color: #ff79c6;
+}
+
+:deep(.token.function) {
+  color: #50fa7b;
+}
+
+:deep(.token.number) {
+  color: #bd93f9;
+}
+
+:deep(.token.operator) {
+  color: #ff79c6;
+}
+
+:deep(.token.punctuation) {
+  color: #f8f8f2;
+}
+
+:deep(.token.property) {
+  color: #66d9ef;
+}
+
+:deep(.token.tag) {
+  color: #ff79c6;
+}
+
+:deep(.token.attr-name) {
+  color: #50fa7b;
+}
+
+:deep(.token.attr-value) {
+  color: #f1fa8c;
+}
+</style>
