@@ -380,32 +380,65 @@ const snippet8 = `
 /* Сравнение подходов к scoped селекторам */
 
 // 1. CSS Modules - статическое время компиляции
-.button { background: blue; }
+.button {
+  background: blue;
+}
 // ↓ компилируется в ↓
-.Button_button_1a2b3c { background: blue; }
+.Button_button_1a2b3c {
+  background: blue;
+}
 
 // 2. Styled Components - runtime генерация
 const Button = styled.button\`background: blue;\`;
 // ↓ генерирует ↓
-.sc-bdVaJa { background: blue; }
+.sc-bdVaJa {
+  background: blue;
+}
 
 // 3. Vue Scoped - атрибутная изоляция
-<style scoped>.button { background: blue; }</style>
+<style scoped>
+  .button {
+    background: blue;
+  }
+ </style>
 // ↓ компилируется в ↓
-.button[data-v-f3f3eg9] { background: blue; }
+.button[data-v-f3f3eg9] {
+  background: blue;
+}
 
 // 4. Angular ViewEncapsulation - эмуляция Shadow DOM
-.button { background: blue; }
+.button {
+  background: blue;
+}
 // ↓ компилируется в ↓
-.button[_ngcontent-c0] { background: blue; }
+.button[_ngcontent-c0] {
+  background: blue;
+}
 
 // 5. Svelte - суффиксы классов
-.button { background: blue; }
+.button {
+  background: blue;
+}
 // ↓ компилируется в ↓
-.button.svelte-1a2b3c4 { background: blue; }
+.button.svelte-1a2b3c4 {
+  background: blue;
+}
 
 // 6. Shadow DOM - истинная изоляция
-.button { background: blue; } // Полностью изолировано
+.button {
+  background: blue;
+} // Полностью изолировано
+
+// 7. CSS @scope - нативная изоляция
+@scope (.button-container) {
+  .button {
+    background: blue;
+  }
+}
+// ↓ работает как ↓
+.button-container .button {
+  background: blue;
+}
 `
 
 const snippet9 = `
@@ -519,6 +552,87 @@ components.css
 }
 `
 
+const snippet11 = `
+/* Решение 7: CSS @scope - нативная изоляция */
+
+/* Базовый синтаксис @scope */
+@scope (.card) {
+  .title {
+    color: #333;
+    font-size: 1.5rem;
+  }
+
+  .button {
+    background: #007bff;
+    color: white;
+    padding: 10px 20px;
+  }
+}
+
+/* Эквивалентно: */
+.card .title {
+  color: #333;
+  font-size: 1.5rem;
+}
+
+/* @scope с границами (limits) */
+@scope (.card) to (.nested-card) {
+  .title {
+  /* Применится только к .title внутри .card,
+     но НЕ внутри .nested-card */
+    color: red;
+  }
+}
+
+/* Пример HTML: */
+<div class="card">
+  <h2 class="title">Красный заголовок</h2>
+  <div class="nested-card">
+    <h3 class="title">Обычный заголовок (не красный)</h3>
+  </div>
+</div>
+
+/* @scope с :scope псевдоклассом */
+@scope (.component) {
+  :scope {
+    /* Стили для самого .component */
+    padding: 20px;
+    border: 1px solid #ddd;
+  }
+
+  .header {
+    /* Стили для .header внутри .component */
+    margin-bottom: 16px;
+  }
+}
+
+/* Вложенные @scope */
+@scope (.outer) {
+  .title {
+    color: blue;
+  }
+
+  @scope (.inner) {
+    .title {
+      color: red;
+    } /* Переопределяет синий */
+  }
+}
+
+/* @scope с медиа-запросами */
+@scope (.responsive-card) {
+  .title {
+    font-size: 1.2rem;
+  }
+
+  @media (min-width: 768px) {
+    .title {
+      font-size: 1.5rem;
+    }
+  }
+}
+`
+
 const highlightedSnippet1 = ref('')
 const highlightedSnippet2 = ref('')
 const highlightedSnippet3 = ref('')
@@ -529,18 +643,20 @@ const highlightedSnippet7 = ref('')
 const highlightedSnippet8 = ref('')
 const highlightedSnippet9 = ref('')
 const highlightedSnippet10 = ref('')
+const highlightedSnippet11 = ref('')
 
 onMounted(() => {
-highlightedSnippet1.value = Prism.highlight(snippet1, Prism.languages.css, 'css')
-highlightedSnippet2.value = Prism.highlight(snippet2, Prism.languages.css, 'css')
-highlightedSnippet3.value = Prism.highlight(snippet3, Prism.languages.javascript, 'javascript')
-highlightedSnippet4.value = Prism.highlight(snippet4, Prism.languages.markup, 'markup')
-highlightedSnippet5.value = Prism.highlight(snippet5, Prism.languages.javascript, 'javascript')
-highlightedSnippet6.value = Prism.highlight(snippet6, Prism.languages.markup, 'markup')
-highlightedSnippet7.value = Prism.highlight(snippet7, Prism.languages.javascript, 'javascript')
-highlightedSnippet8.value = Prism.highlight(snippet8, Prism.languages.javascript, 'javascript')
-highlightedSnippet9.value = Prism.highlight(snippet9, Prism.languages.css, 'css')
-highlightedSnippet10.value = Prism.highlight(snippet10, Prism.languages.css, 'css')
+  highlightedSnippet1.value = Prism.highlight(snippet1, Prism.languages.css, 'css')
+  highlightedSnippet2.value = Prism.highlight(snippet2, Prism.languages.css, 'css')
+  highlightedSnippet3.value = Prism.highlight(snippet3, Prism.languages.javascript, 'javascript')
+  highlightedSnippet4.value = Prism.highlight(snippet4, Prism.languages.markup, 'markup')
+  highlightedSnippet5.value = Prism.highlight(snippet5, Prism.languages.javascript, 'javascript')
+  highlightedSnippet6.value = Prism.highlight(snippet6, Prism.languages.markup, 'markup')
+  highlightedSnippet7.value = Prism.highlight(snippet7, Prism.languages.javascript, 'javascript')
+  highlightedSnippet8.value = Prism.highlight(snippet8, Prism.languages.javascript, 'javascript')
+  highlightedSnippet9.value = Prism.highlight(snippet9, Prism.languages.css, 'css')
+  highlightedSnippet10.value = Prism.highlight(snippet10, Prism.languages.css, 'css')
+  highlightedSnippet11.value = Prism.highlight(snippet11, Prism.languages.css, 'css')
 })
 
 </script>
@@ -609,6 +725,12 @@ highlightedSnippet10.value = Prism.highlight(snippet10, Prism.languages.css, 'cs
                 <td class="pt-2 pb-2">Web Components</td>
                 <td class="pt-2 pb-2">Runtime</td>
               </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>@scope</b></td>
+                <td class="pt-2 pb-2">Нативное ограничение области действия CSS</td>
+                <td class="pt-2 pb-2">Современные браузеры</td>
+                <td class="pt-2 pb-2">Runtime</td>
+              </tr>
               </tbody>
             </v-table>
 
@@ -648,6 +770,12 @@ highlightedSnippet10.value = Prism.highlight(snippet10, Prism.languages.css, 'cs
             </p>
             <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet7"></code></pre>
 
+            <h2 class="text-h5 font-weight-bold mb-3">7. CSS @scope - нативная изоляция</h2>
+            <p class="font-weight-regular mb-4">
+              Новая CSS-функция для нативного ограничения области действия стилей без дополнительных инструментов:
+            </p>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet11"></code></pre>
+
             <h2 class="text-h5 font-weight-bold mb-3">Сравнение подходов</h2>
             <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet8"></code></pre>
 
@@ -663,6 +791,7 @@ highlightedSnippet10.value = Prism.highlight(snippet10, Prism.languages.css, 'cs
                     <li>Простота рефакторинга</li>
                     <li>Предсказуемость поведения</li>
                     <li>Возможность переиспользования</li>
+                    <li>Нативная поддержка браузером @scope (без инструментов сборки)</li>
                   </ul>
                 </v-card>
               </v-col>
@@ -676,6 +805,7 @@ highlightedSnippet10.value = Prism.highlight(snippet10, Prism.languages.css, 'cs
                     <li>Learning curve</li>
                     <li>Дополнительные инструменты</li>
                     <li>Runtime overhead (CSS-in-JS)</li>
+                    <li>Ограниченная поддержка браузерами @scope (Chrome 118+, Firefox в разработке)</li>
                   </ul>
                 </v-card>
               </v-col>
@@ -723,6 +853,12 @@ highlightedSnippet10.value = Prism.highlight(snippet10, Prism.languages.css, 'cs
                 <p class="font-weight-bold mb-1">Когда лучше использовать каждый подход?</p>
                 <p class="font-weight-regular ma-0">
                   CSS Modules - для React/статики, CSS-in-JS - для динамических стилей, scoped - во фреймворках, Shadow DOM - для Web Components.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Что такое CSS @scope и чем отличается от других подходов?</p>
+                <p class="font-weight-regular ma-0">
+                  Нативная CSS-функция для ограничения области действия стилей с поддержкой границ (limits) и :scope псевдокласса.
                 </p>
               </li>
             </ol>
