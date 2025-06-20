@@ -41,6 +41,9 @@
           <v-list-item to="/css/isolation-libs">
             <v-list-item-title>9. Какие инструменты или библиотеки помогают в реализации изоляции стилей в CSS?</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/css/isolation-perfomance">
+            <v-list-item-title>10. Как изоляция стилей влияет на производительность и сопровождаемость кода?</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
