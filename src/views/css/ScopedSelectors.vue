@@ -153,7 +153,7 @@ const snippet3 = `
   function handleClick() {
     console.log('Кнопка нажата');
   }
-</script>
+<\/script>
 
 <div class="card">
 <h2 class="title">{title}</h2>
@@ -336,7 +336,7 @@ const cssVars = computed(() => ({
   '--primary-color': props.primaryColor || '#007bff',
   '--font-size': props.fontSize || '16px'
 }));
-</script>
+<\/script>
 
 <style scoped>
 .parent {
@@ -849,4 +849,34 @@ highlightedSnippet10.value = Prism.highlight(snippet10, Prism.languages.css, 'cs
                   <ul class="pl-4">
                     <li>Увеличенный размер CSS</li>
                     <li>Сложности с динамическими стилями</li>
-                    <li>Проблемы с треть
+                    <li>Проблемы с третьими библиотеками</li>
+                    <li>Ограничения в глобальном переиспользовании</li>
+                    <li>Сложности с каскадированием</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Итог</h2>
+            <p class="font-weight-regular mb-6">
+              Scoped селекторы — это мощный инструмент для автоматической изоляции стилей в компонентах.
+              Они работают путем добавления уникальных атрибутов к элементам и соответствующих селекторов к CSS.
+              Подходят для большинства случаев, но требуют понимания ограничений и знания техник работы с дочерними компонентами.
+            </p>
+
+            <div class="d-flex justify-end">
+              <v-btn
+                color='second'
+                size="small"
+                variant="elevated"
+                href="https://vue-loader.vuejs.org/guide/scoped-css.html"
+                target="_blank">
+                Vue Loader: Scoped CSS
+              </v-btn>
+            </div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-app>
+</template>

@@ -7,6 +7,7 @@ import ResponsiveImage from "@/views/html/ResponsiveImage.vue";
 import Specificity from "@/views/css/Specificity.vue";
 import StyleIsolation from "@/views/css/StyleIsolation.vue";
 import IsolationMethods from "@/views/css/IsolationMethods.vue";
+import ScopedSelectors from "@/views/css/ScopedSelectors.vue";
 
 export const routes = [
   {
@@ -44,5 +45,9 @@ export const routes = [
   {
     path: '/css/isolation-methods',
     component: IsolationMethods,
+  },
+  {
+    path: '/css/scoped-selectors',
+    component: ScopedSelectors,
   },
 ]
