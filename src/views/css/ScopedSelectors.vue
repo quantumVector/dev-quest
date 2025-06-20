@@ -7,168 +7,270 @@ import 'prismjs/components/prism-javascript.js'
 import 'prismjs/components/prism-markup.js'
 
 const snippet1 = `
-<!-- Vue.js Scoped Styles -->
+/* Проблема: глобальные стили конфликтуют */
+
+/* Компонент A */
+.button {
+  background: blue;
+  color: white;
+  padding: 10px;
+}
+
+.title {
+  font-size: 24px;
+  color: #333;
+}
+
+/* Компонент B */
+.button {
+  background: red;    /* Конфликт! */
+  border-radius: 5px;
+}
+
+.title {
+  font-size: 18px;    /* Конфликт! */
+  color: #666;
+}
+
+/* Результат: стили перезаписывают друг друга */
+`
+
+const snippet2 = `
+/* Решение 1: CSS Modules */
+
+/* styles.module.css */
+.button {
+  background: blue;
+  color: white;
+  padding: 10px;
+}
+
+.title {
+  font-size: 24px;
+  color: #333;
+}
+
+/* Компилируется в: */
+.ComponentA_button_1a2b3c {
+  background: blue;
+  color: white;
+  padding: 10px;
+}
+
+.ComponentA_title_4d5e6f {
+  font-size: 24px;
+  color: #333;
+}
+
+/* Использование в React */
+import styles from './styles.module.css';
+
+function ComponentA() {
+  return (
+    <div>
+      <h1 className={styles.title}>Заголовок</h1>
+      <button className={styles.button}>Кнопка</button>
+    </div>
+  );
+}
+`
+
+const snippet3 = `
+/* Решение 2: CSS-in-JS (Styled Components) */
+
+import styled from 'styled-components';
+
+// Генерируется уникальный класс автоматически
+const Button = styled.button\`
+  background: blue;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+
+  &:hover {
+    background: darkblue;
+  }
+\`;
+
+const Title = styled.h1\`
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 16px;
+\`;
+
+// Использование
+function ComponentA() {
+  return (
+    <div>
+      <Title>Заголовок</Title>
+      <Button>Кнопка</Button>
+    </div>
+  );
+}
+
+/* Результат в DOM: */
+/*
+<h1 class="sc-bdVaJa fKxRjZ">Заголовок</h1>
+<button class="sc-bwzfXH kJhWER">Кнопка</button>
+*/
+`
+
+const snippet4 = `
+/* Решение 3: Vue.js Scoped Styles */
+
 <template>
-  <div class="card">
-    <h2 class="title">{{ title }}</h2>
-    <p class="content">{{ content }}</p>
-    <button class="btn primary">Действие</button>
+  <div class="component">
+    <h1 class="title">{{ title }}</h1>
+    <button class="button" @click="handleClick">
+      {{ buttonText }}
+    </button>
   </div>
 </template>
 
 <style scoped>
-.card {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
+.component {
   padding: 20px;
-  background: white;
+  border: 1px solid #ddd;
 }
 
 .title {
+  font-size: 24px;
   color: #333;
   margin-bottom: 16px;
 }
 
-.btn {
-  padding: 8px 16px;
+.button {
+  background: blue;
+  color: white;
+  padding: 10px 20px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
 }
 
-.primary {
-  background: #007bff;
-  color: white;
+.button:hover {
+  background: darkblue;
 }
 </style>
 
 <!-- Компилируется в: -->
-<style>
-.card[data-v-f3f3eg9] {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 20px;
-  background: white;
-}
+<div class="component" data-v-f3f3eg9>
+  <h1 class="title" data-v-f3f3eg9>Заголовок</h1>
+  <button class="button" data-v-f3f3eg9>Кнопка</button>
+</div>
 
+<style>
+.component[data-v-f3f3eg9] {
+  padding: 20px;
+  border: 1px solid #ddd;
+ }
 .title[data-v-f3f3eg9] {
+  font-size: 24px;
   color: #333;
   margin-bottom: 16px;
-}
-
-.btn[data-v-f3f3eg9] {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.primary[data-v-f3f3eg9] {
-  background: #007bff;
+ }
+.button[data-v-f3f3eg9] {
+  background: blue;
   color: white;
+  padding: 10px 20px;
 }
 </style>
 `
 
-const snippet2 = `
-/* Angular ViewEncapsulation.Emulated */
+const snippet5 = `
+/* Решение 4: Angular ViewEncapsulation */
+
+import { Component, ViewEncapsulation } from '@angular/core';
+
 @Component({
   selector: 'app-card',
   template: \`
     <div class="card">
       <h2 class="title">{{ title }}</h2>
-      <p class="content">{{ content }}</p>
-      <button class="btn primary" (click)="onClick()">
+      <button class="button" (click)="onClick()">
         {{ buttonText }}
       </button>
     </div>
   \`,
   styles: [\`
     .card {
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
       padding: 20px;
-      background: white;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      border: 1px solid #ddd;
+      border-radius: 8px;
     }
 
     .title {
       color: #333;
       margin-bottom: 16px;
-      font-size: 1.5rem;
     }
 
-    .btn {
-      padding: 8px 16px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-
-    .primary {
+    .button {
       background: #007bff;
       color: white;
-    }
-
-    .primary:hover {
-      background: #0056b3;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
     }
   \`],
   encapsulation: ViewEncapsulation.Emulated // по умолчанию
 })
 export class CardComponent {
-  @Input() title: string = '';
-  @Input() content: string = '';
-  @Input() buttonText: string = 'Кнопка';
+  title = 'Заголовок';
+  buttonText = 'Нажать';
 
   onClick() {
-    console.log('Кнопка нажата');
+    console.log('Клик!');
   }
 }
 
-/* Компилируется в: */
-.card[_ngcontent-c0] {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 20px;
-  background: white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
+/* Результат в DOM: */
+/*
+<div class="card" _ngcontent-c0>
+  <h2 class="title" _ngcontent-c0>Заголовок</h2>
+  <button class="button" _ngcontent-c0>Нажать</button>
+</div>
+*/
 
+/* CSS: */
+.card[_ngcontent-c0] {
+  padding: 20px;
+  border: 1px solid #ddd;
+ }
 .title[_ngcontent-c0] {
   color: #333;
   margin-bottom: 16px;
-  font-size: 1.5rem;
+}
+.button[_ngcontent-c0] {
+  background: #007bff;
+  color: white;
 }
 `
 
-const snippet3 = `
-/* Svelte - автоматический scoping */
+const snippet6 = `
+/* Решение 5: Svelte - автоматический scoping */
+
 <script>
-  export let title = '';
-  export let content = '';
-  export let variant = 'primary';
+  export let title = 'Заголовок';
+  export let buttonText = 'Кнопка';
 
   function handleClick() {
-    console.log('Кнопка нажата');
+    console.log('Клик в Svelte!');
   }
 <\/script>
 
 <div class="card">
 <h2 class="title">{title}</h2>
-<p class="content">{content}</p>
-<button class="btn {variant}" on:click={handleClick}>
-  <slot name="button">Действие</slot>
+<button class="button" on:click={handleClick}>
+  {buttonText}
 </button>
 </div>
 
 <style>
 .card {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
   padding: 20px;
-  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
   max-width: 400px;
 }
 
@@ -178,520 +280,243 @@ const snippet3 = `
   font-size: 1.5rem;
 }
 
-.content {
-  color: #666;
-  line-height: 1.5;
-  margin-bottom: 20px;
-}
-
-.btn {
-  padding: 8px 16px;
+.button {
+  background: #ff3e00;
+  color: white;
   border: none;
+  padding: 10px 20px;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 14px;
-  transition: all 0.2s ease;
+  transition: background 0.2s;
 }
 
-.primary {
-  background: #007bff;
-  color: white;
-}
-
-.primary:hover {
-  background: #0056b3;
-  transform: translateY(-1px);
-}
-
-.secondary {
-  background: #6c757d;
-  color: white;
+.button:hover {
+  background: #cc3200;
 }
 </style>
 
 <!-- Компилируется в уникальные классы: -->
+<div class="card svelte-1a2b3c4">
+<h2 class="title svelte-1a2b3c4">Заголовок</h2>
+<button class="button svelte-1a2b3c4">Кнопка</button>
+</div>
+`
+
+const snippet7 = `
+/* Решение 6: Shadow DOM (веб-компоненты) */
+
+class CustomCard extends HTMLElement {
+  constructor() {
+  super();
+
+  // Создаем Shadow DOM
+  const shadow = this.attachShadow({ mode: 'open' });
+
+  // HTML шаблон
+  const template = document.createElement('template');
+  template.innerHTML = \`
 <style>
-.card.svelte-1a2b3c4 {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
+/* Стили полностью изолированы внутри Shadow DOM */
+.card {
   padding: 20px;
-  background: white;
-  max-width: 400px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-family: Arial, sans-serif;
 }
 
-.title.svelte-1a2b3c4 {
+.title {
   color: #333;
   margin-bottom: 16px;
   font-size: 1.5rem;
 }
-</style>
-`
 
-const snippet4 = `
-/* Проблемы с наследованием в scoped стилях */
-
-/* Родительский компонент */
-<template>
-  <div class="parent">
-    <h1 class="title">Родительский заголовок</h1>
-    <ChildComponent />
-  </div>
-</template>
-
-<style scoped>
-.parent {
-  font-family: Arial, sans-serif;
-  background: #f5f5f5;
-  padding: 20px;
-}
-
-.title {
-  color: #333;
-  font-size: 2rem;
-}
-
-/* Этот стиль НЕ применится к дочернему компоненту */
-.child-title {
-  color: red;
-}
-</style>
-
-/* Дочерний компонент */
-<template>
-  <div class="child">
-    <h2 class="child-title">Дочерний заголовок</h2>
-    <p class="text">Текст дочернего компонента</p>
-  </div>
-</template>
-
-<style scoped>
-.child {
-  background: white;
-  padding: 15px;
+.button {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 20px;
   border-radius: 4px;
+  cursor: pointer;
 }
 
-.child-title {
-  color: blue; /* Этот цвет применится */
-  font-size: 1.5rem;
-}
-
-.text {
-  color: #666;
-}
-</style>
-`
-
-const snippet5 = `
-/* Решения для работы с дочерними компонентами */
-
-/* 1. Deep селекторы (Vue.js) */
-<style scoped>
-.parent {
-  padding: 20px;
-}
-
-/* Проникает в дочерние компоненты */
-.parent :deep(.child-title) {
-  color: red;
-}
-
-/* Старый синтаксис (deprecated) */
-.parent >>> .child-title {
-  color: red;
-}
-
-.parent /deep/ .child-title {
-  color: red;
+.button:hover {
+  background: #218838;
 }
 </style>
 
-/* 2. Глобальные стили в scoped */
-<style scoped>
-.local-class {
-  color: blue;
-}
-</style>
+<div class="card">
+<h2 class="title">
+  <slot name="title">Заголовок по умолчанию</slot>
+</h2>
+<button class="button" id="btn">
+  <slot name="button">Кнопка</slot>
+</button>
+</div>
+\`;
 
-<style>
-/* Глобальные стили */
-.global-class {
-  font-weight: bold;
-}
-</style>
+// Клонируем и добавляем в Shadow DOM
+shadow.appendChild(template.content.cloneNode(true));
 
-/* 3. CSS переменные для передачи стилей */
-<template>
-  <div class="parent" :style="cssVars">
-    <ChildComponent />
-  </div>
-</template>
+// Обработчик событий
+shadow.getElementById('btn').addEventListener('click', () => {
+  this.dispatchEvent(new CustomEvent('cardClick', {
+    detail: { message: 'Кнопка нажата!' }
+  }));
+});
 
-<script setup>
-import { computed } from 'vue';
+// Регистрируем веб-компонент
+customElements.define('custom-card', CustomCard);
 
-const props = defineProps(['primaryColor', 'fontSize']);
-
-const cssVars = computed(() => ({
-  '--primary-color': props.primaryColor || '#007bff',
-  '--font-size': props.fontSize || '16px'
-}));
-<\/script>
-
-<style scoped>
-.parent {
-  --primary-color: #007bff;
-  --font-size: 16px;
-}
-
-/* Дочерний компонент может использовать эти переменные */
-.child-element {
-  color: var(--primary-color);
-  font-size: var(--font-size);
-}
-</style>
-`
-
-const snippet6 = `
-/* Продвинутые техники scoped селекторов */
-
-/* 1. Slotted селекторы (Vue.js) */
-<template>
-  <div class="wrapper">
-    <slot></slot>
-  </div>
-</template>
-
-<style scoped>
-.wrapper {
-  padding: 20px;
-  border: 1px solid #ddd;
-}
-
-/* Стилизация содержимого слота */
-.wrapper :slotted(.slot-content) {
-  color: red;
-  font-weight: bold;
-}
-
-/* Стилизация всех элементов в слоте */
-.wrapper :slotted(*) {
-  margin-bottom: 10px;
-}
-</style>
-
-/* 2. Модульные селекторы */
-<style module>
-.card {
-  border: 1px solid #ddd;
-  padding: 20px;
-}
-
-.title {
-  color: #333;
-  font-size: 1.5rem;
-}
-</style>
-
-<template>
-  <div :class="$style.card">
-    <h2 :class="$style.title">Заголовок</h2>
-  </div>
-</template>
-
-/* 3. Комбинирование scoped и module */
-<style scoped>
-.component-root {
-  background: #f5f5f5;
-}
-</style>
-
-<style module="styles">
-.dynamicClass {
-  color: var(--dynamic-color);
-  transition: color 0.3s ease;
-}
-</style>
-
-<template>
-  <div class="component-root" :class="styles.dynamicClass">
-    Контент
-  </div>
-</template>
-`
-
-const snippet7 = `
-/* Имплементация scoped селекторов "под капотом" */
-
-// Псевдокод процесса компиляции
-function compileScopedStyles(component) {
-const scopeId = generateScopeId(component.filename);
-
-// 1. Обработка шаблона
-const template = component.template.replace(
-/<(\w+)([^>]*)>/g,
-(match, tag, attrs) => {
-// Добавляем scope атрибут к каждому элементу
-return \`<\${tag}\${attrs} \${scopeId}>\`;
-}
-);
-
-// 2. Обработка стилей
-const styles = component.styles.replace(
-/([^{}]+){/g,
-(match, selector) => {
-// Добавляем scope атрибут к каждому селектору
-const scopedSelector = selector
-.split(',')
-.map(s => s.trim() + '[' + scopeId + ']')
-.join(', ');
-return scopedSelector + ' {';
-}
-);
-
-return {
-template,
-styles,
-scopeId
-};
-}
-
-// Пример генерации scope ID
-function generateScopeId(filename) {
-const hash = createHash(filename + Date.now());
-return \`data-v-\${hash.substring(0, 8)}\`;
-}
-
-/* Результат компиляции */
-// Исходный код:
-// <div class="card"><h2 class="title">Text</h2></div>
-// .card { padding: 20px; }
-// .title { color: blue; }
-
-// После компиляции:
-// <div class="card" data-v-f3f3eg9><h2 class="title" data-v-f3f3eg9>Text</h2></div>
-// .card[data-v-f3f3eg9] { padding: 20px; }
-// .title[data-v-f3f3eg9] { color: blue; }
+/* Использование: */
+/*
+<custom-card>
+  <span slot="title">Мой заголовок</span>
+  <span slot="button">Моя кнопка</span>
+</custom-card>
+*/
 `
 
 const snippet8 = `
-/* Оптимизация производительности scoped стилей */
+/* Сравнение подходов к scoped селекторам */
 
-/* 1. Минимизация глубины селекторов */
-/* ❌ Плохо - высокая специфичность */
+// 1. CSS Modules - статическое время компиляции
+.button { background: blue; }
+// ↓ компилируется в ↓
+.Button_button_1a2b3c { background: blue; }
+
+// 2. Styled Components - runtime генерация
+const Button = styled.button\`background: blue;\`;
+// ↓ генерирует ↓
+.sc-bdVaJa { background: blue; }
+
+// 3. Vue Scoped - атрибутная изоляция
+<style scoped>.button { background: blue; }</style>
+// ↓ компилируется в ↓
+.button[data-v-f3f3eg9] { background: blue; }
+
+// 4. Angular ViewEncapsulation - эмуляция Shadow DOM
+.button { background: blue; }
+// ↓ компилируется в ↓
+.button[_ngcontent-c0] { background: blue; }
+
+// 5. Svelte - суффиксы классов
+.button { background: blue; }
+// ↓ компилируется в ↓
+.button.svelte-1a2b3c4 { background: blue; }
+
+// 6. Shadow DOM - истинная изоляция
+.button { background: blue; } // Полностью изолировано
+`
+
+const snippet9 = `
+/* Проблемы и ограничения scoped селекторов */
+
+/* 1. Проблема с дочерними компонентами */
+/* Родительский компонент */
 <style scoped>
-.component .container .card .header .title {
-  color: blue;
-}
+  .parent .child-title {
+    color: red; /* НЕ применится к дочернему компоненту */
+  }
 </style>
 
-/* ✅ Хорошо - низкая специфичность */
+/* Решения: */
+/* Vue: deep селекторы */
 <style scoped>
-.card-title {
-  color: blue;
-}
+  .parent :deep(.child-title) {
+    color: red; /* Применится */
+  }
 </style>
 
-/* 2. Использование CSS переменных */
+/* CSS Modules: глобальное исключение */
+.parent :global(.child-title) {
+  color: red;
+}
+
+/* Styled Components: глобальные стили */
+const GlobalStyle = createGlobalStyle\`
+  .child-title {
+    color: red;
+  }
+\`;
+
+/* 2. Проблема с третьими библиотеками */
+/* Библиотечные компоненты могут не наследовать scoped стили */
+
+/* 3. Увеличение размера CSS */
+/* Каждый класс дублируется с уникальным идентификатором */
+
+/* 4. Сложности с динамическими стилями */
+/* Не все подходы поддерживают CSS переменные и calc() */
+
+/* 5. Производительность */
+/* Некоторые подходы генерируют стили в runtime */
+`
+
+const snippet10 = `
+/* Лучшие практики для scoped селекторов */
+
+/* 1. Используйте CSS переменные для темизации */
 <style scoped>
 .component {
   --primary-color: #007bff;
-  --secondary-color: #6c757d;
+  --border-radius: 4px;
   --spacing: 16px;
 }
 
 .button {
   background: var(--primary-color);
+  border-radius: var(--border-radius);
   padding: var(--spacing);
 }
-
-.text {
-  color: var(--secondary-color);
-  margin-bottom: var(--spacing);
-}
 </style>
 
-/* 3. Группировка связанных стилей */
-<style scoped>
-/* Базовые стили компонента */
-.card {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  overflow: hidden;
-}
+/* 2. Структурируйте стили по компонентам */
+/* ✅ Хорошо - один файл стилей на компонент */
+Button.module.css
+Card.module.css
+Modal.module.css
 
-/* Состояния */
-.card.loading {
-  opacity: 0.6;
-  pointer-events: none;
-}
+/* ❌ Плохо - общий файл стилей */
+components.css
 
-.card.error {
-  border-color: #dc3545;
-}
-
-/* Варианты */
-.card.compact {
-  padding: 10px;
-}
-
-.card.expanded {
-  padding: 24px;
-}
-</style>
-
-/* 4. Предотвращение стилевых конфликтов */
-<style scoped>
-/* Используйте префиксы для внутренних классов */
-.my-component-button {
-  background: blue;
-}
-
-.my-component-input {
-  border: 1px solid #ddd;
-}
-
-/* Избегайте стилизации голых элементов */
+/* 3. Избегайте глубокой вложенности */
 /* ❌ Плохо */
-p {
-  color: red;
+.card .header .title .text {
+  color: blue;
 }
 
 /* ✅ Хорошо */
-.component-text {
-  color: red;
+.card-title-text {
+  color: blue;
 }
-</style>
-`
 
-const snippet9 = `
-/* Тестирование scoped компонентов */
-
-// Jest тест для Vue компонента со scoped стилями
-import { mount } from '@vue/test-utils';
-import Card from '@/components/Card.vue';
-
-describe('Card Component', () => {
-it('применяет scoped стили корректно', async () => {
-const wrapper = mount(Card, {
-props: {
-title: 'Test Title',
-content: 'Test Content'
+/* 4. Используйте семантичные имена классов */
+/* ❌ Плохо */
+.red-button {
+  background: red;
 }
-});
 
-// Проверяем наличие scope атрибута
-const cardElement = wrapper.find('.card');
-expect(cardElement.attributes()).toHaveProperty('data-v-f3f3eg9');
-
-// Проверяем применение стилей
-expect(cardElement.classes()).toContain('card');
-
-// Проверяем изоляцию стилей
-const titleElement = wrapper.find('.title');
-expect(titleElement.attributes()).toHaveProperty('data-v-f3f3eg9');
-});
-
-it('не влияет на стили других компонентов', () => {
-// Монтируем два компонента
-const wrapper1 = mount(Card);
-const wrapper2 = mount(AnotherCard);
-
-// Проверяем разные scope ID
-const scope1 = wrapper1.find('.card').attributes('data-v-f3f3eg9');
-const scope2 = wrapper2.find('.card').attributes('data-v-a1b2c3d4');
-
-expect(scope1).not.toBe(scope2);
-});
-});
-
-// Cypress E2E тест
-describe('Scoped Styles Integration', () => {
-it('стили изолированы между компонентами', () => {
-cy.visit('/components-demo');
-
-// Проверяем, что стили первого компонента не влияют на второй
-cy.get('[data-cy="card-1"] .title').should('have.css', 'color', 'rgb(51, 51, 51)');
-cy.get('[data-cy="card-2"] .title').should('have.css', 'color', 'rgb(0, 123, 255)');
-
-// Проверяем наличие разных scope атрибутов
-cy.get('[data-cy="card-1"]').should('have.attr', 'data-v-f3f3eg9');
-cy.get('[data-cy="card-2"]').should('have.attr', 'data-v-a1b2c3d4');
-});
-});
-`
-
-const snippet10 = `
-/* Отладка scoped стилей */
-
-/* 1. DevTools инспектор */
-// В DevTools можно увидеть:
-// - Scope атрибуты элементов (data-v-*)
-// - Скомпилированные селекторы с атрибутами
-// - Конфликты специфичности
-// - Неприменившиеся стили
-
-/* 2. Vue DevTools */
-// Показывает:
-// - Дерево компонентов с scope ID
-// - Информацию о scoped стилях
-// - Связь между компонентами и их стилями
-
-/* 3. Логирование в процессе сборки */
-// webpack.config.js
-module.exports = {
-module: {
-rules: [
-{
-test: /\.vue$/,
-loader: 'vue-loader',
-options: {
-loaderOptions: {
-css: {
-// Включаем source maps для отладки
-sourceMap: true
+/* ✅ Хорошо */
+.danger-button {
+  background: red;
 }
+.primary-button {
+  background: blue;
 }
-}
-}
-]
-}
-};
 
-/* 4. Плагин для анализа bundle */
-// webpack-bundle-analyzer покажет размер CSS
-// и поможет оптимизировать scoped стили
-
-/* 5. Отладочные комментарии */
-<style scoped>
-/* DEBUG: Card component styles */
+/* 5. Комбинируйте с utility-классами */
+/* Scoped стили для компонентов */
 .card {
-  /* DEBUG: Основной контейнер */
-  border: 1px solid #ddd;
+  padding: 20px;
 }
 
-.title {
-  /* DEBUG: Заголовок карточки */
-  color: #333;
+/* Utility для общих свойств */
+.mb-4 {
+  margin-bottom: 1rem;
 }
-</style>
-
-/* 6. Условная отладка */
-<style scoped>
-.debug-mode .card {
-  outline: 2px solid red;
+.text-center {
+  text-align: center;
 }
-
-.debug-mode .title {
-  background: yellow;
-}
-</style>
-
-<template>
-  <div class="card" :class="{ 'debug-mode': isDebugMode }">
-    <h2 class="title">{{ title }}</h2>
-  </div>
-</template>
 `
 
 const highlightedSnippet1 = ref('')
@@ -706,15 +531,15 @@ const highlightedSnippet9 = ref('')
 const highlightedSnippet10 = ref('')
 
 onMounted(() => {
-highlightedSnippet1.value = Prism.highlight(snippet1, Prism.languages.markup, 'markup')
-highlightedSnippet2.value = Prism.highlight(snippet2, Prism.languages.javascript, 'javascript')
-highlightedSnippet3.value = Prism.highlight(snippet3, Prism.languages.markup, 'markup')
+highlightedSnippet1.value = Prism.highlight(snippet1, Prism.languages.css, 'css')
+highlightedSnippet2.value = Prism.highlight(snippet2, Prism.languages.css, 'css')
+highlightedSnippet3.value = Prism.highlight(snippet3, Prism.languages.javascript, 'javascript')
 highlightedSnippet4.value = Prism.highlight(snippet4, Prism.languages.markup, 'markup')
-highlightedSnippet5.value = Prism.highlight(snippet5, Prism.languages.css, 'css')
+highlightedSnippet5.value = Prism.highlight(snippet5, Prism.languages.javascript, 'javascript')
 highlightedSnippet6.value = Prism.highlight(snippet6, Prism.languages.markup, 'markup')
 highlightedSnippet7.value = Prism.highlight(snippet7, Prism.languages.javascript, 'javascript')
-highlightedSnippet8.value = Prism.highlight(snippet8, Prism.languages.css, 'css')
-highlightedSnippet9.value = Prism.highlight(snippet9, Prism.languages.javascript, 'javascript')
+highlightedSnippet8.value = Prism.highlight(snippet8, Prism.languages.javascript, 'javascript')
+highlightedSnippet9.value = Prism.highlight(snippet9, Prism.languages.css, 'css')
 highlightedSnippet10.value = Prism.highlight(snippet10, Prism.languages.css, 'css')
 })
 
@@ -727,119 +552,117 @@ highlightedSnippet10.value = Prism.highlight(snippet10, Prism.languages.css, 'cs
         <v-row justify="center">
           <v-col lg="8">
             <h1 class="text-h4 font-weight-bold mb-6">
-              Как работает использование селекторов с областью видимости (scoped selectors) для изоляции стилей?
+              Scoped селекторы для изоляции стилей
             </h1>
 
             <p class="font-weight-regular mb-6">
-              <b>Scoped селекторы</b> — это механизм автоматической изоляции стилей в компонентах,
-              который предотвращает влияние стилей одного компонента на другие. Реализуется добавлением
-              уникальных атрибутов к элементам и соответствующих селекторов к CSS правилам.
+              <b>Scoped селекторы</b> — это техники и технологии, которые позволяют изолировать CSS стили
+              внутри отдельных компонентов, предотвращая конфликты имен и нежелательное влияние стилей
+              друг на друга. Эта концепция решает одну из главных проблем CSS — глобальную область видимости.
             </p>
 
-            <h2 class="text-h5 font-weight-bold mb-3">Принцип работы</h2>
+            <h2 class="text-h5 font-weight-bold mb-3">Проблема глобальных стилей</h2>
+            <p class="font-weight-regular mb-4">
+              В обычном CSS все стили глобальны, что приводит к конфликтам:
+            </p>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet1"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Основные подходы к scoped селекторам</h2>
+
             <v-table density="comfortable" class="mb-8">
               <thead>
               <tr>
-                <th class="text-left font-weight-bold">Этап</th>
-                <th class="text-left font-weight-bold">Процесс</th>
-                <th class="text-left font-weight-bold">Результат</th>
+                <th class="text-left font-weight-bold">Подход</th>
+                <th class="text-left font-weight-bold">Принцип работы</th>
+                <th class="text-left font-weight-bold">Технологии</th>
+                <th class="text-left font-weight-bold">Время изоляции</th>
               </tr>
               </thead>
               <tbody>
               <tr>
-                <td class="pt-2 pb-2"><b>1. Генерация ID</b></td>
-                <td class="pt-2 pb-2">Создается уникальный scope ID для компонента</td>
-                <td class="pt-2 pb-2">data-v-f3f3eg9</td>
+                <td class="pt-2 pb-2"><b>CSS Modules</b></td>
+                <td class="pt-2 pb-2">Генерация уникальных имен классов</td>
+                <td class="pt-2 pb-2">Webpack, Vite, PostCSS</td>
+                <td class="pt-2 pb-2">Build-time</td>
               </tr>
               <tr>
-                <td class="pt-2 pb-2"><b>2. Модификация HTML</b></td>
-                <td class="pt-2 pb-2">ID добавляется как атрибут к каждому элементу</td>
-                <td class="pt-2 pb-2">&lt;div class="card" data-v-f3f3eg9&gt;</td>
+                <td class="pt-2 pb-2"><b>CSS-in-JS</b></td>
+                <td class="pt-2 pb-2">Генерация стилей в JavaScript</td>
+                <td class="pt-2 pb-2">Styled Components, Emotion</td>
+                <td class="pt-2 pb-2">Runtime</td>
               </tr>
               <tr>
-                <td class="pt-2 pb-2"><b>3. Модификация CSS</b></td>
-                <td class="pt-2 pb-2">ID добавляется к каждому селектору</td>
-                <td class="pt-2 pb-2">.card[data-v-f3f3eg9] { }</td>
+                <td class="pt-2 pb-2"><b>Атрибутная изоляция</b></td>
+                <td class="pt-2 pb-2">Добавление data-атрибутов</td>
+                <td class="pt-2 pb-2">Vue, Angular</td>
+                <td class="pt-2 pb-2">Build-time</td>
               </tr>
               <tr>
-                <td class="pt-2 pb-2"><b>4. Изоляция</b></td>
-                <td class="pt-2 pb-2">Стили применяются только к элементам с соответствующим ID</td>
-                <td class="pt-2 pb-2">Полная изоляция стилей</td>
+                <td class="pt-2 pb-2"><b>Суффиксы классов</b></td>
+                <td class="pt-2 pb-2">Добавление уникальных суффиксов</td>
+                <td class="pt-2 pb-2">Svelte</td>
+                <td class="pt-2 pb-2">Build-time</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>Shadow DOM</b></td>
+                <td class="pt-2 pb-2">Истинная изоляция DOM</td>
+                <td class="pt-2 pb-2">Web Components</td>
+                <td class="pt-2 pb-2">Runtime</td>
               </tr>
               </tbody>
             </v-table>
 
-            <h2 class="text-h5 font-weight-bold mb-3">1. Vue.js Scoped Styles</h2>
+            <h2 class="text-h5 font-weight-bold mb-3">1. CSS Modules</h2>
             <p class="font-weight-regular mb-4">
-              Vue автоматически добавляет уникальные data-атрибуты к элементам и селекторам:
-            </p>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet1"></code></pre>
-
-            <h2 class="text-h5 font-weight-bold mb-3">2. Angular ViewEncapsulation</h2>
-            <p class="font-weight-regular mb-4">
-              Angular использует ViewEncapsulation.Emulated для эмуляции Shadow DOM:
+              Автоматическая генерация уникальных имен классов во время сборки:
             </p>
             <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet2"></code></pre>
 
-            <h2 class="text-h5 font-weight-bold mb-3">3. Svelte - автоматический scoping</h2>
+            <h2 class="text-h5 font-weight-bold mb-3">2. CSS-in-JS (Styled Components)</h2>
             <p class="font-weight-regular mb-4">
-              Svelte автоматически генерирует уникальные имена классов:
+              Генерация стилей и уникальных классов в JavaScript во время выполнения:
             </p>
             <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet3"></code></pre>
 
-            <h2 class="text-h5 font-weight-bold mb-3">Проблемы с наследованием</h2>
+            <h2 class="text-h5 font-weight-bold mb-3">3. Vue.js Scoped Styles</h2>
             <p class="font-weight-regular mb-4">
-              Scoped стили по умолчанию не влияют на дочерние компоненты:
+              Добавление уникальных data-атрибутов к элементам и селекторам:
             </p>
             <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet4"></code></pre>
 
-            <h2 class="text-h5 font-weight-bold mb-3">Решения для дочерних компонентов</h2>
+            <h2 class="text-h5 font-weight-bold mb-3">4. Angular ViewEncapsulation</h2>
             <p class="font-weight-regular mb-4">
-              Существует несколько способов стилизации дочерних компонентов:
+              Эмуляция Shadow DOM через атрибуты:
             </p>
             <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet5"></code></pre>
 
-            <h2 class="text-h5 font-weight-bold mb-3">Продвинутые техники</h2>
+            <h2 class="text-h5 font-weight-bold mb-3">5. Svelte - автоматический scoping</h2>
             <p class="font-weight-regular mb-4">
-              Дополнительные возможности для работы со scoped стилями:
+              Автоматическое добавление уникальных суффиксов к классам:
             </p>
             <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet6"></code></pre>
 
-            <h2 class="text-h5 font-weight-bold mb-3">Как это работает "под капотом"</h2>
+            <h2 class="text-h5 font-weight-bold mb-3">6. Shadow DOM (Web Components)</h2>
             <p class="font-weight-regular mb-4">
-              Процесс компиляции scoped стилей на примере псевдокода:
+              Истинная изоляция стилей на уровне браузера:
             </p>
             <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet7"></code></pre>
 
-            <h2 class="text-h5 font-weight-bold mb-3">Оптимизация производительности</h2>
-            <p class="font-weight-regular mb-4">
-              Лучшие практики для эффективного использования scoped стилей:
-            </p>
+            <h2 class="text-h5 font-weight-bold mb-3">Сравнение подходов</h2>
             <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet8"></code></pre>
 
-            <h2 class="text-h5 font-weight-bold mb-3">Тестирование scoped компонентов</h2>
-            <p class="font-weight-regular mb-4">
-              Примеры unit и e2e тестов для проверки изоляции стилей:
-            </p>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet9"></code></pre>
-
-            <h2 class="text-h5 font-weight-bold mb-3">Отладка scoped стилей</h2>
-            <p class="font-weight-regular mb-4">
-              Инструменты и техники для отладки проблем с изоляцией:
-            </p>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet10"></code></pre>
-
-            <h2 class="text-h5 font-weight-bold mb-3">Сравнение с другими подходами</h2>
+            <h2 class="text-h5 font-weight-bold mb-3">Преимущества и недостатки</h2>
             <v-row class="mb-8">
               <v-col cols="12" md="6">
                 <v-card class="pa-4 h-100">
-                  <h3 class="text-h6 font-weight-bold mb-2">Преимущества scoped стилей</h3>
+                  <h3 class="text-h6 font-weight-bold mb-2">Преимущества</h3>
                   <ul class="pl-4">
-                    <li>Автоматическая изоляция</li>
-                    <li>Нет конфликтов имен</li>
-                    <li>Простота использования</li>
-                    <li>Хорошая производительность</li>
-                    <li>Поддержка в DevTools</li>
+                    <li>Полная изоляция стилей</li>
+                    <li>Отсутствие конфликтов имен</li>
+                    <li>Локальность стилей</li>
+                    <li>Простота рефакторинга</li>
+                    <li>Предсказуемость поведения</li>
+                    <li>Возможность переиспользования</li>
                   </ul>
                 </v-card>
               </v-col>
@@ -847,21 +670,69 @@ highlightedSnippet10.value = Prism.highlight(snippet10, Prism.languages.css, 'cs
                 <v-card class="pa-4 h-100">
                   <h3 class="text-h6 font-weight-bold mb-2">Недостатки</h3>
                   <ul class="pl-4">
-                    <li>Увеличенный размер CSS</li>
-                    <li>Сложности с динамическими стилями</li>
-                    <li>Проблемы с третьими библиотеками</li>
-                    <li>Ограничения в глобальном переиспользовании</li>
+                    <li>Увеличение размера CSS</li>
                     <li>Сложности с каскадированием</li>
+                    <li>Проблемы с библиотеками</li>
+                    <li>Learning curve</li>
+                    <li>Дополнительные инструменты</li>
+                    <li>Runtime overhead (CSS-in-JS)</li>
                   </ul>
                 </v-card>
               </v-col>
             </v-row>
 
+            <h2 class="text-h5 font-weight-bold mb-3">Проблемы и ограничения</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet9"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Лучшие практики</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet10"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Вопросы для собеседования</h2>
+            <ol class="ol-list mb-8">
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Что такое scoped селекторы и зачем они нужны?</p>
+                <p class="font-weight-regular ma-0">
+                  Техники изоляции CSS стилей в компонентах для предотвращения конфликтов и нежелательного влияния стилей.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Какие существуют подходы к реализации scoped стилей?</p>
+                <p class="font-weight-regular ma-0">
+                  CSS Modules, CSS-in-JS, атрибутная изоляция (Vue/Angular), суффиксы классов (Svelte), Shadow DOM.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">В чем разница между build-time и runtime изоляцией?</p>
+                <p class="font-weight-regular ma-0">
+                  Build-time: трансформация на этапе сборки (CSS Modules, Vue scoped). Runtime: генерация во время выполнения (CSS-in-JS).
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Как работает изоляция в Vue.js?</p>
+                <p class="font-weight-regular ma-0">
+                  Добавление уникальных data-атрибутов к элементам и соответствующих атрибутных селекторов к CSS правилам.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Какие проблемы могут возникнуть со scoped стилями?</p>
+                <p class="font-weight-regular ma-0">
+                  Сложности с дочерними компонентами, третьими библиотеками, увеличение размера CSS, производительность.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Когда лучше использовать каждый подход?</p>
+                <p class="font-weight-regular ma-0">
+                  CSS Modules - для React/статики, CSS-in-JS - для динамических стилей, scoped - во фреймворках, Shadow DOM - для Web Components.
+                </p>
+              </li>
+            </ol>
+
             <h2 class="text-h5 font-weight-bold mb-3">Итог</h2>
             <p class="font-weight-regular mb-6">
-              Scoped селекторы — это мощный инструмент для автоматической изоляции стилей в компонентах.
-              Они работают путем добавления уникальных атрибутов к элементам и соответствующих селекторов к CSS.
-              Подходят для большинства случаев, но требуют понимания ограничений и знания техник работы с дочерними компонентами.
+              Scoped селекторы решают фундаментальную проблему CSS — глобальную область видимости.
+              Разные технологии предлагают различные подходы: от compile-time трансформаций до runtime генерации стилей.
+              Выбор зависит от технологического стека, требований к производительности и сложности проекта.
+              Главное — понимать принципы работы каждого подхода и их ограничения.
             </p>
 
             <div class="d-flex justify-end">
@@ -869,9 +740,9 @@ highlightedSnippet10.value = Prism.highlight(snippet10, Prism.languages.css, 'cs
                 color='second'
                 size="small"
                 variant="elevated"
-                href="https://vue-loader.vuejs.org/guide/scoped-css.html"
+                href="https://css-tricks.com/css-modules-part-1-need/"
                 target="_blank">
-                Vue Loader: Scoped CSS
+                CSS Tricks: CSS Modules
               </v-btn>
             </div>
           </v-col>
