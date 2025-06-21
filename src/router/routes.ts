@@ -10,6 +10,7 @@ import IsolationMethods from "@/views/css/IsolationMethods.vue";
 import ScopedSelectors from "@/views/css/ScopedSelectors.vue";
 import IsolationLibs from '@/views/css/IsolationLibs.vue'
 import StyleIsolationPerfomance from '@/views/css/StyleIsolationPerfomance.vue'
+import ComponentArchitecture from '@/views/css/ComponentArchitecture.vue'
 
 export const routes = [
   {
@@ -59,5 +60,9 @@ export const routes = [
   {
     path: '/css/isolation-perfomance',
     component: StyleIsolationPerfomance,
+  },
+  {
+    path: '/css/component-architecture',
+    component: ComponentArchitecture,
   },
 ]

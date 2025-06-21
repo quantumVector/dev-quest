@@ -340,7 +340,9 @@ const props = defineProps({
   variant: {
     type: String,
     default: 'default',
-    validator: value => ['default', 'primary', 'success', 'warning', 'danger'].includes(value)
+    validator: value => [
+      'default', 'primary', 'success', 'warning', 'danger'
+      ].includes(value)
   },
   elevated: {
     type: Boolean,
@@ -448,7 +450,10 @@ template: \`
 <div class="user-card" [ngClass]="cardClasses">
 <div class="user-card__avatar">
   <img [src]="user.avatar" [alt]="user.name + ' avatar'">
-  <div class="user-card__status" [ngClass]="'status--' + user.status"></div>
+  <div
+    class="user-card__status"
+    [ngClass]="'status--' + user.status"
+  ></div>
 </div>
 
 <div class="user-card__content">
@@ -468,151 +473,151 @@ template: \`
 </div>
 \`,
 styleUrls: ['./user-card.component.scss'],
-encapsulation: ViewEncapsulation.Emulated // Изоляция стилей
+  encapsulation: ViewEncapsulation.Emulated // Изоляция стилей
 })
 export class UserCardComponent {
-@Input() user: User;
-@Input() compact: boolean = false;
-@Input() interactive: boolean = true;
+  @Input() user: User;
+  @Input() compact: boolean = false;
+  @Input() interactive: boolean = true;
 
-get cardClasses() {
-return {
-'user-card--compact': this.compact,
-'user-card--interactive': this.interactive
-};
-}
+  get cardClasses() {
+    return {
+      'user-card--compact': this.compact,
+      'user-card--interactive': this.interactive
+    };
+  }
 
-onConnect() {
-// Логика подключения
-}
+  onConnect() {
+    // Логика подключения
+  }
 
-onMessage() {
-// Логика отправки сообщения
-}
+  onMessage() {
+    // Логика отправки сообщения
+  }
 }
 `
 
 const snippet8 = `
 /* user-card.component.scss - Angular стили */
 :host {
-display: block;
+  display: block;
 
-&.theme-dark {
---card-bg: #1f2937;
---text-primary: #f9fafb;
---text-secondary: #d1d5db;
-}
+  &.theme-dark {
+    --card-bg: #1f2937;
+    --text-primary: #f9fafb;
+    --text-secondary: #d1d5db;
+  }
 }
 
 .user-card {
-background: var(--card-bg, white);
-border: 1px solid var(--border-color, #e5e7eb);
-border-radius: 12px;
-padding: 24px;
-transition: all 0.2s ease;
+  background: var(--card-bg, white);
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 12px;
+  padding: 24px;
+  transition: all 0.2s ease;
 
-&--compact {
-padding: 16px;
+  &--compact {
+    padding: 16px;
 
-.user-card__avatar img {
-width: 40px;
-height: 40px;
-}
+  .user-card__avatar img {
+    width: 40px;
+    height: 40px;
+  }
 }
 
-&--interactive {
-cursor: pointer;
+  &--interactive {
+    cursor: pointer;
 
-&:hover {
-box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-transform: translateY(-2px);
-}
-}
+    &:hover {
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+      transform: translateY(-2px);
+    }
+  }
 }
 
 .user-card__avatar {
-position: relative;
-margin-bottom: 16px;
+  position: relative;
+  margin-bottom: 16px;
 
-img {
-width: 60px;
-height: 60px;
-border-radius: 50%;
-object-fit: cover;
-}
+  img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
 }
 
 .user-card__status {
-position: absolute;
-bottom: 4px;
-right: 4px;
-width: 16px;
-height: 16px;
-border-radius: 50%;
-border: 2px solid var(--card-bg, white);
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--card-bg, white);
 
-&.status--online { background: #10b981; }
-&.status--away { background: #f59e0b; }
-&.status--busy { background: #ef4444; }
-&.status--offline { background: #6b7280; }
+  &.status--online { background: #10b981; }
+  &.status--away { background: #f59e0b; }
+  &.status--busy { background: #ef4444; }
+  &.status--offline { background: #6b7280; }
 }
 
 .user-card__content {
-margin-bottom: 20px;
+  margin-bottom: 20px;
 }
 
 .user-card__name {
-margin: 0 0 8px 0;
-font-size: 1.25rem;
-font-weight: 600;
-color: var(--text-primary, #111827);
+  margin: 0 0 8px 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary, #111827);
 }
 
 .user-card__role {
-margin: 0 0 4px 0;
-font-weight: 500;
-color: var(--accent-color, #3b82f6);
+  margin: 0 0 4px 0;
+  font-weight: 500;
+  color: var(--accent-color, #3b82f6);
 }
 
 .user-card__department {
-margin: 0;
-font-size: 0.875rem;
-color: var(--text-secondary, #6b7280);
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary, #6b7280);
 }
 
 .user-card__actions {
-display: flex;
-gap: 12px;
+  display: flex;
+  gap: 12px;
 }
 
 .btn {
-padding: 8px 16px;
-border: none;
-border-radius: 6px;
-font-size: 0.875rem;
-font-weight: 500;
-cursor: pointer;
-transition: all 0.2s ease;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
 
-&--primary {
-background: var(--accent-color, #3b82f6);
-color: white;
+  &--primary {
+    background: var(--accent-color, #3b82f6);
+    color: white;
 
-&:hover {
-background: var(--accent-hover, #2563eb);
-}
-}
+    &:hover {
+      background: var(--accent-hover, #2563eb);
+    }
+  }
 
-&--secondary {
-background: transparent;
-color: var(--accent-color, #3b82f6);
-border: 1px solid var(--accent-color, #3b82f6);
+  &--secondary {
+    background: transparent;
+    color: var(--accent-color, #3b82f6);
+    border: 1px solid var(--accent-color, #3b82f6);
 
-&:hover {
-background: var(--accent-color, #3b82f6);
-color: white;
-}
-}
+    &:hover {
+      background: var(--accent-color, #3b82f6);
+      color: white;
+    }
+  }
 }
 `
 
@@ -622,144 +627,144 @@ import styled, { css, ThemeProvider } from 'styled-components';
 
 // Тема для всего приложения
 const theme = {
-colors: {
-primary: '#3b82f6',
-primaryHover: '#2563eb',
-secondary: '#6b7280',
-success: '#10b981',
-danger: '#ef4444',
-warning: '#f59e0b',
-background: '#ffffff',
-surface: '#f9fafb',
-text: '#111827',
-textSecondary: '#6b7280'
-},
-spacing: {
-xs: '0.25rem',
-sm: '0.5rem',
-md: '1rem',
-lg: '1.5rem',
-xl: '2rem'
-},
-borderRadius: {
-sm: '4px',
-md: '8px',
-lg: '12px',
-full: '9999px'
-},
-shadows: {
-sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-md: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
-}
+  colors: {
+    primary: '#3b82f6',
+    primaryHover: '#2563eb',
+    secondary: '#6b7280',
+    success: '#10b981',
+    danger: '#ef4444',
+    warning: '#f59e0b',
+    background: '#ffffff',
+    surface: '#f9fafb',
+    text: '#111827',
+    textSecondary: '#6b7280'
+  },
+  spacing: {
+    xs: '0.25rem',
+    sm: '0.5rem',
+    md: '1rem',
+    lg: '1.5rem',
+    xl: '2rem'
+  },
+  borderRadius: {
+    sm: '4px',
+    md: '8px',
+    lg: '12px',
+    full: '9999px'
+  },
+  shadows: {
+    sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+    md: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+    lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+  }
 };
 
 // Базовые компоненты
 const Card = styled.div\`
-background: \${props => props.theme.colors.background};
-border-radius: \${props => props.theme.borderRadius.lg};
-padding: \${props => props.theme.spacing.xl};
-box-shadow: \${props => props.theme.shadows.md};
-transition: all 0.2s ease;
+  background: \${props => props.theme.colors.background};
+  border-radius: \${props => props.theme.borderRadius.lg};
+  padding: \${props => props.theme.spacing.xl};
+  box-shadow: \${props => props.theme.shadows.md};
+  transition: all 0.2s ease;
 
 \${props => props.interactive && css\`
-cursor: pointer;
+  cursor: pointer;
 
-&:hover {
-box-shadow: \${props => props.theme.shadows.lg};
-transform: translateY(-2px);
-}
+  &:hover {
+    box-shadow: \${props => props.theme.shadows.lg};
+    transform: translateY(-2px);
+  }
 \`}
 
 \${props => props.variant === 'outlined' && css\`
-box-shadow: none;
-border: 1px solid \${props => props.theme.colors.secondary}40;
+  box-shadow: none;
+  border: 1px solid \${props => props.theme.colors.secondary}40;
 \`}
 \`;
 
 const Avatar = styled.img\`
-width: \${props => props.size === 'large' ? '80px' : props.size === 'small' ? '40px' : '60px'};
-height: \${props => props.size === 'large' ? '80px' : props.size === 'small' ? '40px' : '60px'};
-border-radius: \${props => props.theme.borderRadius.full};
-object-fit: cover;
-border: 3px solid \${props => props.theme.colors.primary};
+  width: \${props => props.size === 'large' ? '80px' : props.size === 'small' ? '40px' : '60px'};
+  height: \${props => props.size === 'large' ? '80px' : props.size === 'small' ? '40px' : '60px'};
+  border-radius: \${props => props.theme.borderRadius.full};
+  object-fit: cover;
+  border: 3px solid \${props => props.theme.colors.primary};
 \`;
 
 const Button = styled.button\`
-display: inline-flex;
-align-items: center;
-justify-content: center;
-padding: \${props => props.size === 'large' ?
-\`\${props.theme.spacing.md} \${props.theme.spacing.xl}\` :
-\`\${props.theme.spacing.sm} \${props.theme.spacing.md}\`};
-border: none;
-border-radius: \${props => props.theme.borderRadius.md};
-font-weight: 500;
-cursor: pointer;
-transition: all 0.2s ease;
-text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: \${props => props.size === 'large' ?
+  \`\${props.theme.spacing.md} \${props.theme.spacing.xl}\` :
+  \`\${props.theme.spacing.sm} \${props.theme.spacing.md}\`};
+  border: none;
+  border-radius: \${props => props.theme.borderRadius.md};
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
 
 \${props => props.variant === 'primary' && css\`
-background: \${props => props.theme.colors.primary};
-color: white;
+  background: \${props => props.theme.colors.primary};
+  color: white;
 
-&:hover {
-background: \${props => props.theme.colors.primaryHover};
-}
+  &:hover {
+  background: \${props => props.theme.colors.primaryHover};
+  }
 \`}
 
 \${props => props.variant === 'secondary' && css\`
-background: transparent;
-color: \${props => props.theme.colors.primary};
-border: 1px solid \${props => props.theme.colors.primary};
+  background: transparent;
+  color: \${props => props.theme.colors.primary};
+  border: 1px solid \${props => props.theme.colors.primary};
 
-&:hover {
-background: \${props => props.theme.colors.primary};
-color: white;
-}
+  &:hover {
+  background: \${props => props.theme.colors.primary};
+  color: white;
+  }
 \`}
 
 \${props => props.loading && css\`
-opacity: 0.7;
-cursor: not-allowed;
+  opacity: 0.7;
+  cursor: not-allowed;
 \`}
 \`;
 
 // Композитный компонент
 const ProfileCard = ({ user, size = 'medium', interactive = false, onConnect, onMessage }) => (
-<Card interactive={interactive}>
-<Avatar
-  src={user.avatar}
-  alt={\`\${user.name} avatar\`}
-  size={size}
-/>
-<h3>{user.name}</h3>
-<p>{user.role}</p>
-<div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-<Button variant="primary" onClick={onConnect}>
-  Connect
-</Button>
-<Button variant="secondary" onClick={onMessage}>
-  Message
-</Button>
-</div>
-</Card>
+  <Card interactive={interactive}>
+    <Avatar
+      src={user.avatar}
+      alt={\`\${user.name} avatar\`}
+      size={size}
+    />
+    <h3>{user.name}</h3>
+    <p>{user.role}</p>
+    <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+      <Button variant="primary" onClick={onConnect}>
+        Connect
+      </Button>
+      <Button variant="secondary" onClick={onMessage}>
+        Message
+      </Button>
+    </div>
+  </Card>
 );
 
 // Использование с провайдером темы
 const App = () => (
-<ThemeProvider theme={theme}>
-<ProfileCard
-  user={{
-  name: 'John Doe',
-role: 'Frontend Developer',
-avatar: '/john.jpg'
-}}
-interactive
-onConnect={() => console.log('Connect clicked')}
-onMessage={() => console.log('Message clicked')}
-/>
-</ThemeProvider>
+  <ThemeProvider theme={theme}>
+    <ProfileCard
+      user={{
+        name: 'John Doe',
+        role: 'Frontend Developer',
+        avatar: '/john.jpg'
+      }}
+      interactive
+      onConnect={() => console.log('Connect clicked')}
+      onMessage={() => console.log('Message clicked')}
+    />
+  </ThemeProvider>
 );
 `
 
@@ -768,98 +773,98 @@ const snippet10 = `
 
 /* Компонент адаптируется к своему контейнеру, а не к viewport */
 .product-card {
-container-type: inline-size;
-container-name: product-card;
+  container-type: inline-size;
+  container-name: product-card;
 
-background: white;
-border-radius: 12px;
-padding: 20px;
-box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 .product-card__content {
-display: grid;
-gap: 16px;
+  display: grid;
+  gap: 16px;
 }
 
 .product-card__image {
-width: 100%;
-height: 200px;
-object-fit: cover;
-border-radius: 8px;
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
 }
 
 .product-card__title {
-font-size: 1.25rem;
-font-weight: 600;
-margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
 }
 
 .product-card__price {
-font-size: 1.5rem;
-font-weight: 700;
-color: #059669;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #059669;
 }
 
 .product-card__description {
-color: #6b7280;
-line-height: 1.5;
+  color: #6b7280;
+  line-height: 1.5;
 }
 
 .product-card__actions {
-display: flex;
-gap: 12px;
-margin-top: auto;
+  display: flex;
+  gap: 12px;
+  margin-top: auto;
 }
 
 /* Адаптация к размеру контейнера */
 @container product-card (min-width: 400px) {
-.product-card__content {
-grid-template-columns: 200px 1fr;
-grid-template-areas:
-"image title"
-"image price"
-"image description"
-"actions actions";
+  .product-card__content {
+    grid-template-columns: 200px 1fr;
+    grid-template-areas:
+    "image title"
+    "image price"
+    "image description"
+    "actions actions";
+  }
+
+  .product-card__image {
+    grid-area: image;
+    height: 160px;
+  }
+
+  .product-card__title { grid-area: title; }
+  .product-card__price { grid-area: price; }
+  .product-card__description { grid-area: description; }
+  .product-card__actions { grid-area: actions; }
 }
 
-.product-card__image {
-grid-area: image;
-height: 160px;
-}
+  @container product-card (min-width: 600px) {
+    .product-card {
+    padding: 32px;
+  }
 
-.product-card__title { grid-area: title; }
-.product-card__price { grid-area: price; }
-.product-card__description { grid-area: description; }
-.product-card__actions { grid-area: actions; }
-}
+  .product-card__title {
+    font-size: 1.5rem;
+  }
 
-@container product-card (min-width: 600px) {
-.product-card {
-padding: 32px;
-}
-
-.product-card__title {
-font-size: 1.5rem;
-}
-
-.product-card__price {
-font-size: 1.75rem;
-}
+  .product-card__price {
+    font-size: 1.75rem;
+  }
 }
 
 /* CSS Cascade Layers для управления специфичностью */
 @layer reset, components, utilities;
 
 @layer components {
-.product-card {
-/* Компонентные стили с контролируемой специфичностью */
-}
+  .product-card {
+    /* Компонентные стили с контролируемой специфичностью */
+  }
 }
 
 @layer utilities {
-.hidden { display: none !important; }
-.sr-only { /* screen reader only styles */ }
+  .hidden { display: none !important; }
+  .sr-only { /* screen reader only styles */ }
 }
 `
 
@@ -875,16 +880,16 @@ const highlightedSnippet9 = ref('')
 const highlightedSnippet10 = ref('')
 
 onMounted(() => {
-highlightedSnippet1.value = Prism.highlight(snippet1, Prism.languages.css, 'css')
-highlightedSnippet2.value = Prism.highlight(snippet2, Prism.languages.css, 'css')
-highlightedSnippet3.value = Prism.highlight(snippet3, Prism.languages.javascript, 'javascript')
-highlightedSnippet4.value = Prism.highlight(snippet4, Prism.languages.css, 'css')
-highlightedSnippet5.value = Prism.highlight(snippet5, Prism.languages.javascript, 'javascript')
-highlightedSnippet6.value = Prism.highlight(snippet6, Prism.languages.javascript, 'javascript')
-highlightedSnippet7.value = Prism.highlight(snippet7, Prism.languages.javascript, 'javascript')
-highlightedSnippet8.value = Prism.highlight(snippet8, Prism.languages.css, 'css')
-highlightedSnippet9.value = Prism.highlight(snippet9, Prism.languages.javascript, 'javascript')
-highlightedSnippet10.value = Prism.highlight(snippet10, Prism.languages.css, 'css')
+  highlightedSnippet1.value = Prism.highlight(snippet1, Prism.languages.css, 'css')
+  highlightedSnippet2.value = Prism.highlight(snippet2, Prism.languages.css, 'css')
+  highlightedSnippet3.value = Prism.highlight(snippet3, Prism.languages.javascript, 'javascript')
+  highlightedSnippet4.value = Prism.highlight(snippet4, Prism.languages.css, 'css')
+  highlightedSnippet5.value = Prism.highlight(snippet5, Prism.languages.javascript, 'javascript')
+  highlightedSnippet6.value = Prism.highlight(snippet6, Prism.languages.javascript, 'javascript')
+  highlightedSnippet7.value = Prism.highlight(snippet7, Prism.languages.javascript, 'javascript')
+  highlightedSnippet8.value = Prism.highlight(snippet8, Prism.languages.css, 'css')
+  highlightedSnippet9.value = Prism.highlight(snippet9, Prism.languages.javascript, 'javascript')
+  highlightedSnippet10.value = Prism.highlight(snippet10, Prism.languages.css, 'css')
 })
 
 </script>
@@ -939,4 +944,178 @@ highlightedSnippet10.value = Prism.highlight(snippet10, Prism.languages.css, 'cs
               <tr>
                 <td class="pt-2 pb-2"><b>Предсказуемость</b></td>
                 <td class="pt-2 pb-2">Стили ведут себя одинаково везде</td>
-                <td class="pt
+                <td class="pt-2 pb-2">ViewEncapsulation, Styled Components</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>Модульность</b></td>
+                <td class="pt-2 pb-2">Каждый компонент - независимый модуль</td>
+                <td class="pt-2 pb-2">CSS Modules, PostCSS, CSS-in-JS</td>
+              </tr>
+              </tbody>
+            </v-table>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Web Components - нативная изоляция</h2>
+            <p class="mb-4">
+              Web Components предоставляют встроенную изоляцию через <b>Shadow DOM</b>, что делает их идеальными для создания переиспользуемых компонентов.
+            </p>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet3"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">React + CSS Modules</h2>
+            <p class="mb-4">
+              CSS Modules обеспечивают изоляцию через автоматическое переименование классов, что идеально подходит для компонентной архитектуры React.
+            </p>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet4"></code></pre>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet5"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Vue + Scoped Styles</h2>
+            <p class="mb-4">
+              Vue.js предоставляет встроенную изоляцию стилей через атрибут <code>scoped</code>, что упрощает создание изолированных компонентов.
+            </p>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet6"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Angular + ViewEncapsulation</h2>
+            <p class="mb-4">
+              Angular использует ViewEncapsulation для изоляции стилей компонентов, эмулируя Shadow DOM.
+            </p>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet7"></code></pre>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet8"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Styled Components - CSS-in-JS</h2>
+            <p class="mb-4">
+              Styled Components создают изолированные стили через уникальные имена классов, генерируемые во время выполнения.
+            </p>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet9"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Современные подходы</h2>
+            <p class="mb-4">
+              Новые CSS-функции как Container Queries и Cascade Layers открывают новые возможности для компонентной архитектуры.
+            </p>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet10"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Сравнение методов изоляции</h2>
+            <v-table density="comfortable" class="mb-8">
+              <thead>
+              <tr>
+                <th class="text-left font-weight-bold">Метод</th>
+                <th class="text-left font-weight-bold">Уровень изоляции</th>
+                <th class="text-left font-weight-bold">Производительность</th>
+                <th class="text-left font-weight-bold">Сложность</th>
+                <th class="text-left font-weight-bold">Поддержка браузеров</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td class="pt-2 pb-2"><b>Shadow DOM</b></td>
+                <td class="pt-2 pb-2">Полная</td>
+                <td class="pt-2 pb-2">Отличная</td>
+                <td class="pt-2 pb-2">Средняя</td>
+                <td class="pt-2 pb-2">Современные браузеры</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>CSS Modules</b></td>
+                <td class="pt-2 pb-2">Высокая</td>
+                <td class="pt-2 pb-2">Отличная</td>
+                <td class="pt-2 pb-2">Низкая</td>
+                <td class="pt-2 pb-2">Все браузеры</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>Scoped CSS</b></td>
+                <td class="pt-2 pb-2">Высокая</td>
+                <td class="pt-2 pb-2">Хорошая</td>
+                <td class="pt-2 pb-2">Низкая</td>
+                <td class="pt-2 pb-2">Все браузеры</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>CSS-in-JS</b></td>
+                <td class="pt-2 pb-2">Полная</td>
+                <td class="pt-2 pb-2">Средняя</td>
+                <td class="pt-2 pb-2">Высокая</td>
+                <td class="pt-2 pb-2">Все браузеры</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>BEM</b></td>
+                <td class="pt-2 pb-2">Средняя</td>
+                <td class="pt-2 pb-2">Отличная</td>
+                <td class="pt-2 pb-2">Средняя</td>
+                <td class="pt-2 pb-2">Все браузеры</td>
+              </tr>
+              </tbody>
+            </v-table>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Ключевые выводы</h2>
+            <v-card class="mb-6 pa-6" color="blue-grey-lighten-5">
+              <v-card-text>
+                <h3 class="text-h6 font-weight-bold mb-3">Почему изоляция критична для компонентов:</h3>
+                <ul class="mb-4">
+                  <li class="mb-2"><b>Предсказуемость:</b> Компонент выглядит одинаково в любом контексте</li>
+                  <li class="mb-2"><b>Переиспользование:</b> Можно безопасно использовать в разных частях приложения</li>
+                  <li class="mb-2"><b>Масштабируемость:</b> Новые компоненты не ломают существующие</li>
+                  <li class="mb-2"><b>Сопровождение:</b> Изменения в одном компоненте не влияют на другие</li>
+                  <li class="mb-2"><b>Тестируемость:</b> Компоненты можно тестировать изолированно</li>
+                </ul>
+
+                <h3 class="text-h6 font-weight-bold mb-3">Выбор метода изоляции:</h3>
+                <ul>
+                  <li class="mb-2"><b>Web Components</b> - для максимальной переиспользуемости</li>
+                  <li class="mb-2"><b>CSS Modules</b> - для React-проектов</li>
+                  <li class="mb-2"><b>Scoped CSS</b> - для Vue-проектов</li>
+                  <li class="mb-2"><b>ViewEncapsulation</b> - для Angular-проектов</li>
+                  <li class="mb-2"><b>CSS-in-JS</b> - для динамических стилей</li>
+                </ul>
+              </v-card-text>
+            </v-card>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Вопросы для собеседования</h2>
+            <v-expansion-panels class="mb-6">
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  <b>Как Shadow DOM обеспечивает изоляцию стилей?</b>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  Shadow DOM создает изолированное дерево DOM с собственным контекстом стилей. Стили внутри Shadow DOM не влияют на основной документ и наоборот. Это обеспечивает полную инкапсуляцию компонента.
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  <b>В чем разница между CSS Modules и обычными CSS-классами?</b>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  CSS Modules автоматически генерируют уникальные имена классов на этапе сборки (например, .button становится .button_3xkl2), что предотвращает конфликты имен. Обычные CSS-классы используют глобальное пространство имен.
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  <b>Какие проблемы решает изоляция стилей в компонентах?</b>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  Изоляция решает проблемы конфликтов имен, непредсказуемого каскадирования, зависимостей между компонентами, сложности отладки и поддержки кода, а также обеспечивает переиспользуемость компонентов.
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  <b>Когда стоит использовать CSS-in-JS вместо CSS Modules?</b>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  CSS-in-JS лучше подходит для динамических стилей, зависящих от состояния компонента, темизации, условной стилизации и когда нужна полная интеграция с JavaScript-логикой. CSS Modules проще и быстрее для статических стилей.
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  <b>Как работает изоляция в Vue Scoped CSS?</b>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  Vue добавляет уникальный атрибут (data-v-xxxxx) к каждому элементу компонента и модифицирует CSS-селекторы, добавляя этот атрибут. Это создает изоляцию без использования Shadow DOM.
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+            </v-expansion-panels>
+
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-app>
+</template>

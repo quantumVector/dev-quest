@@ -44,6 +44,9 @@
           <v-list-item to="/css/isolation-perfomance">
             <v-list-item-title>10. Как изоляция стилей влияет на производительность и сопровождаемость кода?</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/css/component-architecture">
+            <v-list-item-title>11. Как изоляция стилей в CSS связана с компонентной архитектурой / WebComponents?</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
