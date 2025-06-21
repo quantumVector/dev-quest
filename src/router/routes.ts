@@ -4,6 +4,7 @@ import WhatIsHtml from "@/views/html/WhatIsHtml.vue";
 import SemanticHtml from "@/views/html/SemanticHtml.vue";
 import Accessibility from "@/views/html/Accessibility.vue";
 import ResponsiveImage from "@/views/html/ResponsiveImage.vue";
+import HTMLTestPage from '@/views/tests/HTMLTestPage.vue'
 import Specificity from "@/views/css/Specificity.vue";
 import StyleIsolation from "@/views/css/StyleIsolation.vue";
 import IsolationMethods from "@/views/css/IsolationMethods.vue";
@@ -13,11 +14,16 @@ import StyleIsolationPerfomance from '@/views/css/StyleIsolationPerfomance.vue'
 import ComponentArchitecture from '@/views/css/ComponentArchitecture.vue'
 import StyleIsolationMigration from '@/views/css/StyleIsolationMigration.vue'
 import RelativeUnits from '@/views/css/RelativeUnits.vue'
+import TestsPage from '@/views/TestsPage.vue'
 
 export const routes = [
   {
     path: '/',
     component: AllQuestionPage,
+  },
+  {
+    path: '/tests',
+    component: TestsPage,
   },
   {
     path: '/html',
@@ -38,6 +44,10 @@ export const routes = [
   {
     path: '/html/responsive-image',
     component: ResponsiveImage,
+  },
+  {
+    path: '/html/html-test',
+    component: HTMLTestPage,
   },
   {
     path: '/css/specificity',

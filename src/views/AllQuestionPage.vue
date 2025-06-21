@@ -26,9 +26,11 @@
     <v-expansion-panel title="CSS">
       <v-expansion-panel-text>
         <v-list>
+          <v-list-subheader>Специфичность селекторов</v-list-subheader>
           <v-list-item to="/css/specificity">
             <v-list-item-title>5. Специфичность селекторов в CSS</v-list-item-title>
           </v-list-item>
+          <v-list-subheader>Изоляция стилей</v-list-subheader>
           <v-list-item to="/css/style-isolation">
             <v-list-item-title>6. Какие проблемы решает изоляция стилей в CSS?</v-list-item-title>
           </v-list-item>
@@ -50,6 +52,7 @@
           <v-list-item to="/css/isolation-migration">
             <v-list-item-title>12. Как можно применить изоляцию стилей в проекте, который уже использует глобальные стили?</v-list-item-title>
           </v-list-item>
+          <v-list-subheader>Единицы измерения</v-list-subheader>
           <v-list-item to="/css/relative-units">
             <v-list-item-title>13. Зачем нужны относительные единицы измерения? Какие плюсы и минусы видишь при использовании относительных единиц?</v-list-item-title>
           </v-list-item>
