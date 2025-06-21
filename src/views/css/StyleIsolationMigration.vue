@@ -594,9 +594,9 @@ class CSSMigrator {
   // Генерация React компонента
   generateReactComponent(componentName, moduleCSS) {
     return \`import React from 'react';
-import styles from './${componentName}.module.css';
+import styles from './\${componentName}.module.css';
 
-function ${componentName}({ children, className, ...props }) {
+function \${componentName}({ children, className, ...props }) {
   return (
     <div className={\`\${styles.container} \${className || ''}\`} {...props}>
       {children}
@@ -604,7 +604,7 @@ function ${componentName}({ children, className, ...props }) {
   );
 }
 
-export default ${componentName};
+export default \${componentName};
 \`;
   }
 
@@ -895,4 +895,252 @@ onMounted(() => {
             <p class="font-weight-regular mb-4">
               Пошаговая замена глобальных стилей на изолированные:
             </p>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet5"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Этап 5: Работа с конфликтами</h2>
+            <p class="font-weight-regular mb-4">
+              Обнаружение и разрешение конфликтов между системами стилей:
+            </p>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet6"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Этап 6: Vue.js специфика</h2>
+            <p class="font-weight-regular mb-4">
+              Миграция Vue компонентов на Scoped Styles:
+            </p>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet7"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Этап 7: Отслеживание использования</h2>
+            <p class="font-weight-regular mb-4">
+              Инструменты для определения неиспользуемых стилей:
+            </p>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet8"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Этап 8: Автоматизация миграции</h2>
+            <p class="font-weight-regular mb-4">
+              Скрипты для автоматического преобразования CSS в модули:
+            </p>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet9"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Этап 9: Финальная очистка</h2>
+            <p class="font-weight-regular mb-4">
+              Удаление legacy кода и оптимизация:
+            </p>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet10"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Стратегии миграции</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">Big Bang</h3>
+                  <p class="mb-2"><b>Описание:</b> Полная миграция за один раз</p>
+                  <p class="mb-2"><b>Плюсы:</b> Быстро, чисто</p>
+                  <p class="mb-2"><b>Минусы:</b> Высокие риски, простои</p>
+                  <v-chip size="small" color="red" class="ma-1">Высокий риск</v-chip>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">Strangler Fig</h3>
+                  <p class="mb-2"><b>Описание:</b> Постепенная замена компонентов</p>
+                  <p class="mb-2"><b>Плюсы:</b> Безопасно, контролируемо</p>
+                  <p class="mb-2"><b>Минусы:</b> Долго, временная сложность</p>
+                  <v-chip size="small" color="green" class="ma-1">Рекомендуется</v-chip>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">Branch by Abstraction</h3>
+                  <p class="mb-2"><b>Описание:</b> Абстракция над двумя системами</p>
+                  <p class="mb-2"><b>Плюсы:</b> Гибкость, откат</p>
+                  <p class="mb-2"><b>Минусы:</b> Сложность архитектуры</p>
+                  <v-chip size="small" color="orange" class="ma-1">Для экспертов</v-chip>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Чек-лист миграции</h2>
+            <v-expansion-panels class="mb-8">
+              <v-expansion-panel>
+                <v-expansion-panel-title>Подготовка</v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <ul class="pl-4">
+                    <li>✅ Провести аудит CSS кодовой базы</li>
+                    <li>✅ Определить критически важные компоненты</li>
+                    <li>✅ Настроить системы сборки для двух подходов</li>
+                    <li>✅ Создать план отката (rollback plan)</li>
+                    <li>✅ Подготовить команду и документацию</li>
+                  </ul>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+              <v-expansion-panel>
+                <v-expansion-panel-title>Пилотный проект</v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <ul class="pl-4">
+                    <li>✅ Выбрать простой, изолированный компонент</li>
+                    <li>✅ Создать изолированную версию</li>
+                    <li>✅ Протестировать совместимость</li>
+                    <li>✅ Измерить метрики производительности</li>
+                    <li>✅ Получить обратную связь от команды</li>
+                  </ul>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+              <v-expansion-panel>
+                <v-expansion-panel-title>Масштабирование</v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <ul class="pl-4">
+                    <li>✅ Автоматизировать процесс миграции</li>
+                    <li>✅ Мигрировать компоненты по приоритету</li>
+                    <li>✅ Поддерживать обратную совместимость</li>
+                    <li>✅ Регулярно тестировать на всех окружениях</li>
+                    <li>✅ Документировать изменения и паттерны</li>
+                  </ul>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+              <v-expansion-panel>
+                <v-expansion-panel-title>Завершение</v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <ul class="pl-4">
+                    <li>✅ Удалить неиспользуемые глобальные стили</li>
+                    <li>✅ Оптимизировать размер бандла</li>
+                    <li>✅ Обновить CI/CD пайплайны</li>
+                    <li>✅ Провести финальное тестирование</li>
+                    <li>✅ Обучить команду новым подходам</li>
+                  </ul>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+            </v-expansion-panels>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Типичные проблемы и решения</h2>
+            <v-table density="comfortable" class="mb-8">
+              <thead>
+              <tr>
+                <th class="text-left font-weight-bold">Проблема</th>
+                <th class="text-left font-weight-bold">Причина</th>
+                <th class="text-left font-weight-bold">Решение</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td class="pt-2 pb-2"><b>Конфликты имен</b></td>
+                <td class="pt-2 pb-2">Одинаковые классы в разных системах</td>
+                <td class="pt-2 pb-2">Использовать уникальные префиксы</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>Сломанные стили</b></td>
+                <td class="pt-2 pb-2">Удаление еще используемых правил</td>
+                <td class="pt-2 pb-2">Отслеживание использования стилей</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>Увеличение размера</b></td>
+                <td class="pt-2 pb-2">Дублирование CSS правил</td>
+                <td class="pt-2 pb-2">CSS переменные, tree-shaking</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>Сложность поддержки</b></td>
+                <td class="pt-2 pb-2">Две системы одновременно</td>
+                <td class="pt-2 pb-2">Четкие соглашения, документация</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>Медленная сборка</b></td>
+                <td class="pt-2 pb-2">Дополнительная обработка CSS</td>
+                <td class="pt-2 pb-2">Кэширование, параллельная обработка</td>
+              </tr>
+              </tbody>
+            </v-table>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Вопросы на собеседовании</h2>
+            <ol class="ol-list mb-8">
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Как обеспечить обратную совместимость при миграции?</p>
+                <p class="font-weight-regular ma-0">
+                  Использовать CSS переменные для общих значений, поддерживать старые классы через алиасы,
+                  применять feature flags для постепенного включения новых стилей.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Как измерить успешность миграции?</p>
+                <p class="font-weight-regular ma-0">
+                  Метрики: уменьшение размера CSS, количество конфликтов, время сборки,
+                  количество багов связанных со стилями, скорость разработки новых компонентов.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Какие инструменты помогают в миграции?</p>
+                <p class="font-weight-regular ma-0">
+                  UnCSS/PurgeCSS для удаления неиспользуемых стилей, CSS Stats для анализа,
+                  автоматические рефакторинг инструменты, линтеры для контроля качества.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Как работать с третьесторонними библиотеками?</p>
+                <p class="font-weight-regular ma-0">
+                  Изолировать их стили через CSS Modules :global(), Shadow DOM,
+                  или переопределять через CSS переменные с высокой специфичностью.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Стоит ли мигрировать старый проект?</p>
+                <p class="font-weight-regular ma-0">
+                  Зависит от размера команды, частоты изменений, планов развития.
+                  Для активно развиваемых проектов — да, для legacy поддержки — не обязательно.
+                </p>
+              </li>
+            </ol>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Рекомендации по внедрению</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100 border-l-4" style="border-left-color: #4CAF50;">
+                  <h3 class="text-h6 font-weight-bold mb-2 text-green">✅ Что делать</h3>
+                  <ul class="pl-4">
+                    <li>Начинать с малого и простого</li>
+                    <li>Использовать CSS переменные как мост</li>
+                    <li>Автоматизировать тестирование визуальных регрессий</li>
+                    <li>Документировать все изменения</li>
+                    <li>Обучать команду постепенно</li>
+                    <li>Измерять прогресс метриками</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100 border-l-4" style="border-left-color: #F44336;">
+                  <h3 class="text-h6 font-weight-bold mb-2 text-red">❌ Что не делать</h3>
+                  <ul class="pl-4">
+                    <li>Мигрировать все сразу</li>
+                    <li>Удалять стили без анализа использования</li>
+                    <li>Игнорировать обратную совместимость</li>
+                    <li>Пренебрегать тестированием</li>
+                    <li>Вводить несколько систем одновременно</li>
+                    <li>Забывать про производительность</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Итог</h2>
+            <p class="font-weight-regular mb-6">
+              Миграция с глобальных стилей на изоляцию — это сложный, но выполнимый процесс.
+              Ключ к успеху — постепенный подход, тщательное планирование и использование правильных
+              инструментов. Результат стоит затраченных усилий: более предсказуемые стили,
+              упрощенная поддержка и ускоренная разработка.
+            </p>
+
+            <div class="d-flex justify-end">
+              <v-btn
+                color='second'
+                size="small"
+                variant="elevated"
+                href="https://web.dev/css-module-scripts/"
+                target="_blank">
+                CSS Modules Migration Guide
+              </v-btn>
+            </div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-app>
+</template>

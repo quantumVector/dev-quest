@@ -47,6 +47,9 @@
           <v-list-item to="/css/component-architecture">
             <v-list-item-title>11. Как изоляция стилей в CSS связана с компонентной архитектурой / WebComponents?</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/css/isolation-migration">
+            <v-list-item-title>12. Как можно применить изоляцию стилей в проекте, который уже использует глобальные стили?</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
