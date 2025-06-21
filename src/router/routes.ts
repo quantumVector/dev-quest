@@ -12,6 +12,7 @@ import IsolationLibs from '@/views/css/IsolationLibs.vue'
 import StyleIsolationPerfomance from '@/views/css/StyleIsolationPerfomance.vue'
 import ComponentArchitecture from '@/views/css/ComponentArchitecture.vue'
 import StyleIsolationMigration from '@/views/css/StyleIsolationMigration.vue'
+import RelativeUnits from '@/views/css/RelativeUnits.vue'
 
 export const routes = [
   {
@@ -69,5 +70,9 @@ export const routes = [
   {
     path: '/css/isolation-migration',
     component: StyleIsolationMigration,
+  },
+  {
+    path: '/css/relative-units',
+    component: RelativeUnits,
   },
 ]

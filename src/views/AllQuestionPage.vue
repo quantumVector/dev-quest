@@ -50,6 +50,9 @@
           <v-list-item to="/css/isolation-migration">
             <v-list-item-title>12. Как можно применить изоляцию стилей в проекте, который уже использует глобальные стили?</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/css/relative-units">
+            <v-list-item-title>13. Зачем нужны относительные единицы измерения? Какие плюсы и минусы видишь при использовании относительных единиц?</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

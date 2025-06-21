@@ -6,860 +6,409 @@ import 'prismjs/components/prism-css.js'
 import 'prismjs/components/prism-javascript.js'
 
 const snippet1 = `
-/* Проблемы без изоляции в компонентах */
-
-/* Component A */
-.button {
-  background: #007bff;
-  padding: 10px 20px;
-  border-radius: 4px;
+/* Проблемы абсолютных единиц */
+.header {
+  font-size: 24px; /* Не адаптируется к настройкам пользователя */
+  padding: 20px;   /* Не масштабируется */
+  margin: 16px;    /* Фиксированные отступы */
 }
 
-/* Component B - случайно переопределяет стили A */
-.button {
-  background: #dc3545; /* Красный вместо синего! */
-  font-size: 18px;
+.sidebar {
+  width: 300px;    /* Не адаптивно */
+  height: 500px;   /* Переполнение на мобильных */
 }
 
-/* Global styles - влияют на все компоненты */
-button {
-  margin: 5px; /* Неожиданные отступы во всех кнопках */
+/* На мобильном устройстве будет слишком крупно/мелко */
+@media (max-width: 768px) {
+  .header {
+    font-size: 18px; /* Приходится переопределять */
+    padding: 15px;
+  }
 }
-
-/* Результат: непредсказуемые стили, сложная отладка */
 `
 
 const snippet2 = `
-/* Принципы компонентной архитектуры CSS */
-
-/* 1. Инкапсуляция - стили принадлежат компоненту */
-.user-card {
-  /* Стили только для этого компонента */
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 16px;
+/* Относительные единицы - адаптивность */
+.header {
+  font-size: 1.5rem;  /* 24px при font-size: 16px */
+  padding: 1.25rem;   /* 20px, но адаптируется */
+  margin: 1rem;       /* 16px, масштабируется */
 }
 
-.user-card__avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
+.sidebar {
+  width: 20vw;        /* 20% от ширины viewport */
+  min-width: 18.75rem; /* 300px минимум */
+  height: 50vh;       /* 50% от высоты viewport */
 }
 
-.user-card__name {
-  font-weight: 600;
-  margin: 8px 0 4px 0;
-}
-
-/* 2. Композиция - компоненты составляются из других */
-.user-list {
-  display: grid;
-  gap: 16px;
-  /* .user-card вкладывается без конфликтов */
-}
-
-/* 3. Переиспользование - один компонент, разные контексты */
-.user-card--compact {
-  padding: 8px;
-}
-
-.user-card--horizontal {
-  display: flex;
-  align-items: center;
-}
+/* Автоматически адаптируется без media queries */
+/* Если пользователь увеличил шрифт - все масштабируется */
 `
 
 const snippet3 = `
-/* Web Components - нативная изоляция */
-
-class UserProfile extends HTMLElement {
-  constructor() {
-    super();
-
-    // Создаем Shadow DOM для полной изоляции
-    this.attachShadow({ mode: 'open' });
-
-    this.shadowRoot.innerHTML = \`
-      <style>
-        /* Стили изолированы внутри Shadow DOM */
-        :host {
-          display: block;
-          font-family: system-ui, sans-serif;
-        }
-
-        :host([theme="dark"]) {
-          --bg-color: #1a1a1a;
-          --text-color: #ffffff;
-        }
-
-        :host([size="large"]) .avatar {
-          width: 80px;
-          height: 80px;
-        }
-
-        .profile {
-          background: var(--bg-color, #ffffff);
-          color: var(--text-color, #333333);
-          border-radius: 12px;
-          padding: 20px;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        .avatar {
-          width: 60px;
-          height: 60px;
-          border-radius: 50%;
-          object-fit: cover;
-          border: 3px solid var(--accent-color, #007bff);
-        }
-
-        .name {
-          font-size: 1.5em;
-          font-weight: 600;
-          margin: 12px 0 4px 0;
-        }
-
-        .role {
-          color: var(--text-secondary, #666);
-          font-size: 0.9em;
-        }
-
-        .actions {
-          margin-top: 16px;
-          display: flex;
-          gap: 8px;
-        }
-
-        button {
-          padding: 8px 16px;
-          border: none;
-          border-radius: 6px;
-          cursor: pointer;
-          font-size: 0.9em;
-          transition: all 0.2s ease;
-        }
-
-        .primary {
-          background: var(--accent-color, #007bff);
-          color: white;
-        }
-
-        .primary:hover {
-          background: var(--accent-hover, #0056b3);
-        }
-
-        .secondary {
-          background: transparent;
-          color: var(--accent-color, #007bff);
-          border: 1px solid var(--accent-color, #007bff);
-        }
-      </style>
-
-      <div class="profile">
-        <img class="avatar" src="" alt="User avatar">
-        <div class="name"></div>
-        <div class="role"></div>
-        <div class="actions">
-          <button class="primary">Connect</button>
-          <button class="secondary">Message</button>
-        </div>
-      </div>
-    \`;
-  }
-
-  connectedCallback() {
-    this.render();
-  }
-
-  static get observedAttributes() {
-    return ['name', 'role', 'avatar', 'theme', 'size'];
-  }
-
-  attributeChangedCallback() {
-    this.render();
-  }
-
-  render() {
-    const avatar = this.shadowRoot.querySelector('.avatar');
-    const name = this.shadowRoot.querySelector('.name');
-    const role = this.shadowRoot.querySelector('.role');
-
-    avatar.src = this.getAttribute('avatar') || '/default-avatar.png';
-    name.textContent = this.getAttribute('name') || 'Anonymous User';
-    role.textContent = this.getAttribute('role') || 'User';
-  }
+/* em - относительно родительского font-size */
+.parent {
+  font-size: 18px; /* базовый размер */
 }
 
-customElements.define('user-profile', UserProfile);
+.child {
+  font-size: 1.2em;    /* 18px * 1.2 = 21.6px */
+  margin: 0.5em;       /* 21.6px * 0.5 = 10.8px */
+  padding: 1em 1.5em;  /* 21.6px на 32.4px */
+}
 
-/* Использование:
-<user-profile
-  name="John Doe"
-  role="Frontend Developer"
-  avatar="/john.jpg"
-  theme="dark"
-  size="large">
-</user-profile>
-*/
+.nested {
+  font-size: 1.1em;    /* 21.6px * 1.1 = 23.76px */
+  /* Проблема: каскадное наследование может привести к
+     непредсказуемым размерам в глубокой вложенности */
+}
+
+/* Пример каскадного эффекта */
+.level1 { font-size: 1.2em; } /* 19.2px */
+.level2 { font-size: 1.2em; } /* 23.04px */
+.level3 { font-size: 1.2em; } /* 27.65px - уже слишком крупно! */
 `
 
 const snippet4 = `
-/* React компонент с CSS Modules */
-
-/* Button.module.css */
-.button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 0.5rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-decoration: none;
+/* rem - относительно корневого font-size */
+:root {
+  font-size: 16px; /* базовый размер для rem */
 }
 
-.primary {
-  background: #3b82f6;
-  color: white;
+.header {
+  font-size: 2rem;     /* всегда 32px */
+  margin: 1.5rem;      /* всегда 24px */
 }
 
-.primary:hover {
-  background: #2563eb;
+.card {
+  padding: 1rem;       /* всегда 16px */
+  border-radius: 0.5rem; /* всегда 8px */
 }
 
-.secondary {
-  background: #e5e7eb;
-  color: #374151;
+.nested-deep {
+  font-size: 1.2rem;   /* всегда 19.2px, независимо от вложенности */
 }
 
-.secondary:hover {
-  background: #d1d5db;
-}
-
-.large {
-  padding: 1rem 2rem;
-  font-size: 1.125rem;
-}
-
-.small {
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-}
-
-.loading {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.icon {
-  margin-right: 0.5rem;
-  width: 1em;
-  height: 1em;
+/* Адаптация под настройки пользователя */
+@media (prefers-reduced-motion: no-preference) {
+  :root {
+    font-size: 18px; /* Увеличиваем базовый размер */
+    /* Все rem значения автоматически увеличатся */
+  }
 }
 `
 
 const snippet5 = `
-// Button.jsx - React компонент
-import React from 'react';
-import styles from './Button.module.css';
-import { Loader } from 'lucide-react';
+/* Viewport единицы - адаптивность к размеру экрана */
 
-const Button = ({
-  children,
-  variant = 'primary',
-  size = 'medium',
-  loading = false,
-  icon,
-  className = '',
-  ...props
-}) => {
-  const buttonClasses = [
-    styles.button,
-    styles[variant],
-    size !== 'medium' && styles[size],
-    loading && styles.loading,
-    className
-  ].filter(Boolean).join(' ');
+/* vw/vh - процент от размера viewport */
+.hero {
+  width: 100vw;        /* полная ширина viewport */
+  height: 100vh;       /* полная высота viewport */
+  font-size: 4vw;      /* размер шрифта зависит от ширины */
+}
 
-  return (
-    <button
-      className={buttonClasses}
-      disabled={loading}
-      {...props}
-    >
-      {loading ? (
-        <Loader className={styles.icon} />
-      ) : icon ? (
-        <span className={styles.icon}>{icon}</span>
-      ) : null}
-      {children}
-    </button>
-  );
-};
+/* vmin/vmax - минимальная/максимальная сторона viewport */
+.responsive-square {
+  width: 50vmin;       /* 50% от меньшей стороны */
+  height: 50vmin;      /* всегда квадрат */
+  font-size: 3vmin;    /* пропорциональный текст */
+}
 
-export default Button;
+.full-screen-text {
+  font-size: 10vmax;   /* 10% от большей стороны */
+  /* Отлично для заголовков на полный экран */
+}
 
-/* Использование:
-<Button variant="primary" size="large" icon={<Save />}>
-  Save Changes
-</Button>
-
-<Button variant="secondary" loading={isSubmitting}>
-  {isSubmitting ? 'Saving...' : 'Save'}
-</Button>
-*/
+/* Проблема: слишком мелкий/крупный текст на экстремальных размерах */
+.problematic {
+  font-size: 5vw; /* На 320px = 16px, на 1920px = 96px! */
+}
 `
 
 const snippet6 = `
-/* Vue компонент с Scoped Styles */
-<template>
-  <div class="card" :class="cardClasses">
-    <header v-if="title || $slots.header" class="card-header">
-      <slot name="header">
-        <h3 class="card-title">{{ title }}</h3>
-      </slot>
-    </header>
+/* Современные viewport единицы - решение проблем мобильных браузеров */
 
-    <div class="card-body">
-      <slot></slot>
-    </div>
-
-    <footer v-if="$slots.footer" class="card-footer">
-      <slot name="footer"></slot>
-    </footer>
-  </div>
-</template>
-
-<script setup>
-import { computed } from 'vue';
-
-const props = defineProps({
-  title: String,
-  variant: {
-    type: String,
-    default: 'default',
-    validator: value => ['default', 'primary', 'success', 'warning', 'danger'].includes(value)
-  },
-  elevated: {
-    type: Boolean,
-    default: false
-  },
-  bordered: {
-    type: Boolean,
-    default: true
-  }
-});
-
-const cardClasses = computed(() => ({
-  [\`card--\${props.variant}\`]: props.variant !== 'default',
-  'card--elevated': props.elevated,
-  'card--borderless': !props.bordered
-}));
-</script>
-
-<style scoped>
-.card {
-  background: white;
-  border-radius: 8px;
-  overflow: hidden;
-  transition: all 0.2s ease;
+/* Традиционные проблемы на мобильных */
+.old-fullscreen {
+  height: 100vh; /* Может не учитывать адресную строку */
 }
 
-.card--bordered {
-  border: 1px solid #e5e7eb;
+/* Новые динамические единицы */
+.hero-section {
+  height: 100dvh;  /* Dynamic Viewport Height - учитывает изменения UI */
+  width: 100dvw;   /* Dynamic Viewport Width */
 }
 
-.card--elevated {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+/* Статические единицы - фиксированные размеры */
+.stable-header {
+  height: 10svh;   /* Small Viewport Height - наименьший размер */
 }
 
-.card--elevated:hover {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+/* Большие единицы - максимальный размер */
+.full-experience {
+  height: 100lvh;  /* Large Viewport Height - наибольший размер */
 }
 
-.card--primary {
-  border-color: #3b82f6;
+/* Практическое применение */
+.mobile-safe-hero {
+  height: 100dvh;              /* Адаптируется к UI браузера */
+  min-height: 100svh;          /* Минимум = без UI элементов */
+  padding: clamp(1rem, 5vw, 3rem); /* Адаптивные отступы */
 }
-
-.card--success {
-  border-color: #10b981;
-}
-
-.card--warning {
-  border-color: #f59e0b;
-}
-
-.card--danger {
-  border-color: #ef4444;
-}
-
-.card-header {
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid #e5e7eb;
-  background: #f9fafb;
-}
-
-.card-title {
-  margin: 0;
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #111827;
-}
-
-.card-body {
-  padding: 1.5rem;
-}
-
-.card-footer {
-  padding: 1rem 1.5rem;
-  border-top: 1px solid #e5e7eb;
-  background: #f9fafb;
-}
-
-/* CSS переменные для кастомизации */
-.card {
-  --card-bg: white;
-  --card-border: #e5e7eb;
-  --card-radius: 8px;
-  --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-
-  background: var(--card-bg);
-  border-color: var(--card-border);
-  border-radius: var(--card-radius);
-}
-
-.card--elevated {
-  box-shadow: var(--card-shadow);
-}
-</style>
 `
 
 const snippet7 = `
-/* Angular компонент с ViewEncapsulation */
+/* Процентные единицы - контекстуальная адаптивность */
 
-// user-card.component.ts
-import { Component, Input, ViewEncapsulation } from '@angular/core';
-
-@Component({
-selector: 'app-user-card',
-template: \`
-<div class="user-card" [ngClass]="cardClasses">
-<div class="user-card__avatar">
-  <img [src]="user.avatar" [alt]="user.name + ' avatar'">
-  <div class="user-card__status" [ngClass]="'status--' + user.status"></div>
-</div>
-
-<div class="user-card__content">
-  <h3 class="user-card__name">{{ user.name }}</h3>
-  <p class="user-card__role">{{ user.role }}</p>
-  <p class="user-card__department">{{ user.department }}</p>
-</div>
-
-<div class="user-card__actions">
-  <button class="btn btn--primary" (click)="onConnect()">
-    Connect
-  </button>
-  <button class="btn btn--secondary" (click)="onMessage()">
-    Message
-  </button>
-</div>
-</div>
-\`,
-styleUrls: ['./user-card.component.scss'],
-encapsulation: ViewEncapsulation.Emulated // Изоляция стилей
-})
-export class UserCardComponent {
-@Input() user: User;
-@Input() compact: boolean = false;
-@Input() interactive: boolean = true;
-
-get cardClasses() {
-return {
-'user-card--compact': this.compact,
-'user-card--interactive': this.interactive
-};
+.container {
+  width: 1200px;
+  padding: 20px;
 }
 
-onConnect() {
-// Логика подключения
+.flexible-grid {
+  width: 100%;           /* Всегда заполняет родителя */
+  display: flex;
 }
 
-onMessage() {
-// Логика отправки сообщения
+.column {
+  width: 33.333%;        /* Треть от родителя */
+  padding: 2%;           /* Отступы тоже относительные */
 }
+
+/* Проблемы с height в процентах */
+.parent {
+  height: 400px;         /* Должна быть определена */
+}
+
+.child {
+  height: 50%;           /* 200px - работает */
+}
+
+.problematic-child {
+  /* Если родитель не имеет определенной высоты,
+     процентная высота не работает */
+  height: 100%;          /* Может быть 0! */
+}
+
+/* Решение современными единицами */
+.modern-fullheight {
+  height: 100dvh;        /* Надежная альтернатива */
+  min-height: 100%;      /* Fallback */
 }
 `
 
 const snippet8 = `
-/* user-card.component.scss - Angular стили */
-:host {
-display: block;
+/* ch/ex - типографические единицы */
 
-&.theme-dark {
---card-bg: #1f2937;
---text-primary: #f9fafb;
---text-secondary: #d1d5db;
-}
+/* ch - ширина символа "0" в текущем шрифте */
+.monospace-layout {
+  font-family: 'Courier New', monospace;
+  width: 60ch;           /* ~60 символов в строке */
+  /* Идеально для читаемости текста */
 }
 
-.user-card {
-background: var(--card-bg, white);
-border: 1px solid var(--border-color, #e5e7eb);
-border-radius: 12px;
-padding: 24px;
-transition: all 0.2s ease;
-
-&--compact {
-padding: 16px;
-
-.user-card__avatar img {
-width: 40px;
-height: 40px;
-}
+.input-field {
+  width: 12ch;           /* Поле для 12 символов */
+  font-family: monospace;
 }
 
-&--interactive {
-cursor: pointer;
-
-&:hover {
-box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-transform: translateY(-2px);
-}
-}
+/* ex - высота символа "x" в текущем шрифте */
+.baseline-aligned {
+  margin-top: 2ex;       /* Отступ в 2 высоты "x" */
+  font-size: 3ex;        /* Размер относительно высоты строчных */
 }
 
-.user-card__avatar {
-position: relative;
-margin-bottom: 16px;
-
-img {
-width: 60px;
-height: 60px;
-border-radius: 50%;
-object-fit: cover;
-}
-}
-
-.user-card__status {
-position: absolute;
-bottom: 4px;
-right: 4px;
-width: 16px;
-height: 16px;
-border-radius: 50%;
-border: 2px solid var(--card-bg, white);
-
-&.status--online { background: #10b981; }
-&.status--away { background: #f59e0b; }
-&.status--busy { background: #ef4444; }
-&.status--offline { background: #6b7280; }
-}
-
-.user-card__content {
-margin-bottom: 20px;
-}
-
-.user-card__name {
-margin: 0 0 8px 0;
-font-size: 1.25rem;
-font-weight: 600;
-color: var(--text-primary, #111827);
-}
-
-.user-card__role {
-margin: 0 0 4px 0;
-font-weight: 500;
-color: var(--accent-color, #3b82f6);
-}
-
-.user-card__department {
-margin: 0;
-font-size: 0.875rem;
-color: var(--text-secondary, #6b7280);
-}
-
-.user-card__actions {
-display: flex;
-gap: 12px;
-}
-
-.btn {
-padding: 8px 16px;
-border: none;
-border-radius: 6px;
-font-size: 0.875rem;
-font-weight: 500;
-cursor: pointer;
-transition: all 0.2s ease;
-
-&--primary {
-background: var(--accent-color, #3b82f6);
-color: white;
-
-&:hover {
-background: var(--accent-hover, #2563eb);
-}
-}
-
-&--secondary {
-background: transparent;
-color: var(--accent-color, #3b82f6);
-border: 1px solid var(--accent-color, #3b82f6);
-
-&:hover {
-background: var(--accent-color, #3b82f6);
-color: white;
-}
-}
+/* Практическое применение */
+.readable-text {
+  max-width: 65ch;       /* Оптимальная длина строки */
+  line-height: 1.6;      /* Относительная высота строки */
+  margin-bottom: 1.5em;  /* Отступ между абзацами */
 }
 `
 
 const snippet9 = `
-/* Styled Components - CSS-in-JS изоляция */
-import styled, { css, ThemeProvider } from 'styled-components';
+/* Комбинирование единиц - лучшие практики */
 
-// Тема для всего приложения
-const theme = {
-colors: {
-primary: '#3b82f6',
-primaryHover: '#2563eb',
-secondary: '#6b7280',
-success: '#10b981',
-danger: '#ef4444',
-warning: '#f59e0b',
-background: '#ffffff',
-surface: '#f9fafb',
-text: '#111827',
-textSecondary: '#6b7280'
-},
-spacing: {
-xs: '0.25rem',
-sm: '0.5rem',
-md: '1rem',
-lg: '1.5rem',
-xl: '2rem'
-},
-borderRadius: {
-sm: '4px',
-md: '8px',
-lg: '12px',
-full: '9999px'
-},
-shadows: {
-sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-md: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+/* Адаптивная типографика с clamp() */
+.responsive-heading {
+  font-size: clamp(1.5rem, 4vw, 3rem);
+  /* Минимум 1.5rem, максимум 3rem, предпочтительно 4vw */
 }
-};
 
-// Базовые компоненты
-const Card = styled.div\`
-background: \${props => props.theme.colors.background};
-border-radius: \${props => props.theme.borderRadius.lg};
-padding: \${props => props.theme.spacing.xl};
-box-shadow: \${props => props.theme.shadows.md};
-transition: all 0.2s ease;
-
-\${props => props.interactive && css\`
-cursor: pointer;
-
-&:hover {
-box-shadow: \${props => props.theme.shadows.lg};
-transform: translateY(-2px);
+.adaptive-padding {
+  padding: clamp(1rem, 5vw, 4rem);
+  /* Отступы адаптируются, но в разумных пределах */
 }
-\`}
 
-\${props => props.variant === 'outlined' && css\`
-box-shadow: none;
-border: 1px solid \${props => props.theme.colors.secondary}40;
-\`}
-\`;
-
-const Avatar = styled.img\`
-width: \${props => props.size === 'large' ? '80px' : props.size === 'small' ? '40px' : '60px'};
-height: \${props => props.size === 'large' ? '80px' : props.size === 'small' ? '40px' : '60px'};
-border-radius: \${props => props.theme.borderRadius.full};
-object-fit: cover;
-border: 3px solid \${props => props.theme.colors.primary};
-\`;
-
-const Button = styled.button\`
-display: inline-flex;
-align-items: center;
-justify-content: center;
-padding: \${props => props.size === 'large' ?
-\`\${props.theme.spacing.md} \${props.theme.spacing.xl}\` :
-\`\${props.theme.spacing.sm} \${props.theme.spacing.md}\`};
-border: none;
-border-radius: \${props => props.theme.borderRadius.md};
-font-weight: 500;
-cursor: pointer;
-transition: all 0.2s ease;
-text-decoration: none;
-
-\${props => props.variant === 'primary' && css\`
-background: \${props => props.theme.colors.primary};
-color: white;
-
-&:hover {
-background: \${props => props.theme.colors.primaryHover};
+/* Многоуровневая адаптивность */
+.smart-container {
+  width: min(90vw, 1200px);     /* Не больше 90% экрана или 1200px */
+  margin: 0 auto;
+  padding: clamp(1rem, 3vw, 2rem);
 }
-\`}
 
-\${props => props.variant === 'secondary' && css\`
-background: transparent;
-color: \${props => props.theme.colors.primary};
-border: 1px solid \${props => props.theme.colors.primary};
-
-&:hover {
-background: \${props => props.theme.colors.primary};
-color: white;
+/* CSS Grid с относительными единицами */
+.responsive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  gap: clamp(1rem, 3vw, 2rem);
+  padding: clamp(1rem, 5vw, 3rem);
 }
-\`}
 
-\${props => props.loading && css\`
-opacity: 0.7;
-cursor: not-allowed;
-\`}
-\`;
-
-// Композитный компонент
-const ProfileCard = ({ user, size = 'medium', interactive = false, onConnect, onMessage }) => (
-<Card interactive={interactive}>
-<Avatar
-  src={user.avatar}
-  alt={\`\${user.name} avatar\`}
-  size={size}
-/>
-<h3>{user.name}</h3>
-<p>{user.role}</p>
-<div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-<Button variant="primary" onClick={onConnect}>
-  Connect
-</Button>
-<Button variant="secondary" onClick={onMessage}>
-  Message
-</Button>
-</div>
-</Card>
-);
-
-// Использование с провайдером темы
-const App = () => (
-<ThemeProvider theme={theme}>
-<ProfileCard
-  user={{
-  name: 'John Doe',
-role: 'Frontend Developer',
-avatar: '/john.jpg'
-}}
-interactive
-onConnect={() => console.log('Connect clicked')}
-onMessage={() => console.log('Message clicked')}
-/>
-</ThemeProvider>
-);
+/* Комбинация для идеальной читаемости */
+.perfect-text {
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  line-height: 1.6;
+  max-width: 65ch;
+  margin: 0 auto;
+  padding: clamp(1rem, 4vw, 2rem);
+}
 `
 
 const snippet10 = `
-/* Современные подходы: CSS Container Queries + компоненты */
+/* Частые ошибки и их решения */
 
-/* Компонент адаптируется к своему контейнеру, а не к viewport */
-.product-card {
-container-type: inline-size;
-container-name: product-card;
-
-background: white;
-border-radius: 12px;
-padding: 20px;
-box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+/* ❌ НЕПРАВИЛЬНО: Каскадные em */
+.bad-nesting {
+  font-size: 1.2em;
+}
+.bad-nesting .child {
+  font-size: 1.2em;  /* 1.44em от корня */
+}
+.bad-nesting .child .grandchild {
+  font-size: 1.2em;  /* 1.728em от корня - слишком крупно */
 }
 
-.product-card__content {
-display: grid;
-gap: 16px;
+/* ✅ ПРАВИЛЬНО: Используем rem */
+.good-nesting {
+  font-size: 1.2rem;
+}
+.good-nesting .child {
+  font-size: 1.2rem; /* всегда 1.2rem */
+}
+.good-nesting .child .grandchild {
+  font-size: 1.2rem; /* всегда 1.2rem */
 }
 
-.product-card__image {
-width: 100%;
-height: 200px;
-object-fit: cover;
-border-radius: 8px;
+/* ❌ НЕПРАВИЛЬНО: Некомпенсированные viewport единицы */
+.bad-viewport {
+  font-size: 5vw;  /* На 4K мониторе = огромный текст */
 }
 
-.product-card__title {
-font-size: 1.25rem;
-font-weight: 600;
-margin: 0;
+/* ✅ ПРАВИЛЬНО: Ограниченные размеры */
+.good-viewport {
+  font-size: clamp(1rem, 5vw, 2.5rem);
 }
 
-.product-card__price {
-font-size: 1.5rem;
-font-weight: 700;
-color: #059669;
+/* ❌ НЕПРАВИЛЬНО: Процентная высота без контекста */
+.parent-no-height {
+  /* height не определена */
+}
+.child-no-height {
+  height: 100%; /* Не работает! */
 }
 
-.product-card__description {
-color: #6b7280;
-line-height: 1.5;
+/* ✅ ПРАВИЛЬНО: Viewport или определенный контекст */
+.parent-with-height {
+  height: 100vh; /* или конкретное значение */
+}
+.child-works {
+  height: 100%; /* Теперь работает */
+}
+`
+
+const snippet11 = `
+/* Accessibility и пользовательские настройки */
+
+/* Базовая настройка для accessibility */
+:root {
+  font-size: 16px; /* Базовый размер по умолчанию */
 }
 
-.product-card__actions {
-display: flex;
-gap: 12px;
-margin-top: auto;
+/* Уважение к настройкам пользователя */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
-/* Адаптация к размеру контейнера */
-@container product-card (min-width: 400px) {
-.product-card__content {
-grid-template-columns: 200px 1fr;
-grid-template-areas:
-"image title"
-"image price"
-"image description"
-"actions actions";
+/* Адаптация к увеличенному шрифту */
+@media (min-resolution: 2dppx) {
+  :root {
+    font-size: 18px; /* Увеличиваем для Retina дисплеев */
+  }
 }
 
-.product-card__image {
-grid-area: image;
-height: 160px;
+/* Система предпочтений для крупного текста */
+@media (prefers-contrast: high) {
+  :root {
+    font-size: 18px;
+  }
+
+  .text {
+    font-weight: 600; /* Делаем текст жирнее */
+    line-height: 1.8; /* Увеличиваем межстрочный интервал */
+  }
 }
 
-.product-card__title { grid-area: title; }
-.product-card__price { grid-area: price; }
-.product-card__description { grid-area: description; }
-.product-card__actions { grid-area: actions; }
+/* Респект к системным настройкам font-size */
+html {
+  font-size: 100%; /* Наследует от браузера */
 }
 
-@container product-card (min-width: 600px) {
-.product-card {
-padding: 32px;
+.scalable-ui {
+  padding: 1rem;      /* Масштабируется с настройками */
+  margin: 0.75rem;
+  border-radius: 0.25rem;
+}
+`
+
+const snippet12 = `
+/* Производительность относительных единиц */
+
+/* Эффективные вычисления */
+.efficient-layout {
+  /* rem быстрее em в глубокой вложенности */
+  font-size: 1.2rem;
+  margin: 1rem;
+
+  /* Viewport единицы требуют пересчета при resize */
+  width: clamp(20rem, 50vw, 60rem); /* Ограничиваем пересчеты */
 }
 
-.product-card__title {
-font-size: 1.5rem;
+/* Избегаем частых пересчетов */
+.avoid-frequent-recalc {
+  /* ❌ Каждый resize пересчитывает */
+  font-size: 4vw;
+  padding: 2vw;
+  margin: 1vw;
+
+  /* ✅ Меньше зависимостей от viewport */
+  font-size: clamp(1rem, 4vw, 2rem);
+  padding: 1rem;
+  margin: 0.5rem;
 }
 
-.product-card__price {
-font-size: 1.75rem;
-}
+/* CSS Custom Properties с относительными единицами */
+:root {
+  --base-font-size: 1rem;
+  --large-font-size: 1.5rem;
+  --huge-font-size: clamp(2rem, 5vw, 4rem);
+
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 2rem;
+  --spacing-xl: 3rem;
 }
 
-/* CSS Cascade Layers для управления специфичностью */
-@layer reset, components, utilities;
-
-@layer components {
-.product-card {
-/* Компонентные стили с контролируемой специфичностью */
-}
-}
-
-@layer utilities {
-.hidden { display: none !important; }
-.sr-only { /* screen reader only styles */ }
+.component {
+  font-size: var(--base-font-size);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
 }
 `
 
@@ -873,18 +422,22 @@ const highlightedSnippet7 = ref('')
 const highlightedSnippet8 = ref('')
 const highlightedSnippet9 = ref('')
 const highlightedSnippet10 = ref('')
+const highlightedSnippet11 = ref('')
+const highlightedSnippet12 = ref('')
 
 onMounted(() => {
-highlightedSnippet1.value = Prism.highlight(snippet1, Prism.languages.css, 'css')
-highlightedSnippet2.value = Prism.highlight(snippet2, Prism.languages.css, 'css')
-highlightedSnippet3.value = Prism.highlight(snippet3, Prism.languages.javascript, 'javascript')
-highlightedSnippet4.value = Prism.highlight(snippet4, Prism.languages.css, 'css')
-highlightedSnippet5.value = Prism.highlight(snippet5, Prism.languages.javascript, 'javascript')
-highlightedSnippet6.value = Prism.highlight(snippet6, Prism.languages.javascript, 'javascript')
-highlightedSnippet7.value = Prism.highlight(snippet7, Prism.languages.javascript, 'javascript')
-highlightedSnippet8.value = Prism.highlight(snippet8, Prism.languages.css, 'css')
-highlightedSnippet9.value = Prism.highlight(snippet9, Prism.languages.javascript, 'javascript')
-highlightedSnippet10.value = Prism.highlight(snippet10, Prism.languages.css, 'css')
+  highlightedSnippet1.value = Prism.highlight(snippet1, Prism.languages.css, 'css')
+  highlightedSnippet2.value = Prism.highlight(snippet2, Prism.languages.css, 'css')
+  highlightedSnippet3.value = Prism.highlight(snippet3, Prism.languages.css, 'css')
+  highlightedSnippet4.value = Prism.highlight(snippet4, Prism.languages.css, 'css')
+  highlightedSnippet5.value = Prism.highlight(snippet5, Prism.languages.css, 'css')
+  highlightedSnippet6.value = Prism.highlight(snippet6, Prism.languages.css, 'css')
+  highlightedSnippet7.value = Prism.highlight(snippet7, Prism.languages.css, 'css')
+  highlightedSnippet8.value = Prism.highlight(snippet8, Prism.languages.css, 'css')
+  highlightedSnippet9.value = Prism.highlight(snippet9, Prism.languages.css, 'css')
+  highlightedSnippet10.value = Prism.highlight(snippet10, Prism.languages.css, 'css')
+  highlightedSnippet11.value = Prism.highlight(snippet11, Prism.languages.css, 'css')
+  highlightedSnippet12.value = Prism.highlight(snippet12, Prism.languages.css, 'css')
 })
 
 </script>
@@ -896,47 +449,158 @@ highlightedSnippet10.value = Prism.highlight(snippet10, Prism.languages.css, 'cs
         <v-row justify="center">
           <v-col lg="8">
             <h1 class="text-h4 font-weight-bold mb-6">
-              Как изоляция стилей в CSS связана с компонентной архитектурой / WebComponents?
+              Зачем нужны относительные единицы измерения в CSS?
             </h1>
 
             <p class="font-weight-regular mb-6">
-              <b>Изоляция стилей</b> и <b>компонентная архитектура</b> тесно связаны — изоляция является
-              фундаментальным принципом, обеспечивающим инкапсуляцию, переиспользование и композицию компонентов.
-              Без правильной изоляции компоненты влияют друг на друга непредсказуемым образом.
+              <b>Относительные единицы измерения</b> — это система размеров, которые вычисляются относительно
+              других значений (родительского элемента, размера шрифта, viewport). Они обеспечивают адаптивность,
+              доступность и лучшую масштабируемость интерфейсов по сравнению с абсолютными единицами.
             </p>
 
-            <h2 class="text-h5 font-weight-bold mb-3">Проблемы без изоляции стилей</h2>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet1"></code></pre>
-
-            <h2 class="text-h5 font-weight-bold mb-3">Принципы компонентной архитектуры CSS</h2>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet2"></code></pre>
-
-            <h2 class="text-h5 font-weight-bold mb-3">Связь изоляции с компонентной архитектурой</h2>
+            <h2 class="text-h5 font-weight-bold mb-3">Основные преимущества</h2>
             <v-table density="comfortable" class="mb-8">
               <thead>
               <tr>
-                <th class="text-left font-weight-bold">Принцип компонентов</th>
-                <th class="text-left font-weight-bold">Роль изоляции CSS</th>
-                <th class="text-left font-weight-bold">Методы реализации</th>
+                <th class="text-left font-weight-bold">Преимущество</th>
+                <th class="text-left font-weight-bold">Описание</th>
+                <th class="text-left font-weight-bold">Пример использования</th>
               </tr>
               </thead>
               <tbody>
               <tr>
-                <td class="pt-2 pb-2"><b>Инкапсуляция</b></td>
-                <td class="pt-2 pb-2">Стили не влияют на другие компоненты</td>
-                <td class="pt-2 pb-2">Shadow DOM, CSS Modules, Scoped</td>
+                <td class="pt-2 pb-2"><b>Адаптивность</b></td>
+                <td class="pt-2 pb-2">Автоматическое масштабирование под разные экраны</td>
+                <td class="pt-2 pb-2">vw, vh для полноэкранных элементов</td>
               </tr>
               <tr>
-                <td class="pt-2 pb-2"><b>Переиспользование</b></td>
-                <td class="pt-2 pb-2">Компонент работает в любом контексте</td>
-                <td class="pt-2 pb-2">CSS-in-JS, изолированные классы</td>
+                <td class="pt-2 pb-2"><b>Доступность</b></td>
+                <td class="pt-2 pb-2">Уважение к настройкам пользователя</td>
+                <td class="pt-2 pb-2">rem учитывает увеличенный шрифт</td>
               </tr>
               <tr>
-                <td class="pt-2 pb-2"><b>Композиция</b></td>
-                <td class="pt-2 pb-2">Компоненты комбинируются без конфликтов</td>
-                <td class="pt-2 pb-2">BEM, CSS Custom Properties</td>
+                <td class="pt-2 pb-2"><b>Согласованность</b></td>
+                <td class="pt-2 pb-2">Пропорциональные отношения элементов</td>
+                <td class="pt-2 pb-2">em для отступов внутри компонентов</td>
               </tr>
               <tr>
-                <td class="pt-2 pb-2"><b>Предсказуемость</b></td>
-                <td class="pt-2 pb-2">Стили ведут себя одинаково везде</td>
-                <td class="pt
+                <td class="pt-2 pb-2"><b>Меньше Media Queries</b></td>
+                <td class="pt-2 pb-2">Естественная адаптация без точек останова</td>
+                <td class="pt-2 pb-2">clamp() для плавных переходов</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>Типографика</b></td>
+                <td class="pt-2 pb-2">Контроль читаемости и пропорций</td>
+                <td class="pt-2 pb-2">ch для оптимальной длины строки</td>
+              </tr>
+              </tbody>
+            </v-table>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Проблемы абсолютных единиц</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet1"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Решение с относительными единицами</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet2"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Основные типы относительных единиц</h2>
+
+            <h3 class="text-h6 font-weight-bold mb-3">1. em - относительно родительского font-size</h3>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet3"></code></pre>
+
+            <h3 class="text-h6 font-weight-bold mb-3">2. rem - относительно корневого font-size</h3>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet4"></code></pre>
+
+            <h3 class="text-h6 font-weight-bold mb-3">3. Viewport единицы (vw, vh, vmin, vmax)</h3>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet5"></code></pre>
+
+            <h3 class="text-h6 font-weight-bold mb-3">4. Современные viewport единицы (dvh, svh, lvh)</h3>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet6"></code></pre>
+
+            <h3 class="text-h6 font-weight-bold mb-3">5. Процентные единицы (%)</h3>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet7"></code></pre>
+
+            <h3 class="text-h6 font-weight-bold mb-3">6. Типографические единицы (ch, ex)</h3>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet8"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Лучшие практики и комбинирование</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet9"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Частые ошибки и их решения</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet10"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Сравнение относительных единиц</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100" color="success" variant="tonal">
+                  <h3 class="text-h6 font-weight-bold mb-2">rem</h3>
+                  <p class="mb-2"><b>Плюсы:</b> Предсказуемость, accessibility, простота</p>
+                  <p class="mb-2"><b>Минусы:</b> Менее гибкий для компонентов</p>
+                  <p class="ma-0"><b>Использование:</b> Основные размеры шрифтов, отступы</p>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100" color="info" variant="tonal">
+                  <h3 class="text-h6 font-weight-bold mb-2">em</h3>
+                  <p class="mb-2"><b>Плюсы:</b> Пропорциональность, компонентность</p>
+                  <p class="mb-2"><b>Минусы:</b> Каскадные эффекты в глубокой вложенности</p>
+                  <p class="ma-0"><b>Использование:</b> Внутренние отступы компонентов</p>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100" color="warning" variant="tonal">
+                  <h3 class="text-h6 font-weight-bold mb-2">Viewport (vw/vh)</h3>
+                  <p class="mb-2"><b>Плюсы:</b> Истинная адаптивность</p>
+                  <p class="mb-2"><b>Минусы:</b> Экстремальные значения на разных экранах</p>
+                  <p class="ma-0"><b>Использование:</b> Полноэкранные секции, hero-области</p>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100" color="primary" variant="tonal">
+                  <h3 class="text-h6 font-weight-bold mb-2">Проценты (%)</h3>
+                  <p class="mb-2"><b>Плюсы:</b> Контекстуальная адаптивность</p>
+                  <p class="mb-2"><b>Минусы:</b> Проблемы с height без определенного контекста</p>
+                  <p class="ma-0"><b>Использование:</b> Ширина, флексбокс, грид</p>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Accessibility и пользовательские настройки</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet11"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Производительность и оптимизация</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet12"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Недостатки относительных единиц</h2>
+            <v-table density="comfortable" class="mb-8">
+              <thead>
+              <tr>
+                <th class="text-left font-weight-bold">Недостаток</th>
+                <th class="text-left font-weight-bold">Описание</th>
+                <th class="text-left font-weight-bold">Решение</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td class="pt-2 pb-2"><b>Сложность отладки</b></td>
+                <td class="pt-2 pb-2">Вычисляемые значения сложнее отследить</td>
+                <td class="pt-2 pb-2">DevTools Computed tab, документирование</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>Каскадные эффекты em</b></td>
+                <td class="pt-2 pb-2">Непредсказуемые размеры в глубокой вложенности</td>
+                <td class="pt-2 pb-2">Использовать rem вместо em для размеров</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>Производительность viewport</b></td>
+                <td class="pt-2 pb-2">Пересчеты при изменении размера окна</td>
+                <td class="pt-2 pb-2">Ограничивать clamp(), избегать в анимациях</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>Экстремальные значения</b></td>
+                <td class="pt-2 pb-2">Слишком крупные/мелкие размеры на разных экранах</td>
+                <td class="pt-2 pb-2">clamp() с разумными min/max значениями</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>Браузерная поддержка</b></td>
+                <td class="pt-2 pb-2">Новые единицы (dvh, container queries) не везде</td>
+                <td class="pt-2 pb-2">
