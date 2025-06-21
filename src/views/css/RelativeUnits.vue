@@ -603,4 +603,117 @@ onMounted(() => {
               <tr>
                 <td class="pt-2 pb-2"><b>Браузерная поддержка</b></td>
                 <td class="pt-2 pb-2">Новые единицы (dvh, container queries) не везде</td>
-                <td class="pt-2 pb-2">
+                <td class="pt-2 pb-2">Fallback'ы и прогрессивные улучшения</td>
+              </tr>
+              </tbody>
+            </v-table>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Рекомендации для собеседования</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100" color="success" variant="tonal">
+                  <h3 class="text-h6 font-weight-bold mb-2">Что знать обязательно</h3>
+                  <ul class="pl-4">
+                    <li>Разница между em и rem</li>
+                    <li>Когда использовать каждую единицу</li>
+                    <li>Проблемы каскадного em</li>
+                    <li>Viewport единицы и их применение</li>
+                    <li>clamp() для адаптивности</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100" color="warning" variant="tonal">
+                  <h3 class="text-h6 font-weight-bold mb-2">Частые вопросы</h3>
+                  <ul class="pl-4">
+                    <li>"Чем отличается 1em от 1rem?"</li>
+                    <li>"Когда viewport единицы неуместны?"</li>
+                    <li>"Как сделать адаптивный шрифт?"</li>
+                    <li>"Проблемы с процентной высотой?"</li>
+                    <li>"Accessibility и относительные единицы"</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Практические примеры для демонстрации</h2>
+            <v-table density="comfortable" class="mb-8">
+              <thead>
+              <tr>
+                <th class="text-left font-weight-bold">Сценарий</th>
+                <th class="text-left font-weight-bold">Лучший выбор</th>
+                <th class="text-left font-weight-bold">Обоснование</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td class="pt-2 pb-2">Основной текст сайта</td>
+                <td class="pt-2 pb-2">1rem</td>
+                <td class="pt-2 pb-2">Предсказуемость, accessibility</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2">Отступы внутри карточки</td>
+                <td class="pt-2 pb-2">1em</td>
+                <td class="pt-2 pb-2">Пропорциональность размеру шрифта</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2">Hero секция</td>
+                <td class="pt-2 pb-2">100vh или clamp()</td>
+                <td class="pt-2 pb-2">Полноэкранность или адаптивность</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2">Читаемая строка текста</td>
+                <td class="pt-2 pb-2">65ch</td>
+                <td class="pt-2 pb-2">Оптимальная длина для чтения</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2">Адаптивная сетка</td>
+                <td class="pt-2 pb-2">% + rem</td>
+                <td class="pt-2 pb-2">Гибкость + предсказуемые отступы</td>
+              </tr>
+              </tbody>
+            </v-table>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Итоговые выводы</h2>
+            <p class="font-weight-regular mb-4">
+              Относительные единицы измерения — основа современной адаптивной веб-разработки.
+              Они решают проблемы accessibility, масштабируемости и кроссбраузерности,
+              но требуют понимания контекста применения.
+            </p>
+
+            <p class="font-weight-regular mb-4">
+              <b>Золотое правило:</b> используйте rem для размеров, которые должны быть предсказуемыми,
+              em для элементов, которые должны масштабироваться пропорционально,
+              и viewport единицы с ограничениями для истинно адаптивных интерфейсов.
+            </p>
+
+            <v-alert type="info" class="mb-6">
+              <b>Совет для собеседования:</b> Всегда приводите конкретные примеры использования
+              и объясняйте, почему выбрали именно эту единицу измерения.
+              Показывайте понимание проблем и способов их решения.
+            </v-alert>
+
+            <div class="d-flex justify-space-between">
+              <v-btn
+                color="primary"
+                size="small"
+                variant="elevated"
+                href="https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Values_and_units"
+                target="_blank">
+                MDN: CSS Units
+              </v-btn>
+              <v-btn
+                color="secondary"
+                size="small"
+                variant="elevated"
+                href="https://web.dev/css-units/"
+                target="_blank">
+                Web.dev Guide
+              </v-btn>
+            </div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-app>
+</template>
