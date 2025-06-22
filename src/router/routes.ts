@@ -15,6 +15,7 @@ import ComponentArchitecture from '@/views/css/ComponentArchitecture.vue'
 import StyleIsolationMigration from '@/views/css/StyleIsolationMigration.vue'
 import RelativeUnits from '@/views/css/RelativeUnits.vue'
 import TestsPage from '@/views/TestsPage.vue'
+import CSSSpecificityTestPage from '@/views/tests/CSSSpecificityTestPage.vue'
 
 export const routes = [
   {
@@ -52,6 +53,10 @@ export const routes = [
   {
     path: '/css/specificity',
     component: Specificity,
+  },
+  {
+    path: '/css/css-test',
+    component: CSSSpecificityTestPage,
   },
   {
     path: '/css/style-isolation',

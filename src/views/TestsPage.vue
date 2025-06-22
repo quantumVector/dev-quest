@@ -13,5 +13,15 @@
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
+
+    <v-expansion-panel title="CSS">
+      <v-expansion-panel-text>
+        <v-list>
+          <v-list-item to="/css/css-test">
+            <v-list-item-title>2. Специфичность селекторов</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-expansion-panel-text>
+    </v-expansion-panel>
   </v-expansion-panels>
 </template>
