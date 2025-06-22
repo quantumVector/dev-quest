@@ -1,11 +1,4 @@
-export interface Question {
-  id: number
-  question: string
-  options: string[]
-  correctAnswer: number
-  explanation: string
-  topic: string
-}
+import type { Question } from '@/types/question.ts'
 
 export const cssSpecificityQuestions: Question[] = [
   {
