@@ -20,6 +20,9 @@
           <v-list-item to="/css/css-test">
             <v-list-item-title>1. Специфичность селекторов</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/css/isolation-test">
+            <v-list-item-title>2. Изоляция стилей</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
