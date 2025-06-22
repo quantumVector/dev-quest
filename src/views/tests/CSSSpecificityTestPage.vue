@@ -7,7 +7,7 @@ import { cssSpecificityQuestions } from '@/data/css-specificity-questions'
   <UniversalTestPage
     :questions="cssSpecificityQuestions"
     title="Тест по CSS: Специфичность селекторов"
-    description="4 вопроса по теме специфичности CSS-селекторов"
+    description="20 вопросов по теме специфичности CSS-селекторов"
     :show-topic-breakdown="false"
   />
 </template>
