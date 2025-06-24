@@ -60,6 +60,10 @@
           <v-list-item to="/css/flex-vs-grid">
             <v-list-item-title>4.1. В каких ситуациях лучше использовать Flex или Grid, в каких они не могут заменить друг друга?</v-list-item-title>
           </v-list-item>
+          <v-list-subheader>Трансформации</v-list-subheader>
+          <v-list-item to="/css/transformations">
+            <v-list-item-title>5.1. Какие виды трансформаций можно применять в CSS и для чего они используются?</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
