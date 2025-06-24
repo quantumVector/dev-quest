@@ -495,7 +495,7 @@ window.addEventListener('scroll', () => {
 
   document.querySelectorAll('.parallax-layer').forEach((layer, index) => {
     const speed = (index + 1) * 0.5;
-    layer.style.transform += ` translateY(${scrollTop * speed}px)`;
+    layer.style.transform += \` translateY(\${scrollTop * speed}px)\`;
   });
 });
 */
@@ -726,4 +726,78 @@ onMounted(() => {
                 <p class="font-weight-bold mb-1">Можно ли анимировать отдельные функции transform?</p>
                 <p class="font-weight-regular ma-0">
                   Нет, нельзя анимировать translateX, rotate, scale отдельно. Transform анимируется
-                  как единое свойство. Для независимых аним
+                  как единое свойство. Для независимых анимаций используйте отдельные элементы.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Какие свойства трансформаций нельзя анимировать?</p>
+                <p class="font-weight-regular ma-0">
+                  transform-style, backface-visibility, will-change — эти свойства изменяются мгновенно
+                  без плавных переходов.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Влияет ли порядок функций в transform на анимацию?</p>
+                <p class="font-weight-regular ma-0">
+                  Да, порядок критичен. translate(50px) rotate(45deg) ≠ rotate(45deg) translate(50px).
+                  Браузер интерполирует между соответствующими функциями в том же порядке.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Можно ли анимировать perspective-origin?</p>
+                <p class="font-weight-regular ma-0">
+                  Да, perspective-origin анимируется плавно и позволяет создавать эффекты изменения
+                  точки наблюдения в 3D пространстве.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Что происходит при анимации transform-origin?</p>
+                <p class="font-weight-regular ma-0">
+                  Точка трансформации плавно перемещается, что создает эффект изменения "оси" вращения,
+                  масштабирования или наклона в процессе анимации.
+                </p>
+              </li>
+            </ol>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Лучшие практики</h2>
+            <v-alert type="info" class="mb-4">
+              <v-alert-title>Рекомендации по производительности</v-alert-title>
+              <ul class="mt-2 pl-4">
+                <li>Используйте will-change: transform для критических анимаций</li>
+                <li>Предпочитайте transform вместо изменения position</li>
+                <li>Группируйте трансформации в одно свойство</li>
+                <li>Используйте translate3d() для принудительного GPU ускорения</li>
+                <li>Удаляйте will-change после завершения анимации</li>
+              </ul>
+            </v-alert>
+
+            <v-alert type="warning" class="mb-4">
+              <v-alert-title>Частые ошибки</v-alert-title>
+              <ul class="mt-2 pl-4">
+                <li>Попытка анимировать transform-style или backface-visibility</li>
+                <li>Неправильный порядок функций в transform</li>
+                <li>Забывание о влиянии transform-origin на анимацию</li>
+                <li>Использование отдельных transition для частей transform</li>
+                <li>Смешивание 2D и 3D трансформаций без понимания контекста</li>
+              </ul>
+            </v-alert>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Заключение</h2>
+            <p class="font-weight-regular mb-4">
+              Понимание того, какие свойства трансформаций можно анимировать, критически важно
+              для создания качественных веб-анимаций. Основные анимируемые свойства — это
+              <code>transform</code>, <code>transform-origin</code>, <code>perspective</code>
+              и <code>perspective-origin</code>. Остальные свойства служат для настройки
+              контекста, но не поддерживают плавные переходы.
+            </p>
+
+            <p class="font-weight-regular mb-4">
+              Всегда помните о производительности и используйте правильные техники оптимизации
+              для обеспечения плавных 60fps анимаций.
+            </p>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-app>
+</template>

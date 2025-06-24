@@ -64,6 +64,9 @@
           <v-list-item to="/css/transformations">
             <v-list-item-title>5.1. Какие виды трансформаций можно применять в CSS и для чего они используются?</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/css/animatable-properties">
+            <v-list-item-title>5.2. Какие свойства CSS можно анимировать с помощью трансформаций?</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

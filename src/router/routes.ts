@@ -21,6 +21,7 @@ import CSSRelativeUnitsTestPage from '@/views/tests/CSSRelativeUnitsTestPage.vue
 import FlexboxVsGrid from '@/views/css/FlexboxVsGrid.vue'
 import CSSFlexVsGridTestPage from '@/views/tests/CSSFlexVsGridTestPage.vue'
 import Transformations from '@/views/css/Transformations.vue'
+import AnimatableProperties from '@/views/css/AnimatableProperties.vue'
 
 export const routes = [
   {
@@ -114,5 +115,9 @@ export const routes = [
   {
     path: '/css/transformations',
     component: Transformations,
+  },
+  {
+    path: '/css/animatable-properties',
+    component: AnimatableProperties,
   },
 ]
