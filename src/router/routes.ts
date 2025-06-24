@@ -19,6 +19,7 @@ import CSSSpecificityTestPage from '@/views/tests/CSSSpecificityTestPage.vue'
 import CSSIsolationTestPage from '@/views/tests/CSSIsolationTestPage.vue'
 import CSSRelativeUnitsTestPage from '@/views/tests/CSSRelativeUnitsTestPage.vue'
 import FlexboxVsGrid from '@/views/css/FlexboxVsGrid.vue'
+import CSSFlexVsGridTestPage from '@/views/tests/CSSFlexVsGridTestPage.vue'
 
 export const routes = [
   {
@@ -104,5 +105,9 @@ export const routes = [
   {
     path: '/css/flex-vs-grid',
     component: FlexboxVsGrid,
+  },
+  {
+    path: '/css/flex-vs-grid-test',
+    component: CSSFlexVsGridTestPage,
   },
 ]

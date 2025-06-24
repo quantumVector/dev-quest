@@ -26,6 +26,9 @@
           <v-list-item to="/css/relative-units-test">
             <v-list-item-title>3. Относительные единицы измерения</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/css/flex-vs-grid-test">
+            <v-list-item-title>4. Flex/Grid</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
