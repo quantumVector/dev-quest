@@ -23,6 +23,9 @@
           <v-list-item to="/css/isolation-test">
             <v-list-item-title>2. Изоляция стилей</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/css/relative-units-test">
+            <v-list-item-title>3. Относительные единицы измерения</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

@@ -17,6 +17,7 @@ import RelativeUnits from '@/views/css/RelativeUnits.vue'
 import TestsPage from '@/views/TestsPage.vue'
 import CSSSpecificityTestPage from '@/views/tests/CSSSpecificityTestPage.vue'
 import CSSIsolationTestPage from '@/views/tests/CSSIsolationTestPage.vue'
+import CSSRelativeUnitsTestPage from '@/views/tests/CSSRelativeUnitsTestPage.vue'
 
 export const routes = [
   {
@@ -94,5 +95,9 @@ export const routes = [
   {
     path: '/css/relative-units',
     component: RelativeUnits,
+  },
+  {
+    path: '/css/relative-units-test',
+    component: CSSRelativeUnitsTestPage,
   },
 ]
