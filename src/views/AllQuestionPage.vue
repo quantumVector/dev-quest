@@ -56,6 +56,10 @@
           <v-list-item to="/css/relative-units">
             <v-list-item-title>3.1. Зачем нужны относительные единицы измерения? Какие плюсы и минусы видишь при использовании относительных единиц?</v-list-item-title>
           </v-list-item>
+          <v-list-subheader>Flex/Grid</v-list-subheader>
+          <v-list-item to="/css/flex-vs-grid">
+            <v-list-item-title>4.1. В каких ситуациях лучше использовать Flex или Grid, в каких они не могут заменить друг друга?</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
