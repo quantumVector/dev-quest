@@ -6,838 +6,756 @@ import 'prismjs/components/prism-css.js'
 import 'prismjs/components/prism-javascript.js'
 
 const snippet1 = `
-/* ОСНОВНЫЕ принципы плавных анимаций */
+/* Проблемы неэффективных анимаций */
 
-/* ❌ Плохо - анимация layout-свойств */
-.slow-animation {
-  transition:
-    left 0.3s ease,        /* Layout reflow */
-    top 0.3s ease,         /* Layout reflow */
-    width 0.3s ease,       /* Layout reflow */
-    height 0.3s ease;      /* Layout reflow */
+/* ❌ ПЛОХО: Анимация свойств, вызывающих reflow/repaint */
+.bad-animation {
+  transition: width 0.3s ease, height 0.3s ease;
+}
+.bad-animation:hover {
+  width: 200px;    /* Вызывает layout (reflow) */
+  height: 150px;   /* Вызывает layout (reflow) */
+  background: red; /* Вызывает paint (repaint) */
+  margin-left: 20px; /* Вызывает layout соседних элементов */
 }
 
-.slow-animation:hover {
-  left: 100px;
-  top: 50px;
-  width: 200px;
-  height: 150px;
+/* ❌ ПЛОХО: Анимация позиционирования */
+.bad-move {
+  transition: left 0.3s ease, top 0.3s ease;
+  position: relative;
+}
+.bad-move:hover {
+  left: 100px;  /* Дорогие вычисления layout */
+  top: 50px;    /* Перерисовка всей страницы */
 }
 
-/* ✅ Хорошо - анимация композитных свойств */
-.smooth-animation {
-  /* Только GPU-оптимизированные свойства */
-  transition:
-    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 0.3s ease;
-
-  /* Подготовка GPU слоя */
-  will-change: transform;
-  transform: translateZ(0);
-}
-
-.smooth-animation:hover {
-  /* Все изменения через transform */
-  transform:
-    translateX(100px)      /* вместо left */
-    translateY(50px)       /* вместо top */
-    scale(1.5)             /* вместо width/height */
-    translateZ(0);
-}
-
-/* Оптимальный timing для плавности */
-.optimal-timing {
-  /* Кривые Безье для естественности */
-  transition:
-    transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),    /* Material Design easing */
-    opacity 0.15s ease-out;                           /* Быстрое появление */
-}
-
-/* Разные скорости для разных свойств */
-.multi-property-timing {
-  transition:
-    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), /* Bounce effect */
-    opacity 0.2s ease-in-out,                          /* Плавное затухание */
-    filter 0.4s ease;                                  /* Медленные фильтры */
-}
+/* Результат: лаги, низкий FPS, плохой UX */
 `
 
 const snippet2 = `
-/* КРИВЫЕ БЕЗЬЕ для естественных анимаций */
+/* ✅ ХОРОШО: Анимация только композитных свойств */
 
-/* Предустановленные timing functions */
-.timing-functions {
-  /* Базовые функции */
-  transition: transform 0.3s linear;        /* Равномерная скорость */
-  transition: transform 0.3s ease;          /* Медленный старт/финиш */
-  transition: transform 0.3s ease-in;       /* Медленный старт */
-  transition: transform 0.3s ease-out;      /* Медленный финиш */
-  transition: transform 0.3s ease-in-out;   /* Медленный старт/финиш */
+/* Композитные свойства (GPU-ускоренные): */
+.efficient-animation {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  /* Эти свойства обрабатываются на GPU */
 }
 
-/* Кастомные кривые Безье */
-.custom-easing {
-  /* Material Design Motion */
-  --standard: cubic-bezier(0.4, 0, 0.2, 1);       /* Стандартная */
-  --decelerate: cubic-bezier(0, 0, 0.2, 1);       /* Замедление */
-  --accelerate: cubic-bezier(0.4, 0, 1, 1);       /* Ускорение */
-  --sharp: cubic-bezier(0.4, 0, 0.6, 1);          /* Резкая */
-
-  /* iOS подобные кривые */
-  --ios-standard: cubic-bezier(0.25, 0.1, 0.25, 1);
-  --ios-ease-in-out: cubic-bezier(0.42, 0, 0.58, 1);
-
-  /* Пружинные эффекты */
-  --spring-gentle: cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  --spring-bouncy: cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  --spring-snappy: cubic-bezier(0.55, 0.085, 0.68, 0.53);
+.efficient-animation:hover {
+  transform: translateX(100px) scale(1.1); /* Только композитор */
+  opacity: 0.8;                            /* Только композитор */
+  /* Никаких layout/paint операций! */
 }
 
-/* Применение разных кривых для разных действий */
-.contextual-easing {
-  /* Для появления элементов */
-  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+/* Принудительное создание композитного слоя */
+.will-animate {
+  will-change: transform; /* Подсказка браузеру */
+  /* или */
+  transform: translateZ(0); /* Hack для старых браузеров */
+  /* или */
+  transform: translate3d(0, 0, 0); /* 3D контекст */
 }
 
-.contextual-easing.entering {
-  transform: translateY(0) scale(1);
-}
-
-.contextual-easing.exiting {
-  /* Для исчезновения элементов */
-  transition: transform 0.2s cubic-bezier(0.55, 0.085, 0.68, 0.53);
-  transform: translateY(-20px) scale(0.95);
-}
-
-/* Многоступенчатые анимации */
-.multi-step-animation {
-  /* Разные этапы с разными кривыми */
-  animation: complex-movement 1.5s ease-in-out;
-}
-
-@keyframes complex-movement {
-  0% {
-    transform: translateX(0) scale(1);
-    animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53);
-  }
-  30% {
-    transform: translateX(100px) scale(1.1);
-    animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  }
-  60% {
-    transform: translateX(200px) scale(0.9);
-    animation-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
-  100% {
-    transform: translateX(300px) scale(1);
-  }
+/* Современный подход с contain */
+.contained-animation {
+  contain: layout style paint; /* Изолирует влияние на соседей */
 }
 `
 
 const snippet3 = `
-/* ОПТИМИЗАЦИЯ производительности анимаций */
+/* Transform функции для плавных анимаций */
 
-/* Подготовка к анимации */
-.animation-preparation {
-  /* Создание композитного слоя заранее */
-  will-change: transform;
-  transform: translateZ(0);
-
-  /* Изоляция содержимого */
-  contain: layout paint;
-
-  /* Оптимизация для GPU */
-  backface-visibility: hidden;
-  perspective: 1000px;
+/* Базовые трансформации */
+.transform-basics {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Селективная оптимизация */
-.selective-optimization {
-  /* По умолчанию без оптимизации */
-  will-change: auto;
-  transition: transform 0.3s ease;
+/* Перемещение (самое эффективное) */
+.translate-demo:hover {
+  transform: translateX(100px);           /* По X */
+  transform: translateY(50px);            /* По Y */
+  transform: translate(100px, 50px);      /* X и Y */
+  transform: translate3d(100px, 50px, 0); /* 3D контекст */
 }
 
-.selective-optimization:hover,
-.selective-optimization:focus,
-.selective-optimization.is-animating {
-  /* Включаем оптимизацию только при необходимости */
-  will-change: transform;
+/* Масштабирование */
+.scale-demo:hover {
+  transform: scale(1.2);          /* Равномерно */
+  transform: scaleX(1.5);         /* Только по X */
+  transform: scaleY(0.8);         /* Только по Y */
+  transform: scale3d(1.2, 1.2, 1); /* 3D контекст */
 }
 
-/* Очистка оптимизаций после анимации */
-.cleanup-optimization {
-  transition: transform 0.3s ease;
+/* Поворот */
+.rotate-demo:hover {
+  transform: rotate(45deg);        /* 2D поворот */
+  transform: rotateX(30deg);       /* Вокруг оси X */
+  transform: rotateY(45deg);       /* Вокруг оси Y */
+  transform: rotateZ(90deg);       /* Вокруг оси Z */
+  transform: rotate3d(1, 1, 0, 45deg); /* Произвольная ось */
 }
 
-.cleanup-optimization.animation-ended {
-  /* Очищаем will-change для экономии памяти */
-  will-change: auto;
-}
-
-/* Группировка анимаций */
-.animation-group {
-  /* Общий 3D контекст для группы */
-  transform-style: preserve-3d;
-  perspective: 1000px;
-}
-
-.animation-group .item {
-  /* Элементы разделяют GPU контекст */
-  transform: translateZ(var(--z-index, 0));
-  transition: transform 0.2s ease;
-}
-
-/* Батчинг трансформаций */
-.batched-transforms {
-  /* Объединяем все трансформации в одну операцию */
-  --translate-x: 0px;
-  --translate-y: 0px;
-  --rotate: 0deg;
-  --scale: 1;
-
-  transform:
-    translateX(var(--translate-x))
-    translateY(var(--translate-y))
-    rotate(var(--rotate))
-    scale(var(--scale))
-    translateZ(0);
-
-  transition: transform 0.3s ease;
-}
-
-.batched-transforms:hover {
-  --translate-x: 50px;
-  --translate-y: -20px;
-  --rotate: 45deg;
-  --scale: 1.2;
+/* Наклон (используется реже) */
+.skew-demo:hover {
+  transform: skewX(20deg);         /* Наклон по X */
+  transform: skewY(10deg);         /* Наклон по Y */
+  transform: skew(20deg, 10deg);   /* По обеим осям */
 }
 `
 
 const snippet4 = `
-/* ТЕХНИКИ для сложных анимационных последовательностей */
+/* Комбинирование трансформаций */
 
-/* Ступенчатые анимации с задержками */
-.staggered-animation-container .item {
-  transform: translateY(50px);
-  opacity: 0;
-  transition:
-    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 0.6s ease-out;
-  transition-delay: calc(var(--index, 0) * 0.1s);
+/* Порядок имеет значение! */
+.transform-order {
+  transition: transform 0.3s ease;
 }
 
-.staggered-animation-container.animate .item {
-  transform: translateY(0);
-  opacity: 1;
+/* Разный порядок = разный результат */
+.order-1:hover {
+  transform: translateX(100px) rotate(45deg);
+  /* Сначала сдвиг, потом поворот */
 }
 
-/* Цепочки анимаций */
-.animation-chain {
-  /* Первая анимация */
-  transform: translateX(-100px);
-  opacity: 0;
-  transition:
-    transform 0.4s ease-out,
-    opacity 0.4s ease-out;
+.order-2:hover {
+  transform: rotate(45deg) translateX(100px);
+  /* Сначала поворот, потом сдвиг по повернутой оси */
 }
 
-.animation-chain.step-1 {
-  /* Вторая анимация начинается после первой */
-  transform: translateX(0);
-  opacity: 1;
-  transition-delay: 0s;
+/* Комплексная анимация */
+.complex-transform:hover {
+  transform:
+    translate3d(50px, -20px, 0)    /* Перемещение */
+    rotate(15deg)                  /* Поворот */
+    scale(1.1)                     /* Масштаб */
+    skewX(5deg);                   /* Небольшой наклон */
 }
 
-.animation-chain.step-2 {
-  /* Третья анимация */
-  transform: translateX(0) scale(1.1);
-  transition:
-    transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55),
-    opacity 0.3s ease;
-  transition-delay: 0.4s;
+/* 3D трансформации для глубины */
+.card-3d {
+  transform-style: preserve-3d; /* Сохраняет 3D контекст для детей */
+  perspective: 1000px;          /* Задает перспективу */
 }
 
-.animation-chain.step-3 {
-  /* Финальное состояние */
-  transform: translateX(0) scale(1);
-  transition-delay: 0.7s;
-}
-
-/* Параллельные анимации с разными кривыми */
-.parallel-animations {
-  transform: translate(0, 0) scale(1) rotate(0deg);
-  filter: blur(0) brightness(1);
-
-  transition:
-    transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),  /* Пружинная */
-    filter 0.8s ease-in-out;                            /* Плавная */
-}
-
-.parallel-animations:hover {
-  transform: translate(100px, -50px) scale(1.2) rotate(15deg);
-  filter: blur(2px) brightness(1.3);
-}
-
-/* Морфинг анимации */
-.morphing-animation {
-  /* Плавное изменение формы через clip-path */
-  clip-path: circle(20% at 50% 50%);
-  transition: clip-path 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.morphing-animation:hover {
-  clip-path: circle(70% at 50% 50%);
-}
-
-/* Path анимации */
-.path-animation {
-  /* Движение по сложной траектории */
-  offset-path: path('M 50 50 Q 150 20 250 50 T 450 50');
-  offset-distance: 0%;
-  offset-rotate: auto;
-
-  animation: follow-path 3s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
-}
-
-@keyframes follow-path {
-  0% { offset-distance: 0%; }
-  100% { offset-distance: 100%; }
+.card-3d:hover {
+  transform: rotateY(180deg) translateZ(20px);
 }
 `
 
 const snippet5 = `
-/* АДАПТИВНОСТЬ и отзывчивость анимаций */
+/* Продвинутые техники оптимизации */
 
-/* Учет пользовательских предпочтений */
-@media (prefers-reduced-motion: reduce) {
-  .respectful-animation {
-    /* Отключаем анимации для пользователей с чувствительностью */
-    animation: none !important;
-    transition: none !important;
-  }
-
-  .respectful-animation:hover {
-    /* Мгновенные изменения вместо анимаций */
-    transform: scale(1.05);
-    transition: none;
-  }
+/* 1. Используем will-change правильно */
+.optimized-element {
+  /* Включаем перед анимацией */
+  will-change: transform;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .respectful-animation {
-    /* Полноценные анимации для остальных */
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
+.optimized-element.animating {
+  /* Во время анимации */
+  animation: slideIn 0.3s ease-out;
 }
 
-/* Адаптация к производительности устройства */
-@media (max-width: 768px) {
-  .performance-adaptive {
-    /* Упрощенные анимации на мобильных */
-    transition: transform 0.2s ease-out;
-  }
-
-  .performance-adaptive:hover {
-    /* Менее сложные трансформации */
-    transform: translateY(-5px);
-  }
+.optimized-element.animation-complete {
+  /* Выключаем после анимации */
+  will-change: auto;
 }
 
-@media (min-width: 1200px) {
-  .performance-adaptive {
-    /* Богатые анимации на десктопе */
-    transition:
-      transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-      filter 0.4s ease;
-  }
-
-  .performance-adaptive:hover {
-    transform:
-      translateY(-10px)
-      scale(1.05)
-      rotate(2deg);
-    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2));
-  }
-}
-
-/* Динамическая адаптация скорости */
-.speed-adaptive {
-  /* Переменные для контроля скорости */
-  --animation-speed: 1;
-  --animation-duration: calc(0.3s / var(--animation-speed));
-
-  transition: transform var(--animation-duration) ease-out;
-}
-
-/* Контекстно-зависимые анимации */
-.context-aware {
-  /* Разные анимации для разных состояний */
+/* 2. Принудительное создание слоя только когда нужно */
+.hover-optimize {
   transition: transform 0.3s ease;
 }
 
-.context-aware.loading {
-  /* Пульсирующая анимация загрузки */
-  animation: pulse 1.5s ease-in-out infinite;
+.hover-optimize:hover {
+  transform: translate3d(0, 0, 0); /* Создает слой только при наведении */
 }
 
-.context-aware.success {
-  /* Анимация успеха */
-  animation: success-bounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+/* 3. Изолируем анимации */
+.animation-container {
+  contain: layout style paint; /* Ограничиваем влияние */
+  overflow: hidden;           /* Предотвращаем scroll при анимации */
 }
 
-.context-aware.error {
-  /* Анимация ошибки */
-  animation: error-shake 0.5s ease-in-out;
+/* 4. Оптимизация для мобильных */
+@media (hover: hover) and (pointer: fine) {
+  /* Hover эффекты только для устройств с точным указателем */
+  .desktop-hover:hover {
+    transform: scale(1.05);
+  }
 }
 
-@keyframes pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.05); opacity: 0.8; }
-}
-
-@keyframes success-bounce {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.2); }
-  100% { transform: scale(1); }
-}
-
-@keyframes error-shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  75% { transform: translateX(5px); }
+@media (prefers-reduced-motion: reduce) {
+  /* Уважаем настройки пользователя */
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 `
 
 const snippet6 = `
-// JAVASCRIPT для продвинутого контроля анимаций
+/* Timing functions для естественности */
 
-// Класс для управления плавными анимациями
-class SmoothAnimationController {
-  constructor() {
-    this.animatingElements = new Set();
-    this.observer = this.setupIntersectionObserver();
-    this.prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  }
-
-  // Настройка наблюдателя за видимостью
-  setupIntersectionObserver() {
-    return new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          this.startAnimation(entry.target);
-        } else {
-          this.pauseAnimation(entry.target);
-        }
-      });
-    }, {
-      threshold: 0.1,
-      rootMargin: '50px'
-    });
-  }
-
-  // Регистрация элемента для анимации
-  registerElement(element, options = {}) {
-    const config = {
-      duration: 300,
-      easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
-      transform: 'translateY(20px)',
-      opacity: 0,
-      ...options
-    };
-
-    element.dataset.animationConfig = JSON.stringify(config);
-
-    // Устанавливаем начальное состояние
-    this.setInitialState(element, config);
-
-    // Наблюдаем за элементом
-    this.observer.observe(element);
-  }
-
-  // Установка начального состояния
-  setInitialState(element, config) {
-    if (this.prefersReducedMotion) return;
-
-    element.style.transform = config.transform;
-    element.style.opacity = config.opacity;
-    element.style.transition = 'none';
-  }
-
-  // Запуск анимации
-  startAnimation(element) {
-    if (this.prefersReducedMotion) {
-      element.style.transform = 'none';
-      element.style.opacity = '1';
-      return;
-    }
-
-    const config = JSON.parse(element.dataset.animationConfig || '{}');
-
-    // Подготавливаем элемент к анимации
-    element.style.willChange = 'transform, opacity';
-    element.style.transition = \`
-      transform \${config.duration}ms \${config.easing},
-      opacity \${config.duration}ms \${config.easing}
-    \`;
-
-    // Запускаем анимацию через микротаск
-    requestAnimationFrame(() => {
-      element.style.transform = 'none';
-      element.style.opacity = '1';
-    });
-
-    // Очищаем will-change после анимации
-    setTimeout(() => {
-      element.style.willChange = 'auto';
-    }, config.duration);
-
-    this.animatingElements.add(element);
-  }
-
-  // Приостановка анимации
-  pauseAnimation(element) {
-    if (this.animatingElements.has(element)) {
-      element.style.willChange = 'auto';
-      this.animatingElements.delete(element);
-    }
-  }
-
-  // Batch анимации для списков
-  animateList(container, items, staggerDelay = 100) {
-    if (this.prefersReducedMotion) {
-      items.forEach(item => {
-        item.style.transform = 'none';
-        item.style.opacity = '1';
-      });
-      return;
-    }
-
-    items.forEach((item, index) => {
-      setTimeout(() => {
-        this.startAnimation(item);
-      }, index * staggerDelay);
-    });
-  }
-
-  // Создание кастомной анимации
-  createCustomAnimation(element, keyframes, options = {}) {
-    const defaultOptions = {
-      duration: 300,
-      easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
-      fill: 'forwards'
-    };
-
-    const animationOptions = { ...defaultOptions, ...options };
-
-    if (this.prefersReducedMotion) {
-      // Применяем только финальное состояние
-      const finalFrame = keyframes[keyframes.length - 1];
-      Object.assign(element.style, finalFrame);
-      return Promise.resolve();
-    }
-
-    // Подготовка к анимации
-    element.style.willChange = 'transform, opacity';
-
-    // Создаем анимацию
-    const animation = element.animate(keyframes, animationOptions);
-
-    // Очистка после завершения
-    animation.addEventListener('finish', () => {
-      element.style.willChange = 'auto';
-    });
-
-    return animation.finished;
-  }
-
-  // Отзывчивые анимации в зависимости от размера экрана
-  createResponsiveAnimation(element, animations) {
-    const mediaQueries = {
-      mobile: window.matchMedia('(max-width: 768px)'),
-      tablet: window.matchMedia('(min-width: 769px) and (max-width: 1024px)'),
-      desktop: window.matchMedia('(min-width: 1025px)')
-    };
-
-    const updateAnimation = () => {
-      let config = animations.default || {};
-
-      if (mediaQueries.mobile.matches && animations.mobile) {
-        config = { ...config, ...animations.mobile };
-      } else if (mediaQueries.tablet.matches && animations.tablet) {
-        config = { ...config, ...animations.tablet };
-      } else if (mediaQueries.desktop.matches && animations.desktop) {
-        config = { ...config, ...animations.desktop };
-      }
-
-      this.registerElement(element, config);
-    };
-
-    // Обновляем при изменении размера экрана
-    Object.values(mediaQueries).forEach(mq => {
-      mq.addEventListener('change', updateAnimation);
-    });
-
-    updateAnimation();
-  }
-
-  // Мониторинг производительности анимаций
-  measureAnimationPerformance(name, animationFunction) {
-    const startTime = performance.now();
-    let frameCount = 0;
-
-    const measureFrame = () => {
-      frameCount++;
-      const currentTime = performance.now();
-
-      if (currentTime - startTime >= 1000) {
-        const fps = frameCount;
-        console.log(\`Animation "\${name}" FPS: \${fps}\`);
-
-        if (fps < 30) {
-          console.warn(\`Poor performance detected for "\${name}"\`);
-        }
-
-        return;
-      }
-
-      requestAnimationFrame(measureFrame);
-    };
-
-    requestAnimationFrame(measureFrame);
-    return animationFunction();
-  }
-
-  // Cleanup
-  destroy() {
-    this.observer.disconnect();
-    this.animatingElements.clear();
-  }
+/* Стандартные функции */
+.timing-examples {
+  transition-property: transform;
+  transition-duration: 0.3s;
 }
 
-// Утилиты для оптимизации анимаций
-class AnimationOptimizer {
-  static async detectGPUSupport() {
-    const canvas = document.createElement('canvas');
-    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-    return !!gl;
-  }
+.linear { transition-timing-function: linear; }
+.ease { transition-timing-function: ease; }
+.ease-in { transition-timing-function: ease-in; }
+.ease-out { transition-timing-function: ease-out; }
+.ease-in-out { transition-timing-function: ease-in-out; }
 
-  static throttleAnimations(callback, delay = 16) {
-    let timeoutId;
-    let lastExecTime = 0;
-
-    return function(...args) {
-      const currentTime = Date.now();
-
-      if (currentTime - lastExecTime > delay) {
-        callback.apply(this, args);
-        lastExecTime = currentTime;
-      } else {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-          callback.apply(this, args);
-          lastExecTime = Date.now();
-        }, delay - (currentTime - lastExecTime));
-      }
-    };
-  }
-
-  static batchDOMWrites(operations) {
-    return new Promise(resolve => {
-      requestAnimationFrame(() => {
-        operations.forEach(op => op());
-        resolve();
-      });
-    });
-  }
-
-  static createEfficientTransition(element, properties, duration = 300) {
-    const hasGPUSupport = this.detectGPUSupport();
-
-    if (!hasGPUSupport) {
-      // Fallback для устройств без GPU
-      element.style.transition = \`opacity \${duration}ms ease\`;
-      return;
-    }
-
-    // Оптимизированная анимация с GPU
-    element.style.willChange = 'transform, opacity';
-    element.style.transition = \`
-      transform \${duration}ms cubic-bezier(0.4, 0, 0.2, 1),
-      opacity \${duration}ms ease-out
-    \`;
-
-    setTimeout(() => {
-      element.style.willChange = 'auto';
-    }, duration);
-  }
+/* Кастомные cubic-bezier для профессиональных анимаций */
+.material-design {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  /* Material Design Standard */
 }
 
-// Использование
-const animationController = new SmoothAnimationController();
+.bounce-in {
+  transition-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  /* Bounce эффект */
+}
 
-// Регистрация элементов
-document.querySelectorAll('.animate-on-scroll').forEach(el => {
-  animationController.registerElement(el, {
-    duration: 600,
-    easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
-    transform: 'translateY(30px) scale(0.95)',
-    opacity: 0
-  });
-});
+.smooth-in-out {
+  transition-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  /* Очень плавное ускорение/замедление */
+}
 
-// Отзывчивая анимация
-animationController.createResponsiveAnimation(
-  document.querySelector('.responsive-element'),
-  {
-    default: { duration: 300, transform: 'translateY(20px)' },
-    mobile: { duration: 200, transform: 'translateY(10px)' },
-    desktop: { duration: 400, transform: 'translateY(30px) scale(0.98)' }
-  }
-);
+.quick-start {
+  transition-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
+  /* Быстрый старт, плавное торможение */
+}
+
+/* Анимации с steps для дискретных переходов */
+.step-animation {
+  animation: discrete-change 1s steps(4, end);
+}
+
+@keyframes discrete-change {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(100px); }
+}
 `
 
 const snippet7 = `
-/* ПРОДВИНУТЫЕ техники анимаций */
+/* CSS Animations vs Transitions */
 
-/* Композитные анимации с переменными */
-.variable-driven-animation {
-  /* CSS переменные для динамического контроля */
-  --mouse-x: 0;
-  --mouse-y: 0;
-  --scroll-progress: 0;
-  --element-visible: 0;
-
-  transform:
-    translateX(calc(var(--mouse-x) * 0.1px))
-    translateY(calc(var(--mouse-y) * 0.1px))
-    translateZ(calc(var(--scroll-progress) * 50px))
-    scale(calc(1 + var(--element-visible) * 0.1));
-
-  opacity: calc(0.8 + var(--element-visible) * 0.2);
-  filter: blur(calc((1 - var(--element-visible)) * 5px));
-
-  transition:
-    transform 0.1s ease-out,
-    filter 0.3s ease;
+/* Transitions - для простых состояний */
+.button {
+  transform: scale(1);
+  transition: transform 0.2s ease-out;
 }
 
-/* Анимации на основе состояния */
-.state-based-animation {
-  /* Базовое состояние */
-  transform: scale(1) rotate(0deg);
-  opacity: 1;
-  filter: brightness(1) contrast(1);
-
-  transition:
-    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-    opacity 0.2s ease,
-    filter 0.4s ease;
+.button:hover {
+  transform: scale(1.05); /* Простое изменение состояния */
 }
 
-.state-based-animation[data-state="loading"] {
-  transform: scale(0.95) rotate(180deg);
-  opacity: 0.7;
-  filter: brightness(0.8) contrast(1.2);
-  animation: loading-pulse 1.5s ease-in-out infinite;
+/* Animations - для сложных последовательностей */
+.loading-spinner {
+  animation: spin 1s linear infinite;
 }
 
-.state-based-animation[data-state="success"] {
-  transform: scale(1.05) rotate(5deg);
-  filter: brightness(1.2) contrast(1.1);
-  animation: success-glow 0.6s ease-out;
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-.state-based-animation[data-state="error"] {
-  transform: scale(1.02) rotate(-2deg);
-  filter: brightness(1.1) contrast(1.3) hue-rotate(15deg);
-  animation: error-shake 0.5s ease-in-out;
+/* Комплексная анимация с несколькими этапами */
+.entrance-animation {
+  animation: slideInBounce 0.6s ease-out forwards;
 }
 
-/* Сложные keyframe анимации */
-@keyframes complex-entrance {
+@keyframes slideInBounce {
   0% {
-    transform:
-      translateY(100px)
-      scale(0.8)
-      rotate(-10deg);
+    transform: translate3d(-100%, 0, 0) scale(0.8);
     opacity: 0;
-    filter: blur(10px);
-    clip-path: circle(0% at 50% 50%);
   }
-  20% {
-    opacity: 0.3;
-    filter: blur(5px);
-  }
-  40% {
-    transform:
-      translateY(20px)
-      scale(1.1)
-      rotate(2deg);
-    opacity: 0.7;
-    filter: blur(2px);
-    clip-path: circle(30% at 50% 50%);
-  }
-  60% {
-    transform:
-      translateY(-10px)
-      scale(0.95)
-      rotate(-1deg);
-    opacity: 0.9;
-    filter: blur(1px);
-    clip-path: circle(60% at 50% 50%);
-  }
-  80% {
-    transform:
-      translateY(5px)
-      scale(1.02)
-      rotate(0.5deg);
-    filter: blur(0.5px);
-    clip-path: circle(80% at 50% 50%);
+  50% {
+    transform: translate3d(10%, 0, 0) scale(1.05);
+    opacity: 0.8;
   }
   100% {
-    transform:
-      translateY(0)
-      scale(1)
-      rotate(0deg);
+    transform: translate3d(0, 0, 0) scale(1);
     opacity: 1;
-    filter: blur(0);
-    clip-path: circle(100% at 50% 50%);
   }
 }
 
-/* Анимации с физическими эффектами */
-.physics-animation {
-  /* Имитация физики через CSS */
-  --gravity: 9.8;
-  --bounce-damping: 0.7;
-  --friction: 0.95;
+/* Управление анимациями через CSS переменные */
+.variable-animation {
+  --duration: 0.3s;
+  --delay: 0s;
+  --timing: ease-out;
 
-  animation: physics-bounce 2s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+  animation: fadeInUp var(--duration) var(--timing) var(--delay) forwards;
 }
 
-@keyframes physics-bounce {
-  0% { transform: translateY(-200px); }
-  20% { transform: translateY(0px); }
-  30% { transform: translateY(-50px); }
-  40% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
-  60% { transform: translateY(0px); }
-  70% { transform: translateY(-8px); }
-  80% { transform: translateY(0px); }
-  90% { transform: translateY(-3px); }
-  100% { transform: translateY(0px); }
+@keyframes fadeInUp {
+  from {
+    transform: translate3d(0, 30px, 0);
+    opacity: 0;
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+`
+
+const snippet8 = `
+/* Продвинутые паттерны анимаций */
+
+/* 1. Последовательные анимации (stagger) */
+.stagger-container .item {
+  animation: fadeInUp 0.4s ease-out forwards;
+  opacity: 0;
 }
 
-/* Морфинг анимации */
-.morphing-shapes {
-  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-  transition: clip-path 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+.stagger-container .item:nth-child(1) { animation-delay: 0.1s; }
+.stagger-container .item:nth-child(2) { animation-delay: 0.2s; }
+.stagger-container .item:nth-child(3) { animation-delay: 0.3s; }
+.stagger-container .item:nth-child(4) { animation-delay: 0.4s; }
+
+/* Или через CSS calc */
+.auto-stagger .item {
+  animation: fadeInUp 0.4s ease-out forwards;
+  animation-delay: calc(var(--item-index) * 0.1s);
+  opacity: 0;
 }
 
-.morphing-shapes:hover {
-  clip-path: polygon(20% 0%, 0% 20%, 30% 50%, 0% 80%, 20% 100%, 50% 70%, 80% 100%, 100% 80%, 70% 50%, 100% 20%, 80% 0%, 50% 30%);
+/* 2. Параллакс эффекты */
+.parallax-element {
+  transform: translate3d(0, calc(var(--scroll-y) * -0.5px), 0);
+  /* Управляется через JavaScript */
 }
 
-/* Цепочки связанных анима
+/* 3. Hover эффекты с композитными слоями */
+.card {
+  transition: transform 0.3s ease-out;
+  will-change: transform; /* Только если часто анимируется */
+}
+
+.card:hover {
+  transform: translateY(-8px) scale(1.02);
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.1);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.3s ease-out;
+}
+
+.card:hover::before {
+  transform: scaleY(1);
+}
+`
+
+const snippet9 = `
+/* Мониторинг производительности анимаций */
+
+/* JavaScript для отслеживания FPS */
+const trackAnimationPerformance = () => {
+  let lastTime = performance.now();
+  let frames = 0;
+
+  function countFPS() {
+    frames++;
+    const currentTime = performance.now();
+
+    if (currentTime - lastTime >= 1000) {
+      console.log(\`FPS: \${frames}\`);
+      frames = 0;
+      lastTime = currentTime;
+    }
+
+    requestAnimationFrame(countFPS);
+  }
+
+  requestAnimationFrame(countFPS);
+};
+
+/* Мониторинг композитных слоев в DevTools */
+// Chrome DevTools -> Rendering -> Layer borders
+// Показывает границы композитных слоев
+
+/* Профилирование анимаций */
+// Performance tab в DevTools
+// Записывайте во время анимации для анализа
+
+/* CSS для отладки */
+.debug-composite {
+  /* Показывает, что элемент на композитном слое */
+  outline: 2px solid red;
+}
+
+/* Проверка поддержки will-change */
+@supports (will-change: transform) {
+  .modern-animation {
+    will-change: transform;
+  }
+}
+
+/* Fallback для старых браузеров */
+@supports not (will-change: transform) {
+  .legacy-animation {
+    transform: translate3d(0, 0, 0); /* Принудительный композитный слой */
+  }
+}
+`
+
+const snippet10 = `
+/* Практические паттерны для собеседования */
+
+/* 1. Создание плавного загрузчика */
+.loader {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  will-change: transform;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 2. Модальное окно с анимацией */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transition: background-color 0.3s ease;
+}
+
+.modal.open {
+  background: rgba(0,0,0,0.5);
+  pointer-events: auto;
+}
+
+.modal-content {
+  transform: scale(0.8) translateY(20px);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  will-change: transform, opacity;
+}
+
+.modal.open .modal-content {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+/* 3. Hover эффект для кнопок */
+.button-fancy {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+
+.button-fancy::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255,255,255,0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.button-fancy:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.button-fancy:active {
+  transform: scale(0.98);
+}
+`
+
+const snippet11 = `
+/* Адаптивные анимации и accessibility */
+
+/* Респект к пользовательским настройкам */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Адаптация к производительности устройства */
+@media (update: slow) {
+  /* Устройства с медленным обновлением экрана */
+  .heavy-animation {
+    animation: none;
+  }
+}
+
+/* Оптимизация для мобильных */
+@media (hover: none) and (pointer: coarse) {
+  /* Мобильные устройства */
+  .hover-effect {
+    /* Заменяем hover на focus или touch события */
+    transition: none;
+  }
+
+  .hover-effect:focus,
+  .hover-effect:active {
+    transform: scale(1.05);
+  }
+}
+
+/* Батарея-френдли анимации */
+@media (prefers-reduced-motion: no-preference) and (battery: low) {
+  /* Если браузер поддерживает battery API */
+  .expensive-animation {
+    animation-iteration-count: 1;
+    animation-duration: 0.1s;
+  }
+}
+
+/* Контроль через CSS переменные */
+:root {
+  --animation-speed: 1;
+  --animation-enabled: 1;
+}
+
+.controllable-animation {
+  animation: slideIn calc(0.3s / var(--animation-speed)) ease-out;
+  animation-play-state: var(--animation-enabled) ? running : paused;
+}
+
+/* JavaScript контроль */
+/*
+// Определение производительности устройства
+const isLowEndDevice = navigator.hardwareConcurrency <= 2;
+if (isLowEndDevice) {
+  document.documentElement.style.setProperty('--animation-speed', '2');
+}
+*/
+`
+
+const snippet12 = `
+/* Отладка и диагностика анимаций */
+
+/* Визуализация композитных слоев */
+.debug-layer {
+  /* В Chrome DevTools: Rendering -> Layer borders */
+  outline: 1px solid red; /* Ручная проверка */
+}
+
+/* Проверка, что элемент на композитном слое */
+.check-compositing {
+  /* Любой из этих приемов создает новый слой: */
+  will-change: transform;
+  /* или */
+  transform: translateZ(0);
+  /* или */
+  transform: translate3d(0, 0, 0);
+  /* или */
+  backface-visibility: hidden;
+  /* или */
+  position: fixed;
+  /* или */
+  opacity < 1 с дочерними элементами
+}
+
+/* Измерение производительности через CSS */
+.performance-test {
+  /* Используем CSS Animation Events */
+  animation: test-performance 1s linear;
+}
+
+@keyframes test-performance {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(100px); }
+}
+
+/* JavaScript для измерения */
+/*
+element.addEventListener('animationstart', (e) => {
+  console.time('animation-duration');
+});
+
+element.addEventListener('animationend', (e) => {
+  console.timeEnd('animation-duration');
+});
+*/
+
+/* Общие антипаттерны для избегания */
+.antipattern-examples {
+  /* ❌ НЕ ДЕЛАЙТЕ ТАК: */
+
+  /* Анимация layout-свойств */
+  transition: width 0.3s; /* Вызывает reflow */
+
+  /* Анимация paint-свойств */
+  transition: background-color 0.3s; /* Вызывает repaint */
+
+  /* Слишком много will-change */
+  will-change: transform, opacity, width, height; /* Избыточно */
+
+  /* Анимация без аппаратного ускорения */
+  transition: left 0.3s; /* Используйте transform: translateX() */
+
+  /* Слишком длинные анимации */
+  animation-duration: 5s; /* > 500ms считается медленным */
+}
+`
+
+const highlightedSnippet1 = ref('')
+const highlightedSnippet2 = ref('')
+const highlightedSnippet3 = ref('')
+const highlightedSnippet4 = ref('')
+const highlightedSnippet5 = ref('')
+const highlightedSnippet6 = ref('')
+const highlightedSnippet7 = ref('')
+const highlightedSnippet8 = ref('')
+const highlightedSnippet9 = ref('')
+const highlightedSnippet10 = ref('')
+const highlightedSnippet11 = ref('')
+const highlightedSnippet12 = ref('')
+
+onMounted(() => {
+  highlightedSnippet1.value = Prism.highlight(snippet1, Prism.languages.css, 'css')
+  highlightedSnippet2.value = Prism.highlight(snippet2, Prism.languages.css, 'css')
+  highlightedSnippet3.value = Prism.highlight(snippet3, Prism.languages.css, 'css')
+  highlightedSnippet4.value = Prism.highlight(snippet4, Prism.languages.css, 'css')
+  highlightedSnippet5.value = Prism.highlight(snippet5, Prism.languages.css, 'css')
+  highlightedSnippet6.value = Prism.highlight(snippet6, Prism.languages.css, 'css')
+  highlightedSnippet7.value = Prism.highlight(snippet7, Prism.languages.css, 'css')
+  highlightedSnippet8.value = Prism.highlight(snippet8, Prism.languages.css, 'css')
+  highlightedSnippet9.value = Prism.highlight(snippet9, Prism.languages.javascript, 'javascript')
+  highlightedSnippet10.value = Prism.highlight(snippet10, Prism.languages.css, 'css')
+  highlightedSnippet11.value = Prism.highlight(snippet11, Prism.languages.css, 'css')
+  highlightedSnippet12.value = Prism.highlight(snippet12, Prism.languages.css, 'css')
+})
+
+</script>
+
+<template>
+  <v-app>
+    <v-main>
+      <v-container>
+        <v-row justify="center">
+          <v-col lg="8">
+            <h1 class="text-h4 font-weight-bold mb-6">
+              Плавные и эффективные анимации с трансформациями
+            </h1>
+
+            <p class="font-weight-regular mb-6">
+              <b>Эффективные анимации</b> — это анимации, которые работают со скоростью 60 FPS,
+              не блокируют главный поток браузера и обеспечивают плавный пользовательский опыт.
+              Ключ к этому — использование только композитных свойств (transform, opacity)
+              и правильная оптимизация.
+            </p>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Основы производительности браузера</h2>
+            <v-table density="comfortable" class="mb-8">
+              <thead>
+              <tr>
+                <th class="text-left font-weight-bold">Тип операции</th>
+                <th class="text-left font-weight-bold">Что происходит</th>
+                <th class="text-left font-weight-bold">Производительность</th>
+                <th class="text-left font-weight-bold">Примеры свойств</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td class="pt-2 pb-2"><b>Layout (Reflow)</b></td>
+                <td class="pt-2 pb-2">Пересчет позиций и размеров</td>
+                <td class="pt-2 pb-2">❌ Очень медленно</td>
+                <td class="pt-2 pb-2">width, height, padding, margin</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>Paint (Repaint)</b></td>
+                <td class="pt-2 pb-2">Перерисовка пикселей</td>
+                <td class="pt-2 pb-2">⚠️ Медленно</td>
+                <td class="pt-2 pb-2">color, background, border-radius</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>Composite</b></td>
+                <td class="pt-2 pb-2">Композиция слоев на GPU</td>
+                <td class="pt-2 pb-2">✅ Быстро</td>
+                <td class="pt-2 pb-2">transform, opacity, filter</td>
+              </tr>
+              </tbody>
+            </v-table>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Проблемы неэффективных анимаций</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet1"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Эффективный подход с композитными свойствами</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet2"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Transform функции для анимаций</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet3"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Комбинирование трансформаций</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet4"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Продвинутые техники оптимизации</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet5"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Timing Functions для естественности</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet6"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">CSS Animations vs Transitions</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet7"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Продвинутые паттерны анимаций</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet8"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Мониторинг производительности</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet9"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Практические паттерны</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet10"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Принципы эффективных анимаций</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100" color="success" variant="tonal">
+                  <h3 class="text-h6 font-weight-bold mb-2">✅ Делайте</h3>
+                  <ul class="pl-4">
+                    <li>Анимируйте только transform и opacity</li>
+                    <li>Используйте will-change перед анимацией</li>
+                    <li>Держите анимации короткими (200-500ms)</li>
+                    <li>Используйте ease-out для UI переходов</li>
+                    <li>Тестируйте на слабых устройствах</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100" color="error" variant="tonal">
+                  <h3 class="text-h6 font-weight-bold mb-2">❌ Избегайте</h3>
+                  <ul class="pl-4">
+                    <li>Анимации width, height, padding, margin</li>
+                    <li>Анимации color, background без необходимости</li>
+                    <li>Слишком много will-change одновременно
