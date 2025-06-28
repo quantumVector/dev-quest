@@ -67,6 +67,9 @@
           <v-list-item to="/css/animatable-properties">
             <v-list-item-title>5.2. Какие свойства CSS можно анимировать с помощью трансформаций?</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/css/optimized-transform-animations">
+            <v-list-item-title>5.3. Как можно оптимизировать анимации с использованием трансформаций для улучшения производительности?</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

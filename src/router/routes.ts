@@ -22,6 +22,7 @@ import FlexboxVsGrid from '@/views/css/FlexboxVsGrid.vue'
 import CSSFlexVsGridTestPage from '@/views/tests/CSSFlexVsGridTestPage.vue'
 import Transformations from '@/views/css/Transformations.vue'
 import AnimatableProperties from '@/views/css/AnimatableProperties.vue'
+import OptimizedTransformAnimations from '@/views/css/OptimizedTransformAnimations.vue'
 
 export const routes = [
   {
@@ -119,5 +120,9 @@ export const routes = [
   {
     path: '/css/animatable-properties',
     component: AnimatableProperties,
+  },
+  {
+    path: '/css/optimized-transform-animations',
+    component: OptimizedTransformAnimations,
   },
 ]

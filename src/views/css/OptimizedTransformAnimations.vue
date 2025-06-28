@@ -889,4 +889,268 @@ onMounted(() => {
 
             <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet1"></code></pre>
 
-            <h2
+            <h2 class="text-h5 font-weight-bold mb-3">Will-change оптимизация</h2>
+            <p class="font-weight-regular mb-4">
+              Свойство <code>will-change</code> сообщает браузеру о планируемых изменениях элемента,
+              позволяя заранее подготовить оптимизации:
+            </p>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet2"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">GPU ускорение</h2>
+            <p class="font-weight-regular mb-4">
+              Принудительное создание композитных слоев для переноса вычислений на GPU:
+            </p>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet3"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">CSS Containment для изоляции</h2>
+            <p class="font-weight-regular mb-4">
+              Свойство <code>contain</code> изолирует изменения элемента от остальной страницы:
+            </p>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet4"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Композитные слои и z-index</h2>
+            <p class="font-weight-regular mb-4">
+              Правильное управление слоями для минимизации reflow и repaint:
+            </p>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet5"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Оптимизация keyframe анимаций</h2>
+            <p class="font-weight-regular mb-4">
+              Создание плавных 60fps анимаций с помощью оптимизированных keyframes:
+            </p>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet6"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">JavaScript оптимизации</h2>
+            <p class="font-weight-regular mb-4">
+              Использование requestAnimationFrame и батчинг обновлений:
+            </p>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet7"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Intersection Observer для ленивых анимаций</h2>
+            <p class="font-weight-regular mb-4">
+              Запуск анимаций только когда элементы видимы пользователю:
+            </p>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet8"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Управление памятью</h2>
+            <p class="font-weight-regular mb-4">
+              Предотвращение утечек памяти и оптимизация ресурсов:
+            </p>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet9"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Профилирование и мониторинг</h2>
+            <p class="font-weight-regular mb-4">
+              Инструменты для измерения и оптимизации производительности анимаций:
+            </p>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet10"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Сравнение подходов к оптимизации</h2>
+            <v-table density="comfortable" class="mb-8">
+              <thead>
+              <tr>
+                <th class="text-left font-weight-bold">Техника</th>
+                <th class="text-left font-weight-bold">Производительность</th>
+                <th class="text-left font-weight-bold">Сложность</th>
+                <th class="text-left font-weight-bold">Поддержка</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td class="pt-2 pb-2"><b>Transform + opacity</b></td>
+                <td class="pt-2 pb-2">
+                  <v-chip size="small" color="success">Отлично</v-chip>
+                </td>
+                <td class="pt-2 pb-2">
+                  <v-chip size="small" color="success">Низкая</v-chip>
+                </td>
+                <td class="pt-2 pb-2">
+                  <v-chip size="small" color="success">100%</v-chip>
+                </td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>Will-change</b></td>
+                <td class="pt-2 pb-2">
+                  <v-chip size="small" color="success">Отлично</v-chip>
+                </td>
+                <td class="pt-2 pb-2">
+                  <v-chip size="small" color="warning">Средняя</v-chip>
+                </td>
+                <td class="pt-2 pb-2">
+                  <v-chip size="small" color="success">95%</v-chip>
+                </td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>CSS Containment</b></td>
+                <td class="pt-2 pb-2">
+                  <v-chip size="small" color="success">Отлично</v-chip>
+                </td>
+                <td class="pt-2 pb-2">
+                  <v-chip size="small" color="warning">Средняя</v-chip>
+                </td>
+                <td class="pt-2 pb-2">
+                  <v-chip size="small" color="warning">85%</v-chip>
+                </td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>RequestAnimationFrame</b></td>
+                <td class="pt-2 pb-2">
+                  <v-chip size="small" color="success">Отлично</v-chip>
+                </td>
+                <td class="pt-2 pb-2">
+                  <v-chip size="small" color="error">Высокая</v-chip>
+                </td>
+                <td class="pt-2 pb-2">
+                  <v-chip size="small" color="success">100%</v-chip>
+                </td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>Intersection Observer</b></td>
+                <td class="pt-2 pb-2">
+                  <v-chip size="small" color="warning">Хорошо</v-chip>
+                </td>
+                <td class="pt-2 pb-2">
+                  <v-chip size="small" color="warning">Средняя</v-chip>
+                </td>
+                <td class="pt-2 pb-2">
+                  <v-chip size="small" color="success">95%</v-chip>
+                </td>
+              </tr>
+              </tbody>
+            </v-table>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Частые вопросы на собеседовании</h2>
+            <ol class="ol-list mb-8">
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Почему transform быстрее чем изменение left/top?</p>
+                <p class="font-weight-regular ma-0">
+                  Transform работает на композитном слое (только Composite), а left/top требуют
+                  полного пересчета layout → paint → composite. Композитный слой обрабатывается GPU.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">В чем разница между will-change и translateZ(0)?</p>
+                <p class="font-weight-regular ma-0">
+                  will-change - современный стандартный способ, translateZ(0) - хак для создания 3D контекста.
+                  will-change более семантичен и позволяет браузеру лучше оптимизировать.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Когда использовать requestAnimationFrame?</p>
+                <p class="font-weight-regular ma-0">
+                  Для JavaScript анимаций, параллакс эффектов, сложной интерактивности.
+                  Синхронизирует обновления с refresh rate монитора (обычно 60fps).
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Что такое композитный слой и как он создается?</p>
+                <p class="font-weight-regular ma-0">
+                  Отдельный слой на GPU для независимой обработки. Создается через 3D transforms,
+                  will-change, opacity < 1, filters, position: fixed и другие свойства.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Как измерить производительность анимаций?</p>
+                <p class="font-weight-regular ma-0">
+                  Chrome DevTools (Performance tab), FPS meter, Performance API,
+                  frame timing в консоли. Целевой показатель - стабильные 60fps.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">В чем проблема слишком многих композитных слоев?</p>
+                <p class="font-weight-regular ma-0">
+                  Каждый слой потребляет GPU память. Много слоев может вызвать memory pressure
+                  и замедлить анимации. Используйте will-change осторожно.
+                </p>
+              </li>
+            </ol>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Checklist оптимизации</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100" color="success" variant="tonal">
+                  <h3 class="text-h6 font-weight-bold mb-3">✅ Лучшие практики</h3>
+                  <ul class="pl-4">
+                    <li>Используйте только transform и opacity</li>
+                    <li>Добавляйте will-change перед анимацией</li>
+                    <li>Убирайте will-change после завершения</li>
+                    <li>Группируйте изменения в одном transform</li>
+                    <li>Используйте CSS transitions для простых случаев</li>
+                    <li>Применяйте contain для изоляции</li>
+                    <li>Тестируйте на слабых устройствах</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100" color="error" variant="tonal">
+                  <h3 class="text-h6 font-weight-bold mb-3">❌ Чего избегать</h3>
+                  <ul class="pl-4">
+                    <li>Анимация layout свойств (width, height, top, left)</li>
+                    <li>Анимация paint свойств (background, color)</li>
+                    <li>Постоянный will-change на всех элементах</li>
+                    <li>Синхронное чтение computed styles в цикле</li>
+                    <li>Сложные селекторы в анимированных элементах</li>
+                    <li>Много параллельных анимаций</li>
+                    <li>Игнорирование очистки event listeners</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Современные возможности</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">Web Animations API</h3>
+                  <p class="text-body-2 mb-2">
+                    Современная замена CSS анимаций и jQuery animate()
+                  </p>
+                  <v-chip size="small" class="ma-1">element.animate()</v-chip>
+                  <v-chip size="small" class="ma-1">KeyframeEffect</v-chip>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">CSS Houdini</h3>
+                  <p class="text-body-2 mb-2">
+                    Низкоуровневый доступ к CSS рендерингу
+                  </p>
+                  <v-chip size="small" class="ma-1">Paint API</v-chip>
+                  <v-chip size="small" class="ma-1">Animation Worklet</v-chip>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">OffscreenCanvas</h3>
+                  <p class="text-body-2 mb-2">
+                    Canvas анимации в Web Workers
+                  </p>
+                  <v-chip size="small" class="ma-1">Worker threads</v-chip>
+                  <v-chip size="small" class="ma-1">Non-blocking</v-chip>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Итог</h2>
+            <p class="font-weight-regular mb-6">
+              Оптимизация анимаций с трансформациями - ключевой навык для создания плавного UX.
+              Основные принципы: использование композитных слоев (transform, opacity), правильное
+              применение will-change, изоляция через contain, батчинг обновлений и профилирование
+              производительности. Цель - стабильные 60fps на всех устройствах.
+            </p>
+
+            <div class="d-flex justify-end">
+              <v-btn
+                color='second'
+                size="small"
+                variant="elevated"
+                href="https://web.dev/animations-guide/"
+                target="_blank">
+                Web.dev Animation Guide
+              </v-btn>
+            </div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-app>
+</template>
