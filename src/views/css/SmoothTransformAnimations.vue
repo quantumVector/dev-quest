@@ -758,4 +758,145 @@ onMounted(() => {
                   <ul class="pl-4">
                     <li>Анимации width, height, padding, margin</li>
                     <li>Анимации color, background без необходимости</li>
-                    <li>Слишком много will-change одновременно
+                    <li>Слишком много will-change одновременно</li>
+                    <li>Длинные анимации (>500ms для UI)</li>
+                    <li>Анимации left/top вместо transform</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Адаптивные анимации и accessibility</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet11"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Отладка и диагностика</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet12"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Частые вопросы на собеседовании</h2>
+            <ol class="ol-list mb-8">
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Почему transform быстрее, чем изменение left/top?</p>
+                <p class="font-weight-regular ma-0">
+                  Transform обрабатывается на композитном слое GPU, не вызывает layout/paint.
+                  Left/top требуют пересчета позиций всех элементов (reflow).
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Когда использовать will-change?</p>
+                <p class="font-weight-regular ma-0">
+                  Только перед началом анимации и убирать после. Постоянное использование
+                  потребляет память. Альтернатива — transform: translateZ(0).
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">В чем разница между animations и transitions?</p>
+                <p class="font-weight-regular ma-0">
+                  Transitions — для простых переходов между состояниями.
+                  Animations — для сложных последовательностей с keyframes.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Как оптимизировать анимации для мобильных?</p>
+                <p class="font-weight-regular ma-0">
+                  Использовать только compositor-only свойства, учитывать prefers-reduced-motion,
+                  тестировать на реальных устройствах, избегать hover на touch.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Что такое композитный слой?</p>
+                <p class="font-weight-regular ma-0">
+                  Отдельный слой, обрабатываемый GPU. Создается автоматически для 3D transforms,
+                  opacity < 1, filters, или принудительно через will-change.
+                </p>
+              </li>
+            </ol>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Инструменты для отладки</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">Chrome DevTools</h3>
+                  <ul class="pl-4">
+                    <li>Performance tab для профилирования</li>
+                    <li>Rendering → Layer borders</li>
+                    <li>Rendering → Paint flashing</li>
+                    <li>Rendering → FPS meter</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">Firefox DevTools</h3>
+                  <ul class="pl-4">
+                    <li>Performance профайлер</li>
+                    <li>Inspector → Animations</li>
+                    <li>Settings → Show paint rectangles</li>
+                    <li>CSS Grid/Flexbox инспектор</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Лучшие практики</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100" color="primary" variant="tonal">
+                  <h3 class="text-h6 font-weight-bold mb-2">🚀 Производительность</h3>
+                  <ul class="pl-4">
+                    <li>Только transform и opacity</li>
+                    <li>60 FPS на всех устройствах</li>
+                    <li>Профилирование на слабых девайсах</li>
+                    <li>Мониторинг композитных слоев</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100" color="secondary" variant="tonal">
+                  <h3 class="text-h6 font-weight-bold mb-2">♿ Доступность</h3>
+                  <ul class="pl-4">
+                    <li>prefers-reduced-motion</li>
+                    <li>Короткие анимации (200-500ms)</li>
+                    <li>Не мигающие эффекты</li>
+                    <li>Альтернативы для анимаций</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100" color="success" variant="tonal">
+                  <h3 class="text-h6 font-weight-bold mb-2">🎨 UX Design</h3>
+                  <ul class="pl-4">
+                    <li>Естественные timing functions</li>
+                    <li>Осмысленные анимации</li>
+                    <li>Обратная связь пользователю</li>
+                    <li>Консистентность во всем UI</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Итог</h2>
+            <p class="font-weight-regular mb-6">
+              Эффективные анимации с трансформациями — основа современного веб-UI. Ключевые принципы:
+              использование только композитных свойств (transform, opacity), правильная оптимизация
+              с will-change, учет accessibility и производительности на всех устройствах.
+              Профилирование и тестирование — обязательная часть разработки анимаций.
+            </p>
+
+            <div class="d-flex justify-space-between">
+              <v-btn
+                color="primary"
+                size="small"
+                variant="elevated"
+                href="https://web.dev/animations-guide/"
+                target="_blank">
+                Web.dev Animations Guide
+              </v-btn>
+              <v-btn
+                color="secondary"
+                size="small"
+                variant="elevated"
+                href="https://csstriggers.com/"
+                target="_blank">
+                CSS Triggers Reference
+              </v-btn>
+            </div>
