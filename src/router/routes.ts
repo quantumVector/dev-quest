@@ -23,6 +23,7 @@ import CSSFlexVsGridTestPage from '@/views/tests/CSSFlexVsGridTestPage.vue'
 import Transformations from '@/views/css/Transformations.vue'
 import AnimatableProperties from '@/views/css/AnimatableProperties.vue'
 import OptimizedTransformAnimations from '@/views/css/OptimizedTransformAnimations.vue'
+import HardwareAcceleration from '@/views/css/HardwareAcceleration.vue'
 
 export const routes = [
   {
@@ -124,5 +125,9 @@ export const routes = [
   {
     path: '/css/optimized-transform-animations',
     component: OptimizedTransformAnimations,
+  },
+  {
+    path: '/css/hardware-acceleration',
+    component: HardwareAcceleration,
   },
 ]

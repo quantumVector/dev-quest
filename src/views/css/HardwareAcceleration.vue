@@ -852,4 +852,221 @@ onMounted(() => {
               </v-col>
               <v-col cols="12" md="6">
                 <v-card class="pa-4 h-100" color="success" variant="tonal">
-                  <h3 class="text-h6 font-weight-bold mb-3">✅ GPU анимации
+                  <h3 class="text-h6 font-weight-bold mb-3">✅ GPU анимации</h3>
+                  <ul class="pl-4">
+                    <li><strong>Composite</strong> - только на GPU</li>
+                    <li>Пропускают Layout и Paint</li>
+                    <li>Параллельная обработка</li>
+                    <li>Не блокируют основной поток</li>
+                    <li>60fps+ производительность</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Создание композитных слоев</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet1"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Механизм работы GPU ускорения</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet2"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Способы создания GPU слоев</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet3"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Управление GPU памятью</h2>
+            <v-alert type="warning" class="mb-4">
+              <strong>Важно:</strong> Каждый композитный слой потребляет GPU память.
+              Создавайте их только для активных анимаций!
+            </v-alert>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet4"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Совместимость и fallbacks</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet5"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Мониторинг производительности GPU</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet6"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Практические примеры оптимизации</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet7"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Отладка GPU производительности</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet8"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Оптимальные свойства для GPU</h2>
+            <v-table density="comfortable" class="mb-8">
+              <thead>
+              <tr>
+                <th class="text-left font-weight-bold">Свойство</th>
+                <th class="text-left font-weight-bold">GPU ускорение</th>
+                <th class="text-left font-weight-bold">Производительность</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td class="pt-2 pb-2"><code>transform</code></td>
+                <td class="pt-2 pb-2"><v-chip color="success" size="small">✅ Полная</v-chip></td>
+                <td class="pt-2 pb-2">Отличная - только Composite</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><code>opacity</code></td>
+                <td class="pt-2 pb-2"><v-chip color="success" size="small">✅ Полная</v-chip></td>
+                <td class="pt-2 pb-2">Отличная - только Composite</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><code>filter</code></td>
+                <td class="pt-2 pb-2"><v-chip color="success" size="small">✅ Полная</v-chip></td>
+                <td class="pt-2 pb-2">Хорошая - может требовать Paint</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><code>clip-path</code></td>
+                <td class="pt-2 pb-2"><v-chip color="warning" size="small">⚠️ Частичная</v-chip></td>
+                <td class="pt-2 pb-2">Средняя - зависит от сложности</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><code>left/top</code></td>
+                <td class="pt-2 pb-2"><v-chip color="error" size="small">❌ Нет</v-chip></td>
+                <td class="pt-2 pb-2">Плохая - Layout + Paint + Composite</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><code>width/height</code></td>
+                <td class="pt-2 pb-2"><v-chip color="error" size="small">❌ Нет</v-chip></td>
+                <td class="pt-2 pb-2">Плохая - Layout + Paint + Composite</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><code>background</code></td>
+                <td class="pt-2 pb-2"><v-chip color="error" size="small">❌ Нет</v-chip></td>
+                <td class="pt-2 pb-2">Средняя - Paint + Composite</td>
+              </tr>
+              </tbody>
+            </v-table>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Часто задаваемые вопросы на собеседовании</h2>
+            <ol class="ol-list mb-8">
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Как заставить браузер использовать GPU для анимации?</p>
+                <p class="font-weight-regular ma-0">
+                  Создать композитный слой через <code>will-change: transform</code>, <code>transform: translateZ(0)</code>
+                  или <code>transform: translate3d(0,0,0)</code>. Использовать только GPU-оптимизированные свойства.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">В чем разница между transform и изменением left/top?</p>
+                <p class="font-weight-regular ma-0">
+                  <code>transform</code> работает на GPU (только Composite этап), <code>left/top</code>
+                  запускают Layout → Paint → Composite на CPU. Transform в 10-100 раз быстрее.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Что такое композитный слой?</p>
+                <p class="font-weight-regular ma-0">
+                  Отдельный слой рендеринга, который обрабатывается GPU независимо от других слоев.
+                  Позволяет анимировать элементы без пересчета остальной страницы.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Когда НЕ стоит использовать GPU ускорение?</p>
+                <p class="font-weight-regular ma-0">
+                  На слабых мобильных устройствах с ограниченной GPU памятью, для статических элементов,
+                  когда создается слишком много композитных слоев (layer explosion).
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Как проверить использование GPU в DevTools?</p>
+                <p class="font-weight-regular ma-0">
+                  Chrome DevTools → Rendering → Layer borders/Composited layer borders.
+                  Performance tab → записать анимацию → проверить GPU activity и Frames.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Что такое "layer explosion"?</p>
+                <p class="font-weight-regular ma-0">
+                  Создание слишком большого количества композитных слоев, что приводит к исчерпанию
+                  GPU памяти и падению производительности. Решается селективным использованием will-change.
+                </p>
+              </li>
+            </ol>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Лучшие практики</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100" color="success" variant="tonal">
+                  <h3 class="text-h6 font-weight-bold mb-3">✅ Делайте</h3>
+                  <ul class="pl-4">
+                    <li>Используйте <code>will-change: transform</code></li>
+                    <li>Анимируйте только transform и opacity</li>
+                    <li>Очищайте will-change после анимации</li>
+                    <li>Группируйте анимации в общие слои</li>
+                    <li>Тестируйте на слабых устройствах</li>
+                    <li>Мониторьте количество слоев</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100" color="error" variant="tonal">
+                  <h3 class="text-h6 font-weight-bold mb-3">❌ Не делайте</h3>
+                  <ul class="pl-4">
+                    <li>Анимируйте left/top/width/height</li>
+                    <li>Оставляйте will-change навсегда</li>
+                    <li>Создавайте слои для каждого элемента</li>
+                    <li>Игнорируйте memory usage</li>
+                    <li>Используйте сложные clip-path</li>
+                    <li>Анимируйте box-shadow напрямую</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Современные тенденции</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">CSS Houdini</h3>
+                  <p class="mb-2">Низкоуровневый доступ к рендерингу через Web APIs</p>
+                  <v-chip size="small" class="ma-1">Paint API</v-chip>
+                  <v-chip size="small" class="ma-1">Animation Worklet</v-chip>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">Web Animations API</h3>
+                  <p class="mb-2">Нативные высокопроизводительные анимации</p>
+                  <v-chip size="small" class="ma-1">KeyframeEffect</v-chip>
+                  <v-chip size="small" class="ma-1">Animation</v-chip>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">Container Queries</h3>
+                  <p class="mb-2">Изоляция анимаций на уровне контейнера</p>
+                  <v-chip size="small" class="ma-1">@container</v-chip>
+                  <v-chip size="small" class="ma-1">containment</v-chip>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Итог</h2>
+            <p class="font-weight-regular mb-6">
+              Аппаратное ускорение кардинально улучшает производительность анимаций, перенося
+              вычисления с CPU на GPU. Ключевые принципы: создание композитных слоев через
+              <code>will-change</code> или 3D контекст, анимация только GPU-оптимизированных
+              свойств (transform, opacity), управление количеством слоев для экономии памяти.
+              Правильное использование GPU ускорения обеспечивает плавные 60fps анимации даже
+              на слабых устройствах.
+            </p>
+
+            <div class="d-flex justify-end">
+              <v-btn
+                color='second'
+                size="small"
+                variant="elevated"
+                href="https://web.dev/stick-to-compositor-only-properties-and-manage-layer-count/"
+                target="_blank">
+                GPU Performance Guide
+              </v-btn>
+            </div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-app>
+</template>
