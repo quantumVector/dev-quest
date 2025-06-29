@@ -76,6 +76,7 @@
           <v-list-item to="/css/smooth-transform-animations">
             <v-list-item-title>5.5. Какие техники или подходы могут помочь достичь плавных и эффективных анимаций с использованием трансформаций?</v-list-item-title>
           </v-list-item>
+          <v-list-subheader>CSS-In-JS</v-list-subheader>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
