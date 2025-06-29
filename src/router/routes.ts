@@ -30,6 +30,8 @@ import CSSInJS from '@/views/css/CSSInJS.vue'
 import CSSInJSApproaches from '@/views/css/CSSInJSApproaches.vue'
 import RuntimeVSPreCompile from '@/views/css/RuntimeVSPreCompile.vue'
 import CSSInJsTestPage from '@/views/tests/CSSInJsTestPage.vue'
+import HTMLInterviewPage from '@/views/interview/HTMLInterviewPage.vue'
+import InterviewPage from '@/views/InterviewPage.vue'
 
 export const routes = [
   {
@@ -39,6 +41,10 @@ export const routes = [
   {
     path: '/tests',
     component: TestsPage,
+  },
+  {
+    path: '/interview',
+    component: InterviewPage,
   },
   {
     path: '/html',
@@ -63,6 +69,10 @@ export const routes = [
   {
     path: '/html/html-test',
     component: HTMLTestPage,
+  },
+  {
+    path: '/html/html-interview',
+    component: HTMLInterviewPage,
   },
   {
     path: '/css/specificity',
