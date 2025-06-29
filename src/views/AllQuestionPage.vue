@@ -83,6 +83,9 @@
           <v-list-item to="/css/css-in-js-approaches">
             <v-list-item-title>6.2. Различия подходов к созданию и изменению стилей  в разных css-in-js библиотеках.</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/css/runtime-vs-pre-compile">
+            <v-list-item-title>6.3. Что стоит выбирать и от чего отталкиваться. Runtime и pre-compile.</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

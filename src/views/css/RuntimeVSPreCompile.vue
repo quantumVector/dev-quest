@@ -689,4 +689,155 @@ onMounted(() => {
               <tr>
                 <td class="pt-3 pb-3"><b>SSR Performance</b></td>
                 <td class="pt-3 pb-3 text-warning">Средняя</td>
-                <td class="pt-3 pb-3
+                <td class="pt-3 pb-3 text-success">Отличная</td>
+                <td class="pt-3 pb-3">Pre-compile лучше для SSR</td>
+              </tr>
+              <tr>
+                <td class="pt-3 pb-3"><b>Developer Experience</b></td>
+                <td class="pt-3 pb-3 text-success">Простая</td>
+                <td class="pt-3 pb-3 text-warning">Сложнее</td>
+                <td class="pt-3 pb-3">Runtime проще в освоении</td>
+              </tr>
+              <tr>
+                <td class="pt-3 pb-3"><b>Debugging</b></td>
+                <td class="pt-3 pb-3 text-warning">Сложнее</td>
+                <td class="pt-3 pb-3 text-success">Проще</td>
+                <td class="pt-3 pb-3">Pre-compile статические классы</td>
+              </tr>
+              <tr>
+                <td class="pt-3 pb-3"><b>Hot Reload</b></td>
+                <td class="pt-3 pb-3 text-success">Быстрый</td>
+                <td class="pt-3 pb-3 text-warning">Медленнее</td>
+                <td class="pt-3 pb-3">Runtime не требует rebuild</td>
+              </tr>
+              </tbody>
+            </v-table>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Стратегии миграции</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet6"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Фреймворк принятия решений</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet7"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Практические рекомендации</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100 border-l-lg border-primary">
+                  <h3 class="text-h6 font-weight-bold mb-3 text-primary">🚀 Выбирайте Runtime если:</h3>
+                  <ul class="pl-4">
+                    <li class="mb-2">Нужна высокая динамичность стилей</li>
+                    <li class="mb-2">Сложная логика на основе пропсов</li>
+                    <li class="mb-2">Быстрое прототипирование</li>
+                    <li class="mb-2">Интеграция с внешними API для стилей</li>
+                    <li class="mb-2">Небольшая команда</li>
+                    <li class="mb-2">Много уникальных дизайнов</li>
+                  </ul>
+                </v-card>
+              </v-col>
+
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100 border-l-lg border-success">
+                  <h3 class="text-h6 font-weight-bold mb-3 text-success">⚡ Выбирайте Pre-compile если:</h3>
+                  <ul class="pl-4">
+                    <li class="mb-2">Критична производительность</li>
+                    <li class="mb-2">SEO важен</li>
+                    <li class="mb-2">Предсказуемые стили</li>
+                    <li class="mb-2">Большая команда</li>
+                    <li class="mb-2">Дизайн-система</li>
+                    <li class="mb-2">Статический контент</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Гибридный подход</h2>
+            <p class="font-weight-regular mb-4">
+              Часто оптимальным решением является комбинация обоих подходов:
+              использование pre-compile для основных компонентов и runtime для специфичных случаев.
+            </p>
+
+            <v-row class="mb-8">
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">Основа: Pre-compile</h3>
+                  <ul class="pl-4">
+                    <li>Дизайн-система</li>
+                    <li>Базовые компоненты</li>
+                    <li>Layout структуры</li>
+                    <li>Типографика</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">Динамика: Runtime</h3>
+                  <ul class="pl-4">
+                    <li>Пользовательские темы</li>
+                    <li>Анимации по данным</li>
+                    <li>A/B тесты стилей</li>
+                    <li>Сложные вычисления</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">CSS переменные</h3>
+                  <ul class="pl-4">
+                    <li>Мост между подходами</li>
+                    <li>Динамические значения</li>
+                    <li>Производительность</li>
+                    <li>Совместимость</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Заключение</h2>
+            <p class="font-weight-regular mb-4">
+              Выбор между runtime и pre-compile CSS-in-JS зависит от множества факторов:
+              требований к производительности, сложности стилей, размера команды и специфики проекта.
+            </p>
+
+            <p class="font-weight-regular mb-4">
+              <strong>Ключевые выводы:</strong>
+            </p>
+            <ul class="pl-4 mb-6">
+              <li class="mb-2"><strong>Runtime</strong> - для максимальной гибкости и быстрого развития</li>
+              <li class="mb-2"><strong>Pre-compile</strong> - для максимальной производительности и типизации</li>
+              <li class="mb-2"><strong>Гибридный подход</strong> - часто оптимальное решение</li>
+              <li class="mb-2"><strong>Миграция</strong> - возможна поэтапно с коэкзистированием подходов</li>
+              <li class="mb-2"><strong>Контекст важен</strong> - нет универсального решения для всех случаев</li>
+            </ul>
+
+            <div class="d-flex justify-space-between">
+              <v-btn
+                color="primary"
+                size="small"
+                variant="elevated"
+                href="https://vanilla-extract.style/"
+                target="_blank">
+                Vanilla Extract
+              </v-btn>
+              <v-btn
+                color="secondary"
+                size="small"
+                variant="elevated"
+                href="https://styled-components.com/"
+                target="_blank">
+                Styled Components
+              </v-btn>
+              <v-btn
+                color="success"
+                size="small"
+                variant="elevated"
+                href="https://stitches.dev/"
+                target="_blank">
+                Stitches
+              </v-btn>
+            </div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-app>
+</template>

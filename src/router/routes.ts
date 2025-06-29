@@ -28,6 +28,7 @@ import SmoothTransformAnimations from '@/views/css/SmoothTransformAnimations.vue
 import TransformationsTestPage from '@/views/tests/TransformationsTestPage.vue'
 import CSSInJS from '@/views/css/CSSInJS.vue'
 import CSSInJSApproaches from '@/views/css/CSSInJSApproaches.vue'
+import RuntimeVSPreCompile from '@/views/css/RuntimeVSPreCompile.vue'
 
 export const routes = [
   {
@@ -149,5 +150,9 @@ export const routes = [
   {
     path: '/css/css-in-js-approaches',
     component: CSSInJSApproaches,
+  },
+  {
+    path: '/css/runtime-vs-pre-compile',
+    component: RuntimeVSPreCompile,
   },
 ]
