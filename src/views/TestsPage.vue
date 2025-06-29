@@ -29,6 +29,9 @@
           <v-list-item to="/css/flex-vs-grid-test">
             <v-list-item-title>4. Flex/Grid</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/css/transformations-test">
+            <v-list-item-title>5. Трансформации</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

@@ -73,6 +73,9 @@
           <v-list-item to="/css/hardware-acceleration">
             <v-list-item-title>5.4. Как использование аппаратного ускорения (hardware acceleration) может влиять на анимации с помощью трансформаций?</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/css/smooth-transform-animations">
+            <v-list-item-title>5.5. Какие техники или подходы могут помочь достичь плавных и эффективных анимаций с использованием трансформаций?</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

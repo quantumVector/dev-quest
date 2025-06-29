@@ -24,6 +24,8 @@ import Transformations from '@/views/css/Transformations.vue'
 import AnimatableProperties from '@/views/css/AnimatableProperties.vue'
 import OptimizedTransformAnimations from '@/views/css/OptimizedTransformAnimations.vue'
 import HardwareAcceleration from '@/views/css/HardwareAcceleration.vue'
+import SmoothTransformAnimations from '@/views/css/SmoothTransformAnimations.vue'
+import TransformationsTestPage from '@/views/tests/TransformationsTestPage.vue'
 
 export const routes = [
   {
@@ -129,5 +131,13 @@ export const routes = [
   {
     path: '/css/hardware-acceleration',
     component: HardwareAcceleration,
+  },
+  {
+    path: '/css/smooth-transform-animations',
+    component: SmoothTransformAnimations,
+  },
+  {
+    path: '/css/transformations-test',
+    component: TransformationsTestPage,
   },
 ]

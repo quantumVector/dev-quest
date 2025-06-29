@@ -900,3 +900,9 @@ onMounted(() => {
                 CSS Triggers Reference
               </v-btn>
             </div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-app>
+</template>
