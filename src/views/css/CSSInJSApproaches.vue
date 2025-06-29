@@ -802,4 +802,268 @@ onMounted(() => {
                     <li><b>Template literals:</b> Styled Components, Goober</li>
                     <li><b>Object syntax:</b> Emotion, JSS, Fela</li>
                     <li><b>Variant system:</b> Stitches</li>
-                    <li><b>TypeScript objects:</b> Vanilla Extract
+                    <li><b>TypeScript objects:</b> Vanilla Extract</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">⚡ Производительность</h3>
+                  <ul class="pl-4">
+                    <li><b>Runtime:</b> Styled Components, Emotion, JSS</li>
+                    <li><b>Build-time:</b> Vanilla Extract, Linaria</li>
+                    <li><b>Минимальный runtime:</b> Stitches</li>
+                    <li><b>Легковесные:</b> Goober, Fela</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">🔧 Возможности</h3>
+                  <ul class="pl-4">
+                    <li><b>Полная динамичность:</b> Styled Components, Emotion</li>
+                    <li><b>Системы вариантов:</b> Stitches</li>
+                    <li><b>TypeScript-first:</b> Vanilla Extract</li>
+                    <li><b>Функциональный:</b> Fela, JSS</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Когда использовать каждую библиотеку</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2 text-primary">🎨 Styled Components</h3>
+                  <p class="mb-2"><b>Выбирать когда:</b></p>
+                  <ul class="pl-4 mb-3">
+                    <li>Нужна максимальная гибкость</li>
+                    <li>Команда привыкла к CSS синтаксису</li>
+                    <li>Много динамических стилей</li>
+                    <li>React экосистема</li>
+                  </ul>
+                  <p class="mb-2"><b>Избегать если:</b></p>
+                  <ul class="pl-4">
+                    <li>Критична производительность</li>
+                    <li>Нужен строгий TypeScript</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2 text-success">🚀 Emotion</h3>
+                  <p class="mb-2"><b>Выбирать когда:</b></p>
+                  <ul class="pl-4 mb-3">
+                    <li>Нужна гибкость + производительность</li>
+                    <li>Хорошая TypeScript поддержка</li>
+                    <li>Гибридный подход (объекты + строки)</li>
+                    <li>Большие приложения</li>
+                  </ul>
+                  <p class="mb-2"><b>Избегать если:</b></p>
+                  <ul class="pl-4">
+                    <li>Нужен zero-runtime</li>
+                    <li>Очень простые требования</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2 text-warning">⚙️ Stitches</h3>
+                  <p class="mb-2"><b>Выбирать когда:</b></p>
+                  <ul class="pl-4 mb-3">
+                    <li>Нужна система дизайна</li>
+                    <li>Важна типизация</li>
+                    <li>Предсказуемые варианты стилей</li>
+                    <li>Производительность важна</li>
+                  </ul>
+                  <p class="mb-2"><b>Избегать если:</b></p>
+                  <ul class="pl-4">
+                    <li>Много произвольных динамических стилей</li>
+                    <li>Нужна полная совместимость с CSS</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2 text-info">🏗️ Vanilla Extract</h3>
+                  <p class="mb-2"><b>Выбирать когда:</b></p>
+                  <ul class="pl-4 mb-3">
+                    <li>Нужен zero-runtime</li>
+                    <li>TypeScript обязателен</li>
+                    <li>Статические стили</li>
+                    <li>Максимальная производительность</li>
+                  </ul>
+                  <p class="mb-2"><b>Избегать если:</b></p>
+                  <ul class="pl-4">
+                    <li>Много runtime динамики</li>
+                    <li>Простая настройка приоритет</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Частые вопросы на собеседовании</h2>
+            <ol class="ol-list mb-8">
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">В чем основное различие между runtime и build-time CSS-in-JS?</p>
+                <p class="font-weight-regular ma-0">
+                  <b>Runtime</b> (Styled Components, Emotion) генерируют CSS во время выполнения, что дает гибкость но влияет на производительность.
+                  <b>Build-time</b> (Vanilla Extract, Linaria) извлекают CSS на этапе сборки — быстрее, но менее динамично.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Как решается проблема специфичности в CSS-in-JS?</p>
+                <p class="font-weight-regular ma-0">
+                  Автоматическая генерация уникальных классов, изоляция стилей компонентов, отсутствие глобальных конфликтов.
+                  Большинство библиотек генерируют хэшированные имена классов.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Какие проблемы производительности есть у CSS-in-JS?</p>
+                <p class="font-weight-regular ma-0">
+                  Runtime вычисления, увеличение bundle size, пересчет стилей при изменении пропсов,
+                  блокировка рендера для генерации CSS, проблемы с SSR.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Как работает theming в разных библиотеках?</p>
+                <p class="font-weight-regular ma-0">
+                  <b>Styled Components:</b> ThemeProvider с контекстом. <b>Emotion:</b> ThemeProvider или CSS переменные.
+                  <b>Stitches:</b> токены дизайна. <b>Vanilla Extract:</b> CSS переменные и контракты тем.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Что такое критический CSS и как с ним работать в CSS-in-JS?</p>
+                <p class="font-weight-regular ma-0">
+                  Критический CSS — стили для видимой части страницы. В CSS-in-JS сложнее выделить критический CSS,
+                  некоторые библиотеки поддерживают SSR с экстракцией критических стилей.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Как тестировать компоненты с CSS-in-JS?</p>
+                <p class="font-weight-regular ma-0">
+                  Тестирование снэпшотами, проверка применения классов, использование jest-styled-components,
+                  тестирование вычисляемых стилей через getComputedStyle.
+                </p>
+              </li>
+            </ol>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Миграция между библиотеками</h2>
+            <v-table density="comfortable" class="mb-8">
+              <thead>
+              <tr>
+                <th class="text-left font-weight-bold">Откуда → Куда</th>
+                <th class="text-left font-weight-bold">Сложность</th>
+                <th class="text-left font-weight-bold">Основные изменения</th>
+                <th class="text-left font-weight-bold">Автоматизация</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td class="pt-2 pb-2">Styled Components → Emotion</td>
+                <td class="pt-2 pb-2 text-success">Легко</td>
+                <td class="pt-2 pb-2">Изменение импортов, небольшие API различия</td>
+                <td class="pt-2 pb-2 text-success">Да</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2">Emotion → Stitches</td>
+                <td class="pt-2 pb-2 text-warning">Средне</td>
+                <td class="pt-2 pb-2">Переход на систему вариантов</td>
+                <td class="pt-2 pb-2 text-warning">Частично</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2">Runtime → Vanilla Extract</td>
+                <td class="pt-2 pb-2 text-error">Сложно</td>
+                <td class="pt-2 pb-2">Статические стили, новая архитектура</td>
+                <td class="pt-2 pb-2 text-error">Нет</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2">CSS Modules → CSS-in-JS</td>
+                <td class="pt-2 pb-2 text-warning">Средне</td>
+                <td class="pt-2 pb-2">Перенос стилей в компоненты</td>
+                <td class="pt-2 pb-2 text-warning">Частично</td>
+              </tr>
+              </tbody>
+            </v-table>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Современные тренды и будущее</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">🔄 Zero Runtime</h3>
+                  <p class="mb-2">Тренд на compile-time решения:</p>
+                  <ul class="pl-4">
+                    <li>Vanilla Extract</li>
+                    <li>Linaria</li>
+                    <li>Compiled (Facebook)</li>
+                    <li>Tamagui</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">🎯 Type Safety</h3>
+                  <p class="mb-2">Улучшение TypeScript интеграции:</p>
+                  <ul class="pl-4">
+                    <li>Типизированные темы</li>
+                    <li>Автокомплит CSS свойств</li>
+                    <li>Проверка значений</li>
+                    <li>Дизайн токены</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">⚡ Производительность</h3>
+                  <p class="mb-2">Оптимизация для больших приложений:</p>
+                  <ul class="pl-4">
+                    <li>Lazy CSS загрузка</li>
+                    <li>Дедупликация стилей</li>
+                    <li>Критический CSS</li>
+                    <li>Streaming SSR</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Рекомендации по выбору</h2>
+            <v-alert
+              type="info"
+              variant="tonal"
+              class="mb-6"
+            >
+              <p class="mb-2"><b>Для новых проектов в 2024-2025:</b></p>
+              <ul class="pl-4 ma-0">
+                <li><b>Простые проекты:</b> Goober или встроенные решения фреймворков</li>
+                <li><b>Средние проекты:</b> Emotion или Stitches</li>
+                <li><b>Большие проекты:</b> Vanilla Extract + система дизайна</li>
+                <li><b>Библиотеки компонентов:</b> Stitches + TypeScript</li>
+              </ul>
+            </v-alert>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Заключение</h2>
+            <p class="font-weight-regular mb-6">
+              Выбор CSS-in-JS библиотеки зависит от требований проекта: нужна ли максимальная гибкость (Styled Components),
+              баланс возможностей и производительности (Emotion), система дизайна (Stitches) или максимальная производительность
+              (Vanilla Extract). Важно учитывать размер команды, сложность проекта и долгосрочные планы развития.
+
+              Современный тренд идет в сторону zero-runtime решений и улучшенной TypeScript интеграции,
+              но runtime библиотеки все еще актуальны для проектов с высокими требованиями к динамичности стилей.
+            </p>
+
+            <div class="d-flex justify-end">
+              <v-btn
+                color='second'
+                size="small"
+                variant="elevated"
+                href="https://github.com/andrewheekin/css-in-js-performance-tests"
+                target="_blank">
+                CSS-in-JS Performance Tests
+              </v-btn>
+            </div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-app>
+</template>

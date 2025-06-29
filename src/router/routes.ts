@@ -27,6 +27,7 @@ import HardwareAcceleration from '@/views/css/HardwareAcceleration.vue'
 import SmoothTransformAnimations from '@/views/css/SmoothTransformAnimations.vue'
 import TransformationsTestPage from '@/views/tests/TransformationsTestPage.vue'
 import CSSInJS from '@/views/css/CSSInJS.vue'
+import CSSInJSApproaches from '@/views/css/CSSInJSApproaches.vue'
 
 export const routes = [
   {
@@ -144,5 +145,9 @@ export const routes = [
   {
     path: '/css/css-in-js',
     component: CSSInJS,
+  },
+  {
+    path: '/css/css-in-js-approaches',
+    component: CSSInJSApproaches,
   },
 ]
