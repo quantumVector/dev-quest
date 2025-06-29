@@ -29,6 +29,7 @@ import TransformationsTestPage from '@/views/tests/TransformationsTestPage.vue'
 import CSSInJS from '@/views/css/CSSInJS.vue'
 import CSSInJSApproaches from '@/views/css/CSSInJSApproaches.vue'
 import RuntimeVSPreCompile from '@/views/css/RuntimeVSPreCompile.vue'
+import CSSInJsTestPage from '@/views/tests/CSSInJsTestPage.vue'
 
 export const routes = [
   {
@@ -154,5 +155,9 @@ export const routes = [
   {
     path: '/css/runtime-vs-pre-compile',
     component: RuntimeVSPreCompile,
+  },
+  {
+    path: '/css/css-in-js-test',
+    component: CSSInJsTestPage,
   },
 ]

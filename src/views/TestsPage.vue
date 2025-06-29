@@ -32,6 +32,9 @@
           <v-list-item to="/css/transformations-test">
             <v-list-item-title>5. Трансформации</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/css/css-in-js-test">
+            <v-list-item-title>6. CSS-in-JS</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
