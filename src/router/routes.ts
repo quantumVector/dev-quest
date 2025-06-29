@@ -26,6 +26,7 @@ import OptimizedTransformAnimations from '@/views/css/OptimizedTransformAnimatio
 import HardwareAcceleration from '@/views/css/HardwareAcceleration.vue'
 import SmoothTransformAnimations from '@/views/css/SmoothTransformAnimations.vue'
 import TransformationsTestPage from '@/views/tests/TransformationsTestPage.vue'
+import CSSInJS from '@/views/css/CSSInJS.vue'
 
 export const routes = [
   {
@@ -139,5 +140,9 @@ export const routes = [
   {
     path: '/css/transformations-test',
     component: TransformationsTestPage,
+  },
+  {
+    path: '/css/css-in-js',
+    component: CSSInJS,
   },
 ]

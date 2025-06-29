@@ -634,4 +634,186 @@ onMounted(() => {
               <tr>
                 <td class="pt-2 pb-2"><b>Динамичность</b></td>
                 <td class="pt-2 pb-2 text-success">Отличная</td>
-                <t
+                <td class="pt-2 pb-2 text-warning">Ограниченная</td>
+                <td class="pt-2 pb-2 text-error">Нет</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>Производительность</b></td>
+                <td class="pt-2 pb-2 text-warning">Runtime overhead</td>
+                <td class="pt-2 pb-2 text-success">Отличная</td>
+                <td class="pt-2 pb-2 text-success">Лучшая</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>Размер бандла</b></td>
+                <td class="pt-2 pb-2 text-error">Больше</td>
+                <td class="pt-2 pb-2 text-warning">Средний</td>
+                <td class="pt-2 pb-2 text-success">Меньше</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>Кэширование</b></td>
+                <td class="pt-2 pb-2 text-error">Нет</td>
+                <td class="pt-2 pb-2 text-success">Да</td>
+                <td class="pt-2 pb-2 text-success">Да</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>TypeScript</b></td>
+                <td class="pt-2 pb-2 text-success">Отличная</td>
+                <td class="pt-2 pb-2 text-warning">Ограниченная</td>
+                <td class="pt-2 pb-2 text-error">Нет</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>Удобство разработки</b></td>
+                <td class="pt-2 pb-2 text-success">Высокое</td>
+                <td class="pt-2 pb-2 text-success">Хорошее</td>
+                <td class="pt-2 pb-2 text-warning">Среднее</td>
+              </tr>
+              </tbody>
+            </v-table>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Рекомендации по выбору</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100 border-success">
+                  <h3 class="text-h6 font-weight-bold mb-2 text-success">✅ Выбирайте CSS-in-JS, если:</h3>
+                  <ul class="pl-4">
+                    <li>Разрабатываете React/Vue приложение</li>
+                    <li>Нужны динамические стили</li>
+                    <li>Команда владеет JavaScript</li>
+                    <li>Создаете дизайн-систему</li>
+                    <li>Требуется строгая типизация стилей</li>
+                    <li>Используете серверный рендеринг</li>
+                    <li>Нужна изоляция компонентов</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100 border-warning">
+                  <h3 class="text-h6 font-weight-bold mb-2 text-warning">🤔 Альтернативы стоит рассмотреть, если:</h3>
+                  <ul class="pl-4">
+                    <li>Критична производительность</li>
+                    <li>Работаете со статическими стилями</li>
+                    <li>Команда предпочитает обычный CSS</li>
+                    <li>Проект небольшой и простой</li>
+                    <li>Нужна совместимость со старыми браузерами</li>
+                    <li>Есть ограничения CSP</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Современные решения и тренды</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">Zero-Runtime</h3>
+                  <p class="mb-2"><b>Vanilla Extract</b> - статическая экстракция</p>
+                  <p class="mb-2"><b>Linaria</b> - CSS из JS на build-time</p>
+                  <p class="ma-0"><b>Compiled</b> - компиляция styled-components</p>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">Hybrid подходы</h3>
+                  <p class="mb-2"><b>Stitches</b> - утилитарный CSS-in-JS</p>
+                  <p class="mb-2"><b>Twin.macro</b> - Tailwind в CSS-in-JS</p>
+                  <p class="ma-0"><b>Goober</b> - легкая альтернатива</p>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">Новые стандарты</h3>
+                  <p class="mb-2"><b>CSS Houdini</b> - кастомные свойства</p>
+                  <p class="mb-2"><b>Container Queries</b> - адаптивность</p>
+                  <p class="ma-0"><b>CSS Layers</b> - управление каскадом</p>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Оптимизация производительности CSS-in-JS</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">🚀 Техники оптимизации</h3>
+                  <ul class="pl-4">
+                    <li><b>Мемоизация стилей</b> - useMemo, React.memo</li>
+                    <li><b>Статическая экстракция</b> - babel плагины</li>
+                    <li><b>Code splitting</b> - динамические импорты</li>
+                    <li><b>CSS переменные</b> - вместо пересчета стилей</li>
+                    <li><b>Server-side рендеринг</b> - критические стили</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">⚡ Измерение производительности</h3>
+                  <ul class="pl-4">
+                    <li><b>Bundle analyzer</b> - размер CSS-in-JS</li>
+                    <li><b>React DevTools</b> - профилирование</li>
+                    <li><b>Lighthouse</b> - время загрузки стилей</li>
+                    <li><b>Chrome DevTools</b> - paint/layout метрики</li>
+                    <li><b>Web Vitals</b> - CLS от динамических стилей</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Практические советы для команд</h2>
+            <v-alert type="info" class="mb-6">
+              <p class="mb-2"><strong>Для новых проектов:</strong></p>
+              <p class="ma-0">
+                Начните с CSS Modules или Tailwind. Переходите на CSS-in-JS только при необходимости
+                динамических стилей или сложной тематизации.
+              </p>
+            </v-alert>
+
+            <v-alert type="warning" class="mb-6">
+              <p class="mb-2"><strong>Для миграции:</strong></p>
+              <p class="ma-0">
+                Мигрируйте постепенно, компонент за компонентом. Используйте инструменты автоматизации
+                и не забывайте о тестировании визуальной регрессии.
+              </p>
+            </v-alert>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Заключение</h2>
+            <p class="font-weight-regular mb-6">
+              CSS-in-JS — мощный инструмент для современной веб-разработки, особенно в экосистеме React.
+              Он отлично решает задачи изоляции стилей, динамической тематизации и создания переиспользуемых
+              компонентов. Однако важно взвешивать преимущества против накладных расходов на производительность
+              и сложность. Для статических сайтов и простых проектов традиционные подходы могут быть предпочтительнее.
+            </p>
+
+            <div class="d-flex justify-space-between flex-wrap">
+              <v-btn
+                color="primary"
+                size="small"
+                variant="elevated"
+                href="https://styled-components.com/"
+                target="_blank"
+                class="mb-2">
+                Styled Components
+              </v-btn>
+              <v-btn
+                color="secondary"
+                size="small"
+                variant="elevated"
+                href="https://emotion.sh/"
+                target="_blank"
+                class="mb-2">
+                Emotion Docs
+              </v-btn>
+              <v-btn
+                color="success"
+                size="small"
+                variant="elevated"
+                href="https://vanilla-extract.style/"
+                target="_blank"
+                class="mb-2">
+                Vanilla Extract
+              </v-btn>
+            </div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-app>
+</template>
