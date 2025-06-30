@@ -28,19 +28,6 @@ export const htmlInterviewQuestions: InterviewQuestion[] = [
         <li>Поддерживается всеми современными браузерами</li>
         <li>Служит основой для веб-страниц, поверх которой работают CSS и JavaScript</li>
       </ul>
-
-      <h3>Пример базовой структуры:</h3>
-      <pre><code>&lt;!DOCTYPE html&gt;
-&lt;html lang="ru"&gt;
-&lt;head&gt;
-    &lt;meta charset="UTF-8"&gt;
-    &lt;title&gt;Заголовок страницы&lt;/title&gt;
-&lt;/head&gt;
-&lt;body&gt;
-    &lt;h1&gt;Главный заголовок&lt;/h1&gt;
-    &lt;p&gt;Параграф с текстом.&lt;/p&gt;
-&lt;/body&gt;
-&lt;/html&gt;</code></pre>
     `,
     difficulty: 'junior',
     tags: ['основы', 'структура']
@@ -52,27 +39,21 @@ export const htmlInterviewQuestions: InterviewQuestion[] = [
       <h3>Семантические теги</h3>
       <p>Семантические теги <strong>описывают смысл и назначение</strong> содержимого, а не только его внешний вид. Они помогают поисковым системам, скрин-ридерам и другим инструментам понять структуру и содержание страницы.</p>
 
-      <h4>Примеры семантических тегов:</h4>
+      <h4>Основные семантические теги:</h4>
       <ul>
-        <li><code>&lt;header&gt;</code> — заголовочная часть секции или страницы</li>
-        <li><code>&lt;nav&gt;</code> — навигационные ссылки</li>
-        <li><code>&lt;main&gt;</code> — основное содержимое страницы</li>
-        <li><code>&lt;article&gt;</code> — независимая статья или публикация</li>
-        <li><code>&lt;section&gt;</code> — логическая секция документа</li>
-        <li><code>&lt;aside&gt;</code> — дополнительная информация (сайдбар)</li>
-        <li><code>&lt;footer&gt;</code> — нижняя часть секции или страницы</li>
-        <li><code>&lt;figure&gt;</code> — иллюстрация с подписью</li>
-        <li><code>&lt;time&gt;</code> — дата и время</li>
+        <li><strong>header</strong> — заголовочная часть секции или страницы</li>
+        <li><strong>nav</strong> — навигационные ссылки</li>
+        <li><strong>main</strong> — основное содержимое страницы</li>
+        <li><strong>article</strong> — независимая статья или публикация</li>
+        <li><strong>section</strong> — логическая секция документа</li>
+        <li><strong>aside</strong> — дополнительная информация (сайдбар)</li>
+        <li><strong>footer</strong> — нижняя часть секции или страницы</li>
+        <li><strong>figure</strong> — иллюстрация с подписью</li>
+        <li><strong>time</strong> — дата и время</li>
       </ul>
 
       <h3>Несемантические теги</h3>
-      <p>Несемантические теги <strong>не несут смысловой нагрузки</strong> и используются только для группировки или стилизации элементов.</p>
-
-      <h4>Примеры несемантических тегов:</h4>
-      <ul>
-        <li><code>&lt;div&gt;</code> — блочный контейнер общего назначения</li>
-        <li><code>&lt;span&gt;</code> — строчный контейнер общего назначения</li>
-      </ul>
+      <p>Несемантические теги <strong>не несут смысловой нагрузки</strong> и используются только для группировки или стилизации элементов. Основные примеры: div и span.</p>
 
       <h3>Преимущества семантической разметки:</h3>
       <ul>
@@ -81,25 +62,392 @@ export const htmlInterviewQuestions: InterviewQuestion[] = [
         <li><strong>Читаемость кода</strong> — разработчикам легче понять структуру</li>
         <li><strong>Сопровождаемость</strong> — код становится более понятным и логичным</li>
       </ul>
-
-      <h3>Пример сравнения:</h3>
-      <pre><code><!-- Несемантическая разметка -->
-&lt;div class="header"&gt;
-    &lt;div class="navigation"&gt;...&lt;/div&gt;
-&lt;/div&gt;
-&lt;div class="content"&gt;
-    &lt;div class="article"&gt;...&lt;/div&gt;
-&lt;/div&gt;
-
-<!-- Семантическая разметка -->
-&lt;header&gt;
-    &lt;nav&gt;...&lt;/nav&gt;
-&lt;/header&gt;
-&lt;main&gt;
-    &lt;article&gt;...&lt;/article&gt;
-&lt;/main&gt;</code></pre>
     `,
     difficulty: 'middle',
     tags: ['семантика', 'доступность', 'SEO']
-  }
-]
+  },
+  {
+    id: 3,
+    question: "Что такое DOCTYPE и зачем он нужен?",
+    answer: `
+      <p><strong>DOCTYPE</strong> — это декларация типа документа, которая сообщает браузеру, какую версию HTML или XHTML использует документ.</p>
+
+      <h3>Основные функции DOCTYPE:</h3>
+      <ul>
+        <li><strong>Активация стандартного режима</strong> — браузер интерпретирует документ согласно современным стандартам</li>
+        <li><strong>Предотвращение quirks mode</strong> — избегание режима совместимости со старыми браузерами</li>
+        <li><strong>Валидация</strong> — определяет правила для проверки корректности разметки</li>
+        <li><strong>Консистентность</strong> — обеспечивает одинаковое отображение в разных браузерах</li>
+      </ul>
+
+      <h3>HTML5 DOCTYPE:</h3>
+      <p>В HTML5 используется упрощенная декларация, которая активирует стандартный режим во всех современных браузерах. Она должна быть первой строкой документа.</p>
+
+      <h3>Что происходит без DOCTYPE:</h3>
+      <ul>
+        <li>Браузер переходит в режим совместимости (quirks mode)</li>
+        <li>Непредсказуемое поведение CSS</li>
+        <li>Различия в отображении между браузерами</li>
+        <li>Проблемы с JavaScript и DOM</li>
+      </ul>
+    `,
+    difficulty: 'junior',
+    tags: ['основы', 'стандарты']
+  },
+  {
+    id: 4,
+    question: "Что такое семантическая верстка и почему она важна?",
+    answer: `
+      <p><strong>Семантическая верстка</strong> — это подход к созданию HTML-разметки, при котором теги выбираются не по внешнему виду, а по смыслу содержимого.</p>
+
+      <h3>Принципы семантической верстки:</h3>
+      <ul>
+        <li><strong>Смысловое соответствие</strong> — каждый тег отражает назначение контента</li>
+        <li><strong>Логическая структура</strong> — документ имеет четкую иерархию</li>
+        <li><strong>Независимость от оформления</strong> — структура не зависит от CSS</li>
+        <li><strong>Понятность</strong> — код легко читается и понимается</li>
+      </ul>
+
+      <h3>Преимущества семантической верстки:</h3>
+      <ul>
+        <li><strong>Улучшение SEO</strong> — поисковые системы лучше индексируют контент</li>
+        <li><strong>Повышение доступности</strong> — скрин-ридеры корректно интерпретируют структуру</li>
+        <li><strong>Лучшая поддержка</strong> — код легче поддерживать и развивать</li>
+        <li><strong>Кроссплатформенность</strong> — контент корректно отображается на всех устройствах</li>
+        <li><strong>Будущая совместимость</strong> — код остается актуальным при обновлении стандартов</li>
+      </ul>
+
+      <h3>Ключевые семантические элементы:</h3>
+      <ul>
+        <li><strong>Структурные:</strong> header, nav, main, section, article, aside, footer</li>
+        <li><strong>Текстовые:</strong> h1-h6, p, blockquote, address</li>
+        <li><strong>Списки:</strong> ul, ol, dl</li>
+        <li><strong>Медиа:</strong> figure, figcaption</li>
+        <li><strong>Интерактивные:</strong> details, summary</li>
+      </ul>
+    `,
+    difficulty: 'middle',
+    tags: ['семантика', 'структура', 'лучшие практики']
+  },
+  {
+    id: 5,
+    question: "Что такое доступность (accessibility) в веб-разработке и как HTML помогает ее обеспечить?",
+    answer: `
+      <p><strong>Доступность (A11y)</strong> — это практика создания веб-контента, который могут использовать люди с различными ограничениями возможностей.</p>
+
+      <h3>Основные принципы доступности (WCAG):</h3>
+      <ul>
+        <li><strong>Воспринимаемость</strong> — информация должна быть представлена в доступной форме</li>
+        <li><strong>Управляемость</strong> — интерфейс должен быть удобен для навигации</li>
+        <li><strong>Понятность</strong> — информация и управление должны быть понятными</li>
+        <li><strong>Надежность</strong> — контент должен работать с различными технологиями</li>
+      </ul>
+
+      <h3>HTML-средства для обеспечения доступности:</h3>
+      <ul>
+        <li><strong>Семантические теги</strong> — передают структуру и смысл контента</li>
+        <li><strong>Атрибуты alt</strong> — описывают изображения для скрин-ридеров</li>
+        <li><strong>Заголовки h1-h6</strong> — создают логическую иерархию контента</li>
+        <li><strong>Labels для форм</strong> — связывают подписи с элементами управления</li>
+        <li><strong>Атрибуты ARIA</strong> — расширяют семантику для сложных компонентов</li>
+        <li><strong>Навигация с клавиатуры</strong> — tabindex, focus management</li>
+      </ul>
+
+      <h3>Группы пользователей с ограничениями:</h3>
+      <ul>
+        <li><strong>Слабовидящие и незрячие</strong> — используют скрин-ридеры</li>
+        <li><strong>Люди с нарушениями слуха</strong> — нуждаются в субтитрах и транскрипциях</li>
+        <li><strong>Люди с моторными нарушениями</strong> — используют клавиатуру или альтернативные устройства</li>
+        <li><strong>Люди с когнитивными особенностями</strong> — нуждаются в простом и понятном интерфейсе</li>
+      </ul>
+
+      <h3>Инструменты для проверки доступности:</h3>
+      <ul>
+        <li>Автоматические тесты (axe, WAVE)</li>
+        <li>Ручное тестирование с клавиатурой</li>
+        <li>Проверка с помощью скрин-ридеров</li>
+        <li>Валидация HTML</li>
+      </ul>
+    `,
+    difficulty: 'middle',
+    tags: ['доступность', 'ARIA', 'пользовательский опыт']
+  },
+  {
+    id: 6,
+    question: "Как эффективно сделать адаптивное изображение в HTML? Расскажите о различных подходах.",
+    answer: `
+      <p><strong>Адаптивные изображения</strong> — это техника, позволяющая отображать разные версии изображения в зависимости от характеристик устройства и экрана.</p>
+
+      <h3>Основные подходы к адаптивным изображениям:</h3>
+
+      <h4>1. Элемент picture с source</h4>
+      <ul>
+        <li><strong>Назначение:</strong> выбор изображения по медиа-запросам</li>
+        <li><strong>Применение:</strong> разные форматы, размеры, кадрирование для разных устройств</li>
+        <li><strong>Преимущества:</strong> полный контроль над выбором изображения</li>
+      </ul>
+
+      <h4>2. Атрибут srcset и sizes</h4>
+      <ul>
+        <li><strong>Назначение:</strong> предоставление вариантов изображения разной плотности и размера</li>
+        <li><strong>srcset:</strong> список изображений с указанием их характеристик</li>
+        <li><strong>sizes:</strong> информация о размерах изображения в разных условиях</li>
+        <li><strong>Браузер:</strong> самостоятельно выбирает подходящее изображение</li>
+      </ul>
+
+      <h4>3. CSS background-image с медиа-запросами</h4>
+      <ul>
+        <li><strong>Применение:</strong> декоративные изображения</li>
+        <li><strong>Ограничения:</strong> не подходит для контентных изображений</li>
+      </ul>
+
+      <h3>Критерии выбора изображения:</h3>
+      <ul>
+        <li><strong>Плотность пикселей (DPR)</strong> — для Retina и обычных экранов</li>
+        <li><strong>Ширина viewport</strong> — для разных размеров экрана</li>
+        <li><strong>Формат изображения</strong> — WebP, AVIF для современных браузеров</li>
+        <li><strong>Ориентация</strong> — портретная или альбомная</li>
+      </ul>
+
+      <h3>Преимущества адаптивных изображений:</h3>
+      <ul>
+        <li><strong>Производительность</strong> — загрузка оптимального размера</li>
+        <li><strong>Качество</strong> — четкость на всех типах экранов</li>
+        <li><strong>Трафик</strong> — экономия мобильного трафика</li>
+        <li><strong>UX</strong> — быстрая загрузка и хорошее качество</li>
+      </ul>
+
+      <h3>Рекомендации по использованию:</h3>
+      <ul>
+        <li>Всегда указывайте fallback в img src</li>
+        <li>Используйте современные форматы с fallback</li>
+        <li>Учитывайте art direction для разных устройств</li>
+        <li>Тестируйте на разных устройствах и соединениях</li>
+      </ul>
+    `,
+    difficulty: 'middle',
+    tags: ['изображения', 'производительность', 'адаптивность']
+  },
+  {
+    id: 7,
+    question: "Что такое ARIA и как она помогает в создании доступных веб-приложений?",
+    answer: `
+      <p><strong>ARIA (Accessible Rich Internet Applications)</strong> — это набор атрибутов, которые расширяют семантику HTML для создания более доступных веб-приложений.</p>
+
+      <h3>Основные категории ARIA атрибутов:</h3>
+
+      <h4>1. Роли (Roles)</h4>
+      <ul>
+        <li><strong>Назначение:</strong> определяют, что представляет собой элемент</li>
+        <li><strong>Примеры:</strong> button, dialog, tabpanel, menuitem</li>
+        <li><strong>Использование:</strong> когда семантики HTML недостаточно</li>
+      </ul>
+
+      <h4>2. Свойства (Properties)</h4>
+      <ul>
+        <li><strong>aria-label:</strong> альтернативное название элемента</li>
+        <li><strong>aria-labelledby:</strong> ссылка на элемент, который служит названием</li>
+        <li><strong>aria-describedby:</strong> ссылка на элемент с дополнительным описанием</li>
+        <li><strong>aria-required:</strong> указывает обязательность поля</li>
+      </ul>
+
+      <h4>3. Состояния (States)</h4>
+      <ul>
+        <li><strong>aria-expanded:</strong> развернут ли элемент</li>
+        <li><strong>aria-hidden:</strong> скрыт ли элемент от скрин-ридеров</li>
+        <li><strong>aria-disabled:</strong> отключен ли элемент</li>
+        <li><strong>aria-checked:</strong> отмечен ли элемент</li>
+      </ul>
+
+      <h3>Когда использовать ARIA:</h3>
+      <ul>
+        <li><strong>Кастомные компоненты</strong> — dropdown, modal, carousel</li>
+        <li><strong>Динамический контент</strong> — обновления без перезагрузки страницы</li>
+        <li><strong>Сложные интерфейсы</strong> — drag-and-drop, rich text editors</li>
+        <li><strong>Недостаток семантики</strong> — когда HTML тегов недостаточно</li>
+      </ul>
+
+      <h3>Принципы использования ARIA:</h3>
+      <ul>
+        <li><strong>Первое правило:</strong> используйте семантический HTML где возможно</li>
+        <li><strong>Не изменяйте семантику</strong> — не противоречьте встроенной семантике</li>
+        <li><strong>Обеспечьте доступность с клавиатуры</strong> — все интерактивные элементы должны быть доступны</li>
+        <li><strong>Не скрывайте фокус</strong> — визуальный фокус должен быть виден</li>
+      </ul>
+
+      <h3>Живые области (Live Regions):</h3>
+      <ul>
+        <li><strong>aria-live:</strong> уведомляет о динамических изменениях</li>
+        <li><strong>aria-atomic:</strong> читать всю область или только изменения</li>
+        <li><strong>aria-relevant:</strong> какие изменения отслеживать</li>
+        <li><strong>Применение:</strong> уведомления, статусы, ошибки валидации</li>
+      </ul>
+    `,
+    difficulty: 'senior',
+    tags: ['ARIA', 'доступность', 'семантика']
+  },
+  {
+    id: 8,
+    question: "Объясните разницу между блочными и строчными элементами. Что такое inline-block?",
+    answer: `
+      <h3>Блочные элементы (Block-level elements)</h3>
+      <ul>
+        <li><strong>Поведение:</strong> занимают всю доступную ширину</li>
+        <li><strong>Новая строка:</strong> всегда начинаются с новой строки</li>
+        <li><strong>Размеры:</strong> можно задавать width и height</li>
+        <li><strong>Отступы:</strong> margin и padding работают во всех направлениях</li>
+        <li><strong>Примеры:</strong> div, p, h1-h6, section, article, header, footer</li>
+      </ul>
+
+      <h3>Строчные элементы (Inline elements)</h3>
+      <ul>
+        <li><strong>Поведение:</strong> занимают только необходимую ширину</li>
+        <li><strong>Размещение:</strong> располагаются в одной строке с другими элементами</li>
+        <li><strong>Размеры:</strong> width и height игнорируются</li>
+        <li><strong>Отступы:</strong> только горизонтальные margin и padding</li>
+        <li><strong>Примеры:</strong> span, a, strong, em, img, input</li>
+      </ul>
+
+      <h3>Inline-block элементы</h3>
+      <ul>
+        <li><strong>Гибридное поведение:</strong> сочетают свойства блочных и строчных</li>
+        <li><strong>Размещение:</strong> в одной строке, как inline</li>
+        <li><strong>Размеры:</strong> можно задавать width и height, как у block</li>
+        <li><strong>Отступы:</strong> margin и padding работают во всех направлениях</li>
+        <li><strong>Применение:</strong> кнопки, элементы навигации, сетки</li>
+      </ul>
+
+      <h3>Ключевые различия:</h3>
+      <ul>
+        <li><strong>Ширина:</strong> block — 100%, inline — по содержимому, inline-block — настраиваемая</li>
+        <li><strong>Высота:</strong> block и inline-block — настраиваемая, inline — по содержимому</li>
+        <li><strong>Перенос строки:</strong> block — да, inline и inline-block — нет</li>
+        <li><strong>Вертикальные отступы:</strong> block и inline-block — да, inline — ограниченно</li>
+      </ul>
+
+      <h3>Практические соображения:</h3>
+      <ul>
+        <li><strong>Выбор типа</strong> зависит от задачи и желаемого поведения</li>
+        <li><strong>CSS display</strong> позволяет изменить тип отображения</li>
+        <li><strong>Современные подходы:</strong> flexbox и grid часто заменяют inline-block</li>
+        <li><strong>Семантика важнее</strong> — выбирайте элемент по смыслу, а не по отображению</li>
+      </ul>
+    `,
+    difficulty: 'junior',
+    tags: ['основы', 'отображение', 'CSS']
+  },
+  {
+    id: 9,
+    question: "Что такое мета-теги и какие из них наиболее важны для SEO и пользовательского опыта?",
+    answer: `
+      <p><strong>Мета-теги</strong> — это HTML элементы, которые предоставляют метаданные о документе. Они не отображаются на странице, но используются браузерами, поисковыми системами и другими сервисами.</p>
+
+      <h3>Критически важные мета-теги:</h3>
+
+      <h4>1. charset — кодировка</h4>
+      <ul>
+        <li><strong>Назначение:</strong> определяет кодировку символов документа</li>
+        <li><strong>Важность:</strong> предотвращает проблемы с отображением текста</li>
+        <li><strong>Размещение:</strong> должен быть в первых 1024 байтах документа</li>
+      </ul>
+
+      <h4>2. viewport — адаптивность</h4>
+      <ul>
+        <li><strong>Назначение:</strong> контролирует отображение на мобильных устройствах</li>
+        <li><strong>Параметры:</strong> width, initial-scale, user-scalable</li>
+        <li><strong>Критичность:</strong> необходим для корректной работы адаптивного дизайна</li>
+      </ul>
+
+      <h3>SEO мета-теги:</h3>
+
+      <h4>1. title — заголовок страницы</h4>
+      <ul>
+        <li><strong>Влияние:</strong> основной фактор ранжирования</li>
+        <li><strong>Отображение:</strong> заголовок вкладки и в результатах поиска</li>
+        <li><strong>Рекомендации:</strong> 50-60 символов, уникальность, ключевые слова</li>
+      </ul>
+
+      <h4>2. description — описание</h4>
+      <ul>
+        <li><strong>Назначение:</strong> краткое описание содержания страницы</li>
+        <li><strong>Влияние:</strong> влияет на CTR в поисковой выдаче</li>
+        <li><strong>Длина:</strong> 150-160 символов для оптимального отображения</li>
+      </ul>
+
+      <h4>3. robots — инструкции для поисковых роботов</h4>
+      <ul>
+        <li><strong>Директивы:</strong> index/noindex, follow/nofollow</li>
+        <li><strong>Дополнительные:</strong> noarchive, nosnippet, noimageindex</li>
+      </ul>
+
+      <h3>Open Graph (социальные сети):</h3>
+      <ul>
+        <li><strong>og:title:</strong> заголовок при шаринге</li>
+        <li><strong>og:description:</strong> описание при шаринге</li>
+        <li><strong>og:image:</strong> изображение превью</li>
+        <li><strong>og:url:</strong> канонический URL страницы</li>
+        <li><strong>og:type:</strong> тип контента (website, article, etc.)</li>
+      </ul>
+
+      <h3>Twitter Cards:</h3>
+      <ul>
+        <li><strong>twitter:card:</strong> тип карточки (summary, summary_large_image)</li>
+        <li><strong>twitter:title, twitter:description:</strong> заголовок и описание</li>
+        <li><strong>twitter:image:</strong> изображение для превью</li>
+      </ul>
+
+      <h3>Технические мета-теги:</h3>
+      <ul>
+        <li><strong>http-equiv:</strong> HTTP заголовки (refresh, content-type)</li>
+        <li><strong>theme-color:</strong> цвет темы для мобильных браузеров</li>
+        <li><strong>canonical:</strong> канонический URL (link rel, но важен для SEO)</li>
+      </ul>
+
+      <h3>Лучшие практики:</h3>
+      <ul>
+        <li><strong>Уникальность:</strong> каждая страница должна иметь уникальные title и description</li>
+        <li><strong>Релевантность:</strong> мета-теги должны соответствовать содержанию страницы</li>
+        <li><strong>Длина:</strong> соблюдайте рекомендуемые ограничения</li>
+        <li><strong>Тестирование:</strong> проверяйте отображение в поисковых системах и соцсетях</li>
+      </ul>
+    `,
+    difficulty: 'middle',
+    tags: ['SEO', 'мета-теги', 'оптимизация']
+  },
+  {
+    id: 10,
+    question: "Как работают HTML формы? Объясните различные типы input и их валидацию.",
+    answer: `
+      <p><strong>HTML формы</strong> — это интерфейс для сбора пользовательских данных и их отправки на сервер. Они состоят из элемента form и различных элементов управления.</p>
+
+      <h3>Основные атрибуты формы:</h3>
+      <ul>
+        <li><strong>action:</strong> URL для отправки данных</li>
+        <li><strong>method:</strong> метод HTTP (GET/POST)</li>
+        <li><strong>enctype:</strong> кодировка данных (важно для файлов)</li>
+        <li><strong>target:</strong> где открыть результат</li>
+        <li><strong>novalidate:</strong> отключить встроенную валидацию</li>
+      </ul>
+
+      <h3>Типы input элементов:</h3>
+
+      <h4>Текстовые поля:</h4>
+      <ul>
+        <li><strong>text:</strong> обычное текстовое поле</li>
+        <li><strong>password:</strong> поле для паролей (скрывает ввод)</li>
+        <li><strong>email:</strong> для email с базовой валидацией</li>
+        <li><strong>url:</strong> для URL с проверкой формата</li>
+        <li><strong>search:</strong> поле поиска</li>
+        <li><strong>tel:</strong> для номеров телефонов</li>
+      </ul>
+
+      <h4>Числовые поля:</h4>
+      <ul>
+        <li><strong>number:</strong> числовой ввод с возможностью задать min/max</li>
+        <li><strong>range:</strong> слайдер для выбора значения в диапазоне</li>
+      </ul>
+
+      <h4>Дата и время:</h4>
+      <ul>
+        <li><strong>date:</strong> выбор даты</li>
+        <li><strong>time:</strong> выбор времени</li
