@@ -100,7 +100,7 @@
           <v-list-item to="/js/types-of-functions">
             <v-list-item-title>1.2. Какие функции есть в JS?</v-list-item-title>
           </v-list-item>
-          <v-list-item to="/js/specificity">
+          <v-list-item to="/js/functions-types">
             <v-list-item-title>1.3. Разница между FunctionDeclaration, FunctionExpression, ArrowFunction</v-list-item-title>
           </v-list-item>
           <v-list-subheader>Замыкания</v-list-subheader>

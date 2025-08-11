@@ -807,3 +807,100 @@ onMounted(() => {
 
             <h2 class="text-h5 font-weight-bold mb-3">Частые вопросы на собеседовании</h2>
             <ol class="ol-list mb-8">
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Что произойдет, если вызвать функцию до её объявления?</p>
+                <p class="font-weight-regular ma-0">
+                  <strong>Function Declaration:</strong> Работает благодаря hoisting.<br>
+                  <strong>Function Expression/Arrow:</strong> ReferenceError или TypeError.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Чем отличается <code>this</code> в arrow function?</p>
+                <p class="font-weight-regular ma-0">
+                  Arrow function не имеет собственного <code>this</code> и берет его из внешней области видимости (лексический контекст).
+                  Обычные функции имеют динамический <code>this</code>, зависящий от способа вызова.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Почему arrow function нельзя использовать как конструктор?</p>
+                <p class="font-weight-regular ma-0">
+                  У arrow function нет внутреннего метода [[Construct]] и собственного <code>this</code>.
+                  При вызове с <code>new</code> получим TypeError.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Как получить аргументы в arrow function?</p>
+                <p class="font-weight-regular ma-0">
+                  Arrow function не имеет объекта <code>arguments</code>. Используйте rest параметры: <code>(...args) => {}</code>
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Когда использовать какой тип функций?</p>
+                <p class="font-weight-regular ma-0">
+                  <strong>Function Declaration:</strong> основные функции, когда нужен hoisting.<br>
+                  <strong>Function Expression:</strong> условное создание, методы объектов.<br>
+                  <strong>Arrow Function:</strong> короткие функции, callbacks, когда не нужен собственный контекст.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Что такое IIFE и зачем она нужна?</p>
+                <p class="font-weight-regular ma-0">
+                  Immediately Invoked Function Expression - функция, которая выполняется сразу после создания.
+                  Используется для создания изолированной области видимости: <code>(function(){ /* код */ })();</code>
+                </p>
+              </li>
+            </ol>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Лучшие практики</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">✅ Что делать</h3>
+                  <ul class="pl-4">
+                    <li>Используйте Arrow Functions для коротких функций и callbacks</li>
+                    <li>Function Declaration для основных функций приложения</li>
+                    <li>Function Expression для условного создания функций</li>
+                    <li>Предпочитайте const для Function Expression</li>
+                    <li>Используйте деструктуризацию и rest параметры</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">❌ Чего избегать</h3>
+                  <ul class="pl-4">
+                    <li>Arrow Functions как методы объектов</li>
+                    <li>Arrow Functions как конструкторы</li>
+                    <li>Function Declaration внутри блоков</li>
+                    <li>Слишком сложные arrow functions</li>
+                    <li>Злоупотребление hoisting</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Итог</h2>
+            <p class="font-weight-regular mb-6">
+              Выбор между Function Declaration, Function Expression и Arrow Function зависит от контекста использования.
+              <strong>Function Declaration</strong> подходит для основных функций с hoisting,
+              <strong>Function Expression</strong> — для динамического создания функций,
+              <strong>Arrow Function</strong> — для коротких функций без собственного контекста.
+              Понимание особенностей каждого типа критично для написания качественного JavaScript кода.
+            </p>
+
+            <div class="d-flex justify-end">
+              <v-btn
+                color='second'
+                size="small"
+                variant="elevated"
+                href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Functions"
+                target="_blank">
+                MDN: JavaScript Functions
+              </v-btn>
+            </div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-app>
+</template>
