@@ -741,4 +741,141 @@ onMounted(() => {
             <h2 class="text-h5 font-weight-bold mb-3">Вопросы для собеседования</h2>
             <ol class="ol-list mb-8">
               <li class="mb-4">
-                <p class="font
+                <p class="font-weight-bold mb-1">В чем разница между Function Declaration и Function Expression?</p>
+                <p class="font-weight-regular ma-0">
+                  Function Declaration поднимается (hoisting), можно вызывать до объявления.
+                  Function Expression не поднимается, создается только при выполнении кода.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Когда использовать стрелочные функции, а когда обычные?</p>
+                <p class="font-weight-regular ma-0">
+                  Стрелочные — для коротких функций, callback'ов, когда нужен лексический this.
+                  Обычные — для методов объектов, конструкторов, когда нужен динамический this.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Что такое замыкание и как создать приватные переменные?</p>
+                <p class="font-weight-regular ma-0">
+                  Замыкание — функция + лексическое окружение. Внутренняя функция имеет доступ
+                  к переменным внешней функции даже после её завершения.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">В чем разница между call, apply и bind?</p>
+                <p class="font-weight-regular ma-0">
+                  call/apply сразу вызывают функцию с заданным this. call принимает аргументы по отдельности,
+                  apply — массивом. bind создает новую функцию с привязанным this.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Что такое каррирование и частичное применение?</p>
+                <p class="font-weight-regular ma-0">
+                  Каррирование — преобразование функции от многих аргументов в последовательность функций
+                  от одного аргумента. Частичное применение — фиксация части аргументов.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Как работают генераторы и для чего они нужны?</p>
+                <p class="font-weight-regular ma-0">
+                  Генераторы приостанавливают выполнение функции (yield) и могут возобновлять его.
+                  Используются для итераторов, ленивых вычислений, управления асинхронным кодом.
+                </p>
+              </li>
+            </ol>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Практические примеры использования</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">В React/Vue</h3>
+                  <ul class="pl-4">
+                    <li>Обработчики событий</li>
+                    <li>Lifecycle методы</li>
+                    <li>Custom hooks/composables</li>
+                    <li>Render функции</li>
+                    <li>Вычисляемые свойства</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">В Node.js</h3>
+                  <ul class="pl-4">
+                    <li>Middleware функции</li>
+                    <li>Route handlers</li>
+                    <li>Stream обработчики</li>
+                    <li>Утилиты для работы с данными</li>
+                    <li>API контроллеры</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Лучшие практики</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100 text-center">
+                  <v-icon size="large" color="success" class="mb-2">mdi-check-circle</v-icon>
+                  <h3 class="text-h6 font-weight-bold mb-2">✅ Делать</h3>
+                  <ul class="text-left pl-4">
+                    <li>Использовать чистые функции</li>
+                    <li>Избегать глубокой вложенности</li>
+                    <li>Применять деструктуризацию</li>
+                    <li>Использовать осмысленные имена</li>
+                    <li>Проверять типы аргументов</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100 text-center">
+                  <v-icon size="large" color="error" class="mb-2">mdi-close-circle</v-icon>
+                  <h3 class="text-h6 font-weight-bold mb-2">❌ Избегать</h3>
+                  <ul class="text-left pl-4">
+                    <li>Функции с побочными эффектами</li>
+                    <li>Слишком длинные функции</li>
+                    <li>Избыточное использование eval</li>
+                    <li>Неконтролируемые замыкания</li>
+                    <li>Игнорирование контекста this</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100 text-center">
+                  <v-icon size="large" color="warning" class="mb-2">mdi-alert-circle</v-icon>
+                  <h3 class="text-h6 font-weight-bold mb-2">⚠️ Внимание</h3>
+                  <ul class="text-left pl-4">
+                    <li>Производительность рекурсии</li>
+                    <li>Утечки памяти в замыканиях</li>
+                    <li>this в стрелочных функциях</li>
+                    <li>Hoisting особенности</li>
+                    <li>Async/await ошибки</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Итог</h2>
+            <p class="font-weight-regular mb-6">
+              JavaScript предоставляет богатый набор функций: встроенные глобальные функции и методы объектов
+              для повседневных задач, различные способы создания пользовательских функций (declaration, expression, arrow),
+              специализированные функции (генераторы, async, конструкторы) и функциональные паттерны (HOF, замыкания, каррирование).
+              Понимание всех типов функций и их особенностей критично для эффективной разработки на JavaScript.
+            </p>
+
+            <div class="d-flex justify-end">
+              <v-btn
+                color='second'
+                size="small"
+                variant="elevated"
+                href="https://developer.mozilla.org/ru/docs/Web/JavaScript/Guide/Functions"
+                target="_blank">
+                MDN Functions Guide
+              </v-btn>
+            </div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-app>
+</template>

@@ -97,7 +97,7 @@
           <v-list-item to="/js/functions">
             <v-list-item-title>1.1. Что такое функции?</v-list-item-title>
           </v-list-item>
-          <v-list-item to="/js/specificity">
+          <v-list-item to="/js/types-of-functions">
             <v-list-item-title>1.2. Какие функции есть в JS?</v-list-item-title>
           </v-list-item>
           <v-list-item to="/js/specificity">

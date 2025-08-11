@@ -34,6 +34,7 @@ import HTMLInterviewPage from '@/views/interview/HTMLInterviewPage.vue'
 import InterviewPage from '@/views/InterviewPage.vue'
 import CSSInterviewPage from '@/views/interview/CSSInterviewPage.vue'
 import Functions from '@/views/js/Functions.vue'
+import TypesOfFunctions from '@/views/js/TypesOfFunctions.vue'
 
 export const routes = [
   {
@@ -179,5 +180,9 @@ export const routes = [
   {
     path: '/js/functions',
     component: Functions,
+  },
+  {
+    path: '/js/types-of-functions',
+    component: TypesOfFunctions,
   },
 ]
