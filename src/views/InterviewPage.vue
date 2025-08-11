@@ -47,21 +47,21 @@
                         size="small"
                         class="mr-2 mb-2"
                       >
-                        Junior: 1
+                        Junior: 6
                       </v-chip>
                       <v-chip
                         color="warning"
                         size="small"
                         class="mr-2 mb-2"
                       >
-                        Middle: 1
+                        Middle: 23
                       </v-chip>
                       <v-chip
                         color="error"
                         size="small"
                         class="mr-2 mb-2"
                       >
-                        Senior: 0
+                        Senior: 16
                       </v-chip>
                     </div>
 
@@ -88,7 +88,7 @@
                   variant="outlined"
                   hover
                   class="h-100"
-                  disabled
+                  to="/css/css-interview"
                 >
                   <v-card-text class="pa-6">
                     <div class="d-flex align-center mb-4">
@@ -109,11 +109,25 @@
 
                     <div class="mb-4">
                       <v-chip
-                        color="grey"
+                        color="success"
                         size="small"
                         class="mr-2 mb-2"
                       >
-                        Скоро будет доступно
+                        Junior: 9
+                      </v-chip>
+                      <v-chip
+                        color="warning"
+                        size="small"
+                        class="mr-2 mb-2"
+                      >
+                        Middle: 41
+                      </v-chip>
+                      <v-chip
+                        color="error"
+                        size="small"
+                        class="mr-2 mb-2"
+                      >
+                        Senior: 32
                       </v-chip>
                     </div>
 
@@ -124,12 +138,143 @@
 
                   <v-card-actions class="pa-6 pt-0">
                     <v-btn
-                      color="blue"
+                      color="orange"
                       variant="tonal"
-                      disabled
                       append-icon="mdi-arrow-right"
                     >
-                      В разработке
+                      Начать подготовку
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-col>
+
+              <!-- Паттерны блок -->
+              <v-col cols="12" md="6">
+                <v-card
+                  variant="outlined"
+                  hover
+                  class="h-100"
+                  disabled
+                >
+                  <v-card-text class="pa-6">
+                    <div class="d-flex align-center mb-4">
+                      <v-avatar
+                        color="purple"
+                        size="large"
+                        class="mr-4"
+                      >
+                        <v-icon size="large">mdi-puzzle-outline</v-icon>
+                      </v-avatar>
+                      <div>
+                        <h3 class="text-h5 mb-1">Паттерны</h3>
+                        <p class="text-body-2 text-medium-emphasis mb-0">
+                          Паттерны проектирования
+                        </p>
+                      </div>
+                    </div>
+
+                    <div class="mb-4">
+                      <v-chip
+                        color="success"
+                        size="small"
+                        class="mr-2 mb-2"
+                      >
+                        Junior: 5
+                      </v-chip>
+                      <v-chip
+                        color="warning"
+                        size="small"
+                        class="mr-2 mb-2"
+                      >
+                        Middle: 18
+                      </v-chip>
+                      <v-chip
+                        color="error"
+                        size="small"
+                        class="mr-2 mb-2"
+                      >
+                        Senior: 24
+                      </v-chip>
+                    </div>
+
+                    <p class="text-body-2 mb-0">
+                      Вопросы по классическим паттернам проектирования, архитектурным решениям и принципам SOLID.
+                    </p>
+                  </v-card-text>
+
+                  <v-card-actions class="pa-6 pt-0">
+                    <v-btn
+                      color="purple"
+                      variant="tonal"
+                      append-icon="mdi-arrow-right"
+                    >
+                      Начать подготовку
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-col>
+
+              <!-- Алгоритмы блок -->
+              <v-col cols="12" md="6">
+                <v-card
+                  variant="outlined"
+                  hover
+                  class="h-100"
+                  disabled
+                >
+                  <v-card-text class="pa-6">
+                    <div class="d-flex align-center mb-4">
+                      <v-avatar
+                        color="teal"
+                        size="large"
+                        class="mr-4"
+                      >
+                        <v-icon size="large">mdi-math-compass</v-icon>
+                      </v-avatar>
+                      <div>
+                        <h3 class="text-h5 mb-1">Алгоритмы</h3>
+                        <p class="text-body-2 text-medium-emphasis mb-0">
+                          Алгоритмы и структуры данных
+                        </p>
+                      </div>
+                    </div>
+
+                    <div class="mb-4">
+                      <v-chip
+                        color="success"
+                        size="small"
+                        class="mr-2 mb-2"
+                      >
+                        Junior: 8
+                      </v-chip>
+                      <v-chip
+                        color="warning"
+                        size="small"
+                        class="mr-2 mb-2"
+                      >
+                        Middle: 22
+                      </v-chip>
+                      <v-chip
+                        color="error"
+                        size="small"
+                        class="mr-2 mb-2"
+                      >
+                        Senior: 19
+                      </v-chip>
+                    </div>
+
+                    <p class="text-body-2 mb-0">
+                      Вопросы по алгоритмам поиска, сортировки, структурам данных и анализу сложности.
+                    </p>
+                  </v-card-text>
+
+                  <v-card-actions class="pa-6 pt-0">
+                    <v-btn
+                      color="teal"
+                      variant="tonal"
+                      append-icon="mdi-arrow-right"
+                    >
+                      Начать подготовку
                     </v-btn>
                   </v-card-actions>
                 </v-card>

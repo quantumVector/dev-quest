@@ -32,6 +32,7 @@ import RuntimeVSPreCompile from '@/views/css/RuntimeVSPreCompile.vue'
 import CSSInJsTestPage from '@/views/tests/CSSInJsTestPage.vue'
 import HTMLInterviewPage from '@/views/interview/HTMLInterviewPage.vue'
 import InterviewPage from '@/views/InterviewPage.vue'
+import CSSInterviewPage from '@/views/interview/CSSInterviewPage.vue'
 
 export const routes = [
   {
@@ -81,6 +82,10 @@ export const routes = [
   {
     path: '/css/css-test',
     component: CSSSpecificityTestPage,
+  },
+  {
+    path: '/css/css-interview',
+    component: CSSInterviewPage,
   },
   {
     path: '/css/style-isolation',
