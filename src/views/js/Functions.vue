@@ -915,4 +915,290 @@ onMounted(() => {
                 <td class="pt-2 pb-2"><b>Function Expression</b></td>
                 <td class="pt-2 pb-2">❌ Нет</td>
                 <td class="pt-2 pb-2">✅ Динамический</td>
-                <td class="pt-2
+                <td class="pt-2 pb-2">✅ Есть</td>
+                <td class="pt-2 pb-2">✅ Можно</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>Arrow Functions</b></td>
+                <td class="pt-2 pb-2">❌ Нет</td>
+                <td class="pt-2 pb-2">❌ Лексический</td>
+                <td class="pt-2 pb-2">❌ Нет</td>
+                <td class="pt-2 pb-2">❌ Нельзя</td>
+              </tr>
+              </tbody>
+            </v-table>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Параметры функций</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet2"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Замыкания (Closures)</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet3"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Контекст выполнения и this</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet4"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Функции высшего порядка</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet5"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Рекурсия</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet6"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Асинхронные функции</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet7"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Продвинутые концепции</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet8"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Генераторы и итераторы</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet9"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Ошибки и антипаттерны</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet10"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Основные концепции функций</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">Чистые функции</h3>
+                  <ul class="pl-4">
+                    <li>Одинаковый результат для одинаковых входных данных</li>
+                    <li>Без побочных эффектов</li>
+                    <li>Предсказуемое поведение</li>
+                    <li>Легче тестировать</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">Область видимости</h3>
+                  <ul class="pl-4">
+                    <li>Глобальная область</li>
+                    <li>Функциональная область</li>
+                    <li>Блочная область (let/const)</li>
+                    <li>Цепочка областей видимости</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">Производительность</h3>
+                  <ul class="pl-4">
+                    <li>Мемоизация</li>
+                    <li>Throttling и Debouncing</li>
+                    <li>Ленивые вычисления</li>
+                    <li>Оптимизация хвостовой рекурсии</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Вопросы для собеседования</h2>
+            <ol class="ol-list mb-8">
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">В чем разница между Function Declaration и Function Expression?</p>
+                <p class="font-weight-regular ma-0">
+                  Function Declaration поднимается (hoisting) и может быть вызвана до объявления.
+                  Function Expression не поднимается и создается только при выполнении кода.
+                  Function Declaration создает именованную функцию в области видимости.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Объясните, что такое замыкание и приведите примеры использования.</p>
+                <p class="font-weight-regular ma-0">
+                  Замыкание — это функция, которая имеет доступ к переменным из внешней области видимости даже после завершения выполнения внешней функции.
+                  Используется для создания приватных переменных, модулей, декораторов, каррирования.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Как работает this в различных контекстах?</p>
+                <p class="font-weight-regular ma-0">
+                  В обычных функциях this определяется способом вызова. В стрелочных функциях this наследуется от окружающего контекста.
+                  В методах объекта this указывает на объект. В конструкторах this указывает на создаваемый экземпляр.
+                  call, apply, bind позволяют явно установить значение this.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Что такое функции высшего порядка?</p>
+                <p class="font-weight-regular ma-0">
+                  Функции высшего порядка — это функции, которые принимают другие функции в качестве аргументов или возвращают функции.
+                  Примеры: map, filter, reduce, forEach. Позволяют создавать более абстрактный и переиспользуемый код.
+                  Основа функционального программирования.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">В чем отличие между call, apply и bind?</p>
+                <p class="font-weight-regular ma-0">
+                  call вызывает функцию с заданным this и аргументами по отдельности.
+                  apply вызывает функцию с заданным this и массивом аргументов.
+                  bind создает новую функцию с привязанным this, но не вызывает ее сразу.
+                  Все методы позволяют явно управлять контекстом выполнения.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Объясните разницу между стрелочными и обычными функциями.</p>
+                <p class="font-weight-regular ma-0">
+                  Стрелочные функции имеют лексический this, не имеют своего arguments, не могут быть конструкторами,
+                  не поднимаются, имеют более краткий синтаксис. Обычные функции имеют динамический this,
+                  свой объект arguments, могут использоваться как конструкторы.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Что такое каррирование (currying)?</p>
+                <p class="font-weight-regular ma-0">
+                  Каррирование — это преобразование функции с множественными аргументами в последовательность функций,
+                  каждая из которых принимает один аргумент. Позволяет создавать специализированные функции,
+                  упрощает частичное применение и композицию функций.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Что такое мемоизация и когда ее использовать?</p>
+                <p class="font-weight-regular ma-0">
+                  Мемоизация — это техника кеширования результатов выполнения функций для избежания повторных вычислений.
+                  Используется для оптимизации чистых функций с дорогими вычислениями.
+                  Особенно эффективна для рекурсивных функций как fibonacci, факториал.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Объясните разницу между throttling и debouncing.</p>
+                <p class="font-weight-regular ma-0">
+                  Throttling ограничивает частоту выполнения функции до определенного интервала.
+                  Debouncing откладывает выполнение функции до тех пор, пока не пройдет определенное время без новых вызовов.
+                  Throttling для scroll/resize событий, debouncing для поиска и валидации форм.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Что такое IIFE и зачем она нужна?</p>
+                <p class="font-weight-regular ma-0">
+                  IIFE (Immediately Invoked Function Expression) — функция, которая выполняется сразу после объявления.
+                  Используется для создания изолированной области видимости, инициализации модулей,
+                  избежания загрязнения глобальной области видимости.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Как работают генераторы в JavaScript?</p>
+                <p class="font-weight-regular ma-0">
+                  Генераторы — функции, которые можно приостанавливать и возобновлять с помощью yield.
+                  Возвращают итератор, позволяющий получать значения по требованию.
+                  Используются для создания итераторов, асинхронных операций, ленивых вычислений.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Что такое рекурсия и когда ее использовать?</p>
+                <p class="font-weight-regular ma-0">
+                  Рекурсия — функция, которая вызывает саму себя. Должна иметь базовый случай для остановки.
+                  Используется для обработки древовидных структур, математических вычислений,
+                  задач типа "разделяй и властвуй". Может привести к переполнению стека при больших глубинах.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Объясните async/await и их отношение к промисам.</p>
+                <p class="font-weight-regular ma-0">
+                  async/await — синтаксический сахар над промисами для более читаемого асинхронного кода.
+                  async функция всегда возвращает промис. await приостанавливает выполнение до разрешения промиса.
+                  Упрощает обработку ошибок с try/catch, избегает callback hell.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Что такое чистые функции и почему они важны?</p>
+                <p class="font-weight-regular ma-0">
+                  Чистые функции возвращают одинаковый результат для одинаковых аргументов и не имеют побочных эффектов.
+                  Легче тестировать, отлаживать и оптимизировать. Предсказуемое поведение, возможность мемоизации,
+                  основа функционального программирования.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Как избежать создания слишком много глобальных переменных?</p>
+                <p class="font-weight-regular ma-0">
+                  Использование модульных паттернов (IIFE, CommonJS, ES6 modules), namespace объектов,
+                  замыканий для создания приватной области видимости. Применение строгого режима (use strict),
+                  линтеров для контроля глобальных переменных.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Что такое композиция функций?</p>
+                <p class="font-weight-regular ma-0">
+                  Композиция — объединение простых функций для создания более сложной функции.
+                  Результат одной функции становится аргументом другой. Способствует переиспользованию кода,
+                  модульности и функциональному программированию. Pipe и compose — основные операторы композиции.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Объясните hoisting для функций.</p>
+                <p class="font-weight-regular ma-0">
+                  Function Declarations полностью поднимаются — можно вызывать до объявления.
+                  Function Expressions поднимается только объявление переменной, но не присвоение функции.
+                  let/const с функциями находятся в Temporal Dead Zone до инициализации.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Какие есть способы обработки ошибок в функциях?</p>
+                <p class="font-weight-regular ma-0">
+                  try/catch для синхронного кода, .catch() для промисов, try/catch с async/await.
+                  Throw для создания собственных ошибок. Finally для кода, который должен выполниться в любом случае.
+                  Error boundary в React для обработки ошибок в компонентах.
+                </p>
+              </li>
+            </ol>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Современные тенденции</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">Функциональное программирование</h3>
+                  <ul class="pl-4">
+                    <li>Иммутабельность</li>
+                    <li>Чистые функции</li>
+                    <li>Композиция функций</li>
+                    <li>Монады и функторы</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">Современный синтаксис</h3>
+                  <ul class="pl-4">
+                    <li>Optional chaining (?.)</li>
+                    <li>Nullish coalescing (??)</li>
+                    <li>Pipeline operator (|>)</li>
+                    <li>Pattern matching</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">Библиотеки и фреймворки</h3>
+                  <ul class="pl-4">
+                    <li>Lodash/FP</li>
+                    <li>Ramda</li>
+                    <li>RxJS</li>
+                    <li>Functional utilities</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Заключение</h2>
+            <p class="font-weight-regular mb-6">
+              Функции в JavaScript — это мощный инструмент для создания модульного, переиспользуемого и поддерживаемого кода.
+              Понимание различных способов объявления, областей видимости, замыканий, контекста выполнения и продвинутых концепций
+              как мемоизация, каррирование и композиция критически важно для разработки качественных приложений.
+              Современный JavaScript предлагает множество возможностей для работы с функциями — от стрелочных функций до
+              генераторов и async/await.
+            </p>
+
+            <div class="d-flex justify-end">
+              <v-btn
+                color='second'
+                size="small"
+                variant="elevated"
+                href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Functions"
+                target="_blank">
+                MDN Functions Guide
+              </v-btn>
+            </div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-app>
+</template>

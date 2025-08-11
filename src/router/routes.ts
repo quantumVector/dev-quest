@@ -33,6 +33,7 @@ import CSSInJsTestPage from '@/views/tests/CSSInJsTestPage.vue'
 import HTMLInterviewPage from '@/views/interview/HTMLInterviewPage.vue'
 import InterviewPage from '@/views/InterviewPage.vue'
 import CSSInterviewPage from '@/views/interview/CSSInterviewPage.vue'
+import Functions from '@/views/js/Functions.vue'
 
 export const routes = [
   {
@@ -174,5 +175,9 @@ export const routes = [
   {
     path: '/css/css-in-js-test',
     component: CSSInJsTestPage,
+  },
+  {
+    path: '/js/functions',
+    component: Functions,
   },
 ]

@@ -94,7 +94,7 @@
       <v-expansion-panel-text>
         <v-list>
           <v-list-subheader>Функции</v-list-subheader>
-          <v-list-item to="/js/specificity">
+          <v-list-item to="/js/functions">
             <v-list-item-title>1.1. Что такое функции?</v-list-item-title>
           </v-list-item>
           <v-list-item to="/js/specificity">
