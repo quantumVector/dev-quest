@@ -104,7 +104,7 @@
             <v-list-item-title>1.3. Разница между FunctionDeclaration, FunctionExpression, ArrowFunction</v-list-item-title>
           </v-list-item>
           <v-list-subheader>Замыкания</v-list-subheader>
-          <v-list-item to="/css/style-isolation">
+          <v-list-item to="/js/closures">
             <v-list-item-title>2.1. Что такое замыкание?</v-list-item-title>
           </v-list-item>
           <v-list-item to="/css/isolation-methods">

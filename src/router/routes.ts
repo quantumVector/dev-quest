@@ -36,6 +36,7 @@ import CSSInterviewPage from '@/views/interview/CSSInterviewPage.vue'
 import Functions from '@/views/js/Functions.vue'
 import TypesOfFunctions from '@/views/js/TypesOfFunctions.vue'
 import FunctionTypes from '@/views/js/FunctionTypes.vue'
+import Closures from '@/views/js/Closures.vue'
 
 export const routes = [
   {
@@ -189,5 +190,9 @@ export const routes = [
   {
     path: '/js/functions-types',
     component: FunctionTypes,
+  },
+  {
+    path: '/js/closures',
+    component: Closures,
   },
 ]
