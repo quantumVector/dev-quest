@@ -123,5 +123,15 @@
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
+
+    <v-expansion-panel title="Docker">
+      <v-expansion-panel-text>
+        <v-list>
+          <v-list-item to="/docker/docker">
+            <v-list-item-title>1. Что такое docker? Что такое образ и контейнер и чем отличаются?</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-expansion-panel-text>
+    </v-expansion-panel>
   </v-expansion-panels>
 </template>

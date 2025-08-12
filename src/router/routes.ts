@@ -37,6 +37,7 @@ import Functions from '@/views/js/Functions.vue'
 import TypesOfFunctions from '@/views/js/TypesOfFunctions.vue'
 import FunctionTypes from '@/views/js/FunctionTypes.vue'
 import Closures from '@/views/js/Closures.vue'
+import Docker from '@/views/docker/Docker.vue'
 
 export const routes = [
   {
@@ -194,5 +195,9 @@ export const routes = [
   {
     path: '/js/closures',
     component: Closures,
+  },
+  {
+    path: '/docker/docker',
+    component: Docker,
   },
 ]
