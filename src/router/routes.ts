@@ -46,6 +46,7 @@ import EnvVsArg from '@/views/docker/EnvVsArg.vue'
 import DockerNetworksAndPorts from '@/views/docker/DockerNetworksAndPorts.vue'
 import VolumesVsBindMounts from '@/views/docker/VolumesVsBindMounts.vue'
 import NginxSPA from '@/views/docker/NginxSPA.vue'
+import DockerDebugging from '@/views/docker/DockerDebugging.vue'
 
 export const routes = [
   {
@@ -239,5 +240,9 @@ export const routes = [
   {
     path: '/docker/nginx-spa',
     component: NginxSPA,
+  },
+  {
+    path: '/docker/debugging',
+    component: DockerDebugging,
   },
 ]

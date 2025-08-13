@@ -154,6 +154,9 @@
           <v-list-item to="/docker/nginx-spa">
             <v-list-item-title>9. Nginx для SPA: зачем try_files $uri /index.html</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/docker/debugging">
+            <v-list-item-title>10. Отладка Docker: логи, exec и healthcheck</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

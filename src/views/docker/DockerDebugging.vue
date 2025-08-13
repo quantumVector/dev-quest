@@ -551,7 +551,7 @@ onMounted(() => {
                   <ul class="text-left pl-4">
                     <li>Всегда настраивать healthcheck</li>
                     <li>Проверять зависимости</li>
-                    <li>Быстрые проверки (<5s)</li>
+                    <li>Быстрые проверки (\<5s)</li>
                     <li>Graceful degradation</li>
                     <li>Детальная информация</li>
                   </ul>
@@ -564,4 +564,115 @@ onMounted(() => {
                   <ul class="text-left pl-4">
                     <li>Мониторинг ресурсов</li>
                     <li>Профилирование производительности</li>
-                    <li>Трейс
+                    <li>Трейсинг запросов</li>
+                    <li>Интеграция с APM системами</li>
+                    <li>Автоматизированные проверки</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Практические сценарии отладки</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">Сценарий 1: Контейнер не запускается</h3>
+                  <ol class="pl-4">
+                    <li><code>docker ps -a</code> — проверить статус</li>
+                    <li><code>docker logs container_name</code> — посмотреть ошибки</li>
+                    <li><code>docker inspect container_name</code> — детали конфигурации</li>
+                    <li>Проверить Dockerfile и переменные окружения</li>
+                  </ol>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">Сценарий 2: Приложение не отвечает</h3>
+                  <ol class="pl-4">
+                    <li><code>docker exec -it container_name sh</code></li>
+                    <li><code>ps aux</code> — проверить процессы</li>
+                    <li><code>netstat -tlnp</code> — открытые порты</li>
+                    <li><code>curl localhost:port/health</code> — тест изнутри</li>
+                  </ol>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Мониторинг в production</h2>
+            <v-alert color="warning" class="mb-6">
+              <v-icon class="mr-2">mdi-alert</v-icon>
+              <strong>Production:</strong> В производственной среде обязательно настройте централизованное логирование (ELK, Fluentd), мониторинг (Prometheus, Grafana) и алерты на основе healthcheck статуса.
+            </v-alert>
+
+            <v-row class="mb-8">
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100 text-center">
+                  <v-icon size="large" color="blue" class="mb-2">mdi-chart-timeline-variant</v-icon>
+                  <h3 class="text-h6 font-weight-bold mb-2">Логи</h3>
+                  <ul class="text-left pl-4">
+                    <li>Централизованный сбор</li>
+                    <li>Структурированный формат</li>
+                    <li>Ротация и архивирование</li>
+                    <li>Поиск и фильтрация</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100 text-center">
+                  <v-icon size="large" color="green" class="mb-2">mdi-pulse</v-icon>
+                  <h3 class="text-h6 font-weight-bold mb-2">Метрики</h3>
+                  <ul class="text-left pl-4">
+                    <li>CPU, память, диск</li>
+                    <li>Сетевой трафик</li>
+                    <li>Время отклика</li>
+                    <li>Количество ошибок</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100 text-center">
+                  <v-icon size="large" color="orange" class="mb-2">mdi-bell-alert</v-icon>
+                  <h3 class="text-h6 font-weight-bold mb-2">Алерты</h3>
+                  <ul class="text-left pl-4">
+                    <li>Unhealthy контейнеры</li>
+                    <li>Высокое использование ресурсов</li>
+                    <li>Частые ошибки в логах</li>
+                    <li>Недоступность сервисов</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Итог</h2>
+            <p class="font-weight-regular mb-6">
+              Эффективная отладка Docker контейнеров требует комплексного подхода: <b>docker logs</b> для анализа вывода,
+              <b>docker exec</b> для интерактивного исследования, и <b>healthcheck</b> для проактивного мониторинга.
+              Комбинирование этих инструментов с правильным логированием и мониторингом обеспечивает надежную работу
+              приложений в контейнерах как в разработке, так и в production.
+            </p>
+
+            <div class="d-flex justify-end">
+              <v-btn
+                color="primary"
+                size="small"
+                variant="elevated"
+                href="https://docs.docker.com/engine/reference/commandline/logs/"
+                target="_blank"
+                class="mr-2">
+                Docker Logs Docs
+              </v-btn>
+              <v-btn
+                color="secondary"
+                size="small"
+                variant="elevated"
+                href="https://docs.docker.com/engine/reference/builder/#healthcheck"
+                target="_blank">
+                Healthcheck Reference
+              </v-btn>
+            </div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-app>
+</template>
