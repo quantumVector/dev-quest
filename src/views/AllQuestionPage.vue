@@ -133,6 +133,27 @@
           <v-list-item to="/docker/dockerfile">
             <v-list-item-title>2. Что такое Dockerfile, контекст сборки и зачем нужен .dockerignore?</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/docker/layers-and-cache">
+            <v-list-item-title>3. Слои, кэш и оптимизация сборки</v-list-item-title>
+          </v-list-item>
+          <v-list-item to="/docker/run-cmd-entrypoint">
+            <v-list-item-title>4. RUN vs CMD vs ENTRYPOINT</v-list-item-title>
+          </v-list-item>
+          <v-list-item to="/docker/multi-stage">
+            <v-list-item-title>5. Multi-stage Docker builds: React SPA vs Next.js SSR</v-list-item-title>
+          </v-list-item>
+          <v-list-item to="/docker/env-arg">
+            <v-list-item-title>6. ENV vs ARG в Docker и переменные в React</v-list-item-title>
+          </v-list-item>
+          <v-list-item to="/docker/networks-and-ports">
+            <v-list-item-title>7. EXPOSE vs -p, типы сетей Docker: bridge, host</v-list-item-title>
+          </v-list-item>
+          <v-list-item to="/docker/volumes-vs-bind-mounts">
+            <v-list-item-title>8. Docker Volume vs Bind Mount + Hot Reload в разработке</v-list-item-title>
+          </v-list-item>
+          <v-list-item to="/docker/nginx-spa">
+            <v-list-item-title>9. Nginx для SPA: зачем try_files $uri /index.html</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

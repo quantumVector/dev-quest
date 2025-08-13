@@ -39,6 +39,13 @@ import FunctionTypes from '@/views/js/FunctionTypes.vue'
 import Closures from '@/views/js/Closures.vue'
 import Docker from '@/views/docker/Docker.vue'
 import DockerfileBuildContext from '@/views/docker/DockerfileBuildContext.vue'
+import DockerLayersAndCache from '@/views/docker/DockerLayersAndCache.vue'
+import RunCmdEntrypoint from '@/views/docker/RunCmdEntrypoint.vue'
+import MultiStage from '@/views/docker/MultiStage.vue'
+import EnvVsArg from '@/views/docker/EnvVsArg.vue'
+import DockerNetworksAndPorts from '@/views/docker/DockerNetworksAndPorts.vue'
+import VolumesVsBindMounts from '@/views/docker/VolumesVsBindMounts.vue'
+import NginxSPA from '@/views/docker/NginxSPA.vue'
 
 export const routes = [
   {
@@ -204,5 +211,33 @@ export const routes = [
   {
     path: '/docker/dockerfile',
     component: DockerfileBuildContext,
+  },
+  {
+    path: '/docker/layers-and-cache',
+    component: DockerLayersAndCache,
+  },
+  {
+    path: '/docker/run-cmd-entrypoint',
+    component: RunCmdEntrypoint,
+  },
+  {
+    path: '/docker/multi-stage',
+    component: MultiStage,
+  },
+  {
+    path: '/docker/env-arg',
+    component: EnvVsArg,
+  },
+  {
+    path: '/docker/networks-and-ports',
+    component: DockerNetworksAndPorts,
+  },
+  {
+    path: '/docker/volumes-vs-bind-mounts',
+    component: VolumesVsBindMounts,
+  },
+  {
+    path: '/docker/nginx-spa',
+    component: NginxSPA,
   },
 ]
