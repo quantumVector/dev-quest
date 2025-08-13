@@ -130,6 +130,9 @@
           <v-list-item to="/docker/docker">
             <v-list-item-title>1. Что такое docker? Что такое образ и контейнер и чем отличаются?</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/docker/dockerfile">
+            <v-list-item-title>2. Что такое Dockerfile, контекст сборки и зачем нужен .dockerignore?</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

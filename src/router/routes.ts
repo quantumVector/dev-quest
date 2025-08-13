@@ -38,6 +38,7 @@ import TypesOfFunctions from '@/views/js/TypesOfFunctions.vue'
 import FunctionTypes from '@/views/js/FunctionTypes.vue'
 import Closures from '@/views/js/Closures.vue'
 import Docker from '@/views/docker/Docker.vue'
+import DockerfileBuildContext from '@/views/docker/DockerfileBuildContext.vue'
 
 export const routes = [
   {
@@ -199,5 +200,9 @@ export const routes = [
   {
     path: '/docker/docker',
     component: Docker,
+  },
+  {
+    path: '/docker/dockerfile',
+    component: DockerfileBuildContext,
   },
 ]
