@@ -110,7 +110,7 @@
           <v-list-item to="/js/lexical-environment">
             <v-list-item-title>2.2. Лексическое окружение (LexicalEnvironment) переменной?</v-list-item-title>
           </v-list-item>
-          <v-list-item to="/css/scoped-selectors">
+          <v-list-item to="/js/lexical-environment-moment">
             <v-list-item-title>2.3. В какой момент создаётся лексическое окружение функции (в момент создания или выполнения)?</v-list-item-title>
           </v-list-item>
           <v-list-subheader>Поднятие (Hoisting)</v-list-subheader>
