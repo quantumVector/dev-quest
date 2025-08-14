@@ -107,7 +107,7 @@
           <v-list-item to="/js/closures">
             <v-list-item-title>2.1. Что такое замыкание?</v-list-item-title>
           </v-list-item>
-          <v-list-item to="/css/isolation-methods">
+          <v-list-item to="/js/lexical-environment">
             <v-list-item-title>2.2. Лексическое окружение (LexicalEnvironment) переменной?</v-list-item-title>
           </v-list-item>
           <v-list-item to="/css/scoped-selectors">

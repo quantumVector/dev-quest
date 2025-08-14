@@ -47,6 +47,7 @@ import DockerNetworksAndPorts from '@/views/docker/DockerNetworksAndPorts.vue'
 import VolumesVsBindMounts from '@/views/docker/VolumesVsBindMounts.vue'
 import NginxSPA from '@/views/docker/NginxSPA.vue'
 import DockerDebugging from '@/views/docker/DockerDebugging.vue'
+import LexicalEnvironment from '@/views/js/LexicalEnvironment.vue'
 
 export const routes = [
   {
@@ -204,6 +205,10 @@ export const routes = [
   {
     path: '/js/closures',
     component: Closures,
+  },
+  {
+    path: '/js/lexical-environment',
+    component: LexicalEnvironment,
   },
   {
     path: '/docker/docker',

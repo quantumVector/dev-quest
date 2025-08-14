@@ -706,4 +706,261 @@ onMounted(() => {
               <tr>
                 <td class="pt-2 pb-2"><b>Block</b></td>
                 <td class="pt-2 pb-2">При входе в блок</td>
-                <td class="pt-2 pb-2">let, const</t
+                <td class="pt-2 pb-2">let, const</td>
+                <td class="pt-2 pb-2">Блочная область видимости</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>Module</b></td>
+                <td class="pt-2 pb-2">При загрузке модуля</td>
+                <td class="pt-2 pb-2">import, export, let, const</td>
+                <td class="pt-2 pb-2">Модульная область</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>Eval</b></td>
+                <td class="pt-2 pb-2">При выполнении eval</td>
+                <td class="pt-2 pb-2">Зависит от режима</td>
+                <td class="pt-2 pb-2">Динамическое создание</td>
+              </tr>
+              </tbody>
+            </v-table>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Hoisting и TDZ</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100 bg-success">
+                  <div class="d-flex align-center mb-3">
+                    <v-icon size="large" color="white" class="mr-2">mdi-arrow-up-bold</v-icon>
+                    <h3 class="text-h6 font-weight-bold text-white">Hoisting (Поднятие)</h3>
+                  </div>
+                  <ul class="text-white pl-4">
+                    <li><strong>var:</strong> поднимается и инициализируется как undefined</li>
+                    <li><strong>function:</strong> поднимается полностью</li>
+                    <li><strong>let/const:</strong> поднимаются, но не инициализируются</li>
+                    <li><strong>class:</strong> поднимается, но не инициализируется</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100 bg-warning">
+                  <div class="d-flex align-center mb-3">
+                    <v-icon size="large" color="white" class="mr-2">mdi-clock-alert</v-icon>
+                    <h3 class="text-h6 font-weight-bold text-white">Temporal Dead Zone</h3>
+                  </div>
+                  <ul class="text-white pl-4">
+                    <li><strong>Период:</strong> от создания до инициализации</li>
+                    <li><strong>let/const:</strong> находятся в TDZ</li>
+                    <li><strong>Ошибка:</strong> ReferenceError при обращении</li>
+                    <li><strong>Защита:</strong> от использования до объявления</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Вопросы на собеседовании</h2>
+            <v-expansion-panels class="mb-8">
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  <div class="font-weight-bold">1. Что такое лексическое окружение?</div>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <p><strong>Ответ:</strong> Лексическое окружение — это внутренняя структура данных JavaScript, которая связывает идентификаторы переменных с их значениями и содержит ссылку на внешнее лексическое окружение.</p>
+                  <p><strong>Компоненты:</strong></p>
+                  <ul>
+                    <li><strong>Environment Record</strong> — хранит переменные и функции</li>
+                    <li><strong>Outer Environment Reference</strong> — ссылка на внешнее окружение</li>
+                  </ul>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  <div class="font-weight-bold">2. Как работает цепочка областей видимости?</div>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <p><strong>Ответ:</strong> При поиске переменной JavaScript движется по цепочке от текущего лексического окружения к внешнему, пока не найдет переменную или не достигнет глобального окружения.</p>
+                  <p><strong>Порядок поиска:</strong></p>
+                  <ol>
+                    <li>Текущее лексическое окружение</li>
+                    <li>Родительское лексическое окружение</li>
+                    <li>...продолжается до глобального</li>
+                    <li>Если не найдено — ReferenceError</li>
+                  </ol>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  <div class="font-weight-bold">3. В чем разница между лексической и динамической областью видимости?</div>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <p><strong>Лексическая область видимости (JavaScript):</strong></p>
+                  <ul>
+                    <li>Определяется местом объявления в коде</li>
+                    <li>Статическая — не изменяется во время выполнения</li>
+                    <li>Основа для замыканий</li>
+                  </ul>
+                  <p><strong>Динамическая область видимости:</strong></p>
+                  <ul>
+                    <li>Определяется порядком вызова функций</li>
+                    <li>Изменяется во время выполнения</li>
+                    <li>Используется в некоторых языках (например, в некоторых диалектах Lisp)</li>
+                  </ul>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  <div class="font-weight-bold">4. Что такое замыкание и как оно связано с лексическим окружением?</div>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <p><strong>Ответ:</strong> Замыкание — это функция, которая имеет доступ к переменным из внешней области видимости даже после того, как внешняя функция завершила выполнение.</p>
+                  <p><strong>Механизм:</strong></p>
+                  <ul>
+                    <li>Функция сохраняет ссылку на свое лексическое окружение</li>
+                    <li>Лексическое окружение остается в памяти</li>
+                    <li>Внутренняя функция может обращаться к внешним переменным</li>
+                  </ul>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  <div class="font-weight-bold">5. Объясните hoisting в контексте лексического окружения</div>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <p><strong>Ответ:</strong> Hoisting — это поведение, при котором объявления переменных и функций "поднимаются" в начало их области видимости.</p>
+                  <p><strong>На уровне лексического окружения:</strong></p>
+                  <ul>
+                    <li><strong>Creation Phase:</strong> создаются привязки для всех объявлений</li>
+                    <li><strong>var:</strong> инициализируется как undefined</li>
+                    <li><strong>let/const:</strong> остаются в TDZ (Temporal Dead Zone)</li>
+                    <li><strong>function:</strong> полностью инициализируется</li>
+                  </ul>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  <div class="font-weight-bold">6. Как стрелочные функции влияют на лексическое окружение?</div>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <p><strong>Ответ:</strong> Стрелочные функции не создают собственного контекста this, arguments и не имеют собственного лексического окружения для этих значений.</p>
+                  <p><strong>Особенности:</strong></p>
+                  <ul>
+                    <li><strong>this:</strong> наследуется из внешнего контекста</li>
+                    <li><strong>arguments:</strong> наследуется или недоступно</li>
+                    <li><strong>super:</strong> наследуется из внешнего контекста</li>
+                    <li><strong>new.target:</strong> наследуется из внешнего контекста</li>
+                  </ul>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+            </v-expansion-panels>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Практические применения</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">✅ Правильное использование</h3>
+                  <ul class="pl-4">
+                    <li><strong>Модульный паттерн:</strong> приватные переменные</li>
+                    <li><strong>Замыкания:</strong> сохранение состояния</li>
+                    <li><strong>Каррирование:</strong> частичное применение функций</li>
+                    <li><strong>Event handlers:</strong> сохранение контекста</li>
+                    <li><strong>IIFE:</strong> изоляция области видимости</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">❌ Частые ошибки</h3>
+                  <ul class="pl-4">
+                    <li><strong>Утечки памяти:</strong> ненужные замыкания</li>
+                    <li><strong>Циклы и замыкания:</strong> проблемы с var</li>
+                    <li><strong>TDZ ошибки:</strong> использование до объявления</li>
+                    <li><strong>Путаница с this:</strong> в стрелочных функциях</li>
+                    <li><strong>Глобальные переменные:</strong> загрязнение глобальной области</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Оптимизация производительности</h2>
+            <v-alert color="info" class="mb-6">
+              <v-icon class="mr-2">mdi-information</v-icon>
+              <strong>Важно:</strong> Понимание лексического окружения помогает писать более эффективный код и избегать утечек памяти.
+            </v-alert>
+
+            <v-row class="mb-8">
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100 text-center">
+                  <v-icon size="large" color="success" class="mb-2">mdi-memory</v-icon>
+                  <h3 class="text-h6 font-weight-bold mb-2">Управление памятью</h3>
+                  <ul class="text-left pl-4">
+                    <li>Избегайте ненужных замыканий</li>
+                    <li>Обнуляйте ссылки на большие объекты</li>
+                    <li>Используйте WeakMap для слабых ссылок</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100 text-center">
+                  <v-icon size="large" color="warning" class="mb-2">mdi-speedometer</v-icon>
+                  <h3 class="text-h6 font-weight-bold mb-2">Производительность</h3>
+                  <ul class="text-left pl-4">
+                    <li>Минимизируйте глубину вложенности</li>
+                    <li>Используйте let/const вместо var</li>
+                    <li>Оптимизируйте поиск переменных</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100 text-center">
+                  <v-icon size="large" color="info" class="mb-2">mdi-bug</v-icon>
+                  <h3 class="text-h6 font-weight-bold mb-2">Отладка</h3>
+                  <ul class="text-left pl-4">
+                    <li>Используйте debugger; для остановки</li>
+                    <li>Анализируйте Scope в DevTools</li>
+                    <li>Проверяйте цепочку областей</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Заключение</h2>
+            <p class="font-weight-regular mb-6">
+              <strong>Лексическое окружение</strong> — это фундаментальная концепция JavaScript, которая определяет,
+              как работают переменные, области видимости и замыкания. Глубокое понимание этой темы позволяет:
+            </p>
+            <ul class="mb-6">
+              <li>Писать более предсказуемый и безопасный код</li>
+              <li>Эффективно использовать замыкания и области видимости</li>
+              <li>Избегать типичных ошибок с hoisting и TDZ</li>
+              <li>Оптимизировать производительность приложений</li>
+              <li>Лучше понимать работу современных JavaScript движков</li>
+            </ul>
+
+            <div class="d-flex justify-end">
+              <v-btn
+                color="primary"
+                size="small"
+                variant="elevated"
+                href="https://tc39.es/ecma262/#sec-lexical-environments"
+                target="_blank"
+                class="mr-2">
+                ECMAScript Specification
+              </v-btn>
+              <v-btn
+                color="secondary"
+                size="small"
+                variant="elevated"
+                href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures"
+                target="_blank">
+                MDN: Closures
+              </v-btn>
+            </div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-app>
+</template>
