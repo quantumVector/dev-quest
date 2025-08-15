@@ -114,11 +114,24 @@
             <v-list-item-title>2.3. В какой момент создаётся лексическое окружение функции (в момент создания или выполнения)?</v-list-item-title>
           </v-list-item>
           <v-list-subheader>Поднятие (Hoisting)</v-list-subheader>
-          <v-list-item to="/css/style-isolation">
+          <v-list-item to="/js/hoisting">
             <v-list-item-title>3.1. Какие конструкции всплывают в JS?</v-list-item-title>
           </v-list-item>
-          <v-list-item to="/css/isolation-methods">
+          <v-list-item to="/js/hoisting-var-const-let">
             <v-list-item-title>3.2. Можем ли мы обращаться к переменной var до её определения в коде, можем ли это сделать для const, var?</v-list-item-title>
+          </v-list-item>
+          <v-list-subheader>Асинхронность</v-list-subheader>
+          <v-list-item to="/async/">
+            <v-list-item-title>4.1. Для чего нам нужна асинхронность</v-list-item-title>
+          </v-list-item>
+          <v-list-item to="/async/">
+            <v-list-item-title>4.2. Как осуществлялась работы до введения промисов. Какие состояния есть у промисов?</v-list-item-title>
+          </v-list-item>
+          <v-list-item to="/async/">
+            <v-list-item-title>4.3. Как вызвать итерируемую коллекцию промисов сразу</v-list-item-title>
+          </v-list-item>
+          <v-list-item to="/async/">
+            <v-list-item-title>4.4. Promise.race/any/allSettled</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-expansion-panel-text>

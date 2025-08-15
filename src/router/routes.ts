@@ -48,6 +48,9 @@ import VolumesVsBindMounts from '@/views/docker/VolumesVsBindMounts.vue'
 import NginxSPA from '@/views/docker/NginxSPA.vue'
 import DockerDebugging from '@/views/docker/DockerDebugging.vue'
 import LexicalEnvironment from '@/views/js/LexicalEnvironment.vue'
+import LexicalEnvironmentMoment from '@/views/js/LexicalEnvironmentMoment.vue'
+import Hoisting from '@/views/js/Hoisting.vue'
+import HoistingVarConstLet from '@/views/js/HoistingVarConstLet.vue'
 
 export const routes = [
   {
@@ -209,6 +212,18 @@ export const routes = [
   {
     path: '/js/lexical-environment',
     component: LexicalEnvironment,
+  },
+  {
+    path: '/js/lexical-environment-moment',
+    component: LexicalEnvironmentMoment,
+  },
+  {
+    path: '/js/hoisting',
+    component: Hoisting,
+  },
+  {
+    path: '/js/hoisting-var-const-let',
+    component: HoistingVarConstLet,
   },
   {
     path: '/docker/docker',
