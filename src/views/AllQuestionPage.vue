@@ -124,7 +124,7 @@
           <v-list-item to="/async/async-js">
             <v-list-item-title>4.1. Для чего нам нужна асинхронность?</v-list-item-title>
           </v-list-item>
-          <v-list-item to="/async/">
+          <v-list-item to="/async/promises">
             <v-list-item-title>4.2. Как осуществлялась работы до введения промисов. Какие состояния есть у промисов?</v-list-item-title>
           </v-list-item>
           <v-list-item to="/async/">

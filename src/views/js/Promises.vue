@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {onMounted, ref} from "vue"
+import { onMounted, ref } from 'vue'
 import Prism from 'prismjs'
 import 'prismjs/themes/prism-tomorrow.css'
 import 'prismjs/components/prism-javascript.js'
@@ -413,14 +413,42 @@ const highlightedAsyncAwait = ref('')
 const highlightedRealWorldExample = ref('')
 
 onMounted(() => {
-  highlightedCallbackHell.value = Prism.highlight(callbackHellSnippet, Prism.languages.javascript, 'javascript')
+  highlightedCallbackHell.value = Prism.highlight(
+    callbackHellSnippet,
+    Prism.languages.javascript,
+    'javascript',
+  )
   highlightedEvents.value = Prism.highlight(eventsSnippet, Prism.languages.javascript, 'javascript')
-  highlightedPromiseBasics.value = Prism.highlight(promiseBasicsSnippet, Prism.languages.javascript, 'javascript')
-  highlightedPromiseStates.value = Prism.highlight(promiseStatesSnippet, Prism.languages.javascript, 'javascript')
-  highlightedPromiseChaining.value = Prism.highlight(promiseChainingSnippet, Prism.languages.javascript, 'javascript')
-  highlightedPromiseMethods.value = Prism.highlight(promiseMethodsSnippet, Prism.languages.javascript, 'javascript')
-  highlightedAsyncAwait.value = Prism.highlight(asyncAwaitSnippet, Prism.languages.javascript, 'javascript')
-  highlightedRealWorldExample.value = Prism.highlight(realWorldExampleSnippet, Prism.languages.javascript, 'javascript')
+  highlightedPromiseBasics.value = Prism.highlight(
+    promiseBasicsSnippet,
+    Prism.languages.javascript,
+    'javascript',
+  )
+  highlightedPromiseStates.value = Prism.highlight(
+    promiseStatesSnippet,
+    Prism.languages.javascript,
+    'javascript',
+  )
+  highlightedPromiseChaining.value = Prism.highlight(
+    promiseChainingSnippet,
+    Prism.languages.javascript,
+    'javascript',
+  )
+  highlightedPromiseMethods.value = Prism.highlight(
+    promiseMethodsSnippet,
+    Prism.languages.javascript,
+    'javascript',
+  )
+  highlightedAsyncAwait.value = Prism.highlight(
+    asyncAwaitSnippet,
+    Prism.languages.javascript,
+    'javascript',
+  )
+  highlightedRealWorldExample.value = Prism.highlight(
+    realWorldExampleSnippet,
+    Prism.languages.javascript,
+    'javascript',
+  )
 })
 </script>
 
@@ -435,9 +463,9 @@ onMounted(() => {
             </h1>
 
             <p class="font-weight-regular mb-6">
-              <b>Промисы</b> появились в ES6 (2015) для решения проблем с асинхронным кодом.
-              До их введения использовались <b>колбэки (callbacks)</b> и <b>события (events)</b>.
-              Промисы имеют <b>три состояния</b>: pending, fulfilled и rejected.
+              <b>Промисы</b> появились в ES6 (2015) для решения проблем с асинхронным кодом. До их
+              введения использовались <b>колбэки (callbacks)</b> и <b>события (events)</b>. Промисы
+              имеют <b>три состояния</b>: pending, fulfilled и rejected.
             </p>
 
             <h2 class="text-h5 font-weight-bold mb-3">Как работали до промисов?</h2>
@@ -478,20 +506,26 @@ onMounted(() => {
             </v-row>
 
             <h3 class="text-h6 font-weight-bold mb-3">1. Callback Hell - пирамида doom</h3>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedCallbackHell"></code></pre>
+            <pre
+              class="mb-8 pa-6 rounded-lg custom-code"
+            ><code v-html="highlightedCallbackHell"></code></pre>
 
             <h3 class="text-h6 font-weight-bold mb-3">2. Event-driven подход</h3>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedEvents"></code></pre>
+            <pre
+              class="mb-8 pa-6 rounded-lg custom-code"
+            ><code v-html="highlightedEvents"></code></pre>
 
             <h2 class="text-h5 font-weight-bold mb-3">Основы промисов</h2>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedPromiseBasics"></code></pre>
+            <pre
+              class="mb-8 pa-6 rounded-lg custom-code"
+            ><code v-html="highlightedPromiseBasics"></code></pre>
 
             <h2 class="text-h5 font-weight-bold mb-3">Три состояния промисов</h2>
 
             <v-alert color="info" class="mb-6">
               <v-icon class="mr-2">mdi-information</v-icon>
-              <strong>Важно:</strong> Промис может находиться только в одном из трех состояний,
-              и состояние может измениться только один раз (immutable).
+              <strong>Важно:</strong> Промис может находиться только в одном из трех состояний, и
+              состояние может измениться только один раз (immutable).
             </v-alert>
 
             <v-row class="mb-6">
@@ -536,128 +570,166 @@ onMounted(() => {
               </v-col>
             </v-row>
 
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedPromiseStates"></code></pre>
+            <pre
+              class="mb-8 pa-6 rounded-lg custom-code"
+            ><code v-html="highlightedPromiseStates"></code></pre>
 
             <h2 class="text-h5 font-weight-bold mb-3">Цепочки промисов (Promise Chaining)</h2>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedPromiseChaining"></code></pre>
+            <pre
+              class="mb-8 pa-6 rounded-lg custom-code"
+            ><code v-html="highlightedPromiseChaining"></code></pre>
 
             <h2 class="text-h5 font-weight-bold mb-3">Статические методы Promise</h2>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedPromiseMethods"></code></pre>
+            <pre
+              class="mb-8 pa-6 rounded-lg custom-code"
+            ><code v-html="highlightedPromiseMethods"></code></pre>
 
             <h2 class="text-h5 font-weight-bold mb-3">Сравнение методов Promise</h2>
             <v-table density="comfortable" class="mb-8">
               <thead>
-              <tr>
-                <th class="text-left font-weight-bold">Метод</th>
-                <th class="text-left font-weight-bold">Поведение</th>
-                <th class="text-left font-weight-bold">Результат</th>
-                <th class="text-left font-weight-bold">Когда использовать</th>
-              </tr>
+                <tr>
+                  <th class="text-left font-weight-bold">Метод</th>
+                  <th class="text-left font-weight-bold">Поведение</th>
+                  <th class="text-left font-weight-bold">Результат</th>
+                  <th class="text-left font-weight-bold">Когда использовать</th>
+                </tr>
               </thead>
               <tbody>
-              <tr>
-                <td class="pt-2 pb-2"><code>Promise.all</code></td>
-                <td class="pt-2 pb-2">Ждет все, отклоняется при первой ошибке</td>
-                <td class="pt-2 pb-2">Массив результатов</td>
-                <td class="pt-2 pb-2">Все операции критичны</td>
-              </tr>
-              <tr>
-                <td class="pt-2 pb-2"><code>Promise.race</code></td>
-                <td class="pt-2 pb-2">Возвращает первый завершенный</td>
-                <td class="pt-2 pb-2">Результат первого</td>
-                <td class="pt-2 pb-2">Таймауты, race conditions</td>
-              </tr>
-              <tr>
-                <td class="pt-2 pb-2"><code>Promise.allSettled</code></td>
-                <td class="pt-2 pb-2">Ждет все, не отклоняется</td>
-                <td class="pt-2 pb-2">Массив со статусами</td>
-                <td class="pt-2 pb-2">Нужны все результаты</td>
-              </tr>
-              <tr>
-                <td class="pt-2 pb-2"><code>Promise.any</code></td>
-                <td class="pt-2 pb-2">Первый успешный</td>
-                <td class="pt-2 pb-2">Результат первого успешного</td>
-                <td class="pt-2 pb-2">Fallback стратегии</td>
-              </tr>
+                <tr>
+                  <td class="pt-2 pb-2"><code>Promise.all</code></td>
+                  <td class="pt-2 pb-2">Ждет все, отклоняется при первой ошибке</td>
+                  <td class="pt-2 pb-2">Массив результатов</td>
+                  <td class="pt-2 pb-2">Все операции критичны</td>
+                </tr>
+                <tr>
+                  <td class="pt-2 pb-2"><code>Promise.race</code></td>
+                  <td class="pt-2 pb-2">Возвращает первый завершенный</td>
+                  <td class="pt-2 pb-2">Результат первого</td>
+                  <td class="pt-2 pb-2">Таймауты, race conditions</td>
+                </tr>
+                <tr>
+                  <td class="pt-2 pb-2"><code>Promise.allSettled</code></td>
+                  <td class="pt-2 pb-2">Ждет все, не отклоняется</td>
+                  <td class="pt-2 pb-2">Массив со статусами</td>
+                  <td class="pt-2 pb-2">Нужны все результаты</td>
+                </tr>
+                <tr>
+                  <td class="pt-2 pb-2"><code>Promise.any</code></td>
+                  <td class="pt-2 pb-2">Первый успешный</td>
+                  <td class="pt-2 pb-2">Результат первого успешного</td>
+                  <td class="pt-2 pb-2">Fallback стратегии</td>
+                </tr>
               </tbody>
             </v-table>
 
             <h2 class="text-h5 font-weight-bold mb-3">Эволюция: async/await</h2>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedAsyncAwait"></code></pre>
+            <pre
+              class="mb-8 pa-6 rounded-lg custom-code"
+            ><code v-html="highlightedAsyncAwait"></code></pre>
 
             <h2 class="text-h5 font-weight-bold mb-3">Реальный пример: API запросы</h2>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedRealWorldExample"></code></pre>
+            <pre
+              class="mb-8 pa-6 rounded-lg custom-code"
+            ><code v-html="highlightedRealWorldExample"></code></pre>
 
             <h2 class="text-h5 font-weight-bold mb-3">Временная шкала развития</h2>
-            <v-timeline density="compact" class="mb-8">
-              <v-timeline-item dot-color="grey" size="small">
-                <template v-slot:opposite>
-                  <span class="text-caption">1995-2010</span>
-                </template>
-                <div>
-                  <h3 class="text-h6 font-weight-bold">Эра колбэков</h3>
-                  <p class="text-body-2">XMLHttpRequest, setTimeout, addEventListener - все на колбэках</p>
-                </div>
-              </v-timeline-item>
 
-              <v-timeline-item dot-color="blue" size="small">
-                <template v-slot:opposite>
-                  <span class="text-caption">2012</span>
-                </template>
-                <div>
-                  <h3 class="text-h6 font-weight-bold">Появление библиотек</h3>
-                  <p class="text-body-2">jQuery Deferred, Q, Bluebird - первые попытки решить проблему</p>
-                </div>
-              </v-timeline-item>
+            <v-row class="mb-8">
+              <v-col cols="12">
+                <v-timeline direction="vertical" side="end" class="custom-timeline">
+                  <v-timeline-item
+                    dot-color="grey"
+                    size="small"
+                    style="margin-bottom: -16px !important"
+                  >
+                    <template v-slot:opposite>
+                      <span class="text-caption">1995-2010</span>
+                    </template>
+                    <div>
+                      <h3 class="text-h6 font-weight-bold">Эра колбэков</h3>
+                      <p class="text-body-2">
+                        XMLHttpRequest, setTimeout, addEventListener - все на колбэках
+                      </p>
+                    </div>
+                  </v-timeline-item>
 
-              <v-timeline-item dot-color="green" size="small">
-                <template v-slot:opposite>
-                  <span class="text-caption">2015</span>
-                </template>
-                <div>
-                  <h3 class="text-h6 font-weight-bold">ES6 Promises</h3>
-                  <p class="text-body-2">Нативная поддержка промисов в JavaScript</p>
-                </div>
-              </v-timeline-item>
+                  <v-timeline-item
+                    dot-color="grey"
+                    size="small"
+                    style="margin-bottom: -16px !important"
+                  >
+                    <template v-slot:opposite>
+                      <span class="text-caption">2012</span>
+                    </template>
+                    <div>
+                      <h3 class="text-h6 font-weight-bold">Появление библиотек</h3>
+                      <p class="text-body-2">
+                        jQuery Deferred, Q, Bluebird - первые попытки решить проблему
+                      </p>
+                    </div>
+                  </v-timeline-item>
 
-              <v-timeline-item dot-color="purple" size="small">
-                <template v-slot:opposite>
-                  <span class="text-caption">2017</span>
-                </template>
-                <div>
-                  <h3 class="text-h6 font-weight-bold">ES2017 async/await</h3>
-                  <p class="text-body-2">Синтаксический сахар для промисов</p>
-                </div>
-              </v-timeline-item>
+                  <v-timeline-item
+                    dot-color="grey"
+                    size="small"
+                    style="margin-bottom: -16px !important"
+                  >
+                    <template v-slot:opposite>
+                      <span class="text-caption">2015</span>
+                    </template>
+                    <div>
+                      <h3 class="text-h6 font-weight-bold">ES6 Promises</h3>
+                      <p class="text-body-2">Нативная поддержка промисов в JavaScript</p>
+                    </div>
+                  </v-timeline-item>
 
-              <v-timeline-item dot-color="orange" size="small">
-                <template v-slot:opposite>
-                  <span class="text-caption">2020-2021</span>
-                </template>
-                <div>
-                  <h3 class="text-h6 font-weight-bold">Новые методы</h3>
-                  <p class="text-body-2">Promise.allSettled (ES2020), Promise.any (ES2021)</p>
-                </div>
-              </v-timeline-item>
-            </v-timeline>
+                  <v-timeline-item
+                    dot-color="grey"
+                    size="small"
+                    style="margin-bottom: -16px !important"
+                  >
+                    <template v-slot:opposite>
+                      <span class="text-caption">2017</span>
+                    </template>
+                    <div>
+                      <h3 class="text-h6 font-weight-bold">ES2017 async/await</h3>
+                      <p class="text-body-2">Синтаксический сахар для промисов</p>
+                    </div>
+                  </v-timeline-item>
+
+                  <v-timeline-item
+                    dot-color="grey"
+                    size="small"
+                    style="margin-bottom: -16px !important"
+                  >
+                    <template v-slot:opposite>
+                      <span class="text-caption">2020-2021</span>
+                    </template>
+                    <div>
+                      <h3 class="text-h6 font-weight-bold">Новые методы</h3>
+                      <p class="text-body-2">Promise.allSettled (ES2020), Promise.any (ES2021)</p>
+                    </div>
+                  </v-timeline-item>
+                </v-timeline>
+              </v-col>
+            </v-row>
 
             <h2 class="text-h5 font-weight-bold mb-3">Частые вопросы на собеседовании</h2>
             <ol class="ol-list mb-8">
               <li class="mb-4">
                 <p class="font-weight-bold mb-1">Какие проблемы решают промисы?</p>
                 <p class="font-weight-regular ma-0">
-                  <b>Callback Hell</b> (пирамида doom), сложность обработки ошибок,
-                  отсутствие композиции, проблема Inversion of Control -
-                  когда мы передаем контроль выполнения внешней функции.
+                  <b>Callback Hell</b> (пирамида doom), сложность обработки ошибок, отсутствие
+                  композиции, проблема Inversion of Control - когда мы передаем контроль выполнения
+                  внешней функции.
                 </p>
               </li>
               <li class="mb-4">
                 <p class="font-weight-bold mb-1">Назовите три состояния промиса</p>
                 <p class="font-weight-regular ma-0">
-                  <b>Pending</b> (ожидание) - начальное состояние,
-                  <b>Fulfilled</b> (выполнен) - успешное завершение,
-                  <b>Rejected</b> (отклонен) - завершение с ошибкой.
-                  Состояние может измениться только один раз.
+                  <b>Pending</b> (ожидание) - начальное состояние, <b>Fulfilled</b> (выполнен) -
+                  успешное завершение, <b>Rejected</b> (отклонен) - завершение с ошибкой. Состояние
+                  может измениться только один раз.
                 </p>
               </li>
               <li class="mb-4">
@@ -671,5 +743,167 @@ onMounted(() => {
               <li class="mb-4">
                 <p class="font-weight-bold mb-1">Что возвращает .then()?</p>
                 <p class="font-weight-regular ma-0">
-                  .then() всегда возвращает новый промис. Если колбэк возвращает значение -
-                  промис resolved с этим значением. Если возвращает промис -
+                  .then() всегда возвращает новый промис. Если колбэк возвращает значение - промис
+                  resolved с этим значением. Если возвращает промис - возвращается этот промис. Это
+                  позволяет строить цепочки.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Разница между Promise.all и Promise.allSettled?</p>
+                <p class="font-weight-regular ma-0">
+                  <code>Promise.all</code> отклоняется при первой ошибке и возвращает массив
+                  результатов. <code>Promise.allSettled</code> ждет все промисы и возвращает массив
+                  объектов с полями status ('fulfilled'/'rejected') и value/reason.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Что такое microtask queue?</p>
+                <p class="font-weight-regular ma-0">
+                  Промисы выполняются в microtask queue, которая имеет более высокий приоритет чем
+                  обычная task queue (setTimeout, setInterval). Микрозадачи выполняются после
+                  текущего кода, но до макрозадач.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Можно ли отменить промис?</p>
+                <p class="font-weight-regular ma-0">
+                  Нет, нативные промисы нельзя отменить. Но можно использовать AbortController для
+                  отмены операций (fetch) или создавать cancelable promises через библиотеки или
+                  собственную реализацию с флагами отмены.
+                </p>
+              </li>
+            </ol>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Паттерны и антипаттерны</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <div class="d-flex align-center mb-3">
+                    <v-icon size="large" color="success" class="mr-2">mdi-check-circle</v-icon>
+                    <h3 class="text-h6 font-weight-bold">✅ Хорошие практики</h3>
+                  </div>
+                  <ul class="pl-4">
+                    <li>Всегда обрабатывать ошибки (.catch)</li>
+                    <li>Возвращать промисы из .then()</li>
+                    <li>Использовать Promise.all для параллельности</li>
+                    <li>async/await для читаемости</li>
+                    <li>Избегать вложенных .then()</li>
+                    <li>Использовать finally для очистки</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <div class="d-flex align-center mb-3">
+                    <v-icon size="large" color="error" class="mr-2">mdi-close-circle</v-icon>
+                    <h3 class="text-h6 font-weight-bold">❌ Антипаттерны</h3>
+                  </div>
+                  <ul class="pl-4">
+                    <li>Promise constructor antipattern</li>
+                    <li>Забывать return в .then()</li>
+                    <li>Смешивать промисы и колбэки</li>
+                    <li>Неправильная обработка ошибок</li>
+                    <li>Создание ненужных промисов</li>
+                    <li>try/catch без await</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Производительность и память</h2>
+            <v-alert color="warning" class="mb-6">
+              <v-icon class="mr-2">mdi-speedometer</v-icon>
+              <strong>Оптимизация:</strong> Промисы создают замыкания и могут вызывать утечки памяти
+              при неправильном использовании. Избегайте создания промисов в циклах без
+              необходимости.
+            </v-alert>
+
+            <v-row class="mb-8">
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100 text-center">
+                  <v-icon size="large" color="info" class="mb-2">mdi-memory</v-icon>
+                  <h3 class="text-h6 font-weight-bold mb-2">Память</h3>
+                  <ul class="text-left pl-4">
+                    <li>Промисы держат ссылки</li>
+                    <li>Замыкания в .then()</li>
+                    <li>Утечки через цепочки</li>
+                    <li>Очистка в .finally()</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100 text-center">
+                  <v-icon size="large" color="success" class="mb-2">mdi-flash</v-icon>
+                  <h3 class="text-h6 font-weight-bold mb-2">Производительность</h3>
+                  <ul class="text-left pl-4">
+                    <li>Микрозадачи быстрее</li>
+                    <li>Параллельность с .all()</li>
+                    <li>Избегать await в циклах</li>
+                    <li>Переиспользование промисов</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100 text-center">
+                  <v-icon size="large" color="warning" class="mb-2">mdi-bug</v-icon>
+                  <h3 class="text-h6 font-weight-bold mb-2">Отладка</h3>
+                  <ul class="text-left pl-4">
+                    <li>Используйте .catch() везде</li>
+                    <li>Логирование в .then()</li>
+                    <li>Именованные функции</li>
+                    <li>DevTools Promise tab</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Итоги и выводы</h2>
+            <p class="font-weight-regular mb-4">
+              <b>Промисы</b> кардинально изменили подход к асинхронному программированию в
+              JavaScript:
+            </p>
+
+            <ul class="mb-6">
+              <li class="mb-2">Решили проблему <b>Callback Hell</b> через линейные цепочки</li>
+              <li class="mb-2">Унифицировали обработку ошибок через <code>.catch()</code></li>
+              <li class="mb-2">
+                Предоставили мощные методы композиции: <code>Promise.all</code>,
+                <code>Promise.race</code>
+              </li>
+              <li class="mb-2">Стали основой для <code>async/await</code> синтаксиса</li>
+              <li class="mb-2">Позволили создавать переиспользуемый асинхронный код</li>
+              <li class="mb-2">Улучшили читаемость и поддерживаемость кода</li>
+            </ul>
+
+            <p class="font-weight-regular mb-6">
+              Понимание эволюции от колбэков к промисам помогает лучше понимать современные
+              асинхронные паттерны и делает вас более эффективным JavaScript разработчиком.
+            </p>
+
+            <div class="d-flex justify-end">
+              <v-btn
+                color="primary"
+                size="small"
+                variant="elevated"
+                href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise"
+                target="_blank"
+                class="mr-2"
+              >
+                MDN Promise Reference
+              </v-btn>
+              <v-btn
+                color="secondary"
+                size="small"
+                variant="elevated"
+                href="https://javascript.info/async"
+                target="_blank"
+              >
+                JavaScript.info Async
+              </v-btn>
+            </div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-app>
+</template>
