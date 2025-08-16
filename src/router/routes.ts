@@ -56,6 +56,7 @@ import Promises from '@/views/js/Promises.vue'
 import PromiseCollections from '@/views/js/PromiseCollections.vue'
 import PromiseRaceAnyAllSettled from '@/views/js/PromiseRaceAnyAllSettled.vue'
 import EventLoop from '@/views/js/EventLoop.vue'
+import RequestAnimationFrame from '@/views/js/RequestAnimationFrame.vue'
 
 export const routes = [
   {
@@ -249,6 +250,10 @@ export const routes = [
   {
     path: '/event-loop/event-loop',
     component: EventLoop,
+  },
+  {
+    path: '/event-loop/event-loop-req-animation-frame',
+    component: RequestAnimationFrame,
   },
   {
     path: '/docker/docker',

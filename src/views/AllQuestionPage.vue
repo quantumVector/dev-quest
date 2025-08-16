@@ -137,6 +137,9 @@
           <v-list-item to="/event-loop/event-loop">
             <v-list-item-title>5.1. Как работает Event Loop в JavaScript?</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/event-loop/event-loop-req-animation-frame">
+            <v-list-item-title>5.2. requestAnimationFrame и Event Loop</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

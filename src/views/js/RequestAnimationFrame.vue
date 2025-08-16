@@ -751,4 +751,215 @@ onMounted(() => {
                   <div class="pa-4">
                     <h3 class="text-h6 font-weight-bold mb-2">5. Idle callbacks / Macrotasks</h3>
                     <p>В свободное время или следующая макрозадача</p>
-                    <v-chip size="small" color="error">setTimeout(
+                    <v-chip size="small" color="error">setTimeout()</v-chip>
+                    <v-chip size="small" color="error">setInterval()</v-chip>
+                    <v-chip size="small" color="secondary">requestIdleCallback()</v-chip>
+                  </div>
+                </v-stepper-window-item>
+              </v-stepper-window>
+            </v-stepper>
+
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedRenderingPipeline"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Практический пример анимации</h2>
+            <p class="font-weight-regular mb-4">
+              Правильное использование requestAnimationFrame для плавных анимаций с привязкой к refresh rate дисплея:
+            </p>
+
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedAnimation"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Сравнение производительности</h2>
+            <v-row class="mb-6">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100 bg-error">
+                  <div class="d-flex align-center mb-3">
+                    <v-icon size="large" color="white" class="mr-2">mdi-timer-alert</v-icon>
+                    <h3 class="text-h6 font-weight-bold text-white">setTimeout для анимаций</h3>
+                  </div>
+                  <ul class="text-white pl-4">
+                    <li><strong>Не синхронизирован</strong> с refresh rate</li>
+                    <li><strong>Неточная частота</strong> (~16.67ms ≠ реальный refresh rate)</li>
+                    <li><strong>Работает в фоне</strong> (тратит ресурсы)</li>
+                    <li><strong>Рывки и пропуски</strong> кадров</li>
+                    <li><strong>Больше энергопотребления</strong></li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100 bg-success">
+                  <div class="d-flex align-center mb-3">
+                    <v-icon size="large" color="white" class="mr-2">mdi-speedometer</v-icon>
+                    <h3 class="text-h6 font-weight-bold text-white">requestAnimationFrame</h3>
+                  </div>
+                  <ul class="text-white pl-4">
+                    <li><strong>Синхронизация</strong> с refresh rate</li>
+                    <li><strong>Автоматическая пауза</strong> в неактивных вкладках</li>
+                    <li><strong>Оптимизации браузера</strong></li>
+                    <li><strong>Плавные анимации</strong></li>
+                    <li><strong>Экономия батареи</strong></li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedPerformance"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Сложный пример Event Loop</h2>
+            <p class="font-weight-regular mb-4">
+              Полный пример взаимодействия всех видов задач в Event Loop:
+            </p>
+
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedComplexEventLoop"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Полифилл и альтернативы</h2>
+            <p class="font-weight-regular mb-4">
+              Понимание работы requestAnimationFrame через полифилл и современные альтернативы:
+            </p>
+
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedPolyfill"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Отладка и мониторинг</h2>
+            <p class="font-weight-regular mb-4">
+              Инструменты для анализа производительности анимаций:
+            </p>
+
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedDebugging"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Частые вопросы на собеседовании</h2>
+            <ol class="ol-list mb-8">
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Какое место в Event Loop занимает requestAnimationFrame?</p>
+                <p class="font-weight-regular ma-0">
+                  requestAnimationFrame выполняется ПОСЛЕ всех микрозадач (Promise, queueMicrotask),
+                  но ДО рендеринга и ДО следующих макрозадач (setTimeout, setInterval).
+                  Это позволяет подготовить изменения DOM перед рендерингом.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Почему requestAnimationFrame лучше setTimeout для анимаций?</p>
+                <p class="font-weight-regular ma-0">
+                  1) Синхронизация с refresh rate дисплея (60Hz, 120Hz и т.д.)
+                  2) Автоматическая пауза когда вкладка неактивна
+                  3) Оптимизации браузера для плавности
+                  4) Меньшее энергопотребление
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Что происходит, если колбэк requestAnimationFrame выполняется долго?</p>
+                <p class="font-weight-regular ma-0">
+                  Задержится рендеринг страницы, что приведет к пропуску кадров (frame drops).
+                  Колбэк должен выполняться быстро (&lt;16ms для 60fps), тяжелые операции нужно
+                  разбивать или переносить в Web Workers.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Можно ли добавить микрозадачи внутри requestAnimationFrame?</p>
+                <p class="font-weight-regular ma-0">
+                  Да, но они выполнятся в следующей итерации Event Loop, после рендеринга.
+                  Микрозадачи из rAF колбэка не блокируют текущий рендеринг.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Как отменить запланированный requestAnimationFrame?</p>
+                <p class="font-weight-regular ma-0">
+                  Используйте cancelAnimationFrame(id), где id возвращается из requestAnimationFrame().
+                  Это важно для предотвращения утечек памяти при размонтировании компонентов.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Что такое timestamp в колбэке requestAnimationFrame?</p>
+                <p class="font-weight-regular ma-0">
+                  Это время в миллисекундах (DOMHighResTimeStamp), когда начался текущий кадр.
+                  Используется для вычисления прогресса анимации и обеспечения плавности
+                  независимо от частоты обновления.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Работает ли requestAnimationFrame в Web Workers?</p>
+                <p class="font-weight-regular ma-0">
+                  Нет, requestAnimationFrame недоступен в Web Workers, так как они не имеют
+                  доступа к DOM и рендерингу. Для анимаций в Workers используйте
+                  postMessage для связи с main thread.
+                </p>
+              </li>
+            </ol>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Лучшие практики</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100 text-center">
+                  <v-icon size="large" color="success" class="mb-2">mdi-check-circle</v-icon>
+                  <h3 class="text-h6 font-weight-bold mb-2">✅ Делать</h3>
+                  <ul class="text-left pl-4">
+                    <li>Используйте для всех анимаций</li>
+                    <li>Сохраняйте ID для отмены</li>
+                    <li>Вычисляйте по timestamp</li>
+                    <li>Проверяйте performance</li>
+                    <li>Группируйте DOM-операции</li>
+                    <li>Используйте will-change CSS</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100 text-center">
+                  <v-icon size="large" color="error" class="mb-2">mdi-close-circle</v-icon>
+                  <h3 class="text-h6 font-weight-bold mb-2">❌ Избегать</h3>
+                  <ul class="text-left pl-4">
+                    <li>setTimeout для анимаций</li>
+                    <li>Тяжелые вычисления в колбэке</li>
+                    <li>Множественные DOM queries</li>
+                    <li>Синхронные AJAX в колбэке</li>
+                    <li>Забывать cancelAnimationFrame</li>
+                    <li>Игнорировать timestamp</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100 text-center">
+                  <v-icon size="large" color="info" class="mb-2">mdi-lightbulb</v-icon>
+                  <h3 class="text-h6 font-weight-bold mb-2">💡 Советы</h3>
+                  <ul class="text-left pl-4">
+                    <li>Используйте easing функции</li>
+                    <li>Предрассчитывайте значения</li>
+                    <li>Кешируйте DOM элементы</li>
+                    <li>Мониторьте FPS</li>
+                    <li>Тестируйте на слабых устройствах</li>
+                    <li>Используйте CSS transform</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Итог</h2>
+            <p class="font-weight-regular mb-6">
+              <b>requestAnimationFrame</b> занимает специальное место в Event Loop между микрозадачами и рендерингом.
+              Это делает его идеальным инструментом для создания плавных анимаций, синхронизированных с частотой
+              обновления дисплея. Понимание его места в Event Loop критически важно для создания
+              производительных веб-приложений.
+            </p>
+
+            <div class="d-flex justify-end">
+              <v-btn
+                color="primary"
+                size="small"
+                variant="elevated"
+                href="https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame"
+                target="_blank"
+                class="mr-2">
+                MDN Reference
+              </v-btn>
+              <v-btn
+                color="secondary"
+                size="small"
+                variant="elevated"
+                href="https://web.dev/optimize-javascript-execution/"
+                target="_blank">
+                Performance Guide
+              </v-btn>
+            </div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-app>
+</template>
