@@ -51,6 +51,7 @@ import LexicalEnvironment from '@/views/js/LexicalEnvironment.vue'
 import LexicalEnvironmentMoment from '@/views/js/LexicalEnvironmentMoment.vue'
 import Hoisting from '@/views/js/Hoisting.vue'
 import HoistingVarConstLet from '@/views/js/HoistingVarConstLet.vue'
+import AsyncJavaScript from '@/views/js/AsyncJavaScript.vue'
 
 export const routes = [
   {
@@ -224,6 +225,10 @@ export const routes = [
   {
     path: '/js/hoisting-var-const-let',
     component: HoistingVarConstLet,
+  },
+  {
+    path: '/async/async-js',
+    component: AsyncJavaScript,
   },
   {
     path: '/docker/docker',
