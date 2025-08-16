@@ -618,4 +618,188 @@ onMounted(() => {
                   <ul class="text-left pl-4">
                     <li>Изучайте DevTools Performance</li>
                     <li>Используйте Chrome Task Manager</li>
-                    <li>Тест
+                    <li>Тестируйте на слабых устройствах</li>
+                    <li>Профилируйте память</li>
+                    <li>Используйте лейзи загрузку</li>
+                    <li>Оптимизируйте критический путь</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Инструменты для отладки</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <div class="d-flex align-center mb-3">
+                    <v-icon size="large" color="primary" class="mr-2">mdi-google-chrome</v-icon>
+                    <h3 class="text-h6 font-weight-bold">Chrome DevTools</h3>
+                  </div>
+                  <ul class="pl-4">
+                    <li><strong>Performance tab:</strong> профилирование Event Loop</li>
+                    <li><strong>Sources → Call Stack:</strong> текущий стек</li>
+                    <li><strong>Console:</strong> trace асинхронных операций</li>
+                    <li><strong>Task Manager:</strong> мониторинг процессов</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <div class="d-flex align-center mb-3">
+                    <v-icon size="large" color="success" class="mr-2">mdi-nodejs</v-icon>
+                    <h3 class="text-h6 font-weight-bold">Node.js</h3>
+                  </div>
+                  <ul class="pl-4">
+                    <li><strong>--inspect:</strong> подключение DevTools</li>
+                    <li><strong>process.hrtime():</strong> точные измерения</li>
+                    <li><strong>perf_hooks:</strong> API для производительности</li>
+                    <li><strong>clinic.js:</strong> профилирование Node.js</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Практические примеры проблем</h2>
+            <v-expansion-panels class="mb-8">
+              <v-expansion-panel title="🐛 Бесконечная микрозадача">
+                <v-expansion-panel-text>
+                  <pre class="pa-4 rounded-lg custom-code"><code>// ПРОБЛЕМА: блокирует Event Loop
+function infiniteMicrotask() {
+  Promise.resolve().then(infiniteMicrotask);
+}
+infiniteMicrotask(); // UI зависнет!
+
+// РЕШЕНИЕ: добавить условие выхода
+let counter = 0;
+function safeMicrotask() {
+  if (counter++ < 1000) {
+    Promise.resolve().then(safeMicrotask);
+  }
+}
+safeMicrotask();</code></pre>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+              <v-expansion-panel title="⚡ Медленный рендеринг">
+                <v-expansion-panel-text>
+                  <pre class="pa-4 rounded-lg custom-code"><code>// ПРОБЛЕМА: множественные DOM операции
+for (let i = 0; i < 1000; i++) {
+  document.body.appendChild(document.createElement('div'));
+  // Каждая операция может вызвать reflow
+}
+
+// РЕШЕНИЕ: batch DOM операции
+const fragment = document.createDocumentFragment();
+for (let i = 0; i < 1000; i++) {
+  fragment.appendChild(document.createElement('div'));
+}
+document.body.appendChild(fragment); // Один reflow</code></pre>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+              <v-expansion-panel title="🔄 Неправильное использование таймеров">
+                <v-expansion-panel-text>
+                  <pre class="pa-4 rounded-lg custom-code"><code>// ПРОБЛЕМА: накопление таймеров
+setInterval(() => {
+  if (heavyCondition()) {
+    // Долгая операция может привести к накоплению
+    processHeavyTask();
+  }
+}, 100);
+
+// РЕШЕНИЕ: самовызывающийся setTimeout
+function smartInterval() {
+  if (heavyCondition()) {
+    processHeavyTask();
+  }
+  setTimeout(smartInterval, 100); // Запланируется после завершения
+}</code></pre>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+            </v-expansion-panels>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Современные API для управления задачами</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">requestIdleCallback</h3>
+                  <p class="text-body-2 mb-2">Выполнение в свободное время браузера</p>
+                  <pre class="text-caption"><code>requestIdleCallback((deadline) => {
+  while (deadline.timeRemaining() > 0) {
+    doWork();
+  }
+});</code></pre>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">scheduler.postTask</h3>
+                  <p class="text-body-2 mb-2">Новый API для планирования задач</p>
+                  <pre class="text-caption"><code>scheduler.postTask(() => {
+  // Задача с приоритетом
+}, { priority: 'user-blocking' });</code></pre>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">MessageChannel</h3>
+                  <p class="text-body-2 mb-2">Альтернатива setTimeout(0)</p>
+                  <pre class="text-caption"><code>const channel = new MessageChannel();
+channel.port2.onmessage = () => {
+  // Быстрая макрозадача
+};
+channel.port1.postMessage(null);</code></pre>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Итог</h2>
+            <p class="font-weight-regular mb-6">
+              <b>Event Loop</b> — это основа асинхронности в JavaScript. Понимание его работы критически важно
+              для написания производительных приложений. Ключевые моменты: Call Stack выполняется первым,
+              затем ВСЕ микрозадачи, потом рендеринг, и только после этого ОДНА макрозадача.
+              Правильное использование этих знаний поможет избежать блокировок UI и создать
+              отзывчивые приложения.
+            </p>
+
+            <v-alert color="success" class="mb-6">
+              <v-icon class="mr-2">mdi-lightbulb</v-icon>
+              <strong>Совет для собеседования:</strong> Всегда объясняйте примеры пошагово,
+              демонстрируя понимание приоритетов выполнения. Упоминайте различия между браузером и Node.js,
+              а также влияние на производительность и пользовательский опыт.
+            </v-alert>
+
+            <div class="d-flex justify-end">
+              <v-btn
+                color="primary"
+                size="small"
+                variant="elevated"
+                href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Event_loop"
+                target="_blank"
+                class="mr-2">
+                MDN Event Loop
+              </v-btn>
+              <v-btn
+                color="secondary"
+                size="small"
+                variant="elevated"
+                href="https://nodejs.org/en/docs/guides/event-loop-timers-and-nexttick/"
+                target="_blank"
+                class="mr-2">
+                Node.js Event Loop
+              </v-btn>
+              <v-btn
+                color="info"
+                size="small"
+                variant="elevated"
+                href="http://latentflip.com/loupe/"
+                target="_blank">
+                Event Loop Visualizer
+              </v-btn>
+            </div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-app>
+</template>

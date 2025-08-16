@@ -133,6 +133,10 @@
           <v-list-item to="/async/race-any-all-settled">
             <v-list-item-title>4.4. Promise.race/any/allSettled</v-list-item-title>
           </v-list-item>
+          <v-list-subheader>Event Loop</v-list-subheader>
+          <v-list-item to="/event-loop/event-loop">
+            <v-list-item-title>5.1. Как работает Event Loop в JavaScript?</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

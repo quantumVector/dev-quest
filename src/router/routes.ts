@@ -55,6 +55,7 @@ import AsyncJavaScript from '@/views/js/AsyncJavaScript.vue'
 import Promises from '@/views/js/Promises.vue'
 import PromiseCollections from '@/views/js/PromiseCollections.vue'
 import PromiseRaceAnyAllSettled from '@/views/js/PromiseRaceAnyAllSettled.vue'
+import EventLoop from '@/views/js/EventLoop.vue'
 
 export const routes = [
   {
@@ -244,6 +245,10 @@ export const routes = [
   {
     path: '/async/race-any-all-settled',
     component: PromiseRaceAnyAllSettled,
+  },
+  {
+    path: '/event-loop/event-loop',
+    component: EventLoop,
   },
   {
     path: '/docker/docker',
