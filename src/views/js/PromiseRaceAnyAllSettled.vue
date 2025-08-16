@@ -560,4 +560,208 @@ onMounted(() => {
               </thead>
               <tbody>
               <tr>
-                <td class="pt-2 pb-2"><code>Promise.race
+                <td class="pt-2 pb-2"><code>Promise.race</code></td>
+                <td class="pt-2 pb-2">32+</td>
+                <td class="pt-2 pb-2">29+</td>
+                <td class="pt-2 pb-2">11+</td>
+                <td class="pt-2 pb-2">Edge 18+</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><code>Promise.any</code></td>
+                <td class="pt-2 pb-2">85+</td>
+                <td class="pt-2 pb-2">79+</td>
+                <td class="pt-2 pb-2">14+</td>
+                <td class="pt-2 pb-2">Edge 85+</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><code>Promise.allSettled</code></td>
+                <td class="pt-2 pb-2">76+</td>
+                <td class="pt-2 pb-2">71+</td>
+                <td class="pt-2 pb-2">13+</td>
+                <td class="pt-2 pb-2">Edge 76+</td>
+              </tr>
+              </tbody>
+            </v-table>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Полифиллы для старых браузеров</h2>
+            <v-alert color="warning" class="mb-6">
+              <v-icon class="mr-2">mdi-alert</v-icon>
+              <strong>Внимание:</strong> Promise.any и Promise.allSettled относительно новые методы.
+              Для поддержки старых браузеров используйте полифиллы или библиотеки типа core-js.
+            </v-alert>
+
+            <v-row class="mb-8">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">Простой полифилл Promise.any</h3>
+                  <pre class="text-caption"><code>if (!Promise.any) {
+  Promise.any = function(promises) {
+    return new Promise((resolve, reject) => {
+      const errors = [];
+      let rejected = 0;
+
+      promises.forEach((promise, i) => {
+        Promise.resolve(promise)
+          .then(resolve)
+          .catch(error => {
+            errors[i] = error;
+            if (++rejected === promises.length) {
+              reject(new AggregateError(errors));
+            }
+          });
+      });
+    });
+  };
+}</code></pre>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">Полифилл Promise.allSettled</h3>
+                  <pre class="text-caption"><code>if (!Promise.allSettled) {
+  Promise.allSettled = function(promises) {
+    return Promise.all(
+      promises.map(p =>
+        Promise.resolve(p)
+          .then(value => ({
+            status: 'fulfilled',
+            value
+          }))
+          .catch(reason => ({
+            status: 'rejected',
+            reason
+          }))
+      )
+    );
+  };
+}</code></pre>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Производительность и memory leaks</h2>
+            <v-alert color="info" class="mb-6">
+              <v-icon class="mr-2">mdi-information</v-icon>
+              <strong>Важно:</strong> Promise после завершения race/any продолжают выполняться.
+              Для длительных операций это может привести к утечкам памяти или ненужной нагрузке.
+            </v-alert>
+
+            <v-row class="mb-8">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100 bg-error">
+                  <div class="d-flex align-center mb-3">
+                    <v-icon size="large" color="white" class="mr-2">mdi-alert-circle</v-icon>
+                    <h3 class="text-h6 font-weight-bold text-white">Проблемы</h3>
+                  </div>
+                  <ul class="text-white pl-4">
+                    <li><strong>Неотменяемые операции</strong> продолжают работу</li>
+                    <li><strong>Memory leaks</strong> при длительных задачах</li>
+                    <li><strong>Лишняя нагрузка</strong> на сервер/CPU</li>
+                    <li><strong>Сложность отладки</strong> параллельных процессов</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100 bg-success">
+                  <div class="d-flex align-center mb-3">
+                    <v-icon size="large" color="white" class="mr-2">mdi-check-circle</v-icon>
+                    <h3 class="text-h6 font-weight-bold text-white">Решения</h3>
+                  </div>
+                  <ul class="text-white pl-4">
+                    <li><strong>AbortController</strong> для отмены запросов</li>
+                    <li><strong>Timeout</strong> для ограничения времени</li>
+                    <li><strong>Cleanup функции</strong> для освобождения ресурсов</li>
+                    <li><strong>Мониторинг</strong> активных операций</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Когда использовать каждый метод</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-3 text-primary">Promise.race</h3>
+                  <ul class="pl-4 mb-3">
+                    <li>Timeout для операций</li>
+                    <li>Первый доступный ресурс</li>
+                    <li>User interaction race conditions</li>
+                    <li>Быстрые fail-fast сценарии</li>
+                  </ul>
+                  <v-chip color="primary" size="small">Скорость важнее результата</v-chip>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-3 text-success">Promise.any</h3>
+                  <ul class="pl-4 mb-3">
+                    <li>Fallback стратегии</li>
+                    <li>Множественные источники данных</li>
+                    <li>Отказоустойчивые системы</li>
+                    <li>Первый успешный результат</li>
+                  </ul>
+                  <v-chip color="success" size="small">Надежность важнее скорости</v-chip>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <v-row class="mb-8">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-3 text-warning">Promise.allSettled</h3>
+                  <ul class="pl-4 mb-3">
+                    <li>Batch обработка</li>
+                    <li>Независимые операции</li>
+                    <li>Сбор статистики/метрик</li>
+                    <li>Анализ результатов</li>
+                  </ul>
+                  <v-chip color="warning" size="small">Полнота данных важнее</v-chip>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-3 text-info">Promise.all</h3>
+                  <ul class="pl-4 mb-3">
+                    <li>Все операции критичны</li>
+                    <li>Зависимые данные</li>
+                    <li>Атомарные операции</li>
+                    <li>Fail-fast при любой ошибке</li>
+                  </ul>
+                  <v-chip color="info" size="small">Все или ничего</v-chip>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Итог</h2>
+            <p class="font-weight-regular mb-6">
+              <b>Promise.race</b> возвращает первый завершившийся результат (успех или ошибка).
+              <b>Promise.any</b> возвращает первый успешный результат, игнорируя ошибки.
+              <b>Promise.allSettled</b> дожидается завершения всех Promise и возвращает массив с результатами.
+              Выбор метода зависит от бизнес-логики: нужна ли скорость, надежность или полнота данных.
+            </p>
+
+            <div class="d-flex justify-end">
+              <v-btn
+                color="primary"
+                size="small"
+                variant="elevated"
+                href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise"
+                target="_blank"
+                class="mr-2">
+                MDN Promise Reference
+              </v-btn>
+              <v-btn
+                color="secondary"
+                size="small"
+                variant="elevated"
+                href="https://tc39.es/ecma262/#sec-promise-objects"
+                target="_blank">
+                ECMAScript Specification
+              </v-btn>
+            </div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-app>
+</template>

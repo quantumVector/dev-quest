@@ -54,6 +54,7 @@ import HoistingVarConstLet from '@/views/js/HoistingVarConstLet.vue'
 import AsyncJavaScript from '@/views/js/AsyncJavaScript.vue'
 import Promises from '@/views/js/Promises.vue'
 import PromiseCollections from '@/views/js/PromiseCollections.vue'
+import PromiseRaceAnyAllSettled from '@/views/js/PromiseRaceAnyAllSettled.vue'
 
 export const routes = [
   {
@@ -239,6 +240,10 @@ export const routes = [
   {
     path: '/async/promise-collections',
     component: PromiseCollections,
+  },
+  {
+    path: '/async/race-any-all-settled',
+    component: PromiseRaceAnyAllSettled,
   },
   {
     path: '/docker/docker',

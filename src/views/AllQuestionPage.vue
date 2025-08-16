@@ -130,7 +130,7 @@
           <v-list-item to="/async/promise-collections">
             <v-list-item-title>4.3. Как вызвать итерируемую коллекцию промисов сразу</v-list-item-title>
           </v-list-item>
-          <v-list-item to="/async/">
+          <v-list-item to="/async/race-any-all-settled">
             <v-list-item-title>4.4. Promise.race/any/allSettled</v-list-item-title>
           </v-list-item>
         </v-list>
