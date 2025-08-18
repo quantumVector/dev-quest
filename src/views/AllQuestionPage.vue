@@ -140,6 +140,13 @@
           <v-list-item to="/event-loop/event-loop-req-animation-frame">
             <v-list-item-title>5.2. requestAnimationFrame и Event Loop</v-list-item-title>
           </v-list-item>
+          <v-list-subheader>Context</v-list-subheader>
+          <v-list-item to="/context/context">
+            <v-list-item-title>6.1. Что такое контекст?</v-list-item-title>
+          </v-list-item>
+          <v-list-item to="/context/this">
+            <v-list-item-title>6.2. Ключевое слово this</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
