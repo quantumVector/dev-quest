@@ -591,3 +591,35 @@ onMounted(() => {
             </v-row>
 
             <h2 class="text-h5 font-weight-bold mb-3">Итог</h2>
+            <p class="font-weight-regular mb-6">
+              <b>this</b> — это ссылка на контекст выполнения функции, которая определяется способом её вызова.
+              Понимание правил привязки this (new → явная → неявная → по умолчанию) и особенностей стрелочных
+              функций критически важно для эффективной работы с JavaScript. Используйте стрелочные функции
+              для callbacks и bind для сохранения контекста в методах.
+            </p>
+
+            <div class="d-flex justify-end">
+              <v-btn
+                color="primary"
+                size="small"
+                variant="elevated"
+                href="https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Operators/this"
+                target="_blank"
+                class="mr-2">
+                MDN: this
+              </v-btn>
+              <v-btn
+                color="secondary"
+                size="small"
+                variant="elevated"
+                href="https://learn.javascript.ru/object-methods"
+                target="_blank">
+                Учебник JavaScript
+              </v-btn>
+            </div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-app>
+</template>
