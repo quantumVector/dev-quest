@@ -637,4 +637,129 @@ onMounted(() => {
               <v-col cols="12" md="6">
                 <v-card class="pa-4 h-100">
                   <div class="d-flex align-center mb-3">
-                    <v-icon size="large" color="error" class="mr-2">
+                    <v-icon size="large" color="error" class="mr-2">mdi-close-circle</v-icon>
+                    <h3 class="text-h6 font-weight-bold">❌ Избегать</h3>
+                  </div>
+                  <ul class="pl-4">
+                    <li>Использовать bind в render методах React</li>
+                    <li>Забывать про потерю контекста в колбэках</li>
+                    <li>Путать call и apply местами</li>
+                    <li>Использовать стрелочные функции как методы объектов</li>
+                    <li>Игнорировать строгий режим</li>
+                    <li>Создавать bind в циклах без необходимости</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Производительность и оптимизация</h2>
+            <v-alert color="warning" class="mb-4">
+              <v-icon class="mr-2">mdi-speedometer</v-icon>
+              <strong>Производительность:</strong> bind создает новую функцию при каждом вызове.
+              В критичных местах (циклы, render) кэшируйте результат или используйте стрелочные функции.
+            </v-alert>
+
+            <v-row class="mb-8">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">Медленно ❌</h3>
+                  <pre class="text-caption"><code>// В render методе React
+render() {
+  return items.map(item =>
+    &lt;Item onClick={this.handleClick.bind(this)} /&gt;
+  )
+}</code></pre>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">Быстро ✅</h3>
+                  <pre class="text-caption"><code>// Кэширование в constructor
+constructor() {
+  this.handleClick = this.handleClick.bind(this)
+}
+
+render() {
+  return items.map(item =>
+    &lt;Item onClick={this.handleClick} /&gt;
+  )
+}</code></pre>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Современные альтернативы</h2>
+
+            <v-table density="comfortable" class="mb-6">
+              <thead>
+              <tr>
+                <th class="text-left font-weight-bold">Задача</th>
+                <th class="text-left font-weight-bold">Старый способ</th>
+                <th class="text-left font-weight-bold">Современный способ</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td>Spread аргументов</td>
+                <td><code>Math.max.apply(null, arr)</code></td>
+                <td><code>Math.max(...arr)</code></td>
+              </tr>
+              <tr>
+                <td>Array-like → Array</td>
+                <td><code>Array.prototype.slice.call(nodeList)</code></td>
+                <td><code>Array.from(nodeList)</code></td>
+              </tr>
+              <tr>
+                <td>Привязка контекста</td>
+                <td><code>func.bind(this)</code></td>
+                <td><code>() => this.func()</code></td>
+              </tr>
+              <tr>
+                <td>Частичное применение</td>
+                <td><code>func.bind(null, arg1)</code></td>
+                <td><code>(...args) => func(arg1, ...args)</code></td>
+              </tr>
+              </tbody>
+            </v-table>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Итог</h2>
+            <p class="font-weight-regular mb-6">
+              <b>call</b> и <b>apply</b> вызывают функцию немедленно с заданным контекстом,
+              различаясь способом передачи аргументов. <b>bind</b> создает новую функцию
+              с привязанным контекстом для многократного использования. Понимание этих методов
+              критически важно для работы с JavaScript, особенно при работе с событиями,
+              колбэками и объектно-ориентированным программированием.
+            </p>
+
+            <v-alert color="info" class="mb-6">
+              <v-icon class="mr-2">mdi-lightbulb</v-icon>
+              <strong>Помните:</strong> В современном JavaScript стрелочные функции часто решают
+              проблемы с контекстом проще, но понимание call, apply, bind остается необходимым
+              для работы с legacy кодом и сложными сценариями.
+            </v-alert>
+
+            <div class="d-flex justify-end">
+              <v-btn
+                color="primary"
+                size="small"
+                variant="elevated"
+                href="https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Function/call"
+                target="_blank"
+                class="mr-2">
+                MDN: Function.call()
+              </v-btn>
+              <v-btn
+                color="secondary"
+                size="small"
+                variant="elevated"
+                href="https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Function/bind"
+                target="_blank">
+                MDN: Function.bind()
+              </v-btn>
+            </div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-app>
+</template>

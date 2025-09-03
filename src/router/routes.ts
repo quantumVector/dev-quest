@@ -59,6 +59,13 @@ import EventLoop from '@/views/js/EventLoop.vue'
 import RequestAnimationFrame from '@/views/js/RequestAnimationFrame.vue'
 import JSContext from '@/views/js/JSContext.vue'
 import JavaScriptThis from '@/views/js/JavaScriptThis.vue'
+import ContextBinding from '@/views/js/ContextBinding.vue'
+import PartialApplicationBind from '@/views/js/PartialApplicationBind.vue'
+import JavaScriptPrototype from '@/views/js/JavaScriptPrototype.vue'
+import ProtoVsPrototype from '@/views/js/ProtoVsPrototype.vue'
+import GlobalPrototypesProblems from '@/views/js/GlobalPrototypesProblems.vue'
+import Symbol from '@/views/js/Symbol.vue'
+import GlobalAndSystemSymbols from '@/views/js/GlobalAndSystemSymbols.vue'
 
 export const routes = [
   {
@@ -264,6 +271,34 @@ export const routes = [
   {
     path: '/context/this',
     component: JavaScriptThis,
+  },
+  {
+    path: '/context/context-binding',
+    component: ContextBinding,
+  },
+  {
+    path: '/context/partial-bind',
+    component: PartialApplicationBind,
+  },
+  {
+    path: '/prototype/prototype',
+    component: JavaScriptPrototype,
+  },
+  {
+    path: '/prototype/proto-vs-prototype',
+    component: ProtoVsPrototype,
+  },
+  {
+    path: '/prototype/global-prototypes-problems',
+    component: GlobalPrototypesProblems,
+  },
+  {
+    path: '/symbol/symbol',
+    component: Symbol,
+  },
+  {
+    path: '/symbol/global-and-system-symbol',
+    component: GlobalAndSystemSymbols,
   },
   {
     path: '/docker/docker',

@@ -147,6 +147,29 @@
           <v-list-item to="/context/this">
             <v-list-item-title>6.2. Ключевое слово this</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/context/context-binding">
+            <v-list-item-title>6.3. Способы привязки контекста (call, bind, apply)</v-list-item-title>
+          </v-list-item>
+          <v-list-item to="/context/partial-bind">
+            <v-list-item-title>6.4. Частичное применение и bind()</v-list-item-title>
+          </v-list-item>
+          <v-list-subheader>Prototype</v-list-subheader>
+          <v-list-item to="/prototype/prototype">
+            <v-list-item-title>7.1. Что такое prototype?</v-list-item-title>
+          </v-list-item>
+          <v-list-item to="/prototype/proto-vs-prototype">
+            <v-list-item-title>7.2. Разницам между __proto__ и prototype?</v-list-item-title>
+          </v-list-item>
+          <v-list-item to="/prototype/global-prototypes-problems">
+            <v-list-item-title>7.3. Проблемы использования прототипов у глобальных объектов</v-list-item-title>
+          </v-list-item>
+          <v-list-subheader>Symbol</v-list-subheader>
+          <v-list-item to="/symbol/symbol">
+            <v-list-item-title>8.1. Symbol: уникальные идентификаторы</v-list-item-title>
+          </v-list-item>
+          <v-list-item to="/symbol/global-and-system-symbol">
+            <v-list-item-title>8.2. Глобальный реестр символов и системные символы</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
