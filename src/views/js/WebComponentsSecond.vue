@@ -82,7 +82,7 @@ class MyButton extends HTMLElement {
 customElements.define('my-button', MyButton);
 
 // Использование в HTML:
-// <my-button>Нажми меня</my-button>
+// <my-button>Нажми меня<\/my-button>
 `
 
 const customEventsSnippet = `
@@ -975,3 +975,511 @@ class EventBus {
   // Однократная подписка
   once(eventName, callback) {
     const unsubscribe = this.on(eventName, (data) => {
+         callback(data);
+         unsubscribe(); // Автоматически отписываемся после первого срабатывания
+       });
+       return unsubscribe;
+     }
+
+     // Очистка всех подписчиков
+     clear() {
+       this.events.clear();
+     }
+
+     // Получение списка активных событий
+     getEventNames() {
+       return Array.from(this.events.keys());
+     }
+
+     // Количество подписчиков на событие
+     getListenerCount(eventName) {
+       return this.events.has(eventName) ? this.events.get(eventName).length : 0;
+     }
+   }
+
+   // Создаем глобальный экземпляр шины событий
+   const globalEventBus = new EventBus();
+
+   // 4. Компонент с использованием EventBus
+   class NotificationCenter extends HTMLElement {
+     constructor() {
+       super();
+       this.attachShadow({ mode: 'open' });
+       this.notifications = [];
+       this.render();
+       this.setupEventBus();
+     }
+
+     render() {
+       this.shadowRoot.innerHTML = \\\`
+  <style>
+:host {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  width: 300px;
+}
+
+.notification {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: slideIn 0.3s ease;
+  position: relative;
+}
+
+.notification.success {
+  border-left: 4px solid #4caf50;
+}
+
+.notification.error {
+  border-left: 4px solid #f44336;
+}
+
+.notification.info {
+  border-left: 4px solid #2196f3;
+}
+
+.notification.warning {
+  border-left: 4px solid #ff9800;
+}
+
+.close-btn {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: #666;
+}
+
+.close-btn:hover {
+  color: #333;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+</style>
+
+<div class="notifications">
+           \\\${this.notifications.map(notification => \`
+             <div class="notification \${notification.type}" data-id="\${notification.id}">
+               <button class="close-btn" onclick="this.parentElement.style.animation='slideOut 0.3s ease'; setTimeout(() => this.parentElement.remove(), 300);">&times;</button>
+               <div><strong>\${notification.title}</strong></div>
+               <div>\${notification.message}</div>
+             </div>
+           \`).join('')}
+         </div>
+       \`;
+     }
+
+     setupEventBus() {
+       // Подписываемся на различные события через EventBus
+       globalEventBus.on('user-selected', (data) => {
+         this.showNotification({
+           type: 'info',
+           title: 'Пользователь выбран',
+           message: \`Выбран пользователь: \${data.user.name}\`
+         });
+       });
+
+       globalEventBus.on('user-action', (data) => {
+         this.showNotification({
+           type: 'success',
+           title: 'Действие выполнено',
+           message: \`Действие "\${data.action}" для пользователя \${data.user.name}\`
+         });
+       });
+
+       globalEventBus.on('error', (data) => {
+         this.showNotification({
+           type: 'error',
+           title: 'Ошибка',
+           message: data.message || 'Произошла неизвестная ошибка'
+         });
+       });
+     }
+
+     showNotification({ type = 'info', title, message, duration = 5000 }) {
+       const notification = {
+         id: Date.now() + Math.random(),
+         type,
+         title,
+         message
+       };
+
+       this.notifications.unshift(notification);
+       this.render();
+
+       // Автоматическое удаление через specified время
+       setTimeout(() => {
+         this.removeNotification(notification.id);
+       }, duration);
+     }
+
+     removeNotification(id) {
+       const index = this.notifications.findIndex(n => n.id === id);
+       if (index !== -1) {
+         this.notifications.splice(index, 1);
+         this.render();
+       }
+     }
+   }
+
+   // Регистрируем компоненты
+   customElements.define('user-dashboard', UserDashboard);
+   customElements.define('user-list', UserList);
+   customElements.define('notification-center', NotificationCenter);
+
+   // 5. Интеграция с глобальной шиной событий
+   document.addEventListener('DOMContentLoaded', () => {
+     // Мост между DOM событиями и EventBus
+     document.addEventListener('user-selected', (event) => {
+       globalEventBus.emit('user-selected', event.detail);
+     });
+
+     document.addEventListener('user-action', (event) => {
+       globalEventBus.emit('user-action', event.detail);
+     });
+
+     document.addEventListener('user-load-error', (event) => {
+       globalEventBus.emit('error', {
+         message: \`Не удалось загрузить пользователя: \${event.detail.error}\`
+       });
+     });
+   });
+
+   /*
+   HTML для использования:
+   <user-dashboard></user-dashboard>
+   <notification-center></notification-center>
+   */
+   `
+
+  const highlightedBasic = ref('')
+  const highlightedEvents = ref('')
+  const highlightedAdvanced = ref('')
+  const highlightedCommunication = ref('')
+
+  onMounted(() => {
+    highlightedBasic.value = Prism.highlight(basicCustomElementSnippet, Prism.languages.javascript, 'javascript')
+    highlightedEvents.value = Prism.highlight(customEventsSnippet, Prism.languages.javascript, 'javascript')
+    highlightedAdvanced.value = Prism.highlight(advancedComponentSnippet, Prism.languages.javascript, 'javascript')
+    highlightedCommunication.value = Prism.highlight(communicationSnippet, Prism.languages.javascript, 'javascript')
+  })
+</script>
+
+<template>
+  <v-app>
+    <v-main>
+      <v-container>
+        <v-row justify="center">
+          <v-col lg="8">
+            <h1 class="text-h4 font-weight-bold mb-6">
+              WebComponents: Custom Elements + Custom Events
+            </h1>
+
+            <p class="font-weight-regular mb-6">
+              <b>Web Components</b> — это набор веб-технологий, позволяющих создавать
+              переиспользуемые пользовательские элементы. <b>Custom Elements</b> позволяют
+              определить новые HTML теги, а <b>Custom Events</b> обеспечивают коммуникацию между
+              компонентами. Это нативная браузерная технология без зависимости от фреймворков.
+            </p>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Основы Custom Elements</h2>
+
+            <v-row class="mb-6">
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100 text-center">
+                  <v-icon size="large" color="primary" class="mb-2">mdi-cube-outline</v-icon>
+                  <h3 class="text-h6 font-weight-bold mb-2">Custom Elements</h3>
+                  <p class="text-body-2">
+                    Создание собственных HTML тегов с инкапсулированной логикой
+                  </p>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100 text-center">
+                  <v-icon size="large" color="success" class="mb-2">mdi-eye-off</v-icon>
+                  <h3 class="text-h6 font-weight-bold mb-2">Shadow DOM</h3>
+                  <p class="text-body-2">Изоляция стилей и разметки от остальной части страницы</p>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100 text-center">
+                  <v-icon size="large" color="warning" class="mb-2">mdi-message-flash</v-icon>
+                  <h3 class="text-h6 font-weight-bold mb-2">Custom Events</h3>
+                  <p class="text-body-2">
+                    Создание и отправка собственных событий для коммуникации
+                  </p>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <pre
+              class="mb-8 pa-6 rounded-lg custom-code"
+            ><code v-html="highlightedBasic"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Custom Events — детальная коммуникация</h2>
+
+            <v-alert color="info" class="mb-6">
+              <v-icon class="mr-2">mdi-information</v-icon>
+              <strong>Важно:</strong> Custom Events — это мощный механизм для коммуникации между
+              компонентами. Свойство <code>composed: true</code> позволяет событиям пересекать
+              границы Shadow DOM.
+            </v-alert>
+
+            <pre
+              class="mb-8 pa-6 rounded-lg custom-code"
+            ><code v-html="highlightedEvents"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Продвинутый веб-компонент</h2>
+
+            <pre
+              class="mb-8 pa-6 rounded-lg custom-code"
+            ><code v-html="highlightedAdvanced"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Коммуникация между компонентами</h2>
+
+            <pre
+              class="mb-8 pa-6 rounded-lg custom-code"
+            ><code v-html="highlightedCommunication"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Жизненный цикл Custom Elements</h2>
+
+            <v-table density="comfortable" class="mb-8">
+              <thead>
+                <tr>
+                  <th class="text-left font-weight-bold">Метод</th>
+                  <th class="text-left font-weight-bold">Когда вызывается</th>
+                  <th class="text-left font-weight-bold">Использование</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="pt-3 pb-3"><code>constructor()</code></td>
+                  <td class="pt-3 pb-3">При создании элемента</td>
+                  <td class="pt-3 pb-3">Инициализация Shadow DOM, состояния</td>
+                </tr>
+                <tr>
+                  <td class="pt-3 pb-3"><code>connectedCallback()</code></td>
+                  <td class="pt-3 pb-3">Добавление в DOM</td>
+                  <td class="pt-3 pb-3">Подписка на события, запуск таймеров</td>
+                </tr>
+                <tr>
+                  <td class="pt-3 pb-3"><code>disconnectedCallback()</code></td>
+                  <td class="pt-3 pb-3">Удаление из DOM</td>
+                  <td class="pt-3 pb-3">Очистка ресурсов, отписка от событий</td>
+                </tr>
+                <tr>
+                  <td class="pt-3 pb-3"><code>attributeChangedCallback()</code></td>
+                  <td class="pt-3 pb-3">Изменение атрибута</td>
+                  <td class="pt-3 pb-3">Реакция на изменения атрибутов</td>
+                </tr>
+                <tr>
+                  <td class="pt-3 pb-3"><code>adoptedCallback()</code></td>
+                  <td class="pt-3 pb-3">Перемещение в другой документ</td>
+                  <td class="pt-3 pb-3">Редко используется</td>
+                </tr>
+              </tbody>
+            </v-table>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Частые вопросы на собеседовании</h2>
+            <ol class="ol-list mb-8">
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">
+                  Чем Web Components отличаются от React/Vue компонентов?
+                </p>
+                <p class="font-weight-regular ma-0">
+                  Web Components — это нативная браузерная технология, не требующая фреймворков. Они
+                  работают везде, где есть поддержка браузера, обеспечивают истинную инкапсуляцию
+                  через Shadow DOM и могут использоваться в любых фреймворках или без них.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Что такое Shadow DOM и зачем он нужен?</p>
+                <p class="font-weight-regular ma-0">
+                  Shadow DOM создает изолированное DOM поддерево, где стили и разметка не влияют на
+                  внешнюю страницу и наоборот. Это обеспечивает истинную инкапсуляцию компонента,
+                  предотвращая конфликты стилей.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">
+                  Как работают Custom Events и почему нужен composed: true?
+                </p>
+                <p class="font-weight-regular ma-0">
+                  Custom Events позволяют компонентам отправлять собственные события. Флаг
+                  <code>composed: true</code>
+                  разрешает событию пересекать границы Shadow DOM, что необходимо для коммуникации
+                  между компонентами.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">
+                  Как обеспечить коммуникацию между несвязанными компонентами?
+                </p>
+                <p class="font-weight-regular ma-0">
+                  Можно использовать: 1) CustomEvents с bubbling через document, 2) глобальную шину
+                  событий (EventBus), 3) глобальное состояние, 4) паттерн pub/sub. EventBus —
+                  наиболее гибкое решение.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">
+                  Когда использовать Web Components вместо фреймворков?
+                </p>
+                <p class="font-weight-regular ma-0">
+                  Web Components идеальны для: библиотек компонентов, виджетов для встраивания в
+                  разные сайты, legacy приложений, микрофронтендов. Для больших SPA фреймворки могут
+                  быть удобнее.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Как тестировать Web Components?</p>
+                <p class="font-weight-regular ma-0">
+                  Можно использовать любые testing фреймворки (Jest, Mocha). Важно тестировать
+                  Shadow DOM через
+                  <code>element.shadowRoot.querySelector()</code> и проверять отправку Custom
+                  Events.
+                </p>
+              </li>
+            </ol>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Преимущества и недостатки</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2 text-success">✅ Преимущества</h3>
+                  <ul class="pl-4">
+                    <li><strong>Нативность:</strong> Работают без фреймворков</li>
+                    <li><strong>Переносимость:</strong> Можно использовать везде</li>
+                    <li><strong>Инкапсуляция:</strong> Истинная изоляция через Shadow DOM</li>
+                    <li><strong>Стандарты:</strong> Часть веб-стандартов</li>
+                    <li><strong>Производительность:</strong> Нет виртуального DOM</li>
+                    <li><strong>Долговечность:</strong> Не зависят от версий фреймворков</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2 text-error">❌ Недостатки</h3>
+                  <ul class="pl-4">
+                    <li><strong>Поддержка браузеров:</strong> Требуют полифиллы для IE</li>
+                    <li><strong>Экосистема:</strong> Меньше готовых решений</li>
+                    <li><strong>Инструменты:</strong> Менее развитый тулинг</li>
+                    <li><strong>Состояние:</strong> Нет встроенного state management</li>
+                    <li><strong>Роутинг:</strong> Нет встроенной маршрутизации</li>
+                    <li><strong>Кривая обучения:</strong> Низкоуровневый API</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Лучшие практики</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100 text-center">
+                  <v-icon size="large" color="success" class="mb-2">mdi-check-circle</v-icon>
+                  <h3 class="text-h6 font-weight-bold mb-2">✅ Делать</h3>
+                  <ul class="text-left pl-4">
+                    <li>Использовать Shadow DOM для изоляции</li>
+                    <li>Определять observedAttributes</li>
+                    <li>Правильно очищать ресурсы</li>
+                    <li>Использовать composed: true для событий</li>
+                    <li>Валидировать входные данные</li>
+                    <li>Следовать семантике HTML</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100 text-center">
+                  <v-icon size="large" color="error" class="mb-2">mdi-close-circle</v-icon>
+                  <h3 class="text-h6 font-weight-bold mb-2">❌ Избегать</h3>
+                  <ul class="text-left pl-4">
+                    <li>Утечек памяти при отписке</li>
+                    <li>Мутации внешнего DOM</li>
+                    <li>Глобальных стилей в Shadow DOM</li>
+                    <li>Тяжелых операций в constructor</li>
+                    <li>Прямого доступа к Shadow DOM извне</li>
+                    <li>Игнорирования accessibility</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100 text-center">
+                  <v-icon size="large" color="info" class="mb-2">mdi-lightbulb</v-icon>
+                  <h3 class="text-h6 font-weight-bold mb-2">💡 Советы</h3>
+                  <ul class="text-left pl-4">
+                    <li>Используйте TypeScript для больших проектов</li>
+                    <li>Создайте базовый класс для общей логики</li>
+                    <li>Документируйте API компонентов</li>
+                    <li>Тестируйте в разных браузерах</li>
+                    <li>Используйте lit-element для упрощения</li>
+                    <li>Оптимизируйте Bundle Size</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Итог</h2>
+            <p class="font-weight-regular mb-6">
+              <b>Web Components</b> с <b>Custom Elements</b> и <b>Custom Events</b> предоставляют
+              мощные нативные возможности для создания переиспользуемых компонентов. Они
+              обеспечивают истинную инкапсуляцию через Shadow DOM и гибкую коммуникацию через
+              события. Хотя экосистема менее развита чем у React/Vue, Web Components идеальны для
+              библиотек компонентов, виджетов и микрофронтендов.
+            </p>
+
+            <div class="d-flex justify-end">
+              <v-btn
+                color="primary"
+                size="small"
+                variant="elevated"
+                href="https://developer.mozilla.org/en-US/docs/Web/Web_Components"
+                target="_blank"
+                class="mr-2"
+              >
+                MDN Web Components
+              </v-btn>
+              <v-btn
+                color="secondary"
+                size="small"
+                variant="elevated"
+                href="https://web.dev/custom-elements-v1/"
+                target="_blank"
+              >
+                Custom Elements v1
+              </v-btn>
+            </div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-app>
+</template>
