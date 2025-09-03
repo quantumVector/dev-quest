@@ -71,6 +71,7 @@ import ObjectPropertyFlagsChanges from '@/views/js/ObjectPropertyFlagsChanges.vu
 import IteratorsAndGenerators from '@/views/js/IteratorsAndGenerators.vue'
 import WebComponents from '@/views/js/WebComponents.vue'
 import WebComponentsSecond from '@/views/js/WebComponentsSecond.vue'
+import JavaScriptModuleSystems from '@/views/js/JavaScriptModuleSystems.vue'
 
 export const routes = [
   {
@@ -324,6 +325,10 @@ export const routes = [
   {
     path: '/web-components/web-components-second',
     component: WebComponentsSecond,
+  },
+  {
+    path: '/module-systems/module-systems',
+    component: JavaScriptModuleSystems,
   },
   {
     path: '/docker/docker',

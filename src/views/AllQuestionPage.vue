@@ -198,6 +198,12 @@
               11.2 customEvents, customElements
             </v-list-item-title>
           </v-list-item>
+          <v-list-subheader>Системы Модулей</v-list-subheader>
+          <v-list-item to="/module-systems/module-systems">
+            <v-list-item-title>
+              12. Какие системы модулей в JS известны? В чём между ними разница?
+            </v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

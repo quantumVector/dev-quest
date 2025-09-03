@@ -910,3 +910,300 @@ const moduleSystems = [
               <v-col cols="12" md="6">
                 <v-card class="pa-4">
                   <h4 class="font-weight-bold mb-2">❌ Недостатки</h4>
+                  <ul class="pl-4">
+                    <li>Нет стандартизации</li>
+                    <li>Ручное управление зависимостями</li>
+                    <li>Загрязнение глобального scope</li>
+                    <li>Сложность при масштабировании</li>
+                    <li>Нет автоматической загрузки</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedIIFE"></code></pre>
+
+            <!-- CommonJS -->
+            <h2 class="text-h5 font-weight-bold mb-3 mt-8">2. CommonJS (2009)</h2>
+            <v-alert color="success" class="mb-4">
+              <strong>CommonJS</strong> — система модулей Node.js. Использует <code>require()</code>
+              для импорта и <code>module.exports</code> для экспорта. Синхронная загрузка модулей.
+            </v-alert>
+
+            <v-row class="mb-4">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4">
+                  <h4 class="font-weight-bold mb-2">✅ Преимущества</h4>
+                  <ul class="pl-4">
+                    <li>Стандарт де-факто для Node.js</li>
+                    <li>Простой синтаксис</li>
+                    <li>Автоматическое разрешение зависимостей</li>
+                    <li>Кэширование модулей</li>
+                    <li>Поддержка циклических зависимостей</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4">
+                  <h4 class="font-weight-bold mb-2">❌ Недостатки</h4>
+                  <ul class="pl-4">
+                    <li>Не работает в браузере нативно</li>
+                    <li>Синхронная загрузка (блокирующая)</li>
+                    <li>Динамическое разрешение зависимостей</li>
+                    <li>Нет tree shaking</li>
+                    <li>Загрузка всего модуля целиком</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedCommonJS"></code></pre>
+
+            <!-- AMD -->
+            <h2 class="text-h5 font-weight-bold mb-3 mt-8">3. AMD - Asynchronous Module Definition (2009)</h2>
+            <v-alert color="primary" class="mb-4">
+              <strong>AMD</strong> — система для асинхронной загрузки модулей в браузере.
+              Популяризирована библиотекой RequireJS. Решает проблемы производительности в браузере.
+            </v-alert>
+
+            <v-row class="mb-4">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4">
+                  <h4 class="font-weight-bold mb-2">✅ Преимущества</h4>
+                  <ul class="pl-4">
+                    <li>Асинхронная загрузка</li>
+                    <li>Ленивая загрузка модулей</li>
+                    <li>Оптимизация для браузера</li>
+                    <li>Code splitting</li>
+                    <li>Конфигурируемые пути к модулям</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4">
+                  <h4 class="font-weight-bold mb-2">❌ Недостатки</h4>
+                  <ul class="pl-4">
+                    <li>Verbose синтаксис</li>
+                    <li>Необходимость дополнительной библиотеки</li>
+                    <li>Сложная конфигурация</li>
+                    <li>Не подходит для Node.js</li>
+                    <li>Устаревший подход</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedAMD"></code></pre>
+
+            <!-- UMD -->
+            <h2 class="text-h5 font-weight-bold mb-3 mt-8">4. UMD - Universal Module Definition (2011)</h2>
+            <v-alert color="secondary" class="mb-4">
+              <strong>UMD</strong> — универсальная система модулей, которая работает в любом окружении:
+              браузер, Node.js, AMD. Комбинирует все подходы в одном файле.
+            </v-alert>
+
+            <v-row class="mb-4">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4">
+                  <h4 class="font-weight-bold mb-2">✅ Преимущества</h4>
+                  <ul class="pl-4">
+                    <li>Универсальная совместимость</li>
+                    <li>Один файл для всех окружений</li>
+                    <li>Fallback на глобальные переменные</li>
+                    <li>Подходит для библиотек</li>
+                    <li>NoConflict режим</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4">
+                  <h4 class="font-weight-bold mb-2">❌ Недостатки</h4>
+                  <ul class="pl-4">
+                    <li>Большой boilerplate код</li>
+                    <li>Сложность в написании</li>
+                    <li>Увеличенный размер файла</li>
+                    <li>Сложность в отладке</li>
+                    <li>Не решает основных проблем</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedUMD"></code></pre>
+
+            <!-- ES6 Modules -->
+            <h2 class="text-h5 font-weight-bold mb-3 mt-8">5. ES6 Modules (ESM) - 2015</h2>
+            <v-alert color="warning" class="mb-4">
+              <strong>ES6 Modules</strong> — официальный стандарт модулей в JavaScript.
+              Поддерживает статический анализ, tree shaking и работает как в браузере, так и в Node.js.
+            </v-alert>
+
+            <v-row class="mb-4">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4">
+                  <h4 class="font-weight-bold mb-2">✅ Преимущества</h4>
+                  <ul class="pl-4">
+                    <li>Официальный стандарт</li>
+                    <li>Статический анализ</li>
+                    <li>Tree shaking</li>
+                    <li>Top-level await</li>
+                    <li>Динамические импорты</li>
+                    <li>Чистый синтаксис</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4">
+                  <h4 class="font-weight-bold mb-2">❌ Недостатки</h4>
+                  <ul class="pl-4">
+                    <li>Поздняя поддержка Node.js</li>
+                    <li>Проблемы совместимости с CommonJS</li>
+                    <li>Статические импорты только в top-level</li>
+                    <li>Сложности с условными импортами</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedES6"></code></pre>
+
+            <!-- Сравнительная таблица -->
+            <h2 class="text-h5 font-weight-bold mb-3 mt-8">Сравнительная таблица</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedComparison"></code></pre>
+
+            <!-- Современные практики -->
+            <h2 class="text-h5 font-weight-bold mb-3 mt-8">Современные практики</h2>
+            <v-alert color="info" class="mb-4">
+              В современной разработке рекомендуется использовать <strong>ES6 Modules</strong>
+              с инструментами сборки для обеспечения совместимости со старыми окружениями.
+            </v-alert>
+
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedModern"></code></pre>
+
+            <!-- Миграция -->
+            <h2 class="text-h5 font-weight-bold mb-3 mt-8">Стратегии миграции</h2>
+            <v-alert color="warning" class="mb-4">
+              При переходе на ES6 модули важно понимать различия в поведении и использовать
+              правильные инструменты для обеспечения совместимости.
+            </v-alert>
+
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedMigration"></code></pre>
+
+            <!-- Заключение и рекомендации -->
+            <h2 class="text-h5 font-weight-bold mb-3 mt-8">Заключение и рекомендации</h2>
+
+            <v-row class="mb-6">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100" color="success" variant="tonal">
+                  <h4 class="font-weight-bold mb-3">🎯 Для новых проектов</h4>
+                  <ul class="pl-4">
+                    <li><strong>ES6 Modules</strong> — основной выбор</li>
+                    <li>Webpack/Vite для сборки</li>
+                    <li>Babel для транспиляции</li>
+                    <li>TypeScript для типизации</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100" color="warning" variant="tonal">
+                  <h4 class="font-weight-bold mb-3">🔧 Для legacy проектов</h4>
+                  <ul class="pl-4">
+                    <li>Постепенная миграция на ESM</li>
+                    <li>Интероп между системами</li>
+                    <li>Использование транспайлеров</li>
+                    <li>Dual package для библиотек</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <v-card class="pa-4" color="primary" variant="tonal">
+              <h4 class="font-weight-bold mb-3">📚 Ключевые моменты для собеседования</h4>
+              <v-row>
+                <v-col cols="12" md="6">
+                  <ul class="pl-4">
+                    <li>Понимание эволюции систем модулей</li>
+                    <li>Различия в синтаксисе и поведении</li>
+                    <li>Знание преимуществ и недостатков</li>
+                    <li>Понимание совместимости</li>
+                  </ul>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <ul class="pl-4">
+                    <li>Современные инструменты сборки</li>
+                    <li>Tree shaking и оптимизации</li>
+                    <li>Стратегии миграции</li>
+                    <li>Проблемы и их решения</li>
+                  </ul>
+                </v-col>
+              </v-row>
+            </v-card>
+
+            <v-divider class="my-6"></v-divider>
+
+            <!-- Практические вопросы -->
+            <h2 class="text-h5 font-weight-bold mb-3">Типичные вопросы на собеседовании</h2>
+
+            <v-expansion-panels variant="accordion" class="mb-6">
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  <strong>1. В чём разница между CommonJS и ES6 модулями?</strong>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <ul class="pl-4">
+                    <li><strong>Синтаксис:</strong> require/module.exports vs import/export</li>
+                    <li><strong>Загрузка:</strong> динамическая vs статическая</li>
+                    <li><strong>Анализ:</strong> runtime vs compile-time</li>
+                    <li><strong>Tree shaking:</strong> невозможен vs поддерживается</li>
+                    <li><strong>Копирование vs ссылки:</strong> CommonJS копирует значения, ESM создает ссылки</li>
+                  </ul>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  <strong>2. Что такое tree shaking и почему он важен?</strong>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  Tree shaking — это процесс удаления неиспользуемого кода при сборке.
+                  Возможен только с ES6 модулями благодаря статическому анализу импортов/экспортов.
+                  Значительно уменьшает размер bundle'а.
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  <strong>3. Как решить проблему совместимости между CommonJS и ESM?</strong>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <ul class="pl-4">
+                    <li>Использование инструментов сборки (Webpack, Rollup)</li>
+                    <li>Создание dual packages</li>
+                    <li>Использование динамических импортов</li>
+                    <li>Интероп слой для legacy кода</li>
+                  </ul>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  <strong>4. Когда использовать динамические импорты?</strong>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <ul class="pl-4">
+                    <li>Ленивая загрузка компонентов</li>
+                    <li>Условная загрузка модулей</li>
+                    <li>Code splitting</li>
+                    <li>Загрузка модулей по требованию</li>
+                    <li>Работа с legacy CommonJS в ESM</li>
+                  </ul>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+            </v-expansion-panels>
+
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-app>
+</template>
