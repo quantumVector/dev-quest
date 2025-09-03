@@ -202,6 +202,8 @@ onMounted(() => {
     'javascript',
   )
 })
+
+const activeConstructorStep = ref('step1')
 </script>
 
 <template>
@@ -289,59 +291,217 @@ onMounted(() => {
 
             <h2 class="text-h5 font-weight-bold mb-3">Как это работает под капотом</h2>
 
-            <v-stepper class="mb-8" alt-labels>
-              <v-stepper-header>
-                <v-stepper-item title="new Constructor()" value="1" complete color="primary">
-                  <template v-slot:icon>
-                    <v-icon>mdi-plus</v-icon>
-                  </template>
-                </v-stepper-item>
-                <v-divider></v-divider>
-                <v-stepper-item title="Создание объекта" value="2" complete color="primary">
-                  <template v-slot:icon>
-                    <v-icon>mdi-cube-outline</v-icon>
-                  </template>
-                </v-stepper-item>
-                <v-divider></v-divider>
-                <v-stepper-item title="Установка __proto__" value="3" complete color="primary">
-                  <template v-slot:icon>
-                    <v-icon>mdi-link</v-icon>
-                  </template>
-                </v-stepper-item>
-                <v-divider></v-divider>
-                <v-stepper-item title="Выполнение конструктора" value="4" color="success">
-                  <template v-slot:icon>
-                    <v-icon>mdi-play</v-icon>
-                  </template>
-                </v-stepper-item>
-              </v-stepper-header>
-              <v-stepper-window>
-                <v-stepper-window-item value="1">
-                  <div class="pa-4">
-                    <h3>1. Вызов new Constructor()</h3>
-                    <p>JavaScript видит ключевое слово <code>new</code> перед вызовом функции</p>
+            <v-card class="mb-8">
+              <v-tabs v-model="activeConstructorStep" bg-color="primary" grow>
+                <v-tab value="step1" class="font-weight-bold">
+                  <v-icon class="mr-2">mdi-plus-circle</v-icon>
+                  new Constructor()
+                </v-tab>
+                <v-tab value="step2" class="font-weight-bold">
+                  <v-icon class="mr-2">mdi-cube-outline</v-icon>
+                  Создание
+                </v-tab>
+                <v-tab value="step3" class="font-weight-bold">
+                  <v-icon class="mr-2">mdi-link-variant</v-icon>
+                  Связывание
+                </v-tab>
+                <v-tab value="step4" class="font-weight-bold">
+                  <v-icon class="mr-2">mdi-play-circle</v-icon>
+                  Инициализация
+                </v-tab>
+              </v-tabs>
+
+              <v-window v-model="activeConstructorStep">
+                <v-window-item value="step1">
+                  <div class="pa-6">
+                    <div class="d-flex align-center mb-4">
+                      <v-icon size="48" color="primary" class="mr-4">mdi-rocket-launch</v-icon>
+                      <div>
+                        <h3 class="text-h5 font-weight-bold mb-1">Шаг 1: Вызов new Constructor()</h3>
+                        <p class="text-body-1 text-grey-600 ma-0">Начало процесса создания объекта</p>
+                      </div>
+                    </div>
+
+                    <v-row>
+                      <v-col cols="12" md="8">
+                        <p class="text-body-1 mb-4">
+                          JavaScript видит ключевое слово <code>new</code> перед вызовом функции и запускает
+                          <strong>специальный алгоритм создания объекта</strong>.
+                        </p>
+
+                        <v-alert color="primary" variant="outlined" class="mb-4">
+                          <template v-slot:prepend>
+                            <v-icon>mdi-code-tags</v-icon>
+                          </template>
+                          <div>
+                            <p class="font-weight-bold mb-1">Пример вызова:</p>
+                            <code class="text-h6">const john = new Person('John', 30)</code>
+                          </div>
+                        </v-alert>
+
+                        <div class="bg-grey-lighten-4 pa-3 rounded mb-3">
+                          <p class="text-body-2 ma-0">
+                            <v-icon color="info" size="small" class="mr-1">mdi-lightbulb</v-icon>
+                            <strong>Важно:</strong> Без <code>new</code> функция выполнится как обычная функция,
+                            и <code>this</code> будет указывать на глобальный объект или <code>undefined</code> в strict mode.
+                          </p>
+                        </div>
+                      </v-col>
+                      <v-col cols="12" md="4">
+                        <v-card color="primary" variant="tonal" class="pa-4 text-center">
+                          <v-icon size="64" color="primary" class="mb-2">mdi-play-box</v-icon>
+                          <h4 class="font-weight-bold">Статус</h4>
+                          <p class="ma-0">Запуск алгоритма new</p>
+                        </v-card>
+                      </v-col>
+                    </v-row>
                   </div>
-                </v-stepper-window-item>
-                <v-stepper-window-item value="2">
-                  <div class="pa-4">
-                    <h3>2. Создание пустого объекта</h3>
-                    <p>Создается новый пустой объект: <code>const obj = {}</code></p>
+                </v-window-item>
+
+                <v-window-item value="step2">
+                  <div class="pa-6">
+                    <div class="d-flex align-center mb-4">
+                      <v-icon size="48" color="success" class="mr-4">mdi-cube-send</v-icon>
+                      <div>
+                        <h3 class="text-h5 font-weight-bold mb-1">Шаг 2: Создание пустого объекта</h3>
+                        <p class="text-body-1 text-grey-600 ma-0">Выделение памяти под новый объект</p>
+                      </div>
+                    </div>
+
+                    <v-row>
+                      <v-col cols="12" md="8">
+                        <p class="text-body-1 mb-4">
+                          Создается новый <strong>пустой объект</strong>, который станет результатом операции <code>new</code>.
+                          Этот объект пока не имеет собственных свойств, но уже существует в памяти.
+                        </p>
+
+                        <v-alert color="success" variant="outlined" class="mb-4">
+                          <template v-slot:prepend>
+                            <v-icon>mdi-cube-outline</v-icon>
+                          </template>
+                          <div>
+                            <p class="font-weight-bold mb-1">Псевдокод:</p>
+                            <code class="text-h6">const newInstance = {}</code>
+                          </div>
+                        </v-alert>
+
+                        <div class="bg-success-lighten-4 pa-3 rounded mb-3">
+                          <p class="text-body-2 ma-0">
+                            <v-icon color="success" size="small" class="mr-1">mdi-check-circle</v-icon>
+                            Объект создан и готов для дальнейшей настройки
+                          </p>
+                        </div>
+                      </v-col>
+                      <v-col cols="12" md="4">
+                        <v-card color="success" variant="tonal" class="pa-4 text-center">
+                          <v-icon size="64" color="success" class="mb-2">mdi-checkbox-marked</v-icon>
+                          <h4 class="font-weight-bold">Статус</h4>
+                          <p class="ma-0">Объект создан</p>
+                        </v-card>
+                      </v-col>
+                    </v-row>
                   </div>
-                </v-stepper-window-item>
-                <v-stepper-window-item value="3">
-                  <div class="pa-4">
-                    <h3>3. Установка __proto__</h3>
-                    <p>obj.__proto__ устанавливается равным Constructor.prototype</p>
+                </v-window-item>
+
+                <v-window-item value="step3">
+                  <div class="pa-6">
+                    <div class="d-flex align-center mb-4">
+                      <v-icon size="48" color="info" class="mr-4">mdi-link-variant</v-icon>
+                      <div>
+                        <h3 class="text-h5 font-weight-bold mb-1">Шаг 3: Установка __proto__</h3>
+                        <p class="text-body-1 text-grey-600 ma-0">Связывание с прототипом конструктора</p>
+                      </div>
+                    </div>
+
+                    <v-row>
+                      <v-col cols="12" md="8">
+                        <p class="text-body-1 mb-4">
+                          <code>__proto__</code> нового объекта устанавливается равным <code>Constructor.prototype</code>.
+                          Это создает <strong>связь наследования</strong> между объектом и прототипом.
+                        </p>
+
+                        <v-alert color="info" variant="outlined" class="mb-4">
+                          <template v-slot:prepend>
+                            <v-icon>mdi-link</v-icon>
+                          </template>
+                          <div>
+                            <p class="font-weight-bold mb-1">Связывание:</p>
+                            <code class="text-h6">newInstance.__proto__ = Constructor.prototype</code>
+                          </div>
+                        </v-alert>
+
+                        <div class="bg-info-lighten-4 pa-3 rounded mb-3">
+                          <p class="text-body-2 ma-0">
+                            <v-icon color="info" size="small" class="mr-1">mdi-star</v-icon>
+                            Теперь объект <strong>наследует все методы</strong> из прототипа конструктора
+                          </p>
+                        </div>
+                      </v-col>
+                      <v-col cols="12" md="4">
+                        <v-card color="info" variant="tonal" class="pa-4 text-center">
+                          <v-icon size="64" color="info" class="mb-2">mdi-connection</v-icon>
+                          <h4 class="font-weight-bold">Статус</h4>
+                          <p class="ma-0">Прототип связан</p>
+                        </v-card>
+                      </v-col>
+                    </v-row>
                   </div>
-                </v-stepper-window-item>
-                <v-stepper-window-item value="4">
-                  <div class="pa-4">
-                    <h3>4. Выполнение конструктора</h3>
-                    <p>Функция-конструктор выполняется с this = obj, инициализируя объект</p>
+                </v-window-item>
+
+                <v-window-item value="step4">
+                  <div class="pa-6">
+                    <div class="d-flex align-center mb-4">
+                      <v-icon size="48" color="warning" class="mr-4">mdi-cog</v-icon>
+                      <div>
+                        <h3 class="text-h5 font-weight-bold mb-1">Шаг 4: Выполнение конструктора</h3>
+                        <p class="text-body-1 text-grey-600 ma-0">Инициализация объекта собственными свойствами</p>
+                      </div>
+                    </div>
+
+                    <v-row>
+                      <v-col cols="12" md="8">
+                        <p class="text-body-1 mb-4">
+                          Функция-конструктор выполняется с <code>this = newInstance</code>.
+                          В этот момент объект получает свои <strong>собственные свойства</strong>.
+                        </p>
+
+                        <v-alert color="warning" variant="outlined" class="mb-4">
+                          <template v-slot:prepend>
+                            <v-icon>mdi-play-circle</v-icon>
+                          </template>
+                          <div>
+                            <p class="font-weight-bold mb-1">Выполнение:</p>
+                            <code class="text-h6">Constructor.call(newInstance, ...args)</code>
+                          </div>
+                        </v-alert>
+
+                        <v-list class="bg-grey-lighten-5 rounded">
+                          <v-list-item>
+                            <template v-slot:prepend>
+                              <v-icon color="success">mdi-check-circle</v-icon>
+                            </template>
+                            <v-list-item-title>Объект получает собственные свойства (name, age и т.д.)</v-list-item-title>
+                          </v-list-item>
+                          <v-list-item>
+                            <template v-slot:prepend>
+                              <v-icon color="info">mdi-arrow-right-circle</v-icon>
+                            </template>
+                            <v-list-item-title>Возвращается готовый объект со всеми свойствами и методами</v-list-item-title>
+                          </v-list-item>
+                        </v-list>
+                      </v-col>
+                      <v-col cols="12" md="4">
+                        <v-card color="success" class="pa-4 text-center text-white">
+                          <v-icon size="64" color="white" class="mb-2">mdi-check-all</v-icon>
+                          <h4 class="font-weight-bold">Готово!</h4>
+                          <p class="ma-0">Объект создан</p>
+                        </v-card>
+                      </v-col>
+                    </v-row>
                   </div>
-                </v-stepper-window-item>
-              </v-stepper-window>
-            </v-stepper>
+                </v-window-item>
+              </v-window>
+            </v-card>
 
             <h2 class="text-h5 font-weight-bold mb-3">Практический пример</h2>
             <pre

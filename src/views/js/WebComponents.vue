@@ -6,787 +6,106 @@ import 'prismjs/components/prism-javascript.js'
 import 'prismjs/components/prism-markup.js'
 import 'prismjs/components/prism-css.js'
 
-const templateBasicSnippet = `
-<!-- HTML Template - шаблон для переиспользования -->
-<template id="my-card-template">
+const templateExample = `
+<!-- HTML Template -->
+<template id="card-template">
   <div class="card">
-    <div class="card-header">
-      <h3 class="card-title">Заголовок карточки</h3>
-    </div>
-    <div class="card-body">
-      <p class="card-content">Содержимое карточки</p>
-      <button class="card-button">Кнопка</button>
-    </div>
+    <h3 class="title">Заголовок</h3>
+    <p class="content">Содержимое</p>
   </div>
-
   <style>
-    .card {
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 16px;
-      margin: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .card-header {
-      border-bottom: 1px solid #eee;
-      padding-bottom: 8px;
-      margin-bottom: 12px;
-    }
-
-    .card-title {
-      margin: 0;
-      color: #333;
-    }
-
-    .card-button {
-      background: #007bff;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
+    .card { border: 1px solid #ddd; padding: 16px; }
   </style>
 </template>
 
-<!-- Использование Template -->
 <script>
-// Клонирование template
-const template = document.getElementById('my-card-template');
+// Использование template
+const template = document.getElementById('card-template');
 const clone = template.content.cloneNode(true);
-
-// Модификация клонированного содержимого
-clone.querySelector('.card-title').textContent = 'Новый заголовок';
-clone.querySelector('.card-content').textContent = 'Новое содержимое';
-
-// Добавление в DOM
 document.body.appendChild(clone);
 <\/script>
 `
 
-const shadowDomBasicSnippet = `
-<!-- HTML для демонстрации -->
-<div id="host-element">Это host элемент</div>
-
-<script>
+const shadowDomExample = `
 // Создание Shadow DOM
-const hostElement = document.getElementById('host-element');
-const shadowRoot = hostElement.attachShadow({ mode: 'open' });
+const element = document.createElement('div');
+const shadowRoot = element.attachShadow({ mode: 'open' });
 
-// Добавление содержимого в Shadow DOM
 shadowRoot.innerHTML = \`
   <style>
-    /* Стили изолированы внутри Shadow DOM */
-    .shadow-content {
-      background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
-      color: white;
-      padding: 20px;
-      border-radius: 10px;
-      text-align: center;
-    }
-
-    h2 {
-      margin: 0 0 10px 0;
-      font-size: 1.5rem;
-    }
-
-    /* Этот стиль НЕ влияет на внешние p элементы */
-    p {
-      color: yellow;
-      font-weight: bold;
-    }
+    /* Изолированные стили */
+    h2 { color: red; }
+    p { color: blue; }
   </style>
-
-  <div class="shadow-content">
-    <h2>Содержимое Shadow DOM</h2>
-    <p>Этот текст изолирован от внешних стилей</p>
-    <slot name="user-content"></slot>
-  </div>
+  <h2>Shadow DOM содержимое</h2>
+  <p>Стили изолированы от внешнего документа</p>
+  <slot></slot> <!-- Место для внешнего контента -->
 \`;
 
-console.log('Shadow Root:', shadowRoot);
-console.log('Host Element:', hostElement);
-<\/script>
+document.body.appendChild(element);
 `
 
-const customElementSnippet = `
-// Определение пользовательского элемента
-class MyCard extends HTMLElement {
+const customElementExample = `
+class MyElement extends HTMLElement {
   constructor() {
-  super();
+    super();
+    this.attachShadow({ mode: 'open' });
+  }
 
-  // Создаем Shadow DOM
-  this.attachShadow({ mode: 'open' });
-}
+  // Отслеживаемые атрибуты
+  static get observedAttributes() {
+    return ['title', 'content'];
+  }
 
-// Вызывается при подключении к DOM
-connectedCallback() {
-  this.render();
-  this.setupEventListeners();
-}
-
-// Атрибуты для наблюдения
-static get observedAttributes() {
-  return ['title', 'content', 'variant'];
-}
-
-// Вызывается при изменении атрибутов
-attributeChangedCallback(name, oldValue, newValue) {
-  if (oldValue !== newValue) {
+  // Подключение к DOM
+  connectedCallback() {
     this.render();
   }
-}
 
-// Рендеринг компонента
-render() {
-const title = this.getAttribute('title') || 'Заголовок по умолчанию';
-const content = this.getAttribute('content') || 'Содержимое по умолчанию';
-const variant = this.getAttribute('variant') || 'default';
-
-this.shadowRoot.innerHTML = \`
-<style>
-:host {
-  display: block;
-  font-family: Arial, sans-serif;
-}
-
-.card {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 16px;
-  margin: 8px 0;
-  transition: box-shadow 0.3s;
-}
-
-.card.primary {
-  border-color: #007bff;
-  background: #f8f9ff;
-}
-
-.card.success {
-  border-color: #28a745;
-  background: #f8fff8;
-}
-
-.card:hover {
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-}
-
-.header {
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin-bottom: 10px;
-  color: #333;
-}
-
-.content {
-  color: #666;
-  line-height: 1.5;
-  margin-bottom: 15px;
-}
-
-.actions {
-  display: flex;
-  gap: 8px;
-}
-
-button {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.btn-primary {
-  background: #007bff;
-  color: white;
-}
-
-.btn-primary:hover {
-  background: #0056b3;
-}
-</style>
-
-<div class="card \${variant}">
-<div class="header">\${title}</div>
-<div class="content">\${content}</div>
-<div class="actions">
-  <button class="btn-primary" id="action-btn">Действие</button>
-  <slot name="custom-actions"></slot>
-</div>
-</div>
-\`;
-}
-
-// Настройка событий
-setupEventListeners() {
-const actionBtn = this.shadowRoot.getElementById('action-btn');
-actionBtn.addEventListener('click', () => {
-// Dispatch custom event
-this.dispatchEvent(new CustomEvent('card-action', {
-detail: { title: this.getAttribute('title') },
-bubbles: true
-}));
-});
-}
-
-// Public методы
-updateContent(newContent) {
-this.setAttribute('content', newContent);
-}
-}
-
-// Регистрация пользовательского элемента
-customElements.define('my-card', MyCard);
-
-// Использование:
-/*
-<my-card
-  title="Заголовок карточки"
-  content="Описание карточки"
-  variant="primary">
-<button slot="custom-actions">Дополнительное действие</button>
-</my-card>
-*/
-`
-
-const slotExampleSnippet = `
-// Компонент с продвинутыми слотами
-class UserProfile extends HTMLElement {
-  constructor() {
-  super();
-  this.attachShadow({ mode: 'open' });
-}
-
-connectedCallback() {
-  this.render();
-}
-
-render() {
-  this.shadowRoot.innerHTML = \`
-<style>
-:host {
-  display: block;
-  max-width: 300px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.profile-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 20px;
-  text-align: center;
-}
-
-.avatar-slot {
-  margin-bottom: 10px;
-}
-
-.avatar-slot::slotted(img) {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  border: 3px solid white;
-  object-fit: cover;
-}
-
-.profile-content {
-  padding: 20px;
-}
-
-.info-slot::slotted(.info-item) {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px solid #eee;
-}
-
-.actions-slot {
-  padding: 16px;
-  border-top: 1px solid #eee;
-  background: #f8f9fa;
-}
-
-.actions-slot::slotted(button) {
-  margin-right: 8px;
-}
-
-.default-avatar {
-  width: 80px;
-  height: 80px;
-  background: #ccc;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2rem;
-  color: white;
-}
-</style>
-
-<div class="profile-header">
-<div class="avatar-slot">
-  <slot name="avatar">
-    <div class="default-avatar">👤</div>
-  </slot>
-</div>
-<slot name="name">
-  <h3>Имя пользователя</h3>
-</slot>
-</div>
-
-<div class="profile-content">
-<div class="info-slot">
-  <slot name="info"></slot>
-</div>
-</div>
-
-<div class="actions-slot">
-<slot name="actions">
-  <button>Профиль</button>
-</slot>
-</div>
-\`;
-}
-}
-
-customElements.define('user-profile', UserProfile);
-
-// Использование с слотами:
-/*
-<user-profile>
-<img slot="avatar" src="avatar.jpg" alt="Avatar">
-<h3 slot="name">Иван Иванов</h3>
-
-<div slot="info">
-  <div class="info-item">
-    <span>Email:</span>
-    <span>ivan@example.com</span>
-  </div>
-  <div class="info-item">
-    <span>Роль:</span>
-    <span>Разработчик</span>
-  </div>
-</div>
-
-<div slot="actions">
-  <button>Редактировать</button>
-  <button>Удалить</button>
-</div>
-</user-profile>
-*/
-`
-
-const encapsulationExampleSnippet = `
-// Демонстрация инкапсуляции стилей
-class StyleEncapsulation extends HTMLElement {
-  constructor() {
-  super();
-  this.attachShadow({ mode: 'open' });
-}
-
-connectedCallback() {
-  this.render();
-  this.demonstrateEncapsulation();
-}
-
-render() {
-  this.shadowRoot.innerHTML = \`
-<style>
-/* Эти стили действуют ТОЛЬКО внутри Shadow DOM */
-
-/* :host - селектор для host элемента */
-:host {
-  display: block;
-  padding: 20px;
-  background: #f0f0f0;
-  border-radius: 8px;
-}
-
-/* :host() - условный селектор host */
-:host(.highlighted) {
-  background: #ffffcc;
-  border: 2px solid #ffeb3b;
-}
-
-/* :host-context() - стили в зависимости от предка */
-:host-context(.dark-theme) {
-  background: #333;
-  color: white;
-}
-
-/* Обычные стили - изолированы */
-h1 {
-  color: red;
-  font-size: 2rem;
-  margin: 0;
-}
-
-p {
-  color: blue;
-  font-weight: bold;
-}
-
-.internal-class {
-  background: yellow;
-  padding: 10px;
-}
-
-/* ::slotted() - стили для slotted контента */
-::slotted(.external-content) {
-  border: 2px solid green;
-  padding: 10px;
-}
-
-::slotted(strong) {
-  color: purple;
-}
-</style>
-
-<h1>Заголовок внутри Shadow DOM</h1>
-<p>Этот параграф имеет синий цвет</p>
-<div class="internal-class">Элемент с внутренним классом</div>
-
-<div>
-<h3>Слотованный контент:</h3>
-<slot></slot>
-</div>
-\`;
-}
-
-demonstrateEncapsulation() {
-// Добавляем внешние стили для сравнения
-  const externalStyles = document.createElement('style');
-  externalStyles.textContent = \`
-/* Эти стили НЕ влияют на Shadow DOM */
-h1 { color: green !important; }
-p { color: orange !important; }
-.internal-class { background: red !important; }
-\`;
-  document.head.appendChild(externalStyles);
-
-  console.log('Внешние стили добавлены, но не влияют на Shadow DOM');
-  }
-}
-
-customElements.define('style-encapsulation', StyleEncapsulation);
-
-// Использование:
-/*
-<style>
-/* Внешние стили */
-h1 { color: green; }
-p { color: orange; }
-</style>
-
-<div class="dark-theme">
-<style-encapsulation class="highlighted">
-  <div class="external-content">Этот контент приходит извне</div>
-  <strong>Жирный текст в слоте</strong>
-</style-encapsulation>
-</div>
-
-<h1>Внешний заголовок (зеленый)</h1>
-<p>Внешний параграф (оранжевый)</p>
-*/
-`
-
-const lifecycleExampleSnippet = `
-// Полный пример с жизненным циклом
-class LifecycleDemo extends HTMLElement {
-  constructor() {
-  super();
-  console.log('🏗️ Constructor вызван');
-
-  this.attachShadow({ mode: 'open' });
-
-  // Приватные свойства
-  this._counter = 0;
-  this._timer = null;
-}
-
-// Наблюдаемые атрибуты
-static get observedAttributes() {
-  return ['auto-increment', 'interval', 'max-value'];
-}
-
-// Подключение к DOM
-connectedCallback() {
-  console.log('🔗 Connected to DOM');
-  this.render();
-  this.setupEventListeners();
-
-  if (this.getAttribute('auto-increment') === 'true') {
-    this.startAutoIncrement();
-  }
-}
-
-// Отключение от DOM
-disconnectedCallback() {
-  console.log('💔 Disconnected from DOM');
-  this.stopAutoIncrement();
-  this.cleanup();
-}
-
-// Перемещение в DOM
-adoptedCallback() {
-  console.log('📦 Adopted to new document');
-}
-
-// Изменение атрибутов
-attributeChangedCallback(name, oldValue, newValue) {
-  console.log(\`🔄 Attribute '\${name}' changed: \${oldValue} → \${newValue}\`);
-
-  switch (name) {
-    case 'auto-increment':
-      if (newValue === 'true') {
-        this.startAutoIncrement();
-      } else {
-        this.stopAutoIncrement();
-      }
-    break;
-
-    case 'interval':
-      if (this._timer) {
-        this.stopAutoIncrement();
-        this.startAutoIncrement();
-      }
-    break;
-
-    case 'max-value':
-      this.checkMaxValue();
-    break;
+  // Изменение атрибутов
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue !== newValue) {
+      this.render();
     }
-}
-
-// Рендеринг
-render() {
-const interval = this.getAttribute('interval') || '1000';
-const maxValue = this.getAttribute('max-value') || '10';
-
-this.shadowRoot.innerHTML = \`
-<style>
-:host {
-  display: block;
-  padding: 20px;
-  border: 2px solid #007bff;
-  border-radius: 8px;
-  font-family: monospace;
-}
-
-.counter {
-  font-size: 2rem;
-  font-weight: bold;
-  text-align: center;
-  margin: 20px 0;
-  color: #007bff;
-}
-
-.controls {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-button {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.btn-primary { background: #007bff; color: white; }
-.btn-success { background: #28a745; color: white; }
-.btn-warning { background: #ffc107; color: black; }
-.btn-danger { background: #dc3545; color: white; }
-
-.info {
-  margin-top: 15px;
-  padding: 10px;
-  background: #f8f9fa;
-  border-radius: 4px;
-  font-size: 12px;
-}
-
-.max-reached {
-  background: #ffebee;
-  border: 1px solid #f44336;
-  color: #c62828;
-}
-</style>
-
-<div class="counter" id="counter">\${this._counter}</div>
-
-<div class="controls">
-<button class="btn-primary" id="increment">+1</button>
-<button class="btn-warning" id="decrement">-1</button>
-<button class="btn-success" id="toggle-auto">Auto: OFF</button>
-<button class="btn-danger" id="reset">Reset</button>
-</div>
-
-<div class="info">
-<div>Интервал: \${interval}ms</div>
-<div>Максимум: \${maxValue}</div>
-<div>Auto-increment: \${this.getAttribute('auto-increment') || 'false'}</div>
-</div>
-\`;
-
-this.updateCounter();
-}
-
-// Настройка событий
-setupEventListeners() {
-  const incrementBtn = this.shadowRoot.getElementById('increment');
-  const decrementBtn = this.shadowRoot.getElementById('decrement');
-  const toggleAutoBtn = this.shadowRoot.getElementById('toggle-auto');
-  const resetBtn = this.shadowRoot.getElementById('reset');
-
-  incrementBtn.addEventListener('click', () => this.increment());
-  decrementBtn.addEventListener('click', () => this.decrement());
-  toggleAutoBtn.addEventListener('click', () => this.toggleAutoIncrement());
-  resetBtn.addEventListener('click', () => this.reset());
-}
-
-// Методы компонента
-increment() {
-  this._counter++;
-  this.updateCounter();
-  this.checkMaxValue();
-  this.dispatchCounterEvent();
-}
-
-decrement() {
-  this._counter = Math.max(0, this._counter - 1);
-  this.updateCounter();
-  this.dispatchCounterEvent();
-}
-
-reset() {
-  this._counter = 0;
-  this.updateCounter();
-  this.dispatchCounterEvent();
-}
-
-toggleAutoIncrement() {
-  const current = this.getAttribute('auto-increment') === 'true';
-  this.setAttribute('auto-increment', (!current).toString());
-}
-
-startAutoIncrement() {
-  this.stopAutoIncrement();
-  const interval = parseInt(this.getAttribute('interval') || '1000');
-
-  this._timer = setInterval(() => {
-      this.increment();
-  }, interval);
-
-  const toggleBtn = this.shadowRoot.getElementById('toggle-auto');
-  if (toggleBtn) toggleBtn.textContent = 'Auto: ON';
-}
-
-stopAutoIncrement() {
-  if (this._timer) {
-    clearInterval(this._timer);
-    this._timer = null;
   }
 
-  const toggleBtn = this.shadowRoot.getElementById('toggle-auto');
-  if (toggleBtn) toggleBtn.textContent = 'Auto: OFF';
-}
+  render() {
+    const title = this.getAttribute('title') || 'Заголовок';
+    const content = this.getAttribute('content') || 'Контент';
 
-checkMaxValue() {
-  const maxValue = parseInt(this.getAttribute('max-value') || '10');
-  const infoDiv = this.shadowRoot.querySelector('.info');
+    this.shadowRoot.innerHTML = \`
+      <style>
+        :host { display: block; padding: 16px; border: 1px solid #ccc; }
+        .title { color: #333; margin: 0 0 8px 0; }
+        .content { color: #666; }
+        ::slotted(.highlight) { background: yellow; }
+      </style>
 
-  if (this._counter >= maxValue) {
-    infoDiv.classList.add('max-reached');
-    this.stopAutoIncrement();
-    this.setAttribute('auto-increment', 'false');
-  } else {
-    infoDiv.classList.remove('max-reached');
+      <h3 class="title">\${title}</h3>
+      <p class="content">\${content}</p>
+      <slot></slot>
+    \`;
   }
 }
 
-updateCounter() {
-  const counterEl = this.shadowRoot.getElementById('counter');
-  if (counterEl) {
-    counterEl.textContent = this._counter;
-  }
-}
-
-dispatchCounterEvent() {
-  this.dispatchEvent(new CustomEvent('counter-change', {
-    detail: {
-      value: this._counter,
-      timestamp: Date.now()
-    },
-    bubbles: true
-  }));
-}
-
-cleanup() {
-  // Очистка ресурсов
-  this.stopAutoIncrement();
-}
-
-// Геттеры и сеттеры
-get counter() {
-  return this._counter;
-}
-
-set counter(value) {
-  this._counter = Math.max(0, parseInt(value) || 0);
-  this.updateCounter();
-  }
-}
-
-customElements.define('lifecycle-demo', LifecycleDemo);
+// Регистрация элемента
+customElements.define('my-element', MyElement);
 
 // Использование:
-/*
-<lifecycle-demo
-  auto-increment="false"
-  interval="500"
-  max-value="20">
-</lifecycle-demo>
-
-<script>
-const demo = document.querySelector('lifecycle-demo');
-
-demo.addEventListener('counter-change', (event) => {
-  console.log('Счетчик изменился:', event.detail);
-});
-
-// Программное управление
-setTimeout(() => {
-  demo.setAttribute('auto-increment', 'true');
-}, 3000);
-<\/script>
-*/
+// <my-element title="Привет" content="Мир">
+//   <span class="highlight" slot="">Дополнительный контент</span>
+// </my-element>
 `
 
-const highlightedTemplateBasic = ref('')
-const highlightedShadowDomBasic = ref('')
+const highlightedTemplate = ref('')
+const highlightedShadowDom = ref('')
 const highlightedCustomElement = ref('')
-const highlightedSlotExample = ref('')
-const highlightedEncapsulationExample = ref('')
-const highlightedLifecycleExample = ref('')
 
 onMounted(() => {
-highlightedTemplateBasic.value = Prism.highlight(templateBasicSnippet, Prism.languages.javascript, 'javascript')
-highlightedShadowDomBasic.value = Prism.highlight(shadowDomBasicSnippet, Prism.languages.javascript, 'javascript')
-highlightedCustomElement.value = Prism.highlight(customElementSnippet, Prism.languages.javascript, 'javascript')
-highlightedSlotExample.value = Prism.highlight(slotExampleSnippet, Prism.languages.javascript, 'javascript')
-highlightedEncapsulationExample.value = Prism.highlight(encapsulationExampleSnippet, Prism.languages.javascript, 'javascript')
-highlightedLifecycleExample.value = Prism.highlight(lifecycleExampleSnippet, Prism.languages.javascript, 'javascript')
+  highlightedTemplate.value = Prism.highlight(templateExample, Prism.languages.javascript, 'javascript')
+  highlightedShadowDom.value = Prism.highlight(shadowDomExample, Prism.languages.javascript, 'javascript')
+  highlightedCustomElement.value = Prism.highlight(customElementExample, Prism.languages.javascript, 'javascript')
 })
-
 </script>
 
 <template>
@@ -794,392 +113,221 @@ highlightedLifecycleExample.value = Prism.highlight(lifecycleExampleSnippet, Pri
     <v-main>
       <v-container>
         <v-row justify="center">
-          <v-col lg="8">
+          <v-col lg="10">
             <h1 class="text-h4 font-weight-bold mb-6">
-              Web Components: Templates, Shadow DOM
+              Web Components: Templates, Shadow DOM, Custom Elements
             </h1>
 
             <p class="font-weight-regular mb-6">
               <b>Web Components</b> — это набор веб-стандартов для создания переиспользуемых компонентов:
               <b>Custom Elements</b>, <b>Shadow DOM</b>, <b>HTML Templates</b> и <b>ES Modules</b>.
-              Они позволяют инкапсулировать функциональность и стили, создавая независимые компоненты
-              без использования фреймворков.
+              Они позволяют инкапсулировать функциональность и стили без фреймворков.
             </p>
 
-            <h2 class="text-h5 font-weight-bold mb-3">Основы Web Components</h2>
-            <v-row class="mb-6">
-              <v-col cols="12" md="6">
-                <v-card class="pa-4 h-100">
-                  <div class="d-flex align-center mb-3">
-                    <v-icon size="large" color="primary" class="mr-2">mdi-puzzle</v-icon>
-                    <h3 class="text-h6 font-weight-bold">4 основные технологии</h3>
-                  </div>
-                  <ul class="pl-4">
-                    <li><strong>Custom Elements</strong> — пользовательские HTML элементы</li>
-                    <li><strong>Shadow DOM</strong> — инкапсуляция DOM и стилей</li>
-                    <li><strong>HTML Templates</strong> — шаблоны для переиспользования</li>
-                    <li><strong>ES Modules</strong> — модульная система</li>
-                  </ul>
-                </v-card>
-              </v-col>
-              <v-col cols="12" md="6">
-                <v-card class="pa-4 h-100">
-                  <h3 class="text-h6 font-weight-bold mb-2">Преимущества</h3>
-                  <ul class="pl-4">
-                    <li>Нативная поддержка браузеров</li>
-                    <li>Независимость от фреймворков</li>
-                    <li>Инкапсуляция стилей и логики</li>
-                    <li>Переиспользуемость</li>
-                    <li>Стандартизированный подход</li>
-                  </ul>
-                </v-card>
-              </v-col>
-            </v-row>
-
-            <h2 class="text-h5 font-weight-bold mb-3">HTML Templates — шаблоны</h2>
-
-            <v-alert color="info" class="mb-6">
-              <v-icon class="mr-2">mdi-information</v-icon>
-              <strong>HTML Template</strong> — это элемент <code>&lt;template&gt;</code>, который содержит HTML разметку,
-              не отображаемую до использования. Контент template можно клонировать и вставлять в DOM.
-            </v-alert>
-
+            <!-- Основы -->
             <v-row class="mb-6">
               <v-col cols="12" md="4">
                 <v-card class="pa-4 h-100 text-center">
-                  <v-icon size="large" color="primary" class="mb-2">mdi-file-document-outline</v-icon>
-                  <h3 class="text-h6 font-weight-bold mb-2">Декларативность</h3>
-                  <p class="text-body-2">HTML разметка описывается декларативно в template</p>
+                  <v-icon size="large" color="primary" class="mb-2">mdi-file-document</v-icon>
+                  <h3 class="text-h6 font-weight-bold mb-2">Templates</h3>
+                  <p class="text-body-2">Шаблоны HTML для клонирования</p>
                 </v-card>
               </v-col>
               <v-col cols="12" md="4">
                 <v-card class="pa-4 h-100 text-center">
-                  <v-icon size="large" color="success" class="mb-2">mdi-content-copy</v-icon>
-                  <h3 class="text-h6 font-weight-bold mb-2">Клонирование</h3>
-                  <p class="text-body-2">Template можно клонировать множество раз</p>
+                  <v-icon size="large" color="success" class="mb-2">mdi-shield</v-icon>
+                  <h3 class="text-h6 font-weight-bold mb-2">Shadow DOM</h3>
+                  <p class="text-body-2">Изоляция DOM и стилей</p>
                 </v-card>
               </v-col>
               <v-col cols="12" md="4">
                 <v-card class="pa-4 h-100 text-center">
-                  <v-icon size="large" color="warning" class="mb-2">mdi-eye-off</v-icon>
-                  <h3 class="text-h6 font-weight-bold mb-2">Неактивность</h3>
-                  <p class="text-body-2">Скрипты не выполняются, изображения не загружаются</p>
+                  <v-icon size="large" color="warning" class="mb-2">mdi-puzzle</v-icon>
+                  <h3 class="text-h6 font-weight-bold mb-2">Custom Elements</h3>
+                  <p class="text-body-2">Пользовательские HTML элементы</p>
                 </v-card>
               </v-col>
             </v-row>
 
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedTemplateBasic"></code></pre>
-
-            <h2 class="text-h5 font-weight-bold mb-3">Shadow DOM — инкапсуляция</h2>
-
-            <v-alert color="success" class="mb-6">
-              <v-icon class="mr-2">mdi-shield-check</v-icon>
-              <strong>Shadow DOM</strong> создает изолированную область внутри элемента, где CSS и DOM
-              не пересекаются с внешним документом. Это обеспечивает инкапсуляцию стилей и структуры.
+            <!-- HTML Templates -->
+            <h2 class="text-h5 font-weight-bold mb-3">HTML Templates</h2>
+            <v-alert color="info" class="mb-4">
+              <strong>Template</strong> — элемент <code>&lt;template&gt;</code> содержит HTML разметку,
+              которая не отображается до клонирования и вставки в DOM.
             </v-alert>
 
-            <v-row class="mb-6">
-              <v-col cols="12" md="3">
-                <v-card class="pa-4 h-100 text-center">
-                  <v-icon size="large" color="primary" class="mb-2">mdi-shield</v-icon>
-                  <h3 class="text-h6 font-weight-bold mb-2">Изоляция стилей</h3>
-                  <p class="text-body-2">CSS стили изолированы от внешнего документа</p>
-                </v-card>
-              </v-col>
-              <v-col cols="12" md="3">
-                <v-card class="pa-4 h-100 text-center">
-                  <v-icon size="large" color="success" class="mb-2">mdi-lock</v-icon>
-                  <h3 class="text-h6 font-weight-bold mb-2">DOM изоляция</h3>
-                  <p class="text-body-2">Внутренняя структура скрыта от внешнего DOM</p>
-                </v-card>
-              </v-col>
-              <v-col cols="12" md="3">
-                <v-card class="pa-4 h-100 text-center">
-                  <v-icon size="large" color="info" class="mb-2">mdi-network</v-icon>
-                  <h3 class="text-h6 font-weight-bold mb-2">Shadow Root</h3>
-                  <p class="text-body-2">Корневой узел Shadow DOM дерева</p>
-                </v-card>
-              </v-col>
-              <v-col cols="12" md="3">
-                <v-card class="pa-4 h-100 text-center">
-                  <v-icon size="large" color="warning" class="mb-2">mdi-transit-connection-variant</v-icon>
-                  <h3 class="text-h6 font-weight-bold mb-2">Slots</h3>
-                  <p class="text-body-2">Механизм для вставки внешнего контента</p>
-                </v-card>
-              </v-col>
-            </v-row>
+            <pre class="mb-6 pa-4 rounded-lg custom-code"><code v-html="highlightedTemplate"></code></pre>
 
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedShadowDomBasic"></code></pre>
-
-            <h2 class="text-h5 font-weight-bold mb-3">Custom Elements — пользовательские элементы</h2>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedCustomElement"></code></pre>
-
-            <h2 class="text-h5 font-weight-bold mb-3">Slots — композиция контента</h2>
-
-            <v-alert color="warning" class="mb-6">
-              <v-icon class="mr-2">mdi-puzzle-plus</v-icon>
-              <strong>Slots</strong> позволяют создавать "дырки" в Shadow DOM, куда может быть вставлен
-              внешний контент. Это механизм композиции для создания гибких компонентов.
+            <!-- Shadow DOM -->
+            <h2 class="text-h5 font-weight-bold mb-3">Shadow DOM</h2>
+            <v-alert color="success" class="mb-4">
+              <strong>Shadow DOM</strong> создает изолированную область внутри элемента.
+              CSS и DOM не пересекаются с внешним документом.
             </v-alert>
 
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSlotExample"></code></pre>
-
-            <h2 class="text-h5 font-weight-bold mb-3">Инкапсуляция стилей</h2>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedEncapsulationExample"></code></pre>
-
-            <h2 class="text-h5 font-weight-bold mb-3">Жизненный цикл Custom Elements</h2>
-
-            <v-row class="mb-6">
+            <v-row class="mb-4">
               <v-col cols="12" md="6">
-                <v-card class="pa-4 h-100">
-                  <h3 class="text-h6 font-weight-bold mb-2">Lifecycle методы</h3>
+                <v-card class="pa-4">
+                  <h3 class="text-h6 font-weight-bold mb-2">Режимы Shadow DOM</h3>
                   <ul class="pl-4">
-                    <li><code>constructor()</code> — создание элемента</li>
-                    <li><code>connectedCallback()</code> — добавление в DOM</li>
-                    <li><code>disconnectedCallback()</code> — удаление из DOM</li>
-                    <li><code>adoptedCallback()</code> — перемещение в новый документ</li>
-                    <li><code>attributeChangedCallback()</code> — изменение атрибутов</li>
+                    <li><code>open</code> — доступ через element.shadowRoot</li>
+                    <li><code>closed</code> — element.shadowRoot === null</li>
                   </ul>
                 </v-card>
               </v-col>
               <v-col cols="12" md="6">
-                <v-card class="pa-4 h-100">
-                  <h3 class="text-h6 font-weight-bold mb-2">Важные особенности</h3>
-                  <ul class="pl-4">
-                    <li><code>observedAttributes</code> — какие атрибуты отслеживать</li>
-                    <li>Cleanup в <code>disconnectedCallback</code></li>
-                    <li>Асинхронное создание Shadow DOM</li>
-                    <li>Custom Events для коммуникации</li>
-                  </ul>
-                </v-card>
-              </v-col>
-            </v-row>
-
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedLifecycleExample"></code></pre>
-
-            <h2 class="text-h5 font-weight-bold mb-3">Shadow DOM режимы</h2>
-            <v-table density="comfortable" class="mb-8">
-              <thead>
-              <tr>
-                <th class="text-left font-weight-bold">Режим</th>
-                <th class="text-left font-weight-bold">Описание</th>
-                <th class="text-left font-weight-bold">Доступ извне</th>
-                <th class="text-left font-weight-bold">Использование</th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr>
-                <td class="pt-2 pb-2"><code>open</code></td>
-                <td class="pt-2 pb-2">Открытый Shadow DOM</td>
-                <td class="pt-2 pb-2">✅ element.shadowRoot</td>
-                <td class="pt-2 pb-2">Большинство случаев</td>
-              </tr>
-              <tr>
-                <td class="pt-2 pb-2"><code>closed</code></td>
-                <td class="pt-2 pb-2">Закрытый Shadow DOM</td>
-                <td class="pt-2 pb-2">❌ null</td>
-                <td class="pt-2 pb-2">Максимальная инкапсуляция</td>
-              </tr>
-              </tbody>
-            </v-table>
-
-            <h2 class="text-h5 font-weight-bold mb-3">Селекторы Shadow DOM</h2>
-            <v-row class="mb-8">
-              <v-col cols="12" md="6">
-                <v-card class="pa-4 h-100">
+                <v-card class="pa-4">
                   <h3 class="text-h6 font-weight-bold mb-2">Специальные селекторы</h3>
                   <ul class="pl-4">
                     <li><code>:host</code> — стили для host элемента</li>
-                    <li><code>:host()</code> — условные стили host</li>
-                    <li><code>:host-context()</code> — стили по контексту</li>
+                    <li><code>:host(.class)</code> — условные стили</li>
                     <li><code>::slotted()</code> — стили для slotted контента</li>
                   </ul>
                 </v-card>
               </v-col>
+            </v-row>
+
+            <pre class="mb-6 pa-4 rounded-lg custom-code"><code v-html="highlightedShadowDom"></code></pre>
+
+            <!-- Custom Elements -->
+            <h2 class="text-h5 font-weight-bold mb-3">Custom Elements</h2>
+
+            <v-row class="mb-4">
               <v-col cols="12" md="6">
-                <v-card class="pa-4 h-100">
-                  <h3 class="text-h6 font-weight-bold mb-2">Примеры использования</h3>
-                  <ul class="pl-4">
-                    <li><code>:host(.active)</code> — если host имеет класс</li>
-                    <li><code>:host-context(.dark)</code> — если предок имеет класс</li>
-                    <li><code>::slotted(p)</code> — параграфы в слотах</li>
-                    <li><code>::slotted(.special)</code> — элементы с классом</li>
+                <v-card class="pa-4">
+                  <h3 class="text-h6 font-weight-bold mb-2">Lifecycle методы</h3>
+                  <ul class="pl-4 text-body-2">
+                    <li><code>connectedCallback()</code> — добавление в DOM</li>
+                    <li><code>disconnectedCallback()</code> — удаление из DOM</li>
+                    <li><code>attributeChangedCallback()</code> — изменение атрибутов</li>
+                    <li><code>adoptedCallback()</code> — перемещение в документ</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4">
+                  <h3 class="text-h6 font-weight-bold mb-2">Ключевые особенности</h3>
+                  <ul class="pl-4 text-body-2">
+                    <li><code>observedAttributes</code> — отслеживаемые атрибуты</li>
+                    <li><code>&lt;slot&gt;</code> — композиция контента</li>
+                    <li>Custom Events для коммуникации</li>
+                    <li>Extends HTMLElement</li>
                   </ul>
                 </v-card>
               </v-col>
             </v-row>
 
-            <h2 class="text-h5 font-weight-bold mb-3">Частые вопросы на собеседовании</h2>
-            <ol class="ol-list mb-8">
-              <li class="mb-4">
-                <p class="font-weight-bold mb-1">Что такое Web Components и из чего они состоят?</p>
-                <p class="font-weight-regular ma-0">
-                  Web Components — это набор веб-стандартов: Custom Elements (пользовательские HTML элементы),
-                  Shadow DOM (инкапсуляция), HTML Templates (шаблоны) и ES Modules (модули).
-                  Позволяют создавать переиспользуемые компоненты без фреймворков.
-                </p>
-              </li>
-              <li class="mb-4">
-                <p class="font-weight-bold mb-1">В чем разница между open и closed Shadow DOM?</p>
-                <p class="font-weight-regular ma-0">
-                  Open Shadow DOM доступен через <code>element.shadowRoot</code>, closed возвращает null.
-                  Open используется в большинстве случаев, closed обеспечивает максимальную инкапсуляцию,
-                  но усложняет отладку и тестирование.
-                </p>
-              </li>
-              <li class="mb-4">
-                <p class="font-weight-bold mb-1">Как работают slots в Web Components?</p>
-                <p class="font-weight-regular ma-0">
-                  Slots — это механизм проекции контента. <code>&lt;slot&gt;</code> создает "дырку" в Shadow DOM,
-                  куда вставляется внешний контент. Именованные слоты позволяют точно контролировать размещение:
-                  <code>&lt;slot name="header"&gt;</code> и <code>&lt;div slot="header"&gt;</code>.
-                </p>
-              </li>
-              <li class="mb-4">
-                <p class="font-weight-bold mb-1">Какие методы жизненного цикла есть у Custom Elements?</p>
-                <p class="font-weight-regular ma-0">
-                  <code>connectedCallback()</code> — при добавлении в DOM, <code>disconnectedCallback()</code> — при удалении,
-                  <code>attributeChangedCallback()</code> — при изменении отслеживаемых атрибутов,
-                  <code>adoptedCallback()</code> — при перемещении в новый документ.
-                </p>
-              </li>
-              <li class="mb-4">
-                <p class="font-weight-bold mb-1">Как стили в Shadow DOM изолированы от внешних стилей?</p>
-                <p class="font-weight-regular ma-0">
-                  Shadow DOM создает границу стилей. Внешние CSS не влияют на элементы внутри Shadow DOM,
-                  а внутренние стили не вытекают наружу. Исключение — наследуемые свойства (color, font)
-                  и стили через ::slotted() для проецируемого контента.
-                </p>
-              </li>
-              <li class="mb-4">
-                <p class="font-weight-bold mb-1">Чем Web Components отличаются от фреймворков как React/Vue?</p>
-                <p class="font-weight-regular ma-0">
-                  Web Components — нативные браузерные стандарты, работают везде без зависимостей.
-                  Фреймворки предоставляют более богатую экосистему, инструменты разработки, состояние,
-                  но требуют сборки и создают vendor lock-in.
-                </p>
-              </li>
-              <li class="mb-4">
-                <p class="font-weight-bold mb-1">Как обеспечить коммуникацию между Web Components?</p>
-                <p class="font-weight-regular ma-0">
-                  Через Custom Events (<code>dispatchEvent</code>), атрибуты и свойства,
-                  direct method calls, shared state/store, или event bus.
-                  Custom Events с <code>bubbles: true</code> — наиболее распространенный подход.
-                </p>
-              </li>
-            </ol>
+            <pre class="mb-6 pa-4 rounded-lg custom-code"><code v-html="highlightedCustomElement"></code></pre>
 
-            <h2 class="text-h5 font-weight-bold mb-3">Преимущества и недостатки</h2>
-            <v-row class="mb-8">
+            <!-- Вопросы на собеседовании -->
+            <h2 class="text-h5 font-weight-bold mb-3">Ключевые вопросы на собеседовании</h2>
+
+            <v-expansion-panels class="mb-6">
+              <v-expansion-panel>
+                <v-expansion-panel-title>Что такое Web Components?</v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  Набор веб-стандартов: Custom Elements (пользовательские HTML элементы),
+                  Shadow DOM (инкапсуляция), HTML Templates (шаблоны), ES Modules.
+                  Позволяют создавать переиспользуемые компоненты без фреймворков.
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+              <v-expansion-panel>
+                <v-expansion-panel-title>Разница между open и closed Shadow DOM?</v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <strong>Open:</strong> доступен через element.shadowRoot<br>
+                  <strong>Closed:</strong> element.shadowRoot возвращает null<br>
+                  Open используется чаще, closed обеспечивает максимальную инкапсуляцию.
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+              <v-expansion-panel>
+                <v-expansion-panel-title>Как работают slots?</v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  Slots создают "дырки" в Shadow DOM для внешнего контента.
+                  <code>&lt;slot name="header"&gt;</code> + <code>&lt;div slot="header"&gt;</code>
+                  позволяют точно контролировать размещение контента.
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+              <v-expansion-panel>
+                <v-expansion-panel-title>Как стили изолированы в Shadow DOM?</v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  Shadow DOM создает границу стилей. Внешние CSS не влияют на внутренние элементы,
+                  внутренние не вытекают наружу. Исключения: наследуемые свойства (color, font)
+                  и стили через ::slotted().
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+              <v-expansion-panel>
+                <v-expansion-panel-title>Web Components vs React/Vue?</v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <strong>Web Components:</strong> нативные, без зависимостей, работают везде<br>
+                  <strong>Фреймворки:</strong> богатая экосистема, dev tools, но vendor lock-in<br>
+                  Выбор зависит от задач: библиотеки компонентов — WC, сложные приложения — фреймворки.
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+            </v-expansion-panels>
+
+            <!-- Преимущества и недостатки -->
+            <v-row class="mb-6">
               <v-col cols="12" md="6">
                 <v-card class="pa-4 h-100">
                   <div class="d-flex align-center mb-3">
                     <v-icon size="large" color="success" class="mr-2">mdi-check-circle</v-icon>
-                    <h3 class="text-h6 font-weight-bold">✅ Преимущества</h3>
+                    <h3 class="text-h6 font-weight-bold">Преимущества</h3>
                   </div>
                   <ul class="pl-4">
                     <li>Нативная поддержка браузеров</li>
                     <li>Независимость от фреймворков</li>
                     <li>Истинная инкапсуляция</li>
-                    <li>Переиспользуемость</li>
-                    <li>Стандартизация</li>
-                    <li>Долговечность</li>
-                    <li>Интеграция с любым фреймворком</li>
+                    <li>Переиспользуемость между проектами</li>
+                    <li>Долговечность (стандарты)</li>
                   </ul>
                 </v-card>
               </v-col>
               <v-col cols="12" md="6">
                 <v-card class="pa-4 h-100">
                   <div class="d-flex align-center mb-3">
-                    <v-icon size="large" color="error" class="mr-2">mdi-close-circle</v-icon>
-                    <h3 class="text-h6 font-weight-bold">❌ Недостатки</h3>
+                    <v-icon size="large" color="error" class="mr-2">mdi-alert-circle</v-icon>
+                    <h3 class="text-h6 font-weight-bold">Ограничения</h3>
                   </div>
                   <ul class="pl-4">
-                    <li>Ограниченная экосистема</li>
                     <li>Больше boilerplate кода</li>
+                    <li>Ограниченная экосистема</li>
                     <li>Сложности с SSR</li>
-                    <li>Менее развитые dev tools</li>
                     <li>Нет встроенного state management</li>
-                    <li>Проблемы с accessibility</li>
-                    <li>Производительность при много компонентах</li>
+                    <li>Менее развитые dev tools</li>
                   </ul>
                 </v-card>
               </v-col>
             </v-row>
 
-            <h2 class="text-h5 font-weight-bold mb-3">Современное использование</h2>
-            <v-row class="mb-8">
+            <!-- Практическое применение -->
+            <h2 class="text-h5 font-weight-bold mb-3">Практическое применение</h2>
+            <v-row class="mb-6">
               <v-col cols="12" md="4">
-                <v-card class="pa-4 h-100 text-center">
-                  <v-icon size="large" color="primary" class="mb-2">mdi-library-books</v-icon>
+                <v-card class="pa-4 text-center">
+                  <v-icon size="large" color="primary" class="mb-2">mdi-library</v-icon>
                   <h3 class="text-h6 font-weight-bold mb-2">Design Systems</h3>
-                  <p class="text-body-2">Библиотеки UI компонентов для переиспользования</p>
+                  <p class="text-body-2">Библиотеки UI компонентов</p>
                 </v-card>
               </v-col>
               <v-col cols="12" md="4">
-                <v-card class="pa-4 h-100 text-center">
+                <v-card class="pa-4 text-center">
                   <v-icon size="large" color="success" class="mb-2">mdi-puzzle</v-icon>
                   <h3 class="text-h6 font-weight-bold mb-2">Микрофронтенды</h3>
-                  <p class="text-body-2">Изолированные компоненты разных команд</p>
+                  <p class="text-body-2">Изолированные компоненты</p>
                 </v-card>
               </v-col>
               <v-col cols="12" md="4">
-                <v-card class="pa-4 h-100 text-center">
+                <v-card class="pa-4 text-center">
                   <v-icon size="large" color="warning" class="mb-2">mdi-widgets</v-icon>
                   <h3 class="text-h6 font-weight-bold mb-2">Виджеты</h3>
-                  <p class="text-body-2">Встраиваемые компоненты для внешних сайтов</p>
+                  <p class="text-body-2">Встраиваемые компоненты</p>
                 </v-card>
               </v-col>
             </v-row>
-
-            <h2 class="text-h5 font-weight-bold mb-3">Популярные библиотеки</h2>
-            <v-row class="mb-8">
-              <v-col cols="12" md="4">
-                <v-card class="pa-4 h-100">
-                  <h3 class="text-h6 font-weight-bold mb-2">Lit</h3>
-                  <p class="text-body-2 mb-3">Легковесная библиотека от Google для Web Components</p>
-                  <ul class="pl-4 text-body-2">
-                    <li>Template literals</li>
-                    <li>Reactive properties</li>
-                    <li>Декораторы</li>
-                    <li>TypeScript поддержка</li>
-                  </ul>
-                </v-card>
-              </v-col>
-              <v-col cols="12" md="4">
-                <v-card class="pa-4 h-100">
-                  <h3 class="text-h6 font-weight-bold mb-2">Stencil</h3>
-                  <p class="text-body-2 mb-3">Компилятор для Web Components от Ionic</p>
-                  <ul class="pl-4 text-body-2">
-                    <li>TypeScript out of the box</li>
-                    <li>JSX синтаксис</li>
-                    <li>Pre-rendering</li>
-                    <li>Автогенерация типов</li>
-                  </ul>
-                </v-card>
-              </v-col>
-              <v-col cols="12" md="4">
-                <v-card class="pa-4 h-100">
-                  <h3 class="text-h6 font-weight-bold mb-2">Fast Element</h3>
-                  <p class="text-body-2 mb-3">Быстрая библиотека от Microsoft</p>
-                  <ul class="pl-4 text-body-2">
-                    <li>Высокая производительность</li>
-                    <li>Малый размер</li>
-                    <li>Observable свойства</li>
-                    <li>Design Tokens</li>
-                  </ul>
-                </v-card>
-              </v-col>
-            </v-row>
-
-            <h2 class="text-h5 font-weight-bold mb-3">Итог</h2>
-            <p class="font-weight-regular mb-6">
-              <b>Web Components</b> предоставляют стандартизированный способ создания переиспользуемых компонентов.
-              <b>Custom Elements</b> определяют новые HTML элементы, <b>Shadow DOM</b> обеспечивает инкапсуляцию,
-              <b>Templates</b> позволяют декларативно описать структуру, а <b>Slots</b> обеспечивают композицию.
-              Хотя экосистема менее развита чем у фреймворков, Web Components идеальны для design systems,
-              библиотек компонентов и случаев, где нужна независимость от конкретных технологий.
-            </p>
 
             <div class="d-flex justify-end">
               <v-btn

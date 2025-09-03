@@ -225,6 +225,8 @@ onMounted(() => {
   highlightedPracticalExample.value = Prism.highlight(practicalExampleSnippet, Prism.languages.javascript, 'javascript')
 })
 
+const activeTab = ref('step1')
+
 </script>
 
 <template>
@@ -288,61 +290,155 @@ onMounted(() => {
 
             <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedPrototypeChain"></code></pre>
 
+            <!-- Альтернативный вариант с табами -->
             <h2 class="text-h5 font-weight-bold mb-3">Как работает поиск свойств</h2>
 
-            <v-stepper class="mb-8" alt-labels>
-              <v-stepper-header>
-                <v-stepper-item title="Объект" value="1" complete color="primary">
-                  <template v-slot:icon>
-                    <v-icon>mdi-numeric-1</v-icon>
-                  </template>
-                </v-stepper-item>
-                <v-divider></v-divider>
-                <v-stepper-item title="Прототип" value="2" complete color="primary">
-                  <template v-slot:icon>
-                    <v-icon>mdi-numeric-2</v-icon>
-                  </template>
-                </v-stepper-item>
-                <v-divider></v-divider>
-                <v-stepper-item title="Прототип прототипа" value="3" complete color="primary">
-                  <template v-slot:icon>
-                    <v-icon>mdi-numeric-3</v-icon>
-                  </template>
-                </v-stepper-item>
-                <v-divider></v-divider>
-                <v-stepper-item title="null" value="4" color="error">
-                  <template v-slot:icon>
-                    <v-icon>mdi-stop</v-icon>
-                  </template>
-                </v-stepper-item>
-              </v-stepper-header>
-              <v-stepper-window>
-                <v-stepper-window-item value="1">
-                  <div class="pa-4">
-                    <h3>1. Поиск в самом объекте</h3>
-                    <p>Сначала JavaScript ищет свойство в собственных свойствах объекта (hasOwnProperty)</p>
+            <v-card class="mb-8">
+              <v-tabs v-model="activeTab" bg-color="primary" grow>
+                <v-tab value="step1" class="font-weight-bold">
+                  <v-icon class="mr-2">mdi-numeric-1-circle</v-icon>
+                  Объект
+                </v-tab>
+                <v-tab value="step2" class="font-weight-bold">
+                  <v-icon class="mr-2">mdi-numeric-2-circle</v-icon>
+                  Прототип
+                </v-tab>
+                <v-tab value="step3" class="font-weight-bold">
+                  <v-icon class="mr-2">mdi-numeric-3-circle</v-icon>
+                  Прототип прототипа
+                </v-tab>
+                <v-tab value="step4" class="font-weight-bold">
+                  <v-icon class="mr-2">mdi-stop-circle</v-icon>
+                  null
+                </v-tab>
+              </v-tabs>
+
+              <v-window v-model="activeTab">
+                <v-window-item value="step1">
+                  <div class="pa-6">
+                    <div class="d-flex align-center mb-4">
+                      <v-avatar color="primary" size="large" class="mr-4">
+                        <v-icon size="large" color="white">mdi-numeric-1</v-icon>
+                      </v-avatar>
+                      <div>
+                        <h3 class="text-h6 font-weight-bold">Поиск в самом объекте</h3>
+                        <p class="text-body-2 text-grey-600 ma-0">Первый этап поиска свойства</p>
+                      </div>
+                    </div>
+
+                    <p class="text-body-1 mb-3">
+                      Сначала JavaScript ищет свойство в <strong>собственных свойствах</strong> объекта.
+                    </p>
+
+                    <v-alert color="primary" variant="tonal" class="mb-3">
+                      <template v-slot:prepend>
+                        <v-icon>mdi-code-tags</v-icon>
+                      </template>
+                      <code>obj.hasOwnProperty('property')</code>
+                    </v-alert>
+
+                    <p class="text-body-2">
+                      <v-icon color="success" class="mr-1">mdi-check-circle</v-icon>
+                      Если свойство найдено здесь, поиск <strong>завершается успешно</strong>
+                    </p>
+                    <p class="text-body-2">
+                      <v-icon color="info" class="mr-1">mdi-arrow-right-circle</v-icon>
+                      Если нет — переходим к следующему шагу
+                    </p>
                   </div>
-                </v-stepper-window-item>
-                <v-stepper-window-item value="2">
-                  <div class="pa-4">
-                    <h3>2. Поиск в прототипе</h3>
-                    <p>Если не найдено, ищет в объекте, на который ссылается [[Prototype]]</p>
+                </v-window-item>
+
+                <v-window-item value="step2">
+                  <div class="pa-6">
+                    <div class="d-flex align-center mb-4">
+                      <v-avatar color="success" size="large" class="mr-4">
+                        <v-icon size="large" color="white">mdi-numeric-2</v-icon>
+                      </v-avatar>
+                      <div>
+                        <h3 class="text-h6 font-weight-bold">Поиск в прототипе</h3>
+                        <p class="text-body-2 text-grey-600 ma-0">Второй этап — поиск в [[Prototype]]</p>
+                      </div>
+                    </div>
+
+                    <p class="text-body-1 mb-3">
+                      Если не найдено, ищет в объекте, на который ссылается <strong>[[Prototype]]</strong>.
+                    </p>
+
+                    <v-alert color="success" variant="tonal" class="mb-3">
+                      <template v-slot:prepend>
+                        <v-icon>mdi-link-variant</v-icon>
+                      </template>
+                      <code>obj.__proto__</code> или <code>Object.getPrototypeOf(obj)</code>
+                    </v-alert>
+
+                    <p class="text-body-2">
+                      <v-icon color="info" class="mr-1">mdi-information</v-icon>
+                      Например, методы из <code>Constructor.prototype</code> будут найдены на этом шаге
+                    </p>
                   </div>
-                </v-stepper-window-item>
-                <v-stepper-window-item value="3">
-                  <div class="pa-4">
-                    <h3>3. Поиск выше по цепочке</h3>
-                    <p>Процесс повторяется рекурсивно по всей цепочке прототипов</p>
+                </v-window-item>
+
+                <v-window-item value="step3">
+                  <div class="pa-6">
+                    <div class="d-flex align-center mb-4">
+                      <v-avatar color="info" size="large" class="mr-4">
+                        <v-icon size="large" color="white">mdi-numeric-3</v-icon>
+                      </v-avatar>
+                      <div>
+                        <h3 class="text-h6 font-weight-bold">Поиск выше по цепочке</h3>
+                        <p class="text-body-2 text-grey-600 ma-0">Рекурсивный поиск по всей цепочке</p>
+                      </div>
+                    </div>
+
+                    <p class="text-body-1 mb-3">
+                      Процесс повторяется <strong>рекурсивно</strong> по всей цепочке прототипов.
+                    </p>
+
+                    <v-alert color="info" variant="tonal" class="mb-3">
+                      <template v-slot:prepend>
+                        <v-icon>mdi-sitemap</v-icon>
+                      </template>
+                      <code>obj → Constructor.prototype → Object.prototype</code>
+                    </v-alert>
+
+                    <p class="text-body-2">
+                      <v-icon color="warning" class="mr-1">mdi-star</v-icon>
+                      Здесь будут найдены встроенные методы: <code>toString()</code>, <code>hasOwnProperty()</code> и др.
+                    </p>
                   </div>
-                </v-stepper-window-item>
-                <v-stepper-window-item value="4">
-                  <div class="pa-4">
-                    <h3>4. Конец цепочки</h3>
-                    <p>Если дошли до null (конец цепочки), свойство не найдено — возвращается undefined</p>
+                </v-window-item>
+
+                <v-window-item value="step4">
+                  <div class="pa-6">
+                    <div class="d-flex align-center mb-4">
+                      <v-avatar color="error" size="large" class="mr-4">
+                        <v-icon size="large" color="white">mdi-stop</v-icon>
+                      </v-avatar>
+                      <div>
+                        <h3 class="text-h6 font-weight-bold">Конец цепочки</h3>
+                        <p class="text-body-2 text-grey-600 ma-0">Финальный этап поиска</p>
+                      </div>
+                    </div>
+
+                    <p class="text-body-1 mb-3">
+                      Если дошли до <strong>null</strong> (конец цепочки), свойство не найдено.
+                    </p>
+
+                    <v-alert color="error" variant="tonal" class="mb-3">
+                      <template v-slot:prepend>
+                        <v-icon>mdi-null</v-icon>
+                      </template>
+                      <code>Object.prototype.__proto__ === null</code>
+                    </v-alert>
+
+                    <p class="text-body-2">
+                      <v-icon color="error" class="mr-1">mdi-close-circle</v-icon>
+                      Возвращается <code>undefined</code> при обращении к несуществующему свойству
+                    </p>
                   </div>
-                </v-stepper-window-item>
-              </v-stepper-window>
-            </v-stepper>
+                </v-window-item>
+              </v-window>
+            </v-card>
 
             <h2 class="text-h5 font-weight-bold mb-3">Object.prototype и встроенные методы</h2>
             <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedObjectPrototype"></code></pre>

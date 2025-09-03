@@ -237,6 +237,7 @@ onMounted(() => {
   highlightedAsync.value = Prism.highlight(asyncContextSnippet, Prism.languages.javascript, 'javascript')
 })
 
+const currentContextStep = ref(1)
 </script>
 
 <template>
@@ -318,58 +319,214 @@ onMounted(() => {
             <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedStack"></code></pre>
 
             <h2 class="text-h5 font-weight-bold mb-3">Как работает стек контекстов</h2>
-            <v-stepper class="mb-8" alt-labels>
-              <v-stepper-header>
-                <v-stepper-item title="Creation Phase" value="1" complete color="primary">
-                  <template v-slot:icon>
-                    <v-icon>mdi-plus</v-icon>
-                  </template>
-                </v-stepper-item>
-                <v-divider></v-divider>
-                <v-stepper-item title="Hoisting" value="2" complete color="primary">
-                  <template v-slot:icon>
-                    <v-icon>mdi-arrow-up</v-icon>
-                  </template>
-                </v-stepper-item>
-                <v-divider></v-divider>
-                <v-stepper-item title="Execution" value="3" color="success">
-                  <template v-slot:icon>
-                    <v-icon>mdi-play</v-icon>
-                  </template>
-                </v-stepper-item>
-                <v-divider></v-divider>
-                <v-stepper-item title="Cleanup" value="4" color="warning">
-                  <template v-slot:icon>
-                    <v-icon>mdi-delete</v-icon>
-                  </template>
-                </v-stepper-item>
-              </v-stepper-header>
-              <v-stepper-window>
-                <v-stepper-window-item value="1">
-                  <div class="pa-4">
-                    <h3>1. Фаза создания</h3>
-                    <p>Создается новый контекст выполнения, определяется this, создается Variable Environment</p>
+
+            <v-stepper
+              v-model="currentContextStep"
+              class="mb-8"
+              alt-labels
+              :items="[
+      { title: 'Creation Phase', value: 1 },
+      { title: 'Hoisting', value: 2 },
+      { title: 'Execution', value: 3 },
+      { title: 'Cleanup', value: 4 }
+    ]"
+            >
+              <template v-slot:item.1>
+                <v-card class="pa-6">
+                  <div class="d-flex align-center mb-4">
+                    <v-avatar color="primary" size="large" class="mr-4">
+                      <v-icon size="large" color="white">mdi-plus</v-icon>
+                    </v-avatar>
+                    <div>
+                      <h3 class="text-h6 font-weight-bold">1. Фаза создания (Creation Phase)</h3>
+                      <p class="text-body-2 text-grey-600 ma-0">Подготовка контекста выполнения</p>
+                    </div>
                   </div>
-                </v-stepper-window-item>
-                <v-stepper-window-item value="2">
-                  <div class="pa-4">
-                    <h3>2. Поднятие (Hoisting)</h3>
-                    <p>var и function declarations поднимаются вверх, let/const в TDZ (Temporal Dead Zone)</p>
+
+                  <p class="text-body-1 mb-3">
+                    Создается новый <strong>контекст выполнения</strong>, определяется <code>this</code>,
+                    создается Variable Environment и Lexical Environment.
+                  </p>
+
+                  <v-list class="bg-grey-lighten-5 rounded mb-3">
+                    <v-list-item>
+                      <template v-slot:prepend>
+                        <v-icon color="primary">mdi-check-circle</v-icon>
+                      </template>
+                      <v-list-item-title>Определение <code>this</code></v-list-item-title>
+                    </v-list-item>
+                    <v-list-item>
+                      <template v-slot:prepend>
+                        <v-icon color="primary">mdi-check-circle</v-icon>
+                      </template>
+                      <v-list-item-title>Создание Variable Environment</v-list-item-title>
+                    </v-list-item>
+                    <v-list-item>
+                      <template v-slot:prepend>
+                        <v-icon color="primary">mdi-check-circle</v-icon>
+                      </template>
+                      <v-list-item-title>Создание Lexical Environment</v-list-item-title>
+                    </v-list-item>
+                  </v-list>
+
+                  <v-alert color="primary" variant="tonal">
+                    <template v-slot:prepend>
+                      <v-icon>mdi-information</v-icon>
+                    </template>
+                    На этом этапе код еще не выполняется, только подготавливается окружение
+                  </v-alert>
+                </v-card>
+              </template>
+
+              <template v-slot:item.2>
+                <v-card class="pa-6">
+                  <div class="d-flex align-center mb-4">
+                    <v-avatar color="success" size="large" class="mr-4">
+                      <v-icon size="large" color="white">mdi-arrow-up</v-icon>
+                    </v-avatar>
+                    <div>
+                      <h3 class="text-h6 font-weight-bold">2. Поднятие (Hoisting)</h3>
+                      <p class="text-body-2 text-grey-600 ma-0">Предварительная обработка объявлений</p>
+                    </div>
                   </div>
-                </v-stepper-window-item>
-                <v-stepper-window-item value="3">
-                  <div class="pa-4">
-                    <h3>3. Выполнение</h3>
-                    <p>Код выполняется построчно, переменные получают значения, вызываются функции</p>
+
+                  <p class="text-body-1 mb-3">
+                    <code>var</code> и <code>function declarations</code> поднимаются вверх и инициализируются.
+                    <code>let</code> и <code>const</code> помещаются в TDZ (Temporal Dead Zone).
+                  </p>
+
+                  <v-row class="mb-3">
+                    <v-col cols="12" md="6">
+                      <v-card color="success" variant="tonal" class="pa-3">
+                        <h4 class="font-weight-bold mb-2">✅ Поднимаются и инициализируются</h4>
+                        <ul class="pl-4">
+                          <li><code>var</code> → undefined</li>
+                          <li><code>function</code> → полная функция</li>
+                        </ul>
+                      </v-card>
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-card color="warning" variant="tonal" class="pa-3">
+                        <h4 class="font-weight-bold mb-2">⚠️ Поднимаются, но в TDZ</h4>
+                        <ul class="pl-4">
+                          <li><code>let</code> → TDZ</li>
+                          <li><code>const</code> → TDZ</li>
+                        </ul>
+                      </v-card>
+                    </v-col>
+                  </v-row>
+
+                  <v-alert color="warning" variant="tonal">
+                    <template v-slot:prepend>
+                      <v-icon>mdi-alert</v-icon>
+                    </template>
+                    TDZ предотвращает использование переменных до их объявления
+                  </v-alert>
+                </v-card>
+              </template>
+
+              <template v-slot:item.3>
+                <v-card class="pa-6">
+                  <div class="d-flex align-center mb-4">
+                    <v-avatar color="info" size="large" class="mr-4">
+                      <v-icon size="large" color="white">mdi-play</v-icon>
+                    </v-avatar>
+                    <div>
+                      <h3 class="text-h6 font-weight-bold">3. Выполнение (Execution)</h3>
+                      <p class="text-body-2 text-grey-600 ma-0">Построчное выполнение кода</p>
+                    </div>
                   </div>
-                </v-stepper-window-item>
-                <v-stepper-window-item value="4">
-                  <div class="pa-4">
-                    <h3>4. Очистка</h3>
-                    <p>Контекст удаляется из стека, память освобождается (кроме замыканий)</p>
+
+                  <p class="text-body-1 mb-3">
+                    Код выполняется <strong>построчно</strong>. Переменные получают значения,
+                    вызываются функции, создаются новые контексты выполнения.
+                  </p>
+
+                  <v-timeline density="compact" class="mb-3">
+                    <v-timeline-item
+                      dot-color="info"
+                      size="small"
+                    >
+                      <template v-slot:opposite>
+                        <span class="text-caption">Строка 1</span>
+                      </template>
+                      <div>
+                        <div class="font-weight-bold">Присвоение значений</div>
+                        <div class="text-caption">Переменные получают реальные значения</div>
+                      </div>
+                    </v-timeline-item>
+
+                    <v-timeline-item
+                      dot-color="info"
+                      size="small"
+                    >
+                      <template v-slot:opposite>
+                        <span class="text-caption">Строка N</span>
+                      </template>
+                      <div>
+                        <div class="font-weight-bold">Вызов функций</div>
+                        <div class="text-caption">Создание новых контекстов выполнения</div>
+                      </div>
+                    </v-timeline-item>
+                  </v-timeline>
+
+                  <v-alert color="info" variant="tonal">
+                    <template v-slot:prepend>
+                      <v-icon>mdi-play-circle</v-icon>
+                    </template>
+                    На этом этапе происходит реальная работа программы
+                  </v-alert>
+                </v-card>
+              </template>
+
+              <template v-slot:item.4>
+                <v-card class="pa-6">
+                  <div class="d-flex align-center mb-4">
+                    <v-avatar color="warning" size="large" class="mr-4">
+                      <v-icon size="large" color="white">mdi-delete</v-icon>
+                    </v-avatar>
+                    <div>
+                      <h3 class="text-h6 font-weight-bold">4. Очистка (Cleanup)</h3>
+                      <p class="text-body-2 text-grey-600 ma-0">Удаление контекста из стека</p>
+                    </div>
                   </div>
-                </v-stepper-window-item>
-              </v-stepper-window>
+
+                  <p class="text-body-1 mb-3">
+                    Контекст <strong>удаляется из стека</strong>, память освобождается.
+                    Исключение — замыкания сохраняют доступ к внешним переменным.
+                  </p>
+
+                  <v-row class="mb-3">
+                    <v-col cols="12" md="6">
+                      <v-card color="success" variant="tonal" class="pa-3">
+                        <h4 class="font-weight-bold mb-2">✅ Обычное освобождение</h4>
+                        <ul class="pl-4">
+                          <li>Контекст удаляется</li>
+                          <li>Переменные освобождаются</li>
+                          <li>Память очищается</li>
+                        </ul>
+                      </v-card>
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-card color="info" variant="tonal" class="pa-3">
+                        <h4 class="font-weight-bold mb-2">💡 Замыкания</h4>
+                        <ul class="pl-4">
+                          <li>Сохраняют ссылки</li>
+                          <li>Переменные остаются</li>
+                          <li>Доступ из внутренних функций</li>
+                        </ul>
+                      </v-card>
+                    </v-col>
+                  </v-row>
+
+                  <v-alert color="success" variant="tonal">
+                    <template v-slot:prepend>
+                      <v-icon>mdi-check-circle</v-icon>
+                    </template>
+                    Цикл завершен! Следующий контекст может быть обработан
+                  </v-alert>
+                </v-card>
+              </template>
             </v-stepper>
 
             <h2 class="text-h5 font-weight-bold mb-3">5. Поднятие (Hoisting)</h2>
