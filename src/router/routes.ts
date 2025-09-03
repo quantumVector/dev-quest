@@ -69,6 +69,8 @@ import GlobalAndSystemSymbols from '@/views/js/GlobalAndSystemSymbols.vue'
 import ObjectPropertyFlags from '@/views/js/ObjectPropertyFlags.vue'
 import ObjectPropertyFlagsChanges from '@/views/js/ObjectPropertyFlagsChanges.vue'
 import IteratorsAndGenerators from '@/views/js/IteratorsAndGenerators.vue'
+import WebComponents from '@/views/js/WebComponents.vue'
+import WebComponentsSecond from '@/views/js/WebComponentsSecond.vue'
 
 export const routes = [
   {
@@ -314,6 +316,14 @@ export const routes = [
   {
     path: '/iterators-and-generators/iterators-and-generators',
     component: IteratorsAndGenerators,
+  },
+  {
+    path: '/web-components/web-components',
+    component: WebComponents,
+  },
+  {
+    path: '/web-components/web-components-second',
+    component: WebComponentsSecond,
   },
   {
     path: '/docker/docker',

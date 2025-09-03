@@ -187,6 +187,17 @@
               10. Iterators, Generators, Async Iterators/Generators
             </v-list-item-title>
           </v-list-item>
+          <v-list-subheader>WebComponents</v-list-subheader>
+          <v-list-item to="/web-components/web-components">
+            <v-list-item-title>
+              11.1 Templates, Shadow DOM
+            </v-list-item-title>
+          </v-list-item>
+          <v-list-item to="/web-components/web-components-second">
+            <v-list-item-title>
+              11.2 customEvents, customElements
+            </v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
