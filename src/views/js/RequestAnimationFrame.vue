@@ -669,6 +669,8 @@ onMounted(() => {
   highlightedPolyfill.value = Prism.highlight(rafPolyfillSnippet, Prism.languages.javascript, 'javascript')
   highlightedDebugging.value = Prism.highlight(debuggingSnippet, Prism.languages.javascript, 'javascript')
 })
+
+const currentRenderingStep = ref(1)
 </script>
 
 <template>
@@ -697,66 +699,364 @@ onMounted(() => {
             <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedBasic"></code></pre>
 
             <h2 class="text-h5 font-weight-bold mb-3">Полный цикл рендеринга браузера</h2>
-            <v-stepper alt-labels class="mb-8">
-              <v-stepper-header>
-                <v-stepper-item title="Call Stack" value="1" />
-                <v-divider />
-                <v-stepper-item title="Microtasks" value="2" />
-                <v-divider />
-                <v-stepper-item title="rAF Callbacks" value="3" />
-                <v-divider />
-                <v-stepper-item title="Rendering" value="4" />
-                <v-divider />
-                <v-stepper-item title="Idle/Macrotasks" value="5" />
-              </v-stepper-header>
-              <v-stepper-window>
-                <v-stepper-window-item value="1">
-                  <div class="pa-4">
-                    <h3 class="text-h6 font-weight-bold mb-2">1. Call Stack (синхронный код)</h3>
-                    <p>Выполняется весь синхронный JavaScript код</p>
-                    <v-chip size="small" color="primary">console.log()</v-chip>
-                    <v-chip size="small" color="primary">функции</v-chip>
-                    <v-chip size="small" color="primary">циклы</v-chip>
+            <v-stepper
+              v-model="currentRenderingStep"
+              class="mb-8"
+              alt-labels
+              :items="[
+      { title: 'Call Stack', value: 1 },
+      { title: 'Microtasks', value: 2 },
+      { title: 'rAF Callbacks', value: 3 },
+      { title: 'Rendering', value: 4 },
+      { title: 'Idle/Macrotasks', value: 5 }
+    ]"
+            >
+              <template v-slot:item.1>
+                <v-card class="pa-6">
+                  <div class="d-flex align-center mb-4">
+                    <v-avatar color="primary" size="large" class="mr-4">
+                      <v-icon size="large" color="white">mdi-numeric-1</v-icon>
+                    </v-avatar>
+                    <div>
+                      <h3 class="text-h6 font-weight-bold">1. Call Stack (синхронный код)</h3>
+                      <p class="text-body-2 text-grey-600 ma-0">Выполняется весь синхронный JavaScript код</p>
+                    </div>
                   </div>
-                </v-stepper-window-item>
-                <v-stepper-window-item value="2">
-                  <div class="pa-4">
-                    <h3 class="text-h6 font-weight-bold mb-2">2. Все микрозадачи</h3>
-                    <p>Выполняются ВСЕ микрозадачи до полного опустошения очереди</p>
-                    <v-chip size="small" color="success">Promise.then()</v-chip>
-                    <v-chip size="small" color="success">queueMicrotask()</v-chip>
-                    <v-chip size="small" color="success">MutationObserver</v-chip>
+
+                  <p class="text-body-1 mb-3">
+                    На первом этапе выполняется весь <strong>синхронный код</strong> в текущем стеке вызовов.
+                    JavaScript однопоточен, поэтому этот код выполняется последовательно и блокирует все остальное.
+                  </p>
+
+                  <v-row class="mb-3">
+                    <v-col cols="12" md="6">
+                      <v-list class="bg-blue-lighten-5 rounded">
+                        <v-list-subheader>Примеры синхронного кода:</v-list-subheader>
+                        <v-list-item>
+                          <template v-slot:prepend>
+                            <v-icon color="primary">mdi-console</v-icon>
+                          </template>
+                          <v-list-item-title><code>console.log()</code></v-list-item-title>
+                        </v-list-item>
+                        <v-list-item>
+                          <template v-slot:prepend>
+                            <v-icon color="primary">mdi-function</v-icon>
+                          </template>
+                          <v-list-item-title>Вызовы функций</v-list-item-title>
+                        </v-list-item>
+                        <v-list-item>
+                          <template v-slot:prepend>
+                            <v-icon color="primary">mdi-repeat</v-icon>
+                          </template>
+                          <v-list-item-title>Циклы for/while</v-list-item-title>
+                        </v-list-item>
+                        <v-list-item>
+                          <template v-slot:prepend>
+                            <v-icon color="primary">mdi-variable</v-icon>
+                          </template>
+                          <v-list-item-title>Присваивания переменных</v-list-item-title>
+                        </v-list-item>
+                      </v-list>
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <div class="bg-grey-lighten-5 pa-4 rounded">
+                        <h4 class="font-weight-bold mb-2">Пример:</h4>
+                        <pre class="ma-0 text-caption"><code>console.log('Start');
+let x = 5 + 3;
+function calc() {
+  return x * 2;
+}
+let result = calc();
+console.log('End');</code></pre>
+                      </div>
+                    </v-col>
+                  </v-row>
+
+                  <v-alert color="warning" variant="tonal">
+                    <template v-slot:prepend>
+                      <v-icon>mdi-alert</v-icon>
+                    </template>
+                    <strong>Внимание:</strong> Долгий синхронный код блокирует Event Loop и зависает UI!
+                  </v-alert>
+                </v-card>
+              </template>
+
+              <template v-slot:item.2>
+                <v-card class="pa-6">
+                  <div class="d-flex align-center mb-4">
+                    <v-avatar color="success" size="large" class="mr-4">
+                      <v-icon size="large" color="white">mdi-numeric-2</v-icon>
+                    </v-avatar>
+                    <div>
+                      <h3 class="text-h6 font-weight-bold">2. Все микрозадачи (Microtasks)</h3>
+                      <p class="text-body-2 text-grey-600 ma-0">Выполняются ВСЕ микрозадачи до полного опустошения очереди</p>
+                    </div>
                   </div>
-                </v-stepper-window-item>
-                <v-stepper-window-item value="3">
-                  <div class="pa-4">
-                    <h3 class="text-h6 font-weight-bold mb-2">3. requestAnimationFrame callbacks</h3>
-                    <p>Выполняются все rAF колбэки для подготовки к рендерингу</p>
-                    <v-chip size="small" color="warning">requestAnimationFrame()</v-chip>
-                    <v-chip size="small" color="warning">анимации</v-chip>
-                    <v-chip size="small" color="warning">обновление DOM</v-chip>
+
+                  <p class="text-body-1 mb-3">
+                    После завершения синхронного кода Event Loop выполняет <strong>все микрозадачи подряд</strong>.
+                    Микрозадачи имеют наивысший приоритет среди асинхронных задач.
+                  </p>
+
+                  <v-row class="mb-3">
+                    <v-col cols="12" md="6">
+                      <v-card color="green" variant="tonal" class="pa-3">
+                        <h4 class="font-weight-bold mb-2">🎯 Источники микрозадач:</h4>
+                        <v-chip-group column>
+                          <v-chip size="small" color="success">Promise.then()</v-chip>
+                          <v-chip size="small" color="success">async/await</v-chip>
+                          <v-chip size="small" color="success">queueMicrotask()</v-chip>
+                          <v-chip size="small" color="success">MutationObserver</v-chip>
+                        </v-chip-group>
+                      </v-card>
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <div class="bg-green-lighten-5 pa-4 rounded">
+                        <h4 class="font-weight-bold mb-2">Особенность:</h4>
+                        <p class="text-body-2 ma-0">Если микрозадача создает новую микрозадачу, она тоже выполнится в этой же итерации Event Loop!</p>
+                      </div>
+                    </v-col>
+                  </v-row>
+
+                  <div class="bg-green-lighten-5 pa-4 rounded mb-3">
+                    <h4 class="font-weight-bold mb-2">Пример выполнения:</h4>
+                    <pre class="ma-0 text-caption"><code>Promise.resolve().then(() => {
+  console.log('Micro 1');
+  return Promise.resolve();
+}).then(() => {
+  console.log('Micro 2');
+});
+
+queueMicrotask(() => {
+  console.log('Micro 3');
+});
+
+// Все выполнится подряд: Micro 1, Micro 2, Micro 3</code></pre>
                   </div>
-                </v-stepper-window-item>
-                <v-stepper-window-item value="4">
-                  <div class="pa-4">
-                    <h3 class="text-h6 font-weight-bold mb-2">4. Rendering Pipeline</h3>
-                    <p>Браузер выполняет рендеринг: Style → Layout → Paint → Composite</p>
-                    <v-chip size="small" color="info">Style Recalc</v-chip>
-                    <v-chip size="small" color="info">Layout</v-chip>
-                    <v-chip size="small" color="info">Paint</v-chip>
-                    <v-chip size="small" color="info">Composite</v-chip>
+
+                  <v-alert color="error" variant="tonal">
+                    <template v-slot:prepend>
+                      <v-icon>mdi-alert-circle</v-icon>
+                    </template>
+                    <strong>Опасность:</strong> Бесконечные микрозадачи могут заблокировать рендеринг!
+                  </v-alert>
+                </v-card>
+              </template>
+
+              <template v-slot:item.3>
+                <v-card class="pa-6">
+                  <div class="d-flex align-center mb-4">
+                    <v-avatar color="warning" size="large" class="mr-4">
+                      <v-icon size="large" color="white">mdi-numeric-3</v-icon>
+                    </v-avatar>
+                    <div>
+                      <h3 class="text-h6 font-weight-bold">3. requestAnimationFrame callbacks</h3>
+                      <p class="text-body-2 text-grey-600 ma-0">Выполняются все rAF колбэки для подготовки к рендерингу</p>
+                    </div>
                   </div>
-                </v-stepper-window-item>
-                <v-stepper-window-item value="5">
-                  <div class="pa-4">
-                    <h3 class="text-h6 font-weight-bold mb-2">5. Idle callbacks / Macrotasks</h3>
-                    <p>В свободное время или следующая макрозадача</p>
-                    <v-chip size="small" color="error">setTimeout()</v-chip>
-                    <v-chip size="small" color="error">setInterval()</v-chip>
-                    <v-chip size="small" color="secondary">requestIdleCallback()</v-chip>
+
+                  <p class="text-body-1 mb-3">
+                    На этом этапе выполняются все колбэки <code>requestAnimationFrame</code>.
+                    Это идеальное место для <strong>подготовки изменений DOM</strong> перед рендерингом.
+                  </p>
+
+                  <v-timeline density="compact" class="mb-3">
+                    <v-timeline-item
+                      dot-color="warning"
+                      size="small"
+                    >
+                      <div>
+                        <div class="font-weight-bold">Вычисление анимации</div>
+                        <div class="text-caption">Расчет новых позиций, размеров, цветов</div>
+                      </div>
+                    </v-timeline-item>
+                    <v-timeline-item
+                      dot-color="warning"
+                      size="small"
+                    >
+                      <div>
+                        <div class="font-weight-bold">Обновление DOM</div>
+                        <div class="text-caption">Изменение style, классов, атрибутов</div>
+                      </div>
+                    </v-timeline-item>
+                    <v-timeline-item
+                      dot-color="warning"
+                      size="small"
+                    >
+                      <div>
+                        <div class="font-weight-bold">Подготовка к рендерингу</div>
+                        <div class="text-caption">Все изменения готовы для следующего кадра</div>
+                      </div>
+                    </v-timeline-item>
+                  </v-timeline>
+
+                  <div class="bg-orange-lighten-5 pa-4 rounded mb-3">
+                    <h4 class="font-weight-bold mb-2">Типичный rAF колбэк:</h4>
+                    <pre class="ma-0 text-caption"><code>requestAnimationFrame((timestamp) => {
+  // timestamp - время начала кадра
+  const progress = (timestamp - startTime) / duration;
+  const currentPos = startPos + (endPos - startPos) * progress;
+
+  element.style.transform = \`translateX(\${currentPos}px)\`;
+
+  if (progress < 1) {
+    requestAnimationFrame(animate);
+  }
+});</code></pre>
                   </div>
-                </v-stepper-window-item>
-              </v-stepper-window>
+
+                  <v-alert color="warning" variant="tonal">
+                    <template v-slot:prepend>
+                      <v-icon>mdi-clock-fast</v-icon>
+                    </template>
+                    <strong>Производительность:</strong> Колбэк должен выполняться быстро (&lt;16ms для 60fps)
+                  </v-alert>
+                </v-card>
+              </template>
+
+              <template v-slot:item.4>
+                <v-card class="pa-6">
+                  <div class="d-flex align-center mb-4">
+                    <v-avatar color="info" size="large" class="mr-4">
+                      <v-icon size="large" color="white">mdi-numeric-4</v-icon>
+                    </v-avatar>
+                    <div>
+                      <h3 class="text-h6 font-weight-bold">4. Rendering Pipeline</h3>
+                      <p class="text-body-2 text-grey-600 ma-0">Браузер выполняет рендеринг: Style → Layout → Paint → Composite</p>
+                    </div>
+                  </div>
+
+                  <p class="text-body-1 mb-3">
+                    Самый важный этап! Браузер обрабатывает все изменения DOM, сделанные в rAF колбэках,
+                    и <strong>обновляет визуальное представление страницы</strong>.
+                  </p>
+
+                  <v-row class="mb-3">
+                    <v-col cols="12" md="6">
+                      <v-timeline density="compact">
+                        <v-timeline-item
+                          dot-color="info"
+                          size="small"
+                        >
+                          <div>
+                            <div class="font-weight-bold">Style Recalculation</div>
+                            <div class="text-caption">Пересчет CSS стилей для измененных элементов</div>
+                          </div>
+                        </v-timeline-item>
+                        <v-timeline-item
+                          dot-color="info"
+                          size="small"
+                        >
+                          <div>
+                            <div class="font-weight-bold">Layout (Reflow)</div>
+                            <div class="text-caption">Вычисление позиций и размеров элементов</div>
+                          </div>
+                        </v-timeline-item>
+                        <v-timeline-item
+                          dot-color="info"
+                          size="small"
+                        >
+                          <div>
+                            <div class="font-weight-bold">Paint</div>
+                            <div class="text-caption">Растеризация элементов в пиксели</div>
+                          </div>
+                        </v-timeline-item>
+                        <v-timeline-item
+                          dot-color="info"
+                          size="small"
+                        >
+                          <div>
+                            <div class="font-weight-bold">Composite</div>
+                            <div class="text-caption">Композиция слоев и вывод на экран</div>
+                          </div>
+                        </v-timeline-item>
+                      </v-timeline>
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-card color="blue" variant="tonal" class="pa-3">
+                        <h4 class="font-weight-bold mb-2">⚡ Оптимизации:</h4>
+                        <ul class="pl-4 ma-0">
+                          <li><strong>Transform/Opacity:</strong> только Composite</li>
+                          <li><strong>Color/Background:</strong> Paint + Composite</li>
+                          <li><strong>Width/Height:</strong> Layout + Paint + Composite</li>
+                          <li><strong>will-change:</strong> создает слой заранее</li>
+                        </ul>
+                      </v-card>
+                    </v-col>
+                  </v-row>
+
+                  <v-alert color="info" variant="tonal">
+                    <template v-slot:prepend>
+                      <v-icon>mdi-monitor-dashboard</v-icon>
+                    </template>
+                    <strong>Цель:</strong> 60 FPS = рендеринг каждые ~16.67 миллисекунд
+                  </v-alert>
+                </v-card>
+              </template>
+
+              <template v-slot:item.5>
+                <v-card class="pa-6">
+                  <div class="d-flex align-center mb-4">
+                    <v-avatar color="purple" size="large" class="mr-4">
+                      <v-icon size="large" color="white">mdi-numeric-5</v-icon>
+                    </v-avatar>
+                    <div>
+                      <h3 class="text-h6 font-weight-bold">5. Idle callbacks / Macrotasks</h3>
+                      <p class="text-body-2 text-grey-600 ma-0">В свободное время или следующая макрозадача</p>
+                    </div>
+                  </div>
+
+                  <p class="text-body-1 mb-3">
+                    После рендеринга браузер может выполнить задачи с <strong>низким приоритетом</strong>:
+                    idle callbacks в свободное время или одну макрозадачу для начала следующей итерации Event Loop.
+                  </p>
+
+                  <v-row class="mb-3">
+                    <v-col cols="12" md="6">
+                      <v-card color="green" variant="tonal" class="pa-3">
+                        <h4 class="font-weight-bold mb-2">🌙 Idle Callbacks</h4>
+                        <v-chip-group column>
+                          <v-chip size="small" color="secondary">requestIdleCallback()</v-chip>
+                          <v-chip size="small" color="secondary">Фоновые задачи</v-chip>
+                          <v-chip size="small" color="secondary">Неприоритетная работа</v-chip>
+                        </v-chip-group>
+                      </v-card>
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-card color="red" variant="tonal" class="pa-3">
+                        <h4 class="font-weight-bold mb-2">⏰ Macrotasks</h4>
+                        <v-chip-group column>
+                          <v-chip size="small" color="error">setTimeout()</v-chip>
+                          <v-chip size="small" color="error">setInterval()</v-chip>
+                          <v-chip size="small" color="error">DOM Events</v-chip>
+                        </v-chip-group>
+                      </v-card>
+                    </v-col>
+                  </v-row>
+
+                  <div class="bg-purple-lighten-5 pa-4 rounded mb-3">
+                    <h4 class="font-weight-bold mb-2">Пример использования:</h4>
+                    <pre class="ma-0 text-caption"><code>// Idle callback - выполняется в свободное время
+requestIdleCallback((deadline) => {
+  while (deadline.timeRemaining() > 0 && tasks.length > 0) {
+    processBackgroundTask();
+  }
+});
+
+// Macrotask - следующая итерация Event Loop
+setTimeout(() => {
+  console.log('Next iteration starts');
+}, 0);</code></pre>
+                  </div>
+
+                  <v-alert color="success" variant="tonal">
+                    <template v-slot:prepend>
+                      <v-icon>mdi-refresh</v-icon>
+                    </template>
+                    <strong>Цикл завершен!</strong> Начинается новая итерация Event Loop
+                  </v-alert>
+                </v-card>
+              </template>
             </v-stepper>
 
             <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedRenderingPipeline"></code></pre>

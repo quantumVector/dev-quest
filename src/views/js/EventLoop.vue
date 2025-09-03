@@ -344,6 +344,8 @@ onMounted(() => {
   highlightedNode.value = Prism.highlight(nodeEventLoopSnippet, Prism.languages.javascript, 'javascript')
   highlightedPerformance.value = Prism.highlight(performanceSnippet, Prism.languages.javascript, 'javascript')
 })
+
+const currentPriorityStep = ref(1)
 </script>
 
 <template>
@@ -444,42 +446,275 @@ onMounted(() => {
             <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedMacroMicro"></code></pre>
 
             <h2 class="text-h5 font-weight-bold mb-3">Приоритет выполнения</h2>
-            <v-stepper alt-labels class="mb-8">
-              <v-stepper-header>
-                <v-stepper-item title="Call Stack" value="1" />
-                <v-divider />
-                <v-stepper-item title="Microtasks" value="2" />
-                <v-divider />
-                <v-stepper-item title="Render" value="3" />
-                <v-divider />
-                <v-stepper-item title="Macrotasks" value="4" />
-              </v-stepper-header>
-              <v-stepper-window>
-                <v-stepper-window-item value="1">
-                  <div class="pa-4">
-                    <h3 class="text-h6 font-weight-bold mb-2">1. Синхронный код (Call Stack)</h3>
-                    <p>Выполняется весь синхронный код в текущем стеке вызовов</p>
+            <v-stepper
+              v-model="currentPriorityStep"
+              class="mb-8"
+              alt-labels
+              :items="[
+      { title: 'Call Stack', value: 1 },
+      { title: 'Microtasks', value: 2 },
+      { title: 'Render', value: 3 },
+      { title: 'Macrotasks', value: 4 }
+    ]"
+            >
+              <template v-slot:item.1>
+                <v-card class="pa-6">
+                  <div class="d-flex align-center mb-4">
+                    <v-avatar color="primary" size="large" class="mr-4">
+                      <v-icon size="large" color="white">mdi-numeric-1</v-icon>
+                    </v-avatar>
+                    <div>
+                      <h3 class="text-h6 font-weight-bold">1. Синхронный код (Call Stack)</h3>
+                      <p class="text-body-2 text-grey-600 ma-0">Наивысший приоритет - выполняется немедленно</p>
+                    </div>
                   </div>
-                </v-stepper-window-item>
-                <v-stepper-window-item value="2">
-                  <div class="pa-4">
-                    <h3 class="text-h6 font-weight-bold mb-2">2. Все микрозадачи</h3>
-                    <p>Выполняются ВСЕ микрозадачи до полного опустошения очереди</p>
+
+                  <p class="text-body-1 mb-3">
+                    Весь <strong>синхронный код</strong> выполняется в Call Stack первым. JavaScript является
+                    однопоточным, поэтому синхронный код блокирует выполнение всего остального до завершения.
+                  </p>
+
+                  <div class="bg-blue-lighten-5 pa-4 rounded mb-3">
+                    <h4 class="font-weight-bold mb-2">Примеры синхронного кода:</h4>
+                    <pre class="ma-0"><code>console.log('Выполняется сразу');
+let x = 5 + 3;
+function calc() { return x * 2; }
+calc(); // Все выполняется последовательно</code></pre>
                   </div>
-                </v-stepper-window-item>
-                <v-stepper-window-item value="3">
-                  <div class="pa-4">
-                    <h3 class="text-h6 font-weight-bold mb-2">3. Рендеринг (браузер)</h3>
-                    <p>Браузер может обновить DOM и перерисовать страницу</p>
+
+                  <v-list class="bg-grey-lighten-5 rounded mb-3">
+                    <v-list-item>
+                      <template v-slot:prepend>
+                        <v-icon color="primary">mdi-check-circle</v-icon>
+                      </template>
+                      <v-list-item-title>Вызовы функций</v-list-item-title>
+                    </v-list-item>
+                    <v-list-item>
+                      <template v-slot:prepend>
+                        <v-icon color="primary">mdi-check-circle</v-icon>
+                      </template>
+                      <v-list-item-title>Математические операции</v-list-item-title>
+                    </v-list-item>
+                    <v-list-item>
+                      <template v-slot:prepend>
+                        <v-icon color="primary">mdi-check-circle</v-icon>
+                      </template>
+                      <v-list-item-title>Присваивания переменных</v-list-item-title>
+                    </v-list-item>
+                  </v-list>
+
+                  <v-alert color="warning" variant="tonal">
+                    <template v-slot:prepend>
+                      <v-icon>mdi-alert</v-icon>
+                    </template>
+                    <strong>Внимание:</strong> Долгий синхронный код блокирует Event Loop и зависает UI!
+                  </v-alert>
+                </v-card>
+              </template>
+
+              <template v-slot:item.2>
+                <v-card class="pa-6">
+                  <div class="d-flex align-center mb-4">
+                    <v-avatar color="success" size="large" class="mr-4">
+                      <v-icon size="large" color="white">mdi-numeric-2</v-icon>
+                    </v-avatar>
+                    <div>
+                      <h3 class="text-h6 font-weight-bold">2. Все микрозадачи (Microtasks)</h3>
+                      <p class="text-body-2 text-grey-600 ma-0">Выполняются ВСЕ подряд до опустошения очереди</p>
+                    </div>
                   </div>
-                </v-stepper-window-item>
-                <v-stepper-window-item value="4">
-                  <div class="pa-4">
-                    <h3 class="text-h6 font-weight-bold mb-2">4. Одна макрозадача</h3>
-                    <p>Выполняется только ОДНА макрозадача, затем цикл повторяется</p>
+
+                  <p class="text-body-1 mb-3">
+                    После завершения синхронного кода Event Loop выполняет <strong>все микрозадачи</strong>
+                    без исключения. Если микрозадача создает новую микрозадачу, она тоже будет выполнена
+                    в этой же итерации.
+                  </p>
+
+                  <v-row class="mb-3">
+                    <v-col cols="12" md="6">
+                      <v-card color="green" variant="tonal" class="pa-3">
+                        <h4 class="font-weight-bold mb-2">🚀 Источники микрозадач</h4>
+                        <ul class="pl-4 ma-0">
+                          <li><code>Promise.then/catch/finally</code></li>
+                          <li><code>async/await</code></li>
+                          <li><code>queueMicrotask()</code></li>
+                          <li><code>MutationObserver</code></li>
+                        </ul>
+                      </v-card>
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-card color="blue" variant="tonal" class="pa-3">
+                        <h4 class="font-weight-bold mb-2">⚡ Особенности</h4>
+                        <ul class="pl-4 ma-0">
+                          <li>Высокий приоритет</li>
+                          <li>Выполняются все подряд</li>
+                          <li>Могут создавать новые микрозадачи</li>
+                          <li>Блокируют рендеринг</li>
+                        </ul>
+                      </v-card>
+                    </v-col>
+                  </v-row>
+
+                  <div class="bg-green-lighten-5 pa-4 rounded mb-3">
+                    <h4 class="font-weight-bold mb-2">Пример:</h4>
+                    <pre class="ma-0"><code>Promise.resolve().then(() => console.log('1'));
+Promise.resolve().then(() => {
+  console.log('2');
+  Promise.resolve().then(() => console.log('3'));
+});
+// Выведет: 1, 2, 3 (все в одной итерации)</code></pre>
                   </div>
-                </v-stepper-window-item>
-              </v-stepper-window>
+
+                  <v-alert color="error" variant="tonal">
+                    <template v-slot:prepend>
+                      <v-icon>mdi-alert-circle</v-icon>
+                    </template>
+                    <strong>Осторожно:</strong> Бесконечные микрозадачи могут заблокировать Event Loop!
+                  </v-alert>
+                </v-card>
+              </template>
+
+              <template v-slot:item.3>
+                <v-card class="pa-6">
+                  <div class="d-flex align-center mb-4">
+                    <v-avatar color="warning" size="large" class="mr-4">
+                      <v-icon size="large" color="white">mdi-numeric-3</v-icon>
+                    </v-avatar>
+                    <div>
+                      <h3 class="text-h6 font-weight-bold">3. Рендеринг (только браузер)</h3>
+                      <p class="text-body-2 text-grey-600 ma-0">Обновление DOM и перерисовка страницы</p>
+                    </div>
+                  </div>
+
+                  <p class="text-body-1 mb-3">
+                    После выполнения всех микрозадач браузер может выполнить <strong>рендеринг</strong> -
+                    обновить DOM, пересчитать стили, выполнить layout и перерисовать страницу.
+                    Это происходит не в каждой итерации, а по необходимости.
+                  </p>
+
+                  <v-timeline density="compact" class="mb-3">
+                    <v-timeline-item
+                      dot-color="warning"
+                      size="small"
+                    >
+                      <div>
+                        <div class="font-weight-bold">Style calculation</div>
+                        <div class="text-caption">Вычисление CSS стилей</div>
+                      </div>
+                    </v-timeline-item>
+                    <v-timeline-item
+                      dot-color="warning"
+                      size="small"
+                    >
+                      <div>
+                        <div class="font-weight-bold">Layout (Reflow)</div>
+                        <div class="text-caption">Расчет позиций элементов</div>
+                      </div>
+                    </v-timeline-item>
+                    <v-timeline-item
+                      dot-color="warning"
+                      size="small"
+                    >
+                      <div>
+                        <div class="font-weight-bold">Paint</div>
+                        <div class="text-caption">Растеризация элементов</div>
+                      </div>
+                    </v-timeline-item>
+                    <v-timeline-item
+                      dot-color="warning"
+                      size="small"
+                    >
+                      <div>
+                        <div class="font-weight-bold">Composite</div>
+                        <div class="text-caption">Композиция слоев</div>
+                      </div>
+                    </v-timeline-item>
+                  </v-timeline>
+
+                  <div class="bg-orange-lighten-5 pa-4 rounded mb-3">
+                    <h4 class="font-weight-bold mb-2">Управление рендерингом:</h4>
+                    <pre class="ma-0"><code>// Выполнить перед рендерингом
+requestAnimationFrame(() => {
+  console.log('Перед рендером');
+});
+
+// Выполнить после рендеринга
+requestAnimationFrame(() => {
+  setTimeout(() => console.log('После рендера'), 0);
+});</code></pre>
+                  </div>
+
+                  <v-alert color="warning" variant="tonal">
+                    <template v-slot:prepend>
+                      <v-icon>mdi-information</v-icon>
+                    </template>
+                    Цель браузера: 60 FPS, то есть рендеринг каждые ~16.67 миллисекунд
+                  </v-alert>
+                </v-card>
+              </template>
+
+              <template v-slot:item.4>
+                <v-card class="pa-6">
+                  <div class="d-flex align-center mb-4">
+                    <v-avatar color="info" size="large" class="mr-4">
+                      <v-icon size="large" color="white">mdi-numeric-4</v-icon>
+                    </v-avatar>
+                    <div>
+                      <h3 class="text-h6 font-weight-bold">4. Одна макрозадача (Macrotask)</h3>
+                      <p class="text-body-2 text-grey-600 ma-0">Самый низкий приоритет - по одной за итерацию</p>
+                    </div>
+                  </div>
+
+                  <p class="text-body-1 mb-3">
+                    В конце итерации Event Loop берет <strong>только одну макрозадачу</strong> из очереди и выполняет её.
+                    После этого цикл повторяется с начала: синхронный код → микрозадачи → рендеринг → следующая макрозадача.
+                  </p>
+
+                  <v-row class="mb-3">
+                    <v-col cols="12" md="6">
+                      <v-card color="blue" variant="tonal" class="pa-3">
+                        <h4 class="font-weight-bold mb-2">📋 Источники макрозадач</h4>
+                        <ul class="pl-4 ma-0">
+                          <li><code>setTimeout</code> / <code>setInterval</code></li>
+                          <li><code>setImmediate</code> (Node.js)</li>
+                          <li>DOM события (click, scroll)</li>
+                          <li>I/O операции</li>
+                        </ul>
+                      </v-card>
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-card color="purple" variant="tonal" class="pa-3">
+                        <h4 class="font-weight-bold mb-2">⏱️ Особенности</h4>
+                        <ul class="pl-4 ma-0">
+                          <li>Низкий приоритет</li>
+                          <li>По одной за итерацию</li>
+                          <li>Между ними - микрозадачи</li>
+                          <li>Могут быть отложены рендерингом</li>
+                        </ul>
+                      </v-card>
+                    </v-col>
+                  </v-row>
+
+                  <div class="bg-blue-lighten-5 pa-4 rounded mb-3">
+                    <h4 class="font-weight-bold mb-2">Пример:</h4>
+                    <pre class="ma-0"><code>setTimeout(() => console.log('Macro 1'), 0);
+setTimeout(() => console.log('Macro 2'), 0);
+Promise.resolve().then(() => console.log('Micro'));
+
+// Выполнение:
+// 1. Micro (все микрозадачи)
+// 2. Macro 1 (одна макрозадача)
+// 3. Macro 2 (следующая итерация)</code></pre>
+                  </div>
+
+                  <v-alert color="info" variant="tonal">
+                    <template v-slot:prepend>
+                      <v-icon>mdi-clock</v-icon>
+                    </template>
+                    <strong>setTimeout(fn, 0)</strong> не означает "немедленно" - минимальная задержка ~4мс в браузере
+                  </v-alert>
+                </v-card>
+              </template>
             </v-stepper>
 
             <h2 class="text-h5 font-weight-bold mb-3">Сложный пример с вложенными задачами</h2>

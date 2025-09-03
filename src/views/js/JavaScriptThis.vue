@@ -304,6 +304,7 @@ onMounted(() => {
   highlightedPracticalExamples.value = Prism.highlight(practicalExamplesSnippet, Prism.languages.javascript, 'javascript')
 })
 
+const currentThisRuleStep = ref(1)
 </script>
 
 <template>
@@ -404,58 +405,249 @@ onMounted(() => {
             <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedEventHandlers"></code></pre>
 
             <h2 class="text-h5 font-weight-bold mb-3">Правила определения this</h2>
-            <v-stepper class="mb-8" alt-labels>
-              <v-stepper-header>
-                <v-stepper-item title="new" value="1" complete color="error">
-                  <template v-slot:icon>
-                    <v-icon>mdi-numeric-1</v-icon>
-                  </template>
-                </v-stepper-item>
-                <v-divider></v-divider>
-                <v-stepper-item title="call/apply/bind" value="2" complete color="warning">
-                  <template v-slot:icon>
-                    <v-icon>mdi-numeric-2</v-icon>
-                  </template>
-                </v-stepper-item>
-                <v-divider></v-divider>
-                <v-stepper-item title="obj.method()" value="3" complete color="info">
-                  <template v-slot:icon>
-                    <v-icon>mdi-numeric-3</v-icon>
-                  </template>
-                </v-stepper-item>
-                <v-divider></v-divider>
-                <v-stepper-item title="по умолчанию" value="4" color="success">
-                  <template v-slot:icon>
-                    <v-icon>mdi-numeric-4</v-icon>
-                  </template>
-                </v-stepper-item>
-              </v-stepper-header>
-              <v-stepper-window>
-                <v-stepper-window-item value="1">
-                  <div class="pa-4">
-                    <h3>1. new (наивысший приоритет)</h3>
-                    <p>При вызове с <code>new</code> — this = новый создаваемый объект</p>
+            <v-stepper
+              v-model="currentThisRuleStep"
+              class="mb-8"
+              alt-labels
+              :items="[
+      { title: 'new', value: 1 },
+      { title: 'call/apply/bind', value: 2 },
+      { title: 'obj.method()', value: 3 },
+      { title: 'по умолчанию', value: 4 }
+    ]"
+            >
+              <template v-slot:item.1>
+                <v-card class="pa-6">
+                  <div class="d-flex align-center mb-4">
+                    <v-avatar color="error" size="large" class="mr-4">
+                      <v-icon size="large" color="white">mdi-numeric-1</v-icon>
+                    </v-avatar>
+                    <div>
+                      <h3 class="text-h6 font-weight-bold">1. new (наивысший приоритет)</h3>
+                      <p class="text-body-2 text-grey-600 ma-0">Создание нового объекта</p>
+                    </div>
                   </div>
-                </v-stepper-window-item>
-                <v-stepper-window-item value="2">
-                  <div class="pa-4">
-                    <h3>2. Явная привязка</h3>
-                    <p>call, apply, bind — явно указывают значение this</p>
+
+                  <p class="text-body-1 mb-3">
+                    При вызове функции с оператором <code>new</code> создается новый объект,
+                    и <strong>this</strong> автоматически ссылается на этот новый объект.
+                  </p>
+
+                  <v-alert color="error" variant="tonal" class="mb-3">
+                    <template v-slot:prepend>
+                      <v-icon>mdi-star</v-icon>
+                    </template>
+                    <strong>Наивысший приоритет!</strong> Правило new переопределяет все остальные правила привязки this.
+                  </v-alert>
+
+                  <div class="bg-grey-lighten-5 pa-4 rounded mb-3">
+                    <h4 class="font-weight-bold mb-2">Пример:</h4>
+                    <pre class="ma-0"><code>function User(name) {
+  this.name = name; // this = новый объект
+}
+
+const user = new User('Alice'); // this = user</code></pre>
                   </div>
-                </v-stepper-window-item>
-                <v-stepper-window-item value="3">
-                  <div class="pa-4">
-                    <h3>3. Неявная привязка</h3>
-                    <p>obj.method() — this = объект перед точкой</p>
+
+                  <v-list class="bg-blue-lighten-5 rounded">
+                    <v-list-item>
+                      <template v-slot:prepend>
+                        <v-icon color="error">mdi-check-circle</v-icon>
+                      </template>
+                      <v-list-item-title>Работает с функциями-конструкторами</v-list-item-title>
+                    </v-list-item>
+                    <v-list-item>
+                      <template v-slot:prepend>
+                        <v-icon color="error">mdi-check-circle</v-icon>
+                      </template>
+                      <v-list-item-title>Работает с классами (ES6+)</v-list-item-title>
+                    </v-list-item>
+                    <v-list-item>
+                      <template v-slot:prepend>
+                        <v-icon color="error">mdi-alert</v-icon>
+                      </template>
+                      <v-list-item-title>НЕ работает со стрелочными функциями</v-list-item-title>
+                    </v-list-item>
+                  </v-list>
+                </v-card>
+              </template>
+
+              <template v-slot:item.2>
+                <v-card class="pa-6">
+                  <div class="d-flex align-center mb-4">
+                    <v-avatar color="warning" size="large" class="mr-4">
+                      <v-icon size="large" color="white">mdi-numeric-2</v-icon>
+                    </v-avatar>
+                    <div>
+                      <h3 class="text-h6 font-weight-bold">2. Явная привязка</h3>
+                      <p class="text-body-2 text-grey-600 ma-0">call, apply, bind</p>
+                    </div>
                   </div>
-                </v-stepper-window-item>
-                <v-stepper-window-item value="4">
-                  <div class="pa-4">
-                    <h3>4. По умолчанию</h3>
-                    <p>Глобальный объект или undefined (строгий режим)</p>
+
+                  <p class="text-body-1 mb-3">
+                    Методы <code>call()</code>, <code>apply()</code> и <code>bind()</code> позволяют
+                    <strong>явно указать</strong> значение this при вызове функции.
+                  </p>
+
+                  <v-row class="mb-3">
+                    <v-col cols="12" md="4">
+                      <v-card color="orange" variant="tonal" class="pa-3">
+                        <h4 class="font-weight-bold mb-2">call()</h4>
+                        <p class="text-body-2 ma-0">Вызов с this + аргументы через запятую</p>
+                      </v-card>
+                    </v-col>
+                    <v-col cols="12" md="4">
+                      <v-card color="orange" variant="tonal" class="pa-3">
+                        <h4 class="font-weight-bold mb-2">apply()</h4>
+                        <p class="text-body-2 ma-0">Вызов с this + аргументы массивом</p>
+                      </v-card>
+                    </v-col>
+                    <v-col cols="12" md="4">
+                      <v-card color="orange" variant="tonal" class="pa-3">
+                        <h4 class="font-weight-bold mb-2">bind()</h4>
+                        <p class="text-body-2 ma-0">Создает новую функцию с привязанным this</p>
+                      </v-card>
+                    </v-col>
+                  </v-row>
+
+                  <div class="bg-grey-lighten-5 pa-4 rounded mb-3">
+                    <h4 class="font-weight-bold mb-2">Пример:</h4>
+                    <pre class="ma-0"><code>function greet() {
+  return `Привет, ${this.name}!`;
+}
+
+const person = { name: 'Bob' };
+
+greet.call(person);  // "Привет, Bob!"
+greet.apply(person); // "Привет, Bob!"
+const boundGreet = greet.bind(person);
+boundGreet();        // "Привет, Bob!"</code></pre>
                   </div>
-                </v-stepper-window-item>
-              </v-stepper-window>
+
+                  <v-alert color="warning" variant="tonal">
+                    <template v-slot:prepend>
+                      <v-icon>mdi-information</v-icon>
+                    </template>
+                    Приоритет выше неявной привязки, но ниже new
+                  </v-alert>
+                </v-card>
+              </template>
+
+              <template v-slot:item.3>
+                <v-card class="pa-6">
+                  <div class="d-flex align-center mb-4">
+                    <v-avatar color="info" size="large" class="mr-4">
+                      <v-icon size="large" color="white">mdi-numeric-3</v-icon>
+                    </v-avatar>
+                    <div>
+                      <h3 class="text-h6 font-weight-bold">3. Неявная привязка</h3>
+                      <p class="text-body-2 text-grey-600 ma-0">obj.method()</p>
+                    </div>
+                  </div>
+
+                  <p class="text-body-1 mb-3">
+                    При вызове метода объекта <code>obj.method()</code> значение <strong>this</strong>
+                    автоматически устанавливается равным объекту, который стоит <strong>перед точкой</strong>.
+                  </p>
+
+                  <div class="bg-grey-lighten-5 pa-4 rounded mb-3">
+                    <h4 class="font-weight-bold mb-2">Пример:</h4>
+                    <pre class="ma-0"><code>const user = {
+  name: 'Carol',
+  greet() {
+    console.log(this.name); // 'Carol'
+  }
+};
+
+user.greet(); // this = user (объект перед точкой)</code></pre>
+                  </div>
+
+                  <v-alert color="error" variant="tonal" class="mb-3">
+                    <template v-slot:prepend>
+                      <v-icon>mdi-alert</v-icon>
+                    </template>
+                    <strong>Внимание!</strong> При присваивании метода переменной контекст теряется
+                  </v-alert>
+
+                  <div class="bg-red-lighten-5 pa-4 rounded mb-3">
+                    <h4 class="font-weight-bold mb-2">Ловушка:</h4>
+                    <pre class="ma-0"><code>const greetFunc = user.greet;
+greetFunc(); // this = undefined (строгий режим) или Window</code></pre>
+                  </div>
+
+                  <v-list class="bg-blue-lighten-5 rounded">
+                    <v-list-item>
+                      <template v-slot:prepend>
+                        <v-icon color="success">mdi-check</v-icon>
+                      </template>
+                      <v-list-item-title>obj.method() — this = obj</v-list-item-title>
+                    </v-list-item>
+                    <v-list-item>
+                      <template v-slot:prepend>
+                        <v-icon color="error">mdi-close</v-icon>
+                      </template>
+                      <v-list-item-title>const func = obj.method; func() — this ≠ obj</v-list-item-title>
+                    </v-list-item>
+                  </v-list>
+                </v-card>
+              </template>
+
+              <template v-slot:item.4>
+                <v-card class="pa-6">
+                  <div class="d-flex align-center mb-4">
+                    <v-avatar color="success" size="large" class="mr-4">
+                      <v-icon size="large" color="white">mdi-numeric-4</v-icon>
+                    </v-avatar>
+                    <div>
+                      <h3 class="text-h6 font-weight-bold">4. Привязка по умолчанию</h3>
+                      <p class="text-body-2 text-grey-600 ma-0">Последний вариант</p>
+                    </div>
+                  </div>
+
+                  <p class="text-body-1 mb-3">
+                    Если ни одно из предыдущих правил не применяется, используется <strong>привязка по умолчанию</strong>.
+                    Значение this зависит от режима выполнения кода.
+                  </p>
+
+                  <v-row class="mb-3">
+                    <v-col cols="12" md="6">
+                      <v-card color="green" variant="tonal" class="pa-3">
+                        <h4 class="font-weight-bold mb-2">Не строгий режим</h4>
+                        <p class="text-body-2 ma-0">this = Window (браузер) или global (Node.js)</p>
+                      </v-card>
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-card color="blue" variant="tonal" class="pa-3">
+                        <h4 class="font-weight-bold mb-2">Строгий режим</h4>
+                        <p class="text-body-2 ma-0">this = undefined</p>
+                      </v-card>
+                    </v-col>
+                  </v-row>
+
+                  <div class="bg-grey-lighten-5 pa-4 rounded mb-3">
+                    <h4 class="font-weight-bold mb-2">Пример:</h4>
+                    <pre class="ma-0"><code>function defaultThis() {
+  console.log(this);
+}
+
+defaultThis();
+// Не строгий: Window/global
+// Строгий: undefined
+
+"use strict";
+function strictThis() {
+  console.log(this); // undefined
+}</code></pre>
+                  </div>
+
+                  <v-alert color="success" variant="tonal">
+                    <template v-slot:prepend>
+                      <v-icon>mdi-shield-check</v-icon>
+                    </template>
+                    <strong>Рекомендация:</strong> Всегда используйте строгий режим для предсказуемого поведения this
+                  </v-alert>
+                </v-card>
+              </template>
             </v-stepper>
 
             <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedThisRules"></code></pre>

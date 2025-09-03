@@ -252,6 +252,8 @@ onMounted(() => {
   highlightedScopingExample.value = Prism.highlight(scopingExampleSnippet, Prism.languages.javascript, 'javascript')
   highlightedBestPractices.value = Prism.highlight(bestPracticesSnippet, Prism.languages.javascript, 'javascript')
 })
+
+const currentExecutionStep = ref(1)
 </script>
 
 <template>
@@ -335,46 +337,282 @@ onMounted(() => {
             <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedClassHoisting"></code></pre>
 
             <h2 class="text-h5 font-weight-bold mb-3">Этапы выполнения кода JavaScript</h2>
-            <v-stepper class="mb-8" alt-labels>
-              <v-stepper-header>
-                <v-stepper-item title="Compilation" value="1" complete color="primary">
-                  <template v-slot:icon>
-                    <v-icon>mdi-cogs</v-icon>
-                  </template>
-                </v-stepper-item>
-                <v-divider></v-divider>
-                <v-stepper-item title="Hoisting" value="2" complete color="primary">
-                  <template v-slot:icon>
-                    <v-icon>mdi-arrow-up</v-icon>
-                  </template>
-                </v-stepper-item>
-                <v-divider></v-divider>
-                <v-stepper-item title="Execution" value="3" color="success">
-                  <template v-slot:icon>
-                    <v-icon>mdi-play</v-icon>
-                  </template>
-                </v-stepper-item>
-              </v-stepper-header>
-              <v-stepper-window>
-                <v-stepper-window-item value="1">
-                  <div class="pa-4">
-                    <h3>1. Фаза компиляции</h3>
-                    <p>JavaScript движок сканирует код и находит все объявления переменных и функций</p>
+            <v-stepper
+              v-model="currentExecutionStep"
+              class="mb-8"
+              alt-labels
+              :items="[
+      { title: 'Compilation', value: 1 },
+      { title: 'Hoisting', value: 2 },
+      { title: 'Execution', value: 3 }
+    ]"
+            >
+              <template v-slot:item.1>
+                <v-card class="pa-6">
+                  <div class="d-flex align-center mb-4">
+                    <v-avatar color="primary" size="large" class="mr-4">
+                      <v-icon size="large" color="white">mdi-cogs</v-icon>
+                    </v-avatar>
+                    <div>
+                      <h3 class="text-h6 font-weight-bold">1. Фаза компиляции (Compilation Phase)</h3>
+                      <p class="text-body-2 text-grey-600 ma-0">JavaScript движок анализирует код перед выполнением</p>
+                    </div>
                   </div>
-                </v-stepper-window-item>
-                <v-stepper-window-item value="2">
-                  <div class="pa-4">
-                    <h3>2. Hoisting</h3>
-                    <p>Объявления "поднимаются" наверх их области видимости, создаются в памяти</p>
+
+                  <p class="text-body-1 mb-3">
+                    На этапе компиляции JavaScript движок <strong>сканирует весь код</strong> и создает
+                    <strong>лексическое окружение</strong> (Lexical Environment). Во время этого процесса
+                    движок находит все объявления переменных и функций.
+                  </p>
+
+                  <v-timeline density="compact" class="mb-3">
+                    <v-timeline-item
+                      dot-color="primary"
+                      size="small"
+                    >
+                      <div>
+                        <div class="font-weight-bold">Сканирование кода</div>
+                        <div class="text-caption">Движок читает весь код построчно, не выполняя его</div>
+                      </div>
+                    </v-timeline-item>
+                    <v-timeline-item
+                      dot-color="primary"
+                      size="small"
+                    >
+                      <div>
+                        <div class="font-weight-bold">Поиск объявлений</div>
+                        <div class="text-caption">Находит var, let, const, function, class объявления</div>
+                      </div>
+                    </v-timeline-item>
+                    <v-timeline-item
+                      dot-color="primary"
+                      size="small"
+                    >
+                      <div>
+                        <div class="font-weight-bold">Создание контекста</div>
+                        <div class="text-caption">Создает контекст выполнения и лексическое окружение</div>
+                      </div>
+                    </v-timeline-item>
+                    <v-timeline-item
+                      dot-color="primary"
+                      size="small"
+                    >
+                      <div>
+                        <div class="font-weight-bold">Проверка синтаксиса</div>
+                        <div class="text-caption">Обнаруживает синтаксические ошибки</div>
+                      </div>
+                    </v-timeline-item>
+                  </v-timeline>
+
+                  <div class="bg-blue-lighten-5 pa-4 rounded mb-3">
+                    <h4 class="font-weight-bold mb-2">Что происходит:</h4>
+                    <pre class="ma-0 text-caption"><code>// Код:
+console.log(x);
+var x = 5;
+function test() {}
+
+// Движок находит:
+// - var x (объявление переменной)
+// - function test (объявление функции)
+// - console.log(x) (выражение для выполнения)
+</code></pre>
                   </div>
-                </v-stepper-window-item>
-                <v-stepper-window-item value="3">
-                  <div class="pa-4">
-                    <h3>3. Выполнение</h3>
-                    <p>Код выполняется построчно, происходят присваивания и вызовы функций</p>
+
+                  <v-alert color="primary" variant="tonal">
+                    <template v-slot:prepend>
+                      <v-icon>mdi-information</v-icon>
+                    </template>
+                    <strong>Важно:</strong> На этом этапе код еще НЕ выполняется, только анализируется
+                  </v-alert>
+                </v-card>
+              </template>
+
+              <template v-slot:item.2>
+                <v-card class="pa-6">
+                  <div class="d-flex align-center mb-4">
+                    <v-avatar color="warning" size="large" class="mr-4">
+                      <v-icon size="large" color="white">mdi-arrow-up</v-icon>
+                    </v-avatar>
+                    <div>
+                      <h3 class="text-h6 font-weight-bold">2. Фаза всплытия (Hoisting Phase)</h3>
+                      <p class="text-body-2 text-grey-600 ma-0">Объявления "поднимаются" в начало области видимости</p>
+                    </div>
                   </div>
-                </v-stepper-window-item>
-              </v-stepper-window>
+
+                  <p class="text-body-1 mb-3">
+                    Найденные объявления <strong>"всплывают"</strong> в начало их области видимости
+                    и регистрируются в лексическом окружении. Разные типы объявлений обрабатываются по-разному.
+                  </p>
+
+                  <v-row class="mb-3">
+                    <v-col cols="12" md="6">
+                      <v-card color="green" variant="tonal" class="pa-3">
+                        <h4 class="font-weight-bold mb-2">✅ Доступны сразу</h4>
+                        <ul class="pl-4 ma-0">
+                          <li><strong>var:</strong> undefined</li>
+                          <li><strong>function declarations:</strong> полностью</li>
+                        </ul>
+                      </v-card>
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-card color="red" variant="tonal" class="pa-3">
+                        <h4 class="font-weight-bold mb-2">⚠️ В TDZ (недоступны)</h4>
+                        <ul class="pl-4 ma-0">
+                          <li><strong>let/const:</strong> TDZ</li>
+                          <li><strong>class:</strong> TDZ</li>
+                        </ul>
+                      </v-card>
+                    </v-col>
+                  </v-row>
+
+                  <div class="bg-orange-lighten-5 pa-4 rounded mb-3">
+                    <h4 class="font-weight-bold mb-2">Преобразование кода:</h4>
+                    <pre class="ma-0 text-caption"><code>// Исходный код:
+console.log(x); // undefined
+var x = 5;
+
+// Как его "видит" движок после hoisting:
+var x; // объявление всплыло наверх
+console.log(x); // undefined
+x = 5; // присваивание осталось на месте</code></pre>
+                  </div>
+
+                  <v-list class="bg-grey-lighten-5 rounded mb-3">
+                    <v-list-subheader>Результат hoisting:</v-list-subheader>
+                    <v-list-item>
+                      <template v-slot:prepend>
+                        <v-icon color="success">mdi-check-circle</v-icon>
+                      </template>
+                      <v-list-item-title>Переменные и функции зарегистрированы</v-list-item-title>
+                    </v-list-item>
+                    <v-list-item>
+                      <template v-slot:prepend>
+                        <v-icon color="warning">mdi-alert</v-icon>
+                      </template>
+                      <v-list-item-title>TDZ создана для let/const/class</v-list-item-title>
+                    </v-list-item>
+                    <v-list-item>
+                      <template v-slot:prepend>
+                        <v-icon color="info">mdi-information</v-icon>
+                      </template>
+                      <v-list-item-title>var инициализированы как undefined</v-list-item-title>
+                    </v-list-item>
+                  </v-list>
+
+                  <v-alert color="warning" variant="tonal">
+                    <template v-slot:prepend>
+                      <v-icon>mdi-clock-alert</v-icon>
+                    </template>
+                    <strong>TDZ (Temporal Dead Zone):</strong> Период между всплытием и объявлением let/const
+                  </v-alert>
+                </v-card>
+              </template>
+
+              <template v-slot:item.3>
+                <v-card class="pa-6">
+                  <div class="d-flex align-center mb-4">
+                    <v-avatar color="success" size="large" class="mr-4">
+                      <v-icon size="large" color="white">mdi-play</v-icon>
+                    </v-avatar>
+                    <div>
+                      <h3 class="text-h6 font-weight-bold">3. Фаза выполнения (Execution Phase)</h3>
+                      <p class="text-body-2 text-grey-600 ma-0">Код выполняется построчно с учетом hoisting</p>
+                    </div>
+                  </div>
+
+                  <p class="text-body-1 mb-3">
+                    Теперь JavaScript движок <strong>выполняет код построчно</strong>. На этом этапе происходят
+                    присваивания значений переменным, вызовы функций, и освобождение переменных из TDZ.
+                  </p>
+
+                  <v-timeline density="compact" class="mb-3">
+                    <v-timeline-item
+                      dot-color="success"
+                      size="small"
+                    >
+                      <div>
+                        <div class="font-weight-bold">Выполнение выражений</div>
+                        <div class="text-caption">console.log, арифметические операции, вызовы функций</div>
+                      </div>
+                    </v-timeline-item>
+                    <v-timeline-item
+                      dot-color="success"
+                      size="small"
+                    >
+                      <div>
+                        <div class="font-weight-bold">Присваивание значений</div>
+                        <div class="text-caption">var x = 5, let y = 10, const z = 15</div>
+                      </div>
+                    </v-timeline-item>
+                    <v-timeline-item
+                      dot-color="success"
+                      size="small"
+                    >
+                      <div>
+                        <div class="font-weight-bold">Освобождение из TDZ</div>
+                        <div class="text-caption">let/const становятся доступными после объявления</div>
+                      </div>
+                    </v-timeline-item>
+                    <v-timeline-item
+                      dot-color="success"
+                      size="small"
+                    >
+                      <div>
+                        <div class="font-weight-bold">Создание новых контекстов</div>
+                        <div class="text-caption">При вызове функций создаются новые контексты выполнения</div>
+                      </div>
+                    </v-timeline-item>
+                  </v-timeline>
+
+                  <div class="bg-green-lighten-5 pa-4 rounded mb-3">
+                    <h4 class="font-weight-bold mb-2">Пример выполнения:</h4>
+                    <pre class="ma-0 text-caption"><code>// Выполнение (после hoisting):
+var x; // уже "всплыло", x = undefined
+
+console.log(x); // undefined (не ошибка!)
+x = 5;          // присваивание значения
+console.log(x); // 5
+
+function test() { // уже доступна
+  return "Hello!";
+}
+
+test(); // "Hello!"</code></pre>
+                  </div>
+
+                  <v-row class="mb-3">
+                    <v-col cols="12" md="6">
+                      <v-card color="success" variant="tonal" class="pa-3">
+                        <h4 class="font-weight-bold mb-2">✅ Успешно выполняется</h4>
+                        <ul class="pl-4 ma-0">
+                          <li>Обращение к var (undefined)</li>
+                          <li>Вызов function declaration</li>
+                          <li>Присваивания значений</li>
+                          <li>let/const после объявления</li>
+                        </ul>
+                      </v-card>
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-card color="error" variant="tonal" class="pa-3">
+                        <h4 class="font-weight-bold mb-2">❌ Вызывает ошибки</h4>
+                        <ul class="pl-4 ma-0">
+                          <li>let/const до объявления (TDZ)</li>
+                          <li>function expression как функция</li>
+                          <li>Неинициализированный const</li>
+                          <li>Необъявленные переменные</li>
+                        </ul>
+                      </v-card>
+                    </v-col>
+                  </v-row>
+
+                  <v-alert color="success" variant="tonal">
+                    <template v-slot:prepend>
+                      <v-icon>mdi-check-circle</v-icon>
+                    </template>
+                    <strong>Результат:</strong> Код выполнен с учетом всех правил hoisting и областей видимости
+                  </v-alert>
+                </v-card>
+              </template>
             </v-stepper>
 
             <h2 class="text-h5 font-weight-bold mb-3">Практические примеры: частые ловушки</h2>
