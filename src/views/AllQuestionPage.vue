@@ -182,7 +182,7 @@
             </v-list-item-title>
           </v-list-item>
           <v-list-subheader>Итерируемые Конструкции</v-list-subheader>
-          <v-list-item to="/descriptor/object-flags-descriptors-changes">
+          <v-list-item to="/iterators-and-generators/iterators-and-generators">
             <v-list-item-title>
               10. Iterators, Generators, Async Iterators/Generators
             </v-list-item-title>

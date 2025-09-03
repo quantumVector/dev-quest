@@ -68,6 +68,7 @@ import Symbol from '@/views/js/Symbol.vue'
 import GlobalAndSystemSymbols from '@/views/js/GlobalAndSystemSymbols.vue'
 import ObjectPropertyFlags from '@/views/js/ObjectPropertyFlags.vue'
 import ObjectPropertyFlagsChanges from '@/views/js/ObjectPropertyFlagsChanges.vue'
+import IteratorsAndGenerators from '@/views/js/IteratorsAndGenerators.vue'
 
 export const routes = [
   {
@@ -309,6 +310,10 @@ export const routes = [
   {
     path: '/descriptor/object-flags-descriptors-changes',
     component: ObjectPropertyFlagsChanges,
+  },
+  {
+    path: '/iterators-and-generators/iterators-and-generators',
+    component: IteratorsAndGenerators,
   },
   {
     path: '/docker/docker',

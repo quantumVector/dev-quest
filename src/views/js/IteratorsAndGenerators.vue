@@ -741,4 +741,252 @@ onMounted(() => {
                 <td class="pt-2 pb-2">❌ Только последовательный</td>
                 <td class="pt-2 pb-2">❌ Только последовательный</td>
               </tr>
-              <tr>
+              </tbody>
+            </v-table>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Встроенные итерируемые объекты</h2>
+
+            <v-row class="mb-6">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-3">✅ Итерируемые</h3>
+                  <ul class="pl-4">
+                    <li><code>Array</code> — массивы</li>
+                    <li><code>String</code> — строки (по символам)</li>
+                    <li><code>Map</code> — ключ-значение пары</li>
+                    <li><code>Set</code> — уникальные значения</li>
+                    <li><code>NodeList</code> — DOM элементы</li>
+                    <li><code>Arguments</code> — аргументы функции</li>
+                    <li><code>TypedArray</code> — типизированные массивы</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-3">❌ Неитерируемые</h3>
+                  <ul class="pl-4">
+                    <li><code>Object</code> — обычные объекты</li>
+                    <li><code>Number</code> — числа</li>
+                    <li><code>Boolean</code> — булевы значения</li>
+                    <li><code>Date</code> — даты</li>
+                    <li><code>RegExp</code> — регулярные выражения</li>
+                    <li><code>Function</code> — функции</li>
+                    <li><code>null/undefined</code></li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Частые вопросы на собеседовании</h2>
+
+            <v-expansion-panels class="mb-8">
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  <strong>1. Что такое Iterator Protocol и Iterable Protocol?</strong>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <p class="mb-2">
+                    <strong>Iterator Protocol:</strong> Объект должен иметь метод <code>next()</code>,
+                    возвращающий <code>{ value: any, done: boolean }</code>.
+                  </p>
+                  <p class="mb-2">
+                    <strong>Iterable Protocol:</strong> Объект должен иметь метод <code>[Symbol.iterator]()</code>,
+                    который возвращает итератор.
+                  </p>
+                  <p>Эти протоколы позволяют использовать объекты в <code>for...of</code>,
+                    деструктуризации, <code>Array.from()</code> и других конструкциях.</p>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  <strong>2. В чем разница между Generator и обычной функцией?</strong>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <p class="mb-2">
+                    <strong>Генераторы:</strong> Могут приостанавливать и возобновлять выполнение с помощью <code>yield</code>.
+                    Возвращают итератор, поддерживают ленивые вычисления.
+                  </p>
+                  <p class="mb-2">
+                    <strong>Обычные функции:</strong> Выполняются полностью за один вызов,
+                    возвращают одно значение или undefined.
+                  </p>
+                  <p>Генераторы идеальны для создания последовательностей, обработки потоков данных
+                    и экономии памяти.</p>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  <strong>3. Как работает двусторонняя связь в генераторах?</strong>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <p class="mb-2">
+                    Метод <code>next(value)</code> может передавать значения в генератор.
+                    Переданное значение становится результатом выражения <code>yield</code>.
+                  </p>
+                  <code class="d-block pa-2 mb-2 bg-grey-lighten-4">
+                    const input = yield "Отправил данные"<br>
+                    console.log(input) // Получил данные от next(value)
+                  </code>
+                  <p>Это позволяет создавать интерактивные генераторы и реализовывать корутины.</p>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  <strong>4. Когда использовать async итераторы/генераторы?</strong>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <ul class="pl-4">
+                    <li><strong>API пагинация:</strong> Последовательная загрузка страниц данных</li>
+                    <li><strong>Файловая обработка:</strong> Чтение больших файлов по частям</li>
+                    <li><strong>Потоковые данные:</strong> WebSocket, Server-Sent Events</li>
+                    <li><strong>Rate limiting:</strong> Контроль скорости обработки запросов</li>
+                    <li><strong>Batch processing:</strong> Обработка данных порциями</li>
+                  </ul>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  <strong>5. Как остановить бесконечный генератор?</strong>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <p class="mb-2">Несколько способов:</p>
+                  <ul class="pl-4 mb-2">
+                    <li><code>break</code> в цикле <code>for...of</code></li>
+                    <li>Метод <code>return()</code> у итератора</li>
+                    <li>Метод <code>throw()</code> для генерации исключения</li>
+                    <li>Внешний флаг или условие в генераторе</li>
+                  </ul>
+                  <code class="d-block pa-2 bg-grey-lighten-4">
+                    const gen = infiniteGenerator()<br>
+                    gen.return('stopped') // Принудительно завершает
+                  </code>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+            </v-expansion-panels>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Распространенные ошибки</h2>
+
+            <v-row class="mb-8">
+              <v-col cols="12" md="6">
+                <v-card color="error" variant="tonal" class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-3 text-error">❌ Неправильно</h3>
+                  <ul class="pl-4">
+                    <li>Путать итератор и итерируемый объект</li>
+                    <li>Забывать про <code>done: true</code> в итераторе</li>
+                    <li>Использовать <code>return</code> вместо <code>yield</code></li>
+                    <li>Не обрабатывать исключения в генераторах</li>
+                    <li>Создавать новый итератор в <code>[Symbol.iterator]</code></li>
+                    <li>Блокировка в async генераторах</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card color="success" variant="tonal" class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-3 text-success">✅ Правильно</h3>
+                  <ul class="pl-4">
+                    <li>Понимать разницу между протоколами</li>
+                    <li>Всегда возвращать <code>{ value, done }</code></li>
+                    <li>Использовать <code>yield</code> для возврата значений</li>
+                    <li>Оборачивать в <code>try/catch</code></li>
+                    <li>Кэшировать итератор при необходимости</li>
+                    <li>Использовать <code>yield</code> с <code>await</code></li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Best Practices</h2>
+
+            <v-alert color="success" class="mb-6">
+              <v-icon class="mr-2">mdi-check-circle</v-icon>
+              <strong>Рекомендации:</strong> Используйте генераторы для больших данных,
+              async генераторы для I/O операций, кэшируйте результаты при необходимости,
+              и всегда обрабатывайте ошибки.
+            </v-alert>
+
+            <v-row class="mb-8">
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100 text-center">
+                  <v-icon size="large" color="primary" class="mb-2">mdi-memory</v-icon>
+                  <h3 class="text-h6 font-weight-bold mb-2">Память</h3>
+                  <ul class="text-left pl-4">
+                    <li>Используйте генераторы для больших данных</li>
+                    <li>Избегайте накопления в массивах</li>
+                    <li>Предпочитайте lazy evaluation</li>
+                    <li>Контролируйте размер буферов</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100 text-center">
+                  <v-icon size="large" color="success" class="mb-2">mdi-cog</v-icon>
+                  <h3 class="text-h6 font-weight-bold mb-2">Производительность</h3>
+                  <ul class="text-left pl-4">
+                    <li>Кэшируйте результаты вычислений</li>
+                    <li>Используйте async для I/O</li>
+                    <li>Избегайте блокирующих операций</li>
+                    <li>Мониторьте утечки памяти</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100 text-center">
+                  <v-icon size="large" color="warning" class="mb-2">mdi-shield-check</v-icon>
+                  <h3 class="text-h6 font-weight-bold mb-2">Надежность</h3>
+                  <ul class="text-left pl-4">
+                    <li>Обрабатывайте все ошибки</li>
+                    <li>Предусматривайте отмену операций</li>
+                    <li>Тестируйте граничные случаи</li>
+                    <li>Документируйте поведение API</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Итог</h2>
+            <p class="font-weight-regular mb-6">
+              <b>Итераторы и генераторы</b> — мощные инструменты для работы с последовательностями данных в JavaScript.
+              <b>Обычные итераторы</b> подходят для простых случаев, <b>генераторы</b> упрощают создание сложных итераторов,
+              а <b>асинхронные версии</b> идеальны для работы с I/O операциями и потоковыми данными.
+              Правильное использование этих конструкций позволяет создавать эффективные и элегантные решения
+              для обработки больших объемов данных без блокировки интерфейса.
+            </p>
+
+            <div class="d-flex justify-end">
+              <v-btn
+                color="primary"
+                size="small"
+                variant="elevated"
+                href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Iterators_and_Generators"
+                target="_blank"
+                class="mr-2">
+                MDN Iterators
+              </v-btn>
+              <v-btn
+                color="secondary"
+                size="small"
+                variant="elevated"
+                href="https://javascript.info/generators"
+                target="_blank"
+                class="mr-2">
+                JavaScript.info
+              </v-btn>
+              <v-btn
+                color="info"
+                size="small"
+                variant="elevated"
+                href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for-await...of"
+                target="_blank">
+                for await...of
+              </v-btn>
+            </div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-app>
+</template>
