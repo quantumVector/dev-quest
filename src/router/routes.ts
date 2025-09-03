@@ -66,6 +66,8 @@ import ProtoVsPrototype from '@/views/js/ProtoVsPrototype.vue'
 import GlobalPrototypesProblems from '@/views/js/GlobalPrototypesProblems.vue'
 import Symbol from '@/views/js/Symbol.vue'
 import GlobalAndSystemSymbols from '@/views/js/GlobalAndSystemSymbols.vue'
+import ObjectPropertyFlags from '@/views/js/ObjectPropertyFlags.vue'
+import ObjectPropertyFlagsChanges from '@/views/js/ObjectPropertyFlagsChanges.vue'
 
 export const routes = [
   {
@@ -299,6 +301,14 @@ export const routes = [
   {
     path: '/symbol/global-and-system-symbol',
     component: GlobalAndSystemSymbols,
+  },
+  {
+    path: '/descriptor/object-flags-descriptors',
+    component: ObjectPropertyFlags,
+  },
+  {
+    path: '/descriptor/object-flags-descriptors-changes',
+    component: ObjectPropertyFlagsChanges,
   },
   {
     path: '/docker/docker',

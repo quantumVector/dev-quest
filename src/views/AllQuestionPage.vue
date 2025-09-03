@@ -170,6 +170,23 @@
           <v-list-item to="/symbol/global-and-system-symbol">
             <v-list-item-title>8.2. Глобальный реестр символов и системные символы</v-list-item-title>
           </v-list-item>
+          <v-list-subheader>Object Flags Descriptors Get Set</v-list-subheader>
+          <v-list-item to="/descriptor/object-flags-descriptors">
+            <v-list-item-title>
+              9.1. Какие есть флаги у свойств объектов (writable, enumerable, configurable)
+            </v-list-item-title>
+          </v-list-item>
+          <v-list-item to="/descriptor/object-flags-descriptors-changes">
+            <v-list-item-title>
+              9.2. Получение дескриптора. Изменение флага
+            </v-list-item-title>
+          </v-list-item>
+          <v-list-subheader>Итерируемые Конструкции</v-list-subheader>
+          <v-list-item to="/descriptor/object-flags-descriptors-changes">
+            <v-list-item-title>
+              10. Iterators, Generators, Async Iterators/Generators
+            </v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
