@@ -204,6 +204,12 @@
               12. Какие системы модулей в JS известны? В чём между ними разница?
             </v-list-item-title>
           </v-list-item>
+          <v-list-subheader>RegExp</v-list-subheader>
+          <v-list-item to="/regexp/regexp">
+            <v-list-item-title>
+              13. RegExp
+            </v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

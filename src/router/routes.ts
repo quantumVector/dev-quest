@@ -72,6 +72,7 @@ import IteratorsAndGenerators from '@/views/js/IteratorsAndGenerators.vue'
 import WebComponents from '@/views/js/WebComponents.vue'
 import WebComponentsSecond from '@/views/js/WebComponentsSecond.vue'
 import JavaScriptModuleSystems from '@/views/js/JavaScriptModuleSystems.vue'
+import RegExp from '@/views/js/RegExp.vue'
 
 export const routes = [
   {
@@ -329,6 +330,10 @@ export const routes = [
   {
     path: '/module-systems/module-systems',
     component: JavaScriptModuleSystems,
+  },
+  {
+    path: '/regexp/regexp',
+    component: RegExp,
   },
   {
     path: '/docker/docker',
