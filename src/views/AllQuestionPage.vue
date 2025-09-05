@@ -210,6 +210,12 @@
               13. RegExp
             </v-list-item-title>
           </v-list-item>
+          <v-list-subheader>События DOM</v-list-subheader>
+          <v-list-item to="/dom-events/dom-events">
+            <v-list-item-title>
+              14. События DOM: жизненный цикл и обработка
+            </v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

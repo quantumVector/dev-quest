@@ -779,4 +779,296 @@ const currentPhaseStep = ref(1)
                   </v-row>
 
                   <div class="bg-orange-lighten-5 pa-4 rounded mb-3">
-                    <h4 class="font-weight-bold mb-2">На фазе цели:</h4
+                    <h4 class="font-weight-bold mb-2">На фазе цели:</h4>
+                    <ul class="pl-4 ma-0">
+                      <li><code>event.target === event.currentTarget</code> (true)</li>
+                      <li><code>event.eventPhase === 2</code> (AT_TARGET)</li>
+                      <li>Обработчики элемента-цели выполняются</li>
+                      <li>Единственная фаза, где target и currentTarget совпадают</li>
+                    </ul>
+                  </div>
+
+                  <v-alert color="warning" variant="tonal">
+                    <template v-slot:prepend>
+                      <v-icon>mdi-target</v-icon>
+                    </template>
+                    <strong>Важно:</strong> На фазе цели обработчики выполняются в порядке их регистрации
+                  </v-alert>
+                </v-card>
+              </template>
+
+              <template v-slot:item.3>
+                <v-card class="pa-6">
+                  <div class="d-flex align-center mb-4">
+                    <v-avatar color="success" size="large" class="mr-4">
+                      <v-icon size="large" color="white">mdi-arrow-up</v-icon>
+                    </v-avatar>
+                    <div>
+                      <h3 class="text-h6 font-weight-bold">3. Фаза всплытия (Bubbling)</h3>
+                      <p class="text-body-2 text-grey-600 ma-0">Событие идет от цели к корню</p>
+                    </div>
+                  </div>
+
+                  <p class="text-body-1 mb-3">
+                    После обработки на элементе-цели событие <strong>"всплывает"</strong> вверх по DOM-дереву
+                    к корню документа. На этой фазе срабатывают обработчики, зарегистрированные
+                    с <code>useCapture: false</code> (по умолчанию).
+                  </p>
+
+                  <v-alert color="success" variant="tonal" class="mb-3">
+                    <template v-slot:prepend>
+                      <v-icon>mdi-information</v-icon>
+                    </template>
+                    <strong>Особенность:</strong> На фазе всплытия event.eventPhase === 3 (BUBBLING_PHASE)
+                  </v-alert>
+
+                  <div class="bg-green-lighten-5 pa-4 rounded mb-3">
+                    <h4 class="font-weight-bold mb-2">Обратный путь события:</h4>
+                    <v-timeline density="compact">
+                      <v-timeline-item dot-color="success" size="small">
+                        <div class="font-weight-bold">Button (target) — обработано</div>
+                      </v-timeline-item>
+                      <v-timeline-item dot-color="success" size="small">
+                        <div class="font-weight-bold">Div (middle)</div>
+                      </v-timeline-item>
+                      <v-timeline-item dot-color="success" size="small">
+                        <div class="font-weight-bold">Div (outer)</div>
+                      </v-timeline-item>
+                      <v-timeline-item dot-color="success" size="small">
+                        <div class="font-weight-bold">Body</div>
+                      </v-timeline-item>
+                      <v-timeline-item dot-color="success" size="small">
+                        <div class="font-weight-bold">HTML</div>
+                      </v-timeline-item>
+                      <v-timeline-item dot-color="success" size="small">
+                        <div class="font-weight-bold">Document</div>
+                      </v-timeline-item>
+                    </v-timeline>
+                  </div>
+
+                  <v-list class="bg-grey-lighten-5 rounded">
+                    <v-list-subheader>Применение всплытия:</v-list-subheader>
+                    <v-list-item>
+                      <template v-slot:prepend>
+                        <v-icon color="success">mdi-family-tree</v-icon>
+                      </template>
+                      <v-list-item-title>Делегирование событий</v-list-item-title>
+                    </v-list-item>
+                    <v-list-item>
+                      <template v-slot:prepend>
+                        <v-icon color="success">mdi-close-box</v-icon>
+                      </template>
+                      <v-list-item-title>Закрытие модальных окон</v-list-item-title>
+                    </v-list-item>
+                    <v-list-item>
+                      <template v-slot:prepend>
+                        <v-icon color="success">mdi-menu</v-icon>
+                      </template>
+                      <v-list-item-title>Обработка меню и списков</v-list-item-title>
+                    </v-list-item>
+                  </v-list>
+                </v-card>
+              </template>
+            </v-stepper>
+
+            <h2 class="text-h5 font-weight-bold mb-3">target vs currentTarget</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedTargetVsCurrentTarget"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Отлов событий на фазе погружения</h2>
+            <v-alert color="info" class="mb-4">
+              <v-icon class="mr-2">mdi-information</v-icon>
+              <strong>Capturing Phase:</strong> Чтобы поймать событие на фазе погружения, передайте <code>true</code>
+              как третий параметр в <code>addEventListener()</code> или используйте <code>{ capture: true }</code>.
+            </v-alert>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedCapturingExample"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Делегирование событий</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedEventDelegation"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Управление распространением событий</h2>
+            <v-row class="mb-6">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <div class="d-flex align-center mb-3">
+                    <v-icon size="large" color="error" class="mr-2">mdi-stop</v-icon>
+                    <h3 class="text-h6 font-weight-bold">stopPropagation()</h3>
+                  </div>
+                  <p class="text-body-2 mb-2">Останавливает дальнейшее распространение события по DOM-дереву</p>
+                  <ul class="pl-4">
+                    <li>Не влияет на другие обработчики текущего элемента</li>
+                    <li>Работает на любой фазе</li>
+                    <li>Полезно для предотвращения нежелательных срабатываний</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <div class="d-flex align-center mb-3">
+                    <v-icon size="large" color="warning" class="mr-2">mdi-stop-circle</v-icon>
+                    <h3 class="text-h6 font-weight-bold">stopImmediatePropagation()</h3>
+                  </div>
+                  <p class="text-body-2 mb-2">Останавливает ВСЕ обработчики, включая текущий элемент</p>
+                  <ul class="pl-4">
+                    <li>Более радикальное решение</li>
+                    <li>Останавливает выполнение всех последующих обработчиков</li>
+                    <li>Используется в критических ситуациях</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedStopPropagation"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Кастомные события</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedCustomEvents"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Оптимизация производительности</h2>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedPerformance"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Частые вопросы на собеседовании</h2>
+            <ol class="ol-list mb-8">
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Объясните три фазы жизненного цикла события DOM.</p>
+                <p class="font-weight-regular ma-0">
+                  1) <strong>Capturing (погружение)</strong> — событие идет от корня к цели,
+                  2) <strong>Target (цель)</strong> — событие достигло элемента-источника,
+                  3) <strong>Bubbling (всплытие)</strong> — событие поднимается от цели к корню.
+                  Можно перехватить на любой фазе с помощью соответствующих обработчиков.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">В чем разница между event.target и event.currentTarget?</p>
+                <p class="font-weight-regular ma-0">
+                  <strong>event.target</strong> — элемент, на котором произошло событие (постоянное значение).
+                  <strong>event.currentTarget</strong> — элемент, на котором обрабатывается событие
+                  (меняется на каждой фазе). Они равны только на фазе Target.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Как отловить событие на фазе погружения?</p>
+                <p class="font-weight-regular ma-0">
+                  Передать <code>true</code> как третий параметр в <code>addEventListener(event, handler, true)</code>
+                  или использовать объект опций <code>{ capture: true }</code>. По умолчанию события
+                  отлавливаются на фазе всплытия.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Что такое делегирование событий и его преимущества?</p>
+                <p class="font-weight-regular ma-0">
+                  Техника, при которой один обработчик на родительском элементе обрабатывает события
+                  от всех дочерних элементов. Преимущества: меньше обработчиков, автоматическая работа
+                  с динамически добавленными элементами, лучшая производительность.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">В чем разница между stopPropagation() и stopImmediatePropagation()?</p>
+                <p class="font-weight-regular ma-0">
+                  <code>stopPropagation()</code> останавливает распространение события по DOM-дереву,
+                  но другие обработчики текущего элемента все еще выполняются.
+                  <code>stopImmediatePropagation()</code> останавливает все обработчики, включая
+                  остальные обработчики текущего элемента.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Когда использовать фазу погружения?</p>
+                <p class="font-weight-regular ma-0">
+                  Для глобальной аналитики, контроля доступа, предварительной обработки форм,
+                  перехвата всех событий определенного типа, когда нужно обработать событие
+                  до стандартных обработчиков.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Как создать и отправить кастомное событие?</p>
+                <p class="font-weight-regular ma-0">
+                  Использовать <code>new CustomEvent()</code> с опциями bubbles, cancelable, detail.
+                  Отправить через <code>element.dispatchEvent(customEvent)</code>. Кастомные события
+                  проходят тот же жизненный цикл, что и встроенные.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Какие есть способы оптимизации работы с событиями?</p>
+                <p class="font-weight-regular ma-0">
+                  Throttling и debouncing для частых событий (scroll, resize), делегирование событий,
+                  пассивные обработчики ({ passive: true }), отмена обработчиков при необходимости,
+                  использование requestAnimationFrame для анимаций.
+                </p>
+              </li>
+            </ol>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Сравнение фаз событий</h2>
+            <v-table density="comfortable" class="mb-8">
+              <thead>
+              <tr>
+                <th class="text-left font-weight-bold">Характеристика</th>
+                <th class="text-left font-weight-bold">Capturing</th>
+                <th class="text-left font-weight-bold">Target</th>
+                <th class="text-left font-weight-bold">Bubbling</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td><b>Направление</b></td>
+                <td>Корень → Цель</td>
+                <td>На цели</td>
+                <td>Цель → Корень</td>
+              </tr>
+              <tr>
+                <td><b>eventPhase</b></td>
+                <td>1 (CAPTURING_PHASE)</td>
+                <td>2 (AT_TARGET)</td>
+                <td>3 (BUBBLING_PHASE)</td>
+              </tr>
+              <tr>
+                <td><b>target === currentTarget</b></td>
+                <td>false</td>
+                <td>true</td>
+                <td>false</td>
+              </tr>
+              <tr>
+                <td><b>Как включить</b></td>
+                <td>capture: true</td>
+                <td>любой способ</td>
+                <td>по умолчанию</td>
+              </tr>
+              <tr>
+                <td><b>Частое применение</b></td>
+                <td>Глобальный контроль</td>
+                <td>Прямая обработка</td>
+                <td>Делегирование</td>
+              </tr>
+              </tbody>
+            </v-table>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Заключение</h2>
+            <p class="font-weight-regular mb-6">
+              Понимание фаз жизненного цикла событий DOM — фундаментальная концепция для эффективной работы с JavaScript.
+              <strong>Capturing</strong> позволяет перехватывать события до их обработки, <strong>Target</strong> фаза
+              обрабатывает события на элементе-источнике, а <strong>Bubbling</strong> обеспечивает делегирование событий.
+              Правильное использование <code>event.target</code> и <code>event.currentTarget</code> критично для
+              создания эффективных и поддерживаемых интерфейсов.
+            </p>
+
+            <div class="d-flex justify-end">
+              <v-btn
+                color="primary"
+                size="small"
+                variant="elevated"
+                href="https://developer.mozilla.org/en-US/docs/Web/API/Event"
+                target="_blank"
+                class="mr-2">
+                MDN Event API
+              </v-btn>
+              <v-btn
+                color="secondary"
+                size="small"
+                variant="elevated"
+                href="https://learn.javascript.ru/bubbling-and-capturing"
+                target="_blank">
+                Учебник JavaScript
+              </v-btn>
+            </div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-app>
+</template>

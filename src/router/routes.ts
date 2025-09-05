@@ -73,6 +73,7 @@ import WebComponents from '@/views/js/WebComponents.vue'
 import WebComponentsSecond from '@/views/js/WebComponentsSecond.vue'
 import JavaScriptModuleSystems from '@/views/js/JavaScriptModuleSystems.vue'
 import RegExp from '@/views/js/RegExp.vue'
+import DOMEvents from '@/views/js/DOMEvents.vue'
 
 export const routes = [
   {
@@ -334,6 +335,10 @@ export const routes = [
   {
     path: '/regexp/regexp',
     component: RegExp,
+  },
+  {
+    path: '/dom-events/dom-events',
+    component: DOMEvents,
   },
   {
     path: '/docker/docker',
