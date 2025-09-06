@@ -54,6 +54,9 @@
           <v-list-item to="/js/async-test">
             <v-list-item-title>4. Асинхронность</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/js/event-loop-test">
+            <v-list-item-title>5. Event Loop</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
