@@ -74,6 +74,7 @@ import WebComponentsSecond from '@/views/js/WebComponentsSecond.vue'
 import JavaScriptModuleSystems from '@/views/js/JavaScriptModuleSystems.vue'
 import RegExp from '@/views/js/RegExp.vue'
 import DOMEvents from '@/views/js/DOMEvents.vue'
+import JSFunctionsTestPage from '@/views/tests/JSFunctionsTestPage.vue'
 
 export const routes = [
   {
@@ -339,6 +340,10 @@ export const routes = [
   {
     path: '/dom-events/dom-events',
     component: DOMEvents,
+  },
+  {
+    path: '/js/functions-test',
+    component: JSFunctionsTestPage,
   },
   {
     path: '/docker/docker',

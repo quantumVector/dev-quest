@@ -38,5 +38,15 @@
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
+
+    <v-expansion-panel title="JavaScript">
+      <v-expansion-panel-text>
+        <v-list>
+          <v-list-item to="/js/functions-test">
+            <v-list-item-title>1. Функции</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-expansion-panel-text>
+    </v-expansion-panel>
   </v-expansion-panels>
 </template>
