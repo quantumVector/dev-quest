@@ -66,6 +66,9 @@
           <v-list-item to="/js/symbol-test">
             <v-list-item-title>8. Symbol</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/js/descriptors-test">
+            <v-list-item-title>9. Дескрипторы свойств объектов</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

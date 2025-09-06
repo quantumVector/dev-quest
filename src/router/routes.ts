@@ -82,6 +82,7 @@ import JSEventLoopTestPage from '@/views/tests/JSEventLoopTestPage.vue'
 import JSContextTestPage from '@/views/tests/JSContextTestPage.vue'
 import JSPrototypeTestPage from '@/views/tests/JSPrototypeTestPage.vue'
 import JSSymbolTestPage from '@/views/tests/JSSymbolTestPage.vue'
+import JSObjectDescriptorsTestPage from '@/views/tests/JSObjectDescriptorsTestPage.vue'
 
 export const routes = [
   {
@@ -379,6 +380,10 @@ export const routes = [
   {
     path: '/js/symbol-test',
     component: JSSymbolTestPage,
+  },
+  {
+    path: '/js/descriptors-test',
+    component: JSObjectDescriptorsTestPage,
   },
   {
     path: '/docker/docker',
