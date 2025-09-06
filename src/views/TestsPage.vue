@@ -48,6 +48,9 @@
           <v-list-item to="/js/closures-test">
             <v-list-item-title>2. Замыкания</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/js/hoisting-test">
+            <v-list-item-title>3. Hoisting</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
