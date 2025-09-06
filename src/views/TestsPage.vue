@@ -57,6 +57,9 @@
           <v-list-item to="/js/event-loop-test">
             <v-list-item-title>5. Event Loop</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/js/context-test">
+            <v-list-item-title>6. Контекст выполнения</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

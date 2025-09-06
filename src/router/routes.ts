@@ -79,6 +79,7 @@ import JSClosuresTestPage from '@/views/tests/JSClosuresTestPage.vue'
 import JSHoistingTestPage from '@/views/tests/JSHoistingTestPage.vue'
 import JSAsyncTestPage from '@/views/tests/JSAsyncTestPage.vue'
 import JSEventLoopTestPage from '@/views/tests/JSEventLoopTestPage.vue'
+import JSContextTestPage from '@/views/tests/JSContextTestPage.vue'
 
 export const routes = [
   {
@@ -364,6 +365,10 @@ export const routes = [
   {
     path: '/js/event-loop-test',
     component: JSEventLoopTestPage,
+  },
+  {
+    path: '/js/context-test',
+    component: JSContextTestPage,
   },
   {
     path: '/docker/docker',
