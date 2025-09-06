@@ -77,6 +77,7 @@ import DOMEvents from '@/views/js/DOMEvents.vue'
 import JSFunctionsTestPage from '@/views/tests/JSFunctionsTestPage.vue'
 import JSClosuresTestPage from '@/views/tests/JSClosuresTestPage.vue'
 import JSHoistingTestPage from '@/views/tests/JSHoistingTestPage.vue'
+import JSAsyncTestPage from '@/views/tests/JSAsyncTestPage.vue'
 
 export const routes = [
   {
@@ -354,6 +355,10 @@ export const routes = [
   {
     path: '/js/hoisting-test',
     component: JSHoistingTestPage,
+  },
+  {
+    path: '/js/async-test',
+    component: JSAsyncTestPage,
   },
   {
     path: '/docker/docker',
