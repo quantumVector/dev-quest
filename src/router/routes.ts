@@ -84,6 +84,8 @@ import JSPrototypeTestPage from '@/views/tests/JSPrototypeTestPage.vue'
 import JSSymbolTestPage from '@/views/tests/JSSymbolTestPage.vue'
 import JSObjectDescriptorsTestPage from '@/views/tests/JSObjectDescriptorsTestPage.vue'
 import JSIteratorsTestPage from '@/views/tests/JSIteratorsTestPage.vue'
+import JSModuleSystemsTestPage from '@/views/tests/JSModuleSystemsTestPage.vue'
+import JSRegExpTestPage from '@/views/tests/JSRegExpTestPage.vue'
 
 export const routes = [
   {
@@ -389,6 +391,14 @@ export const routes = [
   {
     path: '/js/iterators-test',
     component: JSIteratorsTestPage,
+  },
+  {
+    path: '/js/module-systems-test',
+    component: JSModuleSystemsTestPage,
+  },
+  {
+    path: '/js/regexp-test',
+    component: JSRegExpTestPage,
   },
   {
     path: '/docker/docker',

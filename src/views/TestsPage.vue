@@ -72,6 +72,12 @@
           <v-list-item to="/js/iterators-test">
             <v-list-item-title>10. Итераторы и Генераторы</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/js/module-systems-test">
+            <v-list-item-title>11. Системы Модулей</v-list-item-title>
+          </v-list-item>
+          <v-list-item to="/js/regexp-test">
+            <v-list-item-title>12. RegExp</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
