@@ -80,6 +80,8 @@ import JSHoistingTestPage from '@/views/tests/JSHoistingTestPage.vue'
 import JSAsyncTestPage from '@/views/tests/JSAsyncTestPage.vue'
 import JSEventLoopTestPage from '@/views/tests/JSEventLoopTestPage.vue'
 import JSContextTestPage from '@/views/tests/JSContextTestPage.vue'
+import JSPrototypeTestPage from '@/views/tests/JSPrototypeTestPage.vue'
+import JSSymbolTestPage from '@/views/tests/JSSymbolTestPage.vue'
 
 export const routes = [
   {
@@ -369,6 +371,14 @@ export const routes = [
   {
     path: '/js/context-test',
     component: JSContextTestPage,
+  },
+  {
+    path: '/js/prototype-test',
+    component: JSPrototypeTestPage,
+  },
+  {
+    path: '/js/symbol-test',
+    component: JSSymbolTestPage,
   },
   {
     path: '/docker/docker',

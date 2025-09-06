@@ -60,6 +60,12 @@
           <v-list-item to="/js/context-test">
             <v-list-item-title>6. Контекст выполнения</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/js/prototype-test">
+            <v-list-item-title>7. Prototype</v-list-item-title>
+          </v-list-item>
+          <v-list-item to="/js/symbol-test">
+            <v-list-item-title>8. Symbol</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
