@@ -75,6 +75,7 @@ import JavaScriptModuleSystems from '@/views/js/JavaScriptModuleSystems.vue'
 import RegExp from '@/views/js/RegExp.vue'
 import DOMEvents from '@/views/js/DOMEvents.vue'
 import JSFunctionsTestPage from '@/views/tests/JSFunctionsTestPage.vue'
+import JSClosuresTestPage from '@/views/tests/JSClosuresTestPage.vue'
 
 export const routes = [
   {
@@ -344,6 +345,10 @@ export const routes = [
   {
     path: '/js/functions-test',
     component: JSFunctionsTestPage,
+  },
+  {
+    path: '/js/closures-test',
+    component: JSClosuresTestPage,
   },
   {
     path: '/docker/docker',

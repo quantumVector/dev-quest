@@ -45,6 +45,9 @@
           <v-list-item to="/js/functions-test">
             <v-list-item-title>1. Функции</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/js/closures-test">
+            <v-list-item-title>2. Замыкания</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
