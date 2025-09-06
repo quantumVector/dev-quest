@@ -87,6 +87,7 @@ import JSIteratorsTestPage from '@/views/tests/JSIteratorsTestPage.vue'
 import JSModuleSystemsTestPage from '@/views/tests/JSModuleSystemsTestPage.vue'
 import JSRegExpTestPage from '@/views/tests/JSRegExpTestPage.vue'
 import JSDOMEventsTestPage from '@/views/tests/JSDOMEventsTestPage.vue'
+import JSInterviewPage from '@/views/interview/JSInterviewPage.vue'
 
 export const routes = [
   {
@@ -404,6 +405,10 @@ export const routes = [
   {
     path: '/js/dom-events-test',
     component: JSDOMEventsTestPage,
+  },
+  {
+    path: '/js/js-interview',
+    component: JSInterviewPage,
   },
   {
     path: '/docker/docker',

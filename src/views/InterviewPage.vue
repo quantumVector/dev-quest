@@ -18,19 +18,10 @@
             <v-row>
               <!-- HTML блок -->
               <v-col cols="12" md="6">
-                <v-card
-                  variant="outlined"
-                  hover
-                  class="h-100"
-                  to="/html/html-interview"
-                >
+                <v-card variant="outlined" hover class="h-100" to="/html/html-interview">
                   <v-card-text class="pa-6">
                     <div class="d-flex align-center mb-4">
-                      <v-avatar
-                        color="orange"
-                        size="large"
-                        class="mr-4"
-                      >
+                      <v-avatar color="orange" size="large" class="mr-4">
                         <v-icon size="large">mdi-language-html5</v-icon>
                       </v-avatar>
                       <div>
@@ -42,40 +33,19 @@
                     </div>
 
                     <div class="mb-4">
-                      <v-chip
-                        color="success"
-                        size="small"
-                        class="mr-2 mb-2"
-                      >
-                        Junior: 6
-                      </v-chip>
-                      <v-chip
-                        color="warning"
-                        size="small"
-                        class="mr-2 mb-2"
-                      >
-                        Middle: 23
-                      </v-chip>
-                      <v-chip
-                        color="error"
-                        size="small"
-                        class="mr-2 mb-2"
-                      >
-                        Senior: 16
-                      </v-chip>
+                      <v-chip color="success" size="small" class="mr-2 mb-2"> Junior: 6 </v-chip>
+                      <v-chip color="warning" size="small" class="mr-2 mb-2"> Middle: 23 </v-chip>
+                      <v-chip color="error" size="small" class="mr-2 mb-2"> Senior: 16 </v-chip>
                     </div>
 
                     <p class="text-body-2 mb-0">
-                      Вопросы по основам HTML, семантической верстке, доступности и современным возможностям языка разметки.
+                      Вопросы по основам HTML, семантической верстке, доступности и современным
+                      возможностям языка разметки.
                     </p>
                   </v-card-text>
 
                   <v-card-actions class="pa-6 pt-0">
-                    <v-btn
-                      color="orange"
-                      variant="tonal"
-                      append-icon="mdi-arrow-right"
-                    >
+                    <v-btn color="orange" variant="tonal" append-icon="mdi-arrow-right">
                       Начать подготовку
                     </v-btn>
                   </v-card-actions>
@@ -84,19 +54,10 @@
 
               <!-- CSS блок (пока заглушка) -->
               <v-col cols="12" md="6">
-                <v-card
-                  variant="outlined"
-                  hover
-                  class="h-100"
-                  to="/css/css-interview"
-                >
+                <v-card variant="outlined" hover class="h-100" to="/css/css-interview">
                   <v-card-text class="pa-6">
                     <div class="d-flex align-center mb-4">
-                      <v-avatar
-                        color="blue"
-                        size="large"
-                        class="mr-4"
-                      >
+                      <v-avatar color="blue" size="large" class="mr-4">
                         <v-icon size="large">mdi-language-css3</v-icon>
                       </v-avatar>
                       <div>
@@ -108,40 +69,19 @@
                     </div>
 
                     <div class="mb-4">
-                      <v-chip
-                        color="success"
-                        size="small"
-                        class="mr-2 mb-2"
-                      >
-                        Junior: 9
-                      </v-chip>
-                      <v-chip
-                        color="warning"
-                        size="small"
-                        class="mr-2 mb-2"
-                      >
-                        Middle: 41
-                      </v-chip>
-                      <v-chip
-                        color="error"
-                        size="small"
-                        class="mr-2 mb-2"
-                      >
-                        Senior: 32
-                      </v-chip>
+                      <v-chip color="success" size="small" class="mr-2 mb-2"> Junior: 9 </v-chip>
+                      <v-chip color="warning" size="small" class="mr-2 mb-2"> Middle: 41 </v-chip>
+                      <v-chip color="error" size="small" class="mr-2 mb-2"> Senior: 32 </v-chip>
                     </div>
 
                     <p class="text-body-2 mb-0">
-                      Вопросы по селекторам, специфичности, flexbox, grid, анимациям и другим возможностям CSS.
+                      Вопросы по селекторам, специфичности, flexbox, grid, анимациям и другим
+                      возможностям CSS.
                     </p>
                   </v-card-text>
 
                   <v-card-actions class="pa-6 pt-0">
-                    <v-btn
-                      color="orange"
-                      variant="tonal"
-                      append-icon="mdi-arrow-right"
-                    >
+                    <v-btn color="orange" variant="tonal" append-icon="mdi-arrow-right">
                       Начать подготовку
                     </v-btn>
                   </v-card-actions>
@@ -150,64 +90,32 @@
 
               <!-- Паттерны блок -->
               <v-col cols="12" md="6">
-                <v-card
-                  variant="outlined"
-                  hover
-                  class="h-100"
-                  disabled
-                >
+                <v-card variant="outlined" hover class="h-100" disabled>
                   <v-card-text class="pa-6">
                     <div class="d-flex align-center mb-4">
-                      <v-avatar
-                        color="purple"
-                        size="large"
-                        class="mr-4"
-                      >
+                      <v-avatar color="purple" size="large" class="mr-4">
                         <v-icon size="large">mdi-puzzle-outline</v-icon>
                       </v-avatar>
                       <div>
                         <h3 class="text-h5 mb-1">Паттерны</h3>
-                        <p class="text-body-2 text-medium-emphasis mb-0">
-                          Паттерны проектирования
-                        </p>
+                        <p class="text-body-2 text-medium-emphasis mb-0">Паттерны проектирования</p>
                       </div>
                     </div>
 
                     <div class="mb-4">
-                      <v-chip
-                        color="success"
-                        size="small"
-                        class="mr-2 mb-2"
-                      >
-                        Junior: 5
-                      </v-chip>
-                      <v-chip
-                        color="warning"
-                        size="small"
-                        class="mr-2 mb-2"
-                      >
-                        Middle: 18
-                      </v-chip>
-                      <v-chip
-                        color="error"
-                        size="small"
-                        class="mr-2 mb-2"
-                      >
-                        Senior: 24
-                      </v-chip>
+                      <v-chip color="success" size="small" class="mr-2 mb-2"> Junior: 5 </v-chip>
+                      <v-chip color="warning" size="small" class="mr-2 mb-2"> Middle: 18 </v-chip>
+                      <v-chip color="error" size="small" class="mr-2 mb-2"> Senior: 24 </v-chip>
                     </div>
 
                     <p class="text-body-2 mb-0">
-                      Вопросы по классическим паттернам проектирования, архитектурным решениям и принципам SOLID.
+                      Вопросы по классическим паттернам проектирования, архитектурным решениям и
+                      принципам SOLID.
                     </p>
                   </v-card-text>
 
                   <v-card-actions class="pa-6 pt-0">
-                    <v-btn
-                      color="purple"
-                      variant="tonal"
-                      append-icon="mdi-arrow-right"
-                    >
+                    <v-btn color="purple" variant="tonal" append-icon="mdi-arrow-right">
                       Начать подготовку
                     </v-btn>
                   </v-card-actions>
@@ -216,19 +124,10 @@
 
               <!-- Алгоритмы блок -->
               <v-col cols="12" md="6">
-                <v-card
-                  variant="outlined"
-                  hover
-                  class="h-100"
-                  disabled
-                >
+                <v-card variant="outlined" hover class="h-100" disabled>
                   <v-card-text class="pa-6">
                     <div class="d-flex align-center mb-4">
-                      <v-avatar
-                        color="teal"
-                        size="large"
-                        class="mr-4"
-                      >
+                      <v-avatar color="teal" size="large" class="mr-4">
                         <v-icon size="large">mdi-math-compass</v-icon>
                       </v-avatar>
                       <div>
@@ -240,94 +139,54 @@
                     </div>
 
                     <div class="mb-4">
-                      <v-chip
-                        color="success"
-                        size="small"
-                        class="mr-2 mb-2"
-                      >
-                        Junior: 8
-                      </v-chip>
-                      <v-chip
-                        color="warning"
-                        size="small"
-                        class="mr-2 mb-2"
-                      >
-                        Middle: 22
-                      </v-chip>
-                      <v-chip
-                        color="error"
-                        size="small"
-                        class="mr-2 mb-2"
-                      >
-                        Senior: 19
-                      </v-chip>
+                      <v-chip color="success" size="small" class="mr-2 mb-2"> Junior: 8 </v-chip>
+                      <v-chip color="warning" size="small" class="mr-2 mb-2"> Middle: 22 </v-chip>
+                      <v-chip color="error" size="small" class="mr-2 mb-2"> Senior: 19 </v-chip>
                     </div>
 
                     <p class="text-body-2 mb-0">
-                      Вопросы по алгоритмам поиска, сортировки, структурам данных и анализу сложности.
+                      Вопросы по алгоритмам поиска, сортировки, структурам данных и анализу
+                      сложности.
                     </p>
                   </v-card-text>
 
                   <v-card-actions class="pa-6 pt-0">
-                    <v-btn
-                      color="teal"
-                      variant="tonal"
-                      append-icon="mdi-arrow-right"
-                    >
+                    <v-btn color="teal" variant="tonal" append-icon="mdi-arrow-right">
                       Начать подготовку
                     </v-btn>
                   </v-card-actions>
                 </v-card>
               </v-col>
 
-              <!-- JavaScript блок (пока заглушка) -->
+              <!-- JavaScript Functions блок -->
               <v-col cols="12" md="6">
-                <v-card
-                  variant="outlined"
-                  hover
-                  class="h-100"
-                  disabled
-                >
+                <v-card variant="outlined" hover class="h-100" to="/js/js-interview">
                   <v-card-text class="pa-6">
                     <div class="d-flex align-center mb-4">
-                      <v-avatar
-                        color="yellow-darken-2"
-                        size="large"
-                        class="mr-4"
-                      >
+                      <v-avatar color="yellow-darken-2" size="large" class="mr-4">
                         <v-icon size="large">mdi-language-javascript</v-icon>
                       </v-avatar>
                       <div>
-                        <h3 class="text-h5 mb-1">JavaScript</h3>
-                        <p class="text-body-2 text-medium-emphasis mb-0">
-                          Язык программирования
-                        </p>
+                        <h3 class="text-h5 mb-1">JS Functions</h3>
+                        <p class="text-body-2 text-medium-emphasis mb-0">JavaScript</p>
                       </div>
                     </div>
 
                     <div class="mb-4">
-                      <v-chip
-                        color="grey"
-                        size="small"
-                        class="mr-2 mb-2"
-                      >
-                        Скоро будет доступно
-                      </v-chip>
+                      <v-chip color="success" size="small" class="mr-2 mb-2"> Junior: 3 </v-chip>
+                      <v-chip color="warning" size="small" class="mr-2 mb-2"> Middle: 8 </v-chip>
+                      <v-chip color="error" size="small" class="mr-2 mb-2"> Senior: 4 </v-chip>
                     </div>
 
                     <p class="text-body-2 mb-0">
-                      Вопросы по основам языка, асинхронности, DOM, событиям и современным возможностям JavaScript.
+                      Вопросы по JavaScript: объявление, типы, замыкания, контекст
+                      выполнения и продвинутые концепции.
                     </p>
                   </v-card-text>
 
                   <v-card-actions class="pa-6 pt-0">
-                    <v-btn
-                      color="yellow-darken-2"
-                      variant="tonal"
-                      disabled
-                      append-icon="mdi-arrow-right"
-                    >
-                      В разработке
+                    <v-btn color="yellow-darken-2" variant="tonal" append-icon="mdi-arrow-right">
+                      Начать подготовку
                     </v-btn>
                   </v-card-actions>
                 </v-card>
@@ -335,35 +194,20 @@
 
               <!-- React блок (пока заглушка) -->
               <v-col cols="12" md="6">
-                <v-card
-                  variant="outlined"
-                  hover
-                  class="h-100"
-                  disabled
-                >
+                <v-card variant="outlined" hover class="h-100" disabled>
                   <v-card-text class="pa-6">
                     <div class="d-flex align-center mb-4">
-                      <v-avatar
-                        color="cyan"
-                        size="large"
-                        class="mr-4"
-                      >
+                      <v-avatar color="cyan" size="large" class="mr-4">
                         <v-icon size="large">mdi-react</v-icon>
                       </v-avatar>
                       <div>
                         <h3 class="text-h5 mb-1">React</h3>
-                        <p class="text-body-2 text-medium-emphasis mb-0">
-                          Библиотека для UI
-                        </p>
+                        <p class="text-body-2 text-medium-emphasis mb-0">Библиотека для UI</p>
                       </div>
                     </div>
 
                     <div class="mb-4">
-                      <v-chip
-                        color="grey"
-                        size="small"
-                        class="mr-2 mb-2"
-                      >
+                      <v-chip color="grey" size="small" class="mr-2 mb-2">
                         Скоро будет доступно
                       </v-chip>
                     </div>
@@ -374,12 +218,7 @@
                   </v-card-text>
 
                   <v-card-actions class="pa-6 pt-0">
-                    <v-btn
-                      color="cyan"
-                      variant="tonal"
-                      disabled
-                      append-icon="mdi-arrow-right"
-                    >
+                    <v-btn color="cyan" variant="tonal" disabled append-icon="mdi-arrow-right">
                       В разработке
                     </v-btn>
                   </v-card-actions>
@@ -390,22 +229,17 @@
             <!-- Информационный блок -->
             <v-row class="mt-6">
               <v-col cols="12">
-                <v-alert
-                  type="info"
-                  variant="tonal"
-                  class="mb-4"
-                >
+                <v-alert type="info" variant="tonal" class="mb-4">
                   <v-alert-title>💡 Как использовать</v-alert-title>
-                  <p class="mb-2">
-                    Каждая тема содержит вопросы разного уровня сложности:
-                  </p>
+                  <p class="mb-2">Каждая тема содержит вопросы разного уровня сложности:</p>
                   <ul class="mb-2">
                     <li><strong>Junior</strong> — базовые концепции и основы</li>
                     <li><strong>Middle</strong> — углубленные знания и практический опыт</li>
                     <li><strong>Senior</strong> — архитектурные решения и экспертные знания</li>
                   </ul>
                   <p class="mb-0">
-                    Ответы содержат не только правильную информацию, но и объяснения, которые помогут вам лучше понять тему.
+                    Ответы содержат не только правильную информацию, но и объяснения, которые
+                    помогут вам лучше понять тему.
                   </p>
                 </v-alert>
               </v-col>
