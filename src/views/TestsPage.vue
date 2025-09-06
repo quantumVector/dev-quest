@@ -78,6 +78,9 @@
           <v-list-item to="/js/regexp-test">
             <v-list-item-title>12. RegExp</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/js/dom-events-test">
+            <v-list-item-title>13. События DOM</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

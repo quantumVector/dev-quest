@@ -86,6 +86,7 @@ import JSObjectDescriptorsTestPage from '@/views/tests/JSObjectDescriptorsTestPa
 import JSIteratorsTestPage from '@/views/tests/JSIteratorsTestPage.vue'
 import JSModuleSystemsTestPage from '@/views/tests/JSModuleSystemsTestPage.vue'
 import JSRegExpTestPage from '@/views/tests/JSRegExpTestPage.vue'
+import JSDOMEventsTestPage from '@/views/tests/JSDOMEventsTestPage.vue'
 
 export const routes = [
   {
@@ -399,6 +400,10 @@ export const routes = [
   {
     path: '/js/regexp-test',
     component: JSRegExpTestPage,
+  },
+  {
+    path: '/js/dom-events-test',
+    component: JSDOMEventsTestPage,
   },
   {
     path: '/docker/docker',
