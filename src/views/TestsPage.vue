@@ -69,6 +69,9 @@
           <v-list-item to="/js/descriptors-test">
             <v-list-item-title>9. Дескрипторы свойств объектов</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/js/iterators-test">
+            <v-list-item-title>10. Итераторы и Генераторы</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

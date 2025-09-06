@@ -83,6 +83,7 @@ import JSContextTestPage from '@/views/tests/JSContextTestPage.vue'
 import JSPrototypeTestPage from '@/views/tests/JSPrototypeTestPage.vue'
 import JSSymbolTestPage from '@/views/tests/JSSymbolTestPage.vue'
 import JSObjectDescriptorsTestPage from '@/views/tests/JSObjectDescriptorsTestPage.vue'
+import JSIteratorsTestPage from '@/views/tests/JSIteratorsTestPage.vue'
 
 export const routes = [
   {
@@ -384,6 +385,10 @@ export const routes = [
   {
     path: '/js/descriptors-test',
     component: JSObjectDescriptorsTestPage,
+  },
+  {
+    path: '/js/iterators-test',
+    component: JSIteratorsTestPage,
   },
   {
     path: '/docker/docker',
