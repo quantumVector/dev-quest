@@ -62,7 +62,7 @@ const collapseAll = () => {
 <template>
   <v-container>
     <v-row justify="center">
-      <v-col cols="12" md="10" lg="8">
+      <v-col cols="10">
         <v-card>
           <v-card-title class="text-h4 text-center pa-6">
             {{ title }}
@@ -125,7 +125,7 @@ const collapseAll = () => {
               >
                 <v-expansion-panel-title>
                   <div class="d-flex align-center justify-space-between w-100">
-                    <div class="flex-grow-1">
+                    <div class="flex-grow-1" style="max-width: 500px">
                       <div class="text-subtitle-1 font-weight-medium">
                         {{ question.question }}
                       </div>
@@ -139,7 +139,7 @@ const collapseAll = () => {
                       >
                         {{ getDifficultyText(question.difficulty) }}
                       </v-chip>
-                      <div v-if="showTags && question.tags" class="d-flex gap-1">
+                      <div v-if="showTags && question.tags" class="d-flex flex-wrap gap-1" style="max-width: 200px; gap: 3px">
                         <v-chip
                           v-for="tag in question.tags"
                           :key="tag"
