@@ -91,6 +91,7 @@ import JSInterviewPage from '@/views/interview/JSInterviewPage.vue'
 import BlobAndFile from '@/views/web-api/BlobAndFile.vue'
 import FetchAPIandXMLHttpRequest from '@/views/web-api/FetchAPIandXMLHttpRequest.vue'
 import MaintainingConnectionServer from '@/views/web-api/MaintainingConnectionServer.vue'
+import IntersectionObserverInfo from '@/views/web-api/IntersectionObserverInfo.vue'
 
 export const routes = [
   {
@@ -424,6 +425,10 @@ export const routes = [
   {
     path: '/web-api/maintaining-connection-server',
     component: MaintainingConnectionServer,
+  },
+  {
+    path: '/web-api/intersection-observer',
+    component: IntersectionObserverInfo,
   },
   {
     path: '/docker/docker',

@@ -232,6 +232,9 @@
           <v-list-item to="/web-api/maintaining-connection-server">
             <v-list-item-title>3. Поддержание cоединения c cервером</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/web-api/intersection-observer">
+            <v-list-item-title>4. IntersectionObserver</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
