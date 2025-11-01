@@ -226,6 +226,9 @@
           <v-list-item to="/web-api/blob-and-file">
             <v-list-item-title>1. Blob И File</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/web-api/fetch-api-and-xml-http-request">
+            <v-list-item-title>2. FetchAPI XMLHttpRequest</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
