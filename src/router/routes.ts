@@ -90,6 +90,7 @@ import JSDOMEventsTestPage from '@/views/tests/JSDOMEventsTestPage.vue'
 import JSInterviewPage from '@/views/interview/JSInterviewPage.vue'
 import BlobAndFile from '@/views/web-api/BlobAndFile.vue'
 import FetchAPIandXMLHttpRequest from '@/views/web-api/FetchAPIandXMLHttpRequest.vue'
+import MaintainingConnectionServer from '@/views/web-api/MaintainingConnectionServer.vue'
 
 export const routes = [
   {
@@ -419,6 +420,10 @@ export const routes = [
   {
     path: '/web-api/fetch-api-and-xml-http-request',
     component: FetchAPIandXMLHttpRequest,
+  },
+  {
+    path: '/web-api/maintaining-connection-server',
+    component: MaintainingConnectionServer,
   },
   {
     path: '/docker/docker',
