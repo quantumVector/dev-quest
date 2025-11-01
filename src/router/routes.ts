@@ -93,6 +93,7 @@ import FetchAPIandXMLHttpRequest from '@/views/web-api/FetchAPIandXMLHttpRequest
 import MaintainingConnectionServer from '@/views/web-api/MaintainingConnectionServer.vue'
 import IntersectionObserverInfo from '@/views/web-api/IntersectionObserverInfo.vue'
 import ResizeObserverInfo from '@/views/web-api/ResizeObserverInfo.vue'
+import MutationObserverInfo from '@/views/web-api/MutationObserverInfo.vue'
 
 export const routes = [
   {
@@ -434,6 +435,10 @@ export const routes = [
   {
     path: '/web-api/resize-observer',
     component: ResizeObserverInfo,
+  },
+  {
+    path: '/web-api/mutation-observer',
+    component: MutationObserverInfo,
   },
   {
     path: '/docker/docker',
