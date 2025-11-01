@@ -235,6 +235,9 @@
           <v-list-item to="/web-api/intersection-observer">
             <v-list-item-title>4. IntersectionObserver</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/web-api/resize-observer">
+            <v-list-item-title>5. ResizeObserver</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

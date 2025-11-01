@@ -92,6 +92,7 @@ import BlobAndFile from '@/views/web-api/BlobAndFile.vue'
 import FetchAPIandXMLHttpRequest from '@/views/web-api/FetchAPIandXMLHttpRequest.vue'
 import MaintainingConnectionServer from '@/views/web-api/MaintainingConnectionServer.vue'
 import IntersectionObserverInfo from '@/views/web-api/IntersectionObserverInfo.vue'
+import ResizeObserverInfo from '@/views/web-api/ResizeObserverInfo.vue'
 
 export const routes = [
   {
@@ -429,6 +430,10 @@ export const routes = [
   {
     path: '/web-api/intersection-observer',
     component: IntersectionObserverInfo,
+  },
+  {
+    path: '/web-api/resize-observer',
+    component: ResizeObserverInfo,
   },
   {
     path: '/docker/docker',
