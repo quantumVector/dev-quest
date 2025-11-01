@@ -88,6 +88,7 @@ import JSModuleSystemsTestPage from '@/views/tests/JSModuleSystemsTestPage.vue'
 import JSRegExpTestPage from '@/views/tests/JSRegExpTestPage.vue'
 import JSDOMEventsTestPage from '@/views/tests/JSDOMEventsTestPage.vue'
 import JSInterviewPage from '@/views/interview/JSInterviewPage.vue'
+import BlobAndFile from '@/views/web-api/BlobAndFile.vue'
 
 export const routes = [
   {
@@ -409,6 +410,10 @@ export const routes = [
   {
     path: '/js/js-interview',
     component: JSInterviewPage,
+  },
+  {
+    path: '/web-api/blob-and-file',
+    component: BlobAndFile,
   },
   {
     path: '/docker/docker',

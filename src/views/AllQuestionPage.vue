@@ -220,6 +220,16 @@
       </v-expansion-panel-text>
     </v-expansion-panel>
 
+    <v-expansion-panel title="WebAPI">
+      <v-expansion-panel-text>
+        <v-list>
+          <v-list-item to="/web-api/blob-and-file">
+            <v-list-item-title>1. Blob И File</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-expansion-panel-text>
+    </v-expansion-panel>
+
     <v-expansion-panel title="Docker">
       <v-expansion-panel-text>
         <v-list>
