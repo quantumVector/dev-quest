@@ -2409,4 +2409,310 @@ onMounted(() => {
               <v-col cols="12" md="4">
                 <v-card class="pa-4 h-100 text-center">
                   <v-icon size="large" color="info" class="mb-2">mdi-lightbulb</v-icon>
-                  <h3 class="text-h6 font-weight-bold mb-2">
+                  <h3 class="text-h6 font-weight-bold mb-2">💡 Советы</h3>
+                  <ul class="text-left pl-4">
+                    <li>Мониторьте качество соединения</li>
+                    <li>Используйте сжатие данных (gzip)</li>
+                    <li>Реализуйте очередь сообщений</li>
+                    <li>Логируйте события соединения</li>
+                    <li>Тестируйте на разных устройствах</li>
+                    <li>Используйте библиотеки (Socket.IO)</li>
+                    <li>Документируйте протокол обмена</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <!-- Библиотеки -->
+            <h2 class="text-h5 font-weight-bold mb-3">Популярные библиотеки</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <div class="d-flex align-center mb-3">
+                    <v-icon size="large" color="primary" class="mr-2">mdi-package-variant</v-icon>
+                    <h3 class="text-h6 font-weight-bold">Socket.IO</h3>
+                  </div>
+                  <p class="text-body-2 mb-2">Самая популярная библиотека для real-time коммуникации</p>
+                  <ul class="pl-4 text-body-2">
+                    <li>Автоматический fallback (WebSocket → Polling)</li>
+                    <li>Автопереподключение</li>
+                    <li>Комнаты и namespace</li>
+                    <li>Бинарные данные</li>
+                    <li>Broadcast и группы</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <div class="d-flex align-center mb-3">
+                    <v-icon size="large" color="success" class="mr-2">mdi-lightning-bolt</v-icon>
+                    <h3 class="text-h6 font-weight-bold">ws (Node.js)</h3>
+                  </div>
+                  <p class="text-body-2 mb-2">Простая и быстрая WebSocket библиотека</p>
+                  <ul class="pl-4 text-body-2">
+                    <li>Минимальные зависимости</li>
+                    <li>Высокая производительность</li>
+                    <li>WebSocket Server для Node.js</li>
+                    <li>Поддержка перфоманс тестов</li>
+                    <li>Простой API</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <div class="d-flex align-center mb-3">
+                    <v-icon size="large" color="info" class="mr-2">mdi-head-snowflake</v-icon>
+                    <h3 class="text-h6 font-weight-bold">SockJS</h3>
+                  </div>
+                  <p class="text-body-2 mb-2">WebSocket эмуляция для старых браузеров</p>
+                  <ul class="pl-4 text-body-2">
+                    <li>WebSocket-like API</li>
+                    <li>Множество транспортов</li>
+                    <li>Работает везде</li>
+                    <li>Прозрачный fallback</li>
+                    <li>CORS поддержка</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <div class="d-flex align-center mb-3">
+                    <v-icon size="large" color="warning" class="mr-2">mdi-fire</v-icon>
+                    <h3 class="text-h6 font-weight-bold">Firebase Realtime</h3>
+                  </div>
+                  <p class="text-body-2 mb-2">Backend-as-a-Service с real-time синхронизацией</p>
+                  <ul class="pl-4 text-body-2">
+                    <li>Автоматическая синхронизация</li>
+                    <li>Offline поддержка</li>
+                    <li>Не нужен свой сервер</li>
+                    <li>Аутентификация встроена</li>
+                    <li>Масштабируемость</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <!-- Серверная часть -->
+            <h2 class="text-h5 font-weight-bold mb-3">Серверная часть (примеры)</h2>
+            <v-expansion-panels class="mb-8">
+              <v-expansion-panel title="Node.js + ws (WebSocket)">
+                <v-expansion-panel-text>
+                  <pre class="pa-4 rounded-lg custom-code"><code>// npm install ws
+const WebSocket = require('ws')
+
+const wss = new WebSocket.Server({ port: 3000 })
+
+wss.on('connection', (ws) => {
+  console.log('Client connected')
+
+  ws.on('message', (message) => {
+    console.log('Received:', message.toString())
+
+    // Отправка всем клиентам
+    wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(message)
+      }
+    })
+  })
+
+  ws.on('close', () => {
+    console.log('Client disconnected')
+  })
+
+  ws.send(JSON.stringify({ type: 'welcome' }))
+})</code></pre>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+              <v-expansion-panel title="Node.js + Express (Server-Sent Events)">
+                <v-expansion-panel-text>
+                  <pre class="pa-4 rounded-lg custom-code"><code>const express = require('express')
+const app = express()
+
+app.get('/events', (req, res) => {
+  res.setHeader('Content-Type', 'text/event-stream')
+  res.setHeader('Cache-Control', 'no-cache')
+  res.setHeader('Connection', 'keep-alive')
+
+  // Отправка события
+  const sendEvent = (data) => {
+    res.write(\`data: \${JSON.stringify(data)}\\n\\n\`)
+  }
+
+  // Heartbeat
+  const heartbeat = setInterval(() => {
+    res.write(':heartbeat\\n\\n')
+  }, 15000)
+
+  // Отправка данных
+  sendEvent({ message: 'Connected' })
+
+  // Очистка при закрытии
+  req.on('close', () => {
+    clearInterval(heartbeat)
+  })
+})
+
+app.listen(3000)</code></pre>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+              <v-expansion-panel title="Node.js + Socket.IO">
+                <v-expansion-panel-text>
+                  <pre class="pa-4 rounded-lg custom-code"><code>// npm install socket.io
+const express = require('express')
+const http = require('http')
+const socketIO = require('socket.io')
+
+const app = express()
+const server = http.createServer(app)
+const io = socketIO(server)
+
+io.on('connection', (socket) => {
+  console.log('User connected:', socket.id)
+
+  socket.on('message', (data) => {
+    // Отправка всем кроме отправителя
+    socket.broadcast.emit('message', data)
+
+    // Или всем включая отправителя
+    io.emit('message', data)
+  })
+
+  socket.on('joinRoom', (room) => {
+    socket.join(room)
+    io.to(room).emit('userJoined', socket.id)
+  })
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected:', socket.id)
+  })
+})
+
+server.listen(3000)</code></pre>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+            </v-expansion-panels>
+
+            <!-- Безопасность -->
+            <h2 class="text-h5 font-weight-bold mb-3">Безопасность</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">🔒 Шифрование</h3>
+                  <ul class="pl-4">
+                    <li>Используйте wss:// (WSS over TLS)</li>
+                    <li>Валидируйте SSL сертификаты</li>
+                    <li>Не передавайте sensitive данные без шифрования</li>
+                    <li>Используйте HTTPS для EventSource</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">🛡️ Аутентификация</h3>
+                  <ul class="pl-4">
+                    <li>Проверяйте токены при подключении</li>
+                    <li>Используйте JWT или session</li>
+                    <li>Реализуйте rate limiting</li>
+                    <li>Проверяйте origin запросов</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">⚠️ Валидация</h3>
+                  <ul class="pl-4">
+                    <li>Валидируйте все входящие данные</li>
+                    <li>Санитизируйте пользовательский ввод</li>
+                    <li>Ограничивайте размер сообщений</li>
+                    <li>Защищайтесь от DoS атак</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <!-- Производительность -->
+            <h2 class="text-h5 font-weight-bold mb-3">Оптимизация производительности</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">Клиентская оптимизация</h3>
+                  <ul class="pl-4">
+                    <li><strong>Throttling:</strong> Ограничивайте частоту отправки</li>
+                    <li><strong>Batching:</strong> Группируйте сообщения</li>
+                    <li><strong>Compression:</strong> Сжимайте JSON данные</li>
+                    <li><strong>Binary:</strong> Используйте бинарные форматы</li>
+                    <li><strong>Lazy:</strong> Ленивая инициализация соединений</li>
+                  </ul>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">Серверная оптимизация</h3>
+                  <ul class="pl-4">
+                    <li><strong>Scaling:</strong> Горизонтальное масштабирование</li>
+                    <li><strong>Load Balancing:</strong> Распределение нагрузки</li>
+                    <li><strong>Redis:</strong> Для pub/sub между серверами</li>
+                    <li><strong>Clustering:</strong> Node.js кластеризация</li>
+                    <li><strong>Monitoring:</strong> Мониторинг соединений</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <!-- Итог -->
+            <h2 class="text-h5 font-weight-bold mb-3">Итог</h2>
+            <p class="font-weight-regular mb-6">
+              <b>WebSockets</b> — лучший выбор для двусторонней real-time связи (чаты, игры, collaborative editing).
+              <b>Server-Sent Events</b> — отлично подходит для односторонней передачи от сервера (уведомления,
+              live обновления). <b>Long Polling</b> — надежный fallback для старых браузеров и строгих firewall.
+              <b>Simple Polling</b> — последняя опция для максимальной совместимости. Выбор метода зависит от
+              требований проекта: нужна ли двусторонняя связь, частота обновлений, поддержка браузеров и
+              инфраструктурные ограничения. Для production рекомендуется реализовать graceful degradation
+              с автоматическим fallback на менее эффективные, но более совместимые методы.
+            </p>
+
+            <v-alert color="success" class="mb-6">
+              <v-icon class="mr-2">mdi-lightbulb</v-icon>
+              <strong>Совет для собеседования:</strong> Подчеркните понимание trade-offs между методами,
+              знание автопереподключения, heartbeat механизмов, fallback стратегий и практического опыта
+              с конкретными use cases (чат, уведомления, мониторинг). Упомяните Socket.IO как
+              production-ready решение с автоматическим fallback.
+            </v-alert>
+
+            <div class="d-flex justify-end">
+              <v-btn
+                color="primary"
+                size="small"
+                variant="elevated"
+                href="https://developer.mozilla.org/en-US/docs/Web/API/WebSocket"
+                target="_blank"
+                class="mr-2">
+                MDN WebSocket
+              </v-btn>
+              <v-btn
+                color="secondary"
+                size="small"
+                variant="elevated"
+                href="https://developer.mozilla.org/en-US/docs/Web/API/EventSource"
+                target="_blank"
+                class="mr-2">
+                MDN EventSource
+              </v-btn>
+              <v-btn
+                color="accent"
+                size="small"
+                variant="elevated"
+                href="https://socket.io/docs/v4/"
+                target="_blank">
+                Socket.IO Docs
+              </v-btn>
+            </div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-app>
+</template>
