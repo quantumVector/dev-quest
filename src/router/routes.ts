@@ -97,6 +97,7 @@ import MutationObserverInfo from '@/views/web-api/MutationObserverInfo.vue'
 import AbortController from '@/views/web-api/AbortController.vue'
 import WebAPIBlobAndFile from '@/views/tests/WebAPIBlobAndFile.vue'
 import WebAPIFetchXhr from '@/views/tests/WebAPIFetchXhr.vue'
+import WebAPIServerConnection from '@/views/tests/WebAPIServerConnection.vue'
 
 export const routes = [
   {
@@ -454,6 +455,10 @@ export const routes = [
   {
     path: '/web-api-test/fetch-xhr',
     component: WebAPIFetchXhr,
+  },
+  {
+    path: '/web-api-test/server-connection',
+    component: WebAPIServerConnection,
   },
   {
     path: '/docker/docker',

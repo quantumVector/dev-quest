@@ -94,6 +94,9 @@
           <v-list-item to="/web-api-test/fetch-xhr">
             <v-list-item-title>2. Fetch API vs XMLHttpRequest</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/web-api-test/server-connection">
+            <v-list-item-title>3. Поддержание соединения с сервером</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
