@@ -244,6 +244,9 @@
           <v-list-item to="/web-api/abort-controller">
             <v-list-item-title>7. AbortController</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/web-api/tabs-sync">
+            <v-list-item-title>8. Синхронизация состояний между вкладками</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
