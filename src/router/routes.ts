@@ -96,6 +96,7 @@ import ResizeObserverInfo from '@/views/web-api/ResizeObserverInfo.vue'
 import MutationObserverInfo from '@/views/web-api/MutationObserverInfo.vue'
 import AbortController from '@/views/web-api/AbortController.vue'
 import WebAPIBlobAndFile from '@/views/tests/WebAPIBlobAndFile.vue'
+import WebAPIFetchXhr from '@/views/tests/WebAPIFetchXhr.vue'
 
 export const routes = [
   {
@@ -449,6 +450,10 @@ export const routes = [
   {
     path: '/web-api-test/blob-and-file',
     component: WebAPIBlobAndFile,
+  },
+  {
+    path: '/web-api-test/fetch-xhr',
+    component: WebAPIFetchXhr,
   },
   {
     path: '/docker/docker',
