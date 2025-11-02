@@ -241,6 +241,9 @@
           <v-list-item to="/web-api/mutation-observer">
             <v-list-item-title>6. MutationObserver</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/web-api/abort-controller">
+            <v-list-item-title>7. AbortController</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

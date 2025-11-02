@@ -94,6 +94,7 @@ import MaintainingConnectionServer from '@/views/web-api/MaintainingConnectionSe
 import IntersectionObserverInfo from '@/views/web-api/IntersectionObserverInfo.vue'
 import ResizeObserverInfo from '@/views/web-api/ResizeObserverInfo.vue'
 import MutationObserverInfo from '@/views/web-api/MutationObserverInfo.vue'
+import AbortController from '@/views/web-api/AbortController.vue'
 
 export const routes = [
   {
@@ -439,6 +440,10 @@ export const routes = [
   {
     path: '/web-api/mutation-observer',
     component: MutationObserverInfo,
+  },
+  {
+    path: '/web-api/abort-controller',
+    component: AbortController,
   },
   {
     path: '/docker/docker',
