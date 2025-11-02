@@ -100,6 +100,7 @@ import WebAPIFetchXhr from '@/views/tests/WebAPIFetchXhr.vue'
 import WebAPIServerConnection from '@/views/tests/WebAPIServerConnection.vue'
 import WebAPIIntersectionObserver from '@/views/tests/WebAPIIntersectionObserver.vue'
 import WebAPIResizeObserver from '@/views/tests/WebAPIResizeObserver.vue'
+import WebAPIMutationObserver from '@/views/tests/WebAPIMutationObserver.vue'
 
 export const routes = [
   {
@@ -469,6 +470,10 @@ export const routes = [
   {
     path: '/web-api-test/resize-observer',
     component: WebAPIResizeObserver,
+  },
+  {
+    path: '/web-api-test/mutation-observer',
+    component: WebAPIMutationObserver,
   },
   {
     path: '/docker/docker',

@@ -103,6 +103,9 @@
           <v-list-item to="/web-api-test/resize-observer">
             <v-list-item-title>5. ResizeObserver</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/web-api-test/mutation-observer">
+            <v-list-item-title>6. MutationObserver</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
