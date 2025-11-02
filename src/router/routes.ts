@@ -95,6 +95,7 @@ import IntersectionObserverInfo from '@/views/web-api/IntersectionObserverInfo.v
 import ResizeObserverInfo from '@/views/web-api/ResizeObserverInfo.vue'
 import MutationObserverInfo from '@/views/web-api/MutationObserverInfo.vue'
 import AbortController from '@/views/web-api/AbortController.vue'
+import WebAPIBlobAndFile from '@/views/tests/WebAPIBlobAndFile.vue'
 
 export const routes = [
   {
@@ -444,6 +445,10 @@ export const routes = [
   {
     path: '/web-api/abort-controller',
     component: AbortController,
+  },
+  {
+    path: '/web-api-test/blob-and-file',
+    component: WebAPIBlobAndFile,
   },
   {
     path: '/docker/docker',

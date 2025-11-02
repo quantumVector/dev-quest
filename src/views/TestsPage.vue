@@ -84,5 +84,15 @@
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
+
+    <v-expansion-panel title="Web API">
+      <v-expansion-panel-text>
+        <v-list>
+          <v-list-item to="/web-api-test/blob-and-file">
+            <v-list-item-title>1. Blob и File</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-expansion-panel-text>
+    </v-expansion-panel>
   </v-expansion-panels>
 </template>
