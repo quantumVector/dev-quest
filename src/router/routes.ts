@@ -103,6 +103,7 @@ import WebAPIResizeObserver from '@/views/tests/WebAPIResizeObserver.vue'
 import WebAPIMutationObserver from '@/views/tests/WebAPIMutationObserver.vue'
 import BrowserTabsSync from '@/views/web-api/BrowserTabsSync.vue'
 import WebStorageAPI from '@/views/web-api/WebStorageAPI.vue'
+import WebAPIRequestAnimationFrame from '@/views/web-api/WebAPIRequestAnimationFrame.vue'
 
 export const routes = [
   {
@@ -484,6 +485,10 @@ export const routes = [
   {
     path: '/web-api/web-storage-api',
     component: WebStorageAPI,
+  },
+  {
+    path: '/web-api/request-animation-frame',
+    component: WebAPIRequestAnimationFrame,
   },
   {
     path: '/docker/docker',
