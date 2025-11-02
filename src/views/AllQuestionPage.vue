@@ -256,6 +256,9 @@
           <v-list-item to="/web-api/performance-observer-info">
             <v-list-item-title>11. PerformanceObserver</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/web-api/web-workers">
+            <v-list-item-title>12. Web Workers</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

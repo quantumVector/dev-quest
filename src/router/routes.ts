@@ -105,6 +105,7 @@ import BrowserTabsSync from '@/views/web-api/BrowserTabsSync.vue'
 import WebStorageAPI from '@/views/web-api/WebStorageAPI.vue'
 import WebAPIRequestAnimationFrame from '@/views/web-api/WebAPIRequestAnimationFrame.vue'
 import PerformanceObserverInfo from '@/views/web-api/PerformanceObserverInfo.vue'
+import WebWorkers from '@/views/web-api/WebWorkers.vue'
 
 export const routes = [
   {
@@ -494,6 +495,10 @@ export const routes = [
   {
     path: '/web-api/performance-observer-info',
     component: PerformanceObserverInfo,
+  },
+  {
+    path: '/web-api/web-workers',
+    component: WebWorkers,
   },
   {
     path: '/docker/docker',
