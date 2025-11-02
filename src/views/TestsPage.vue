@@ -97,6 +97,9 @@
           <v-list-item to="/web-api-test/server-connection">
             <v-list-item-title>3. Поддержание соединения с сервером</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/web-api-test/intersection-observer">
+            <v-list-item-title>4. IntersectionObserver</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

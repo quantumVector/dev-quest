@@ -98,6 +98,7 @@ import AbortController from '@/views/web-api/AbortController.vue'
 import WebAPIBlobAndFile from '@/views/tests/WebAPIBlobAndFile.vue'
 import WebAPIFetchXhr from '@/views/tests/WebAPIFetchXhr.vue'
 import WebAPIServerConnection from '@/views/tests/WebAPIServerConnection.vue'
+import WebAPIIntersectionObserver from '@/views/tests/WebAPIIntersectionObserver.vue'
 
 export const routes = [
   {
@@ -459,6 +460,10 @@ export const routes = [
   {
     path: '/web-api-test/server-connection',
     component: WebAPIServerConnection,
+  },
+  {
+    path: '/web-api-test/intersection-observer',
+    component: WebAPIIntersectionObserver,
   },
   {
     path: '/docker/docker',
