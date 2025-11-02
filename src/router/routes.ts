@@ -102,6 +102,7 @@ import WebAPIIntersectionObserver from '@/views/tests/WebAPIIntersectionObserver
 import WebAPIResizeObserver from '@/views/tests/WebAPIResizeObserver.vue'
 import WebAPIMutationObserver from '@/views/tests/WebAPIMutationObserver.vue'
 import BrowserTabsSync from '@/views/web-api/BrowserTabsSync.vue'
+import WebStorageAPI from '@/views/web-api/WebStorageAPI.vue'
 
 export const routes = [
   {
@@ -479,6 +480,10 @@ export const routes = [
   {
     path: '/web-api/tabs-sync',
     component: BrowserTabsSync,
+  },
+  {
+    path: '/web-api/web-storage-api',
+    component: WebStorageAPI,
   },
   {
     path: '/docker/docker',
