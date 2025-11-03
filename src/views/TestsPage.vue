@@ -115,6 +115,9 @@
           <v-list-item to="/web-api-test/performance-observer">
             <v-list-item-title>9. PerformanceObserver</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/web-api-test/web-workers">
+            <v-list-item-title>10. Web Workers</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
