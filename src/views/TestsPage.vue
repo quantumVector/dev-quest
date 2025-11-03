@@ -112,6 +112,9 @@
           <v-list-item to="/web-api-test/web-api-raf-questions">
             <v-list-item-title>8. RequestAnimationFrame</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/web-api-test/performance-observer">
+            <v-list-item-title>9. PerformanceObserver</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
