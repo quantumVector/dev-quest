@@ -106,6 +106,9 @@
           <v-list-item to="/web-api-test/mutation-observer">
             <v-list-item-title>6. MutationObserver</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/web-api-test/storage">
+            <v-list-item-title>7. Web Storage API</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

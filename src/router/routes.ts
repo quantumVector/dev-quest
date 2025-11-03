@@ -106,6 +106,7 @@ import WebStorageAPI from '@/views/web-api/WebStorageAPI.vue'
 import WebAPIRequestAnimationFrame from '@/views/web-api/WebAPIRequestAnimationFrame.vue'
 import PerformanceObserverInfo from '@/views/web-api/PerformanceObserverInfo.vue'
 import WebWorkers from '@/views/web-api/WebWorkers.vue'
+import WebAPIStorage from '@/views/tests/WebAPIStorage.vue'
 
 export const routes = [
   {
@@ -499,6 +500,10 @@ export const routes = [
   {
     path: '/web-api/web-workers',
     component: WebWorkers,
+  },
+  {
+    path: '/web-api-test/storage',
+    component: WebAPIStorage,
   },
   {
     path: '/docker/docker',
