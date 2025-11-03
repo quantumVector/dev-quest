@@ -109,6 +109,9 @@
           <v-list-item to="/web-api-test/storage">
             <v-list-item-title>7. Web Storage API</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/web-api-test/web-api-raf-questions">
+            <v-list-item-title>8. RequestAnimationFrame</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

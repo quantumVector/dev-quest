@@ -107,6 +107,7 @@ import WebAPIRequestAnimationFrame from '@/views/web-api/WebAPIRequestAnimationF
 import PerformanceObserverInfo from '@/views/web-api/PerformanceObserverInfo.vue'
 import WebWorkers from '@/views/web-api/WebWorkers.vue'
 import WebAPIStorage from '@/views/tests/WebAPIStorage.vue'
+import WebAPIRequestAnimationFrameTest from '@/views/tests/WebAPIRequestAnimationFrameTest.vue'
 
 export const routes = [
   {
@@ -504,6 +505,10 @@ export const routes = [
   {
     path: '/web-api-test/storage',
     component: WebAPIStorage,
+  },
+  {
+    path: '/web-api-test/web-api-raf-questions',
+    component: WebAPIRequestAnimationFrameTest,
   },
   {
     path: '/docker/docker',
