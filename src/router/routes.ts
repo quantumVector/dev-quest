@@ -110,6 +110,7 @@ import WebAPIStorage from '@/views/tests/WebAPIStorage.vue'
 import WebAPIRequestAnimationFrameTest from '@/views/tests/WebAPIRequestAnimationFrameTest.vue'
 import WebAPIPerformanceObserverTest from '@/views/tests/WebAPIPerformanceObserverTest.vue'
 import WebAPIWebWorkersTest from '@/views/tests/WebAPIWebWorkersTest.vue'
+import WebAPIInterviewPage from '@/views/interview/WebAPIInterviewPage.vue'
 
 export const routes = [
   {
@@ -519,6 +520,10 @@ export const routes = [
   {
     path: '/web-api-test/web-workers',
     component: WebAPIWebWorkersTest,
+  },
+  {
+    path: '/web-api/web-api-interview',
+    component: WebAPIInterviewPage,
   },
   {
     path: '/docker/docker',
