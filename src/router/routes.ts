@@ -113,6 +113,7 @@ import WebAPIWebWorkersTest from '@/views/tests/WebAPIWebWorkersTest.vue'
 import WebAPIInterviewPage from '@/views/interview/WebAPIInterviewPage.vue'
 import TypeScriptCommonInfo from '@/views/ts/TypeScriptCommonInfo.vue'
 import TypeScriptTypes from '@/views/ts/TypeScriptTypes.vue'
+import InterfacesAndTypes from '@/views/ts/InterfacesAndTypes.vue'
 
 export const routes = [
   {
@@ -534,6 +535,10 @@ export const routes = [
   {
     path: '/typescript/typescript-types',
     component: TypeScriptTypes,
+  },
+  {
+    path: '/typescript/interfaces-and-types',
+    component: InterfacesAndTypes,
   },
   {
     path: '/docker/docker',
