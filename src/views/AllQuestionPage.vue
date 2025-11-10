@@ -288,6 +288,9 @@
           <v-list-item to="/typescript/typescript-generics2">
             <v-list-item-title>6.2. Generics в TypeScript (продолжение)</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/typescript/mapped-types">
+            <v-list-item-title>7. Mapped Types в TypeScript: создание и трансформация типов</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

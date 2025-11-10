@@ -118,6 +118,7 @@ import InterfacesVsTypes from '@/views/ts/InterfacesVsTypes.vue'
 import TypeNarrowing from '@/views/ts/TypeNarrowing.vue'
 import TypeScriptGenerics from '@/views/ts/TypeScriptGenerics.vue'
 import TypeScriptGenerics2 from '@/views/ts/TypeScriptGenerics2.vue'
+import TypeScriptMappedTypes from '@/views/ts/TypeScriptMappedTypes.vue'
 
 export const routes = [
   {
@@ -559,6 +560,10 @@ export const routes = [
   {
     path: '/typescript/typescript-generics2',
     component: TypeScriptGenerics2,
+  },
+  {
+    path: '/typescript/mapped-types',
+    component: TypeScriptMappedTypes,
   },
   {
     path: '/docker/docker',
