@@ -269,6 +269,9 @@
           <v-list-item to="/typescript/common-info">
             <v-list-item-title>1. Плюсы и минусы в TypeScript</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/typescript/typescript-types">
+            <v-list-item-title>2. Типы данных</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

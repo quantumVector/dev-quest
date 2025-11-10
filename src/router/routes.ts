@@ -112,6 +112,7 @@ import WebAPIPerformanceObserverTest from '@/views/tests/WebAPIPerformanceObserv
 import WebAPIWebWorkersTest from '@/views/tests/WebAPIWebWorkersTest.vue'
 import WebAPIInterviewPage from '@/views/interview/WebAPIInterviewPage.vue'
 import TypeScriptCommonInfo from '@/views/ts/TypeScriptCommonInfo.vue'
+import TypeScriptTypes from '@/views/ts/TypeScriptTypes.vue'
 
 export const routes = [
   {
@@ -529,6 +530,10 @@ export const routes = [
   {
     path: '/typescript/common-info',
     component: TypeScriptCommonInfo,
+  },
+  {
+    path: '/typescript/typescript-types',
+    component: TypeScriptTypes,
   },
   {
     path: '/docker/docker',
