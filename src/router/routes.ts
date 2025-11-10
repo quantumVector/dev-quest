@@ -526,6 +526,10 @@ export const routes = [
     component: WebAPIInterviewPage,
   },
   {
+    path: '/typescript/common-info',
+    component: ,
+  },
+  {
     path: '/docker/docker',
     component: Docker,
   },
