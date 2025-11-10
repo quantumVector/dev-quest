@@ -275,6 +275,9 @@
           <v-list-item to="/typescript/interfaces-and-types">
             <v-list-item-title>3. Interfaces/Types</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/typescript/interfaces-vs-types">
+            <v-list-item-title>4. Interfaces vs Types: Углубленное сравнение</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

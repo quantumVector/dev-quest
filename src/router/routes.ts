@@ -114,6 +114,7 @@ import WebAPIInterviewPage from '@/views/interview/WebAPIInterviewPage.vue'
 import TypeScriptCommonInfo from '@/views/ts/TypeScriptCommonInfo.vue'
 import TypeScriptTypes from '@/views/ts/TypeScriptTypes.vue'
 import InterfacesAndTypes from '@/views/ts/InterfacesAndTypes.vue'
+import InterfacesVsTypes from '@/views/ts/InterfacesVsTypes.vue'
 
 export const routes = [
   {
@@ -539,6 +540,10 @@ export const routes = [
   {
     path: '/typescript/interfaces-and-types',
     component: InterfacesAndTypes,
+  },
+  {
+    path: '/typescript/interfaces-vs-types',
+    component: InterfacesVsTypes,
   },
   {
     path: '/docker/docker',
