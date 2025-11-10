@@ -281,6 +281,10 @@
           <v-list-item to="/typescript/type-narrowing">
             <v-list-item-title>5. Сужение типов</v-list-item-title>
           </v-list-item>
+          <v-list-subheader>Generics</v-list-subheader>
+          <v-list-item to="/typescript/typescript-generics">
+            <v-list-item-title>6.1. Generics в TypeScript</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
