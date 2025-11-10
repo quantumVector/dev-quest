@@ -115,6 +115,7 @@ import TypeScriptCommonInfo from '@/views/ts/TypeScriptCommonInfo.vue'
 import TypeScriptTypes from '@/views/ts/TypeScriptTypes.vue'
 import InterfacesAndTypes from '@/views/ts/InterfacesAndTypes.vue'
 import InterfacesVsTypes from '@/views/ts/InterfacesVsTypes.vue'
+import TypeNarrowing from '@/views/ts/TypeNarrowing.vue'
 
 export const routes = [
   {
@@ -544,6 +545,10 @@ export const routes = [
   {
     path: '/typescript/interfaces-vs-types',
     component: InterfacesVsTypes,
+  },
+  {
+    path: '/typescript/type-narrowing',
+    component: TypeNarrowing,
   },
   {
     path: '/docker/docker',

@@ -278,6 +278,9 @@
           <v-list-item to="/typescript/interfaces-vs-types">
             <v-list-item-title>4. Interfaces vs Types: Углубленное сравнение</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/typescript/type-narrowing">
+            <v-list-item-title>5. Сужение типов</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
