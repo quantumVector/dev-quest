@@ -281,7 +281,6 @@
           <v-list-item to="/typescript/type-narrowing">
             <v-list-item-title>5. Сужение типов</v-list-item-title>
           </v-list-item>
-          <v-list-subheader>Generics</v-list-subheader>
           <v-list-item to="/typescript/typescript-generics">
             <v-list-item-title>6.1. Generics в TypeScript</v-list-item-title>
           </v-list-item>
@@ -290,6 +289,9 @@
           </v-list-item>
           <v-list-item to="/typescript/mapped-types">
             <v-list-item-title>7. Mapped Types в TypeScript: создание и трансформация типов</v-list-item-title>
+          </v-list-item>
+          <v-list-item to="/typescript/conditional-types">
+            <v-list-item-title>8. Conditional Types</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-expansion-panel-text>
