@@ -293,6 +293,9 @@
           <v-list-item to="/typescript/conditional-types">
             <v-list-item-title>8. Conditional Types</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/typescript/infer-types">
+            <v-list-item-title>9. Infer Types</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
