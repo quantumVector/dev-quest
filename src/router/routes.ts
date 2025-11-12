@@ -130,6 +130,7 @@ import TSTypeCastingTestPage from '@/views/tests/TSTypeCastingTestPage.vue'
 import TSGenericsTestPage from '@/views/tests/TSGenericsTestPage.vue'
 import TSMappedTypesTestPage from '@/views/tests/TSMappedTypesTestPage.vue'
 import TSConditionalTypesTestPage from '@/views/tests/TSConditionalTypesTestPage.vue'
+import TSInferTypesTestPage from '@/views/tests/TSInferTypesTestPage.vue'
 
 export const routes = [
   {
@@ -619,6 +620,10 @@ export const routes = [
   {
     path: '/typescript/conditional-types-test',
     component: TSConditionalTypesTestPage,
+  },
+  {
+    path: '/typescript/infer-types-test',
+    component: TSInferTypesTestPage,
   },
   {
     path: '/docker/docker',
