@@ -143,6 +143,9 @@
           <v-list-item to="/typescript/generics-test">
             <v-list-item-title>6. Generics</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/typescript/mapped-types-test">
+            <v-list-item-title>7. Mapped Types</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

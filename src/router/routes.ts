@@ -128,6 +128,7 @@ import TypeScriptInterfacesTypesTestPage from '@/views/tests/TypeScriptInterface
 import TSNarrowingTestPage from '@/views/tests/TSNarrowingTestPage.vue'
 import TSTypeCastingTestPage from '@/views/tests/TSTypeCastingTestPage.vue'
 import TSGenericsTestPage from '@/views/tests/TSGenericsTestPage.vue'
+import TSMappedTypesTestPage from '@/views/tests/TSMappedTypesTestPage.vue'
 
 export const routes = [
   {
@@ -609,6 +610,10 @@ export const routes = [
   {
     path: '/typescript/generics-test',
     component: TSGenericsTestPage,
+  },
+  {
+    path: '/typescript/mapped-types-test',
+    component: TSMappedTypesTestPage,
   },
   {
     path: '/docker/docker',
