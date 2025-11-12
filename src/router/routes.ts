@@ -124,6 +124,7 @@ import InferTypes from '@/views/ts/InferTypes.vue'
 import ClassesAndDecorators from '@/views/ts/ClassesAndDecorators.vue'
 import TypeScriptProsConsTestPage from '@/views/tests/TypeScriptProsConsTestPage.vue'
 import TypeScriptTypesTestPage from '@/views/tests/TypeScriptTypesTestPage.vue'
+import TypeScriptInterfacesTypesTestPage from '@/views/tests/TypeScriptInterfacesTypesTestPage.vue'
 
 export const routes = [
   {
@@ -589,6 +590,10 @@ export const routes = [
   {
     path: '/typescript/types-test',
     component: TypeScriptTypesTestPage,
+  },
+  {
+    path: '/typescript/interfaces-types-test',
+    component: TypeScriptInterfacesTypesTestPage,
   },
   {
     path: '/docker/docker',

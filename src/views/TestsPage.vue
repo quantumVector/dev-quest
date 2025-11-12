@@ -131,6 +131,9 @@
           <v-list-item to="/typescript/types-test">
             <v-list-item-title>2. Типы данных</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/typescript/interfaces-types-test">
+            <v-list-item-title>3. Interfaces/Types</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
