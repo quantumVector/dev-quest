@@ -126,6 +126,8 @@ import TypeScriptProsConsTestPage from '@/views/tests/TypeScriptProsConsTestPage
 import TypeScriptTypesTestPage from '@/views/tests/TypeScriptTypesTestPage.vue'
 import TypeScriptInterfacesTypesTestPage from '@/views/tests/TypeScriptInterfacesTypesTestPage.vue'
 import TSNarrowingTestPage from '@/views/tests/TSNarrowingTestPage.vue'
+import TSTypeCastingTestPage from '@/views/tests/TSTypeCastingTestPage.vue'
+import TSGenericsTestPage from '@/views/tests/TSGenericsTestPage.vue'
 
 export const routes = [
   {
@@ -599,6 +601,14 @@ export const routes = [
   {
     path: '/typescript/ts-narrowing-test',
     component: TSNarrowingTestPage,
+  },
+  {
+    path: '/typescript/type-casting-test',
+    component: TSTypeCastingTestPage,
+  },
+  {
+    path: '/typescript/generics-test',
+    component: TSGenericsTestPage,
   },
   {
     path: '/docker/docker',

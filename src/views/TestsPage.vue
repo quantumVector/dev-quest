@@ -137,6 +137,12 @@
           <v-list-item to="/typescript/ts-narrowing-test">
             <v-list-item-title>4. Сужение типов</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/typescript/type-casting-test">
+            <v-list-item-title>5. Приведение типов (Type Casting)</v-list-item-title>
+          </v-list-item>
+          <v-list-item to="/typescript/generics-test">
+            <v-list-item-title>6. Generics</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
