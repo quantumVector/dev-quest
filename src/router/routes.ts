@@ -129,6 +129,7 @@ import TSNarrowingTestPage from '@/views/tests/TSNarrowingTestPage.vue'
 import TSTypeCastingTestPage from '@/views/tests/TSTypeCastingTestPage.vue'
 import TSGenericsTestPage from '@/views/tests/TSGenericsTestPage.vue'
 import TSMappedTypesTestPage from '@/views/tests/TSMappedTypesTestPage.vue'
+import TSConditionalTypesTestPage from '@/views/tests/TSConditionalTypesTestPage.vue'
 
 export const routes = [
   {
@@ -614,6 +615,10 @@ export const routes = [
   {
     path: '/typescript/mapped-types-test',
     component: TSMappedTypesTestPage,
+  },
+  {
+    path: '/typescript/conditional-types-test',
+    component: TSConditionalTypesTestPage,
   },
   {
     path: '/docker/docker',

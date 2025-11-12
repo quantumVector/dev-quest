@@ -146,6 +146,9 @@
           <v-list-item to="/typescript/mapped-types-test">
             <v-list-item-title>7. Mapped Types</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/typescript/conditional-types-test">
+            <v-list-item-title>8. Conditional Types</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
