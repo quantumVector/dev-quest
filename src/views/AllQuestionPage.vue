@@ -267,7 +267,7 @@
       <v-expansion-panel-text>
         <v-list>
           <v-list-item to="/typescript/common-info">
-            <v-list-item-title>1. Плюсы и минусы в TypeScript</v-list-item-title>
+            <v-list-item-title>1. Плюсы и минусы TypeScript</v-list-item-title>
           </v-list-item>
           <v-list-item to="/typescript/typescript-types">
             <v-list-item-title>2. Типы данных</v-list-item-title>
@@ -282,19 +282,22 @@
             <v-list-item-title>5. Сужение типов</v-list-item-title>
           </v-list-item>
           <v-list-item to="/typescript/typescript-generics">
-            <v-list-item-title>6.1. Generics в TypeScript</v-list-item-title>
+            <v-list-item-title>6.1. Generics</v-list-item-title>
           </v-list-item>
           <v-list-item to="/typescript/typescript-generics2">
-            <v-list-item-title>6.2. Generics в TypeScript (продолжение)</v-list-item-title>
+            <v-list-item-title>6.2. Generics (продолжение)</v-list-item-title>
           </v-list-item>
           <v-list-item to="/typescript/mapped-types">
-            <v-list-item-title>7. Mapped Types в TypeScript: создание и трансформация типов</v-list-item-title>
+            <v-list-item-title>7. Mapped Types: создание и трансформация типов</v-list-item-title>
           </v-list-item>
           <v-list-item to="/typescript/conditional-types">
             <v-list-item-title>8. Conditional Types</v-list-item-title>
           </v-list-item>
           <v-list-item to="/typescript/infer-types">
             <v-list-item-title>9. Infer Types</v-list-item-title>
+          </v-list-item>
+          <v-list-item to="/typescript/classes-and-decorators">
+            <v-list-item-title>10. Classes и Decorators</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-expansion-panel-text>

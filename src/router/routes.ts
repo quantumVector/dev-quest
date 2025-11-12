@@ -121,6 +121,7 @@ import TypeScriptGenerics2 from '@/views/ts/TypeScriptGenerics2.vue'
 import TypeScriptMappedTypes from '@/views/ts/TypeScriptMappedTypes.vue'
 import ConditionalTypes from '@/views/ts/ConditionalTypes.vue'
 import InferTypes from '@/views/ts/InferTypes.vue'
+import ClassesAndDecorators from '@/views/ts/ClassesAndDecorators.vue'
 
 export const routes = [
   {
@@ -574,6 +575,10 @@ export const routes = [
   {
     path: '/typescript/infer-types',
     component: InferTypes,
+  },
+  {
+    path: '/typescript/classes-and-decorators',
+    component: ClassesAndDecorators,
   },
   {
     path: '/docker/docker',
