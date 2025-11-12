@@ -122,6 +122,7 @@ import TypeScriptMappedTypes from '@/views/ts/TypeScriptMappedTypes.vue'
 import ConditionalTypes from '@/views/ts/ConditionalTypes.vue'
 import InferTypes from '@/views/ts/InferTypes.vue'
 import ClassesAndDecorators from '@/views/ts/ClassesAndDecorators.vue'
+import TypeScriptProsConsTestPage from '@/views/tests/TypeScriptProsConsTestPage.vue'
 
 export const routes = [
   {
@@ -579,6 +580,10 @@ export const routes = [
   {
     path: '/typescript/classes-and-decorators',
     component: ClassesAndDecorators,
+  },
+  {
+    path: '/typescript/pros-cons-test',
+    component: TypeScriptProsConsTestPage,
   },
   {
     path: '/docker/docker',
