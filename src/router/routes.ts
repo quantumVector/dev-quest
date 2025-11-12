@@ -125,6 +125,7 @@ import ClassesAndDecorators from '@/views/ts/ClassesAndDecorators.vue'
 import TypeScriptProsConsTestPage from '@/views/tests/TypeScriptProsConsTestPage.vue'
 import TypeScriptTypesTestPage from '@/views/tests/TypeScriptTypesTestPage.vue'
 import TypeScriptInterfacesTypesTestPage from '@/views/tests/TypeScriptInterfacesTypesTestPage.vue'
+import TSNarrowingTestPage from '@/views/tests/TSNarrowingTestPage.vue'
 
 export const routes = [
   {
@@ -594,6 +595,10 @@ export const routes = [
   {
     path: '/typescript/interfaces-types-test',
     component: TypeScriptInterfacesTypesTestPage,
+  },
+  {
+    path: '/typescript/ts-narrowing-test',
+    component: TSNarrowingTestPage,
   },
   {
     path: '/docker/docker',
