@@ -133,6 +133,7 @@ import TSConditionalTypesTestPage from '@/views/tests/TSConditionalTypesTestPage
 import TSInferTypesTestPage from '@/views/tests/TSInferTypesTestPage.vue'
 import TSClassesDecoratorsTestPage from '@/views/tests/TSClassesDecoratorsTestPage.vue'
 import TSInterviewPage from '@/views/interview/TSInterviewPage.vue'
+import ReactIntro from '@/views/react/ReactIntro.vue'
 
 export const routes = [
   {
@@ -634,6 +635,10 @@ export const routes = [
   {
     path: '/typescript/ts-interview',
     component: TSInterviewPage,
+  },
+  {
+    path: '/react/react-intro',
+    component: ReactIntro,
   },
   {
     path: '/docker/docker',

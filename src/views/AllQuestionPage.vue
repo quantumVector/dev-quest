@@ -303,6 +303,16 @@
       </v-expansion-panel-text>
     </v-expansion-panel>
 
+    <v-expansion-panel title="React">
+      <v-expansion-panel-text>
+        <v-list>
+          <v-list-item to="/react/react-intro">
+            <v-list-item-title>1. Что такое React.js?</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-expansion-panel-text>
+    </v-expansion-panel>
+
     <v-expansion-panel title="Docker">
       <v-expansion-panel-text>
         <v-list>
