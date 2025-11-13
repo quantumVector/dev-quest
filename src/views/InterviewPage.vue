@@ -90,7 +90,7 @@
 
               <!-- TypeScript блок -->
               <v-col cols="12" md="6">
-                <v-card variant="outlined" hover class="h-100" to="/ts/ts-interview">
+                <v-card variant="outlined" hover class="h-100" to="/typescript/ts-interview">
                   <v-card-text class="pa-6">
                     <div class="d-flex align-center mb-4">
                       <v-avatar color="blue-darken-1" size="large" class="mr-4">
