@@ -88,6 +88,42 @@
                 </v-card>
               </v-col>
 
+              <!-- TypeScript блок -->
+              <v-col cols="12" md="6">
+                <v-card variant="outlined" hover class="h-100" to="/ts/ts-interview">
+                  <v-card-text class="pa-6">
+                    <div class="d-flex align-center mb-4">
+                      <v-avatar color="blue-darken-1" size="large" class="mr-4">
+                        <v-icon size="large">mdi-language-typescript</v-icon>
+                      </v-avatar>
+                      <div>
+                        <h3 class="text-h5 mb-1">TypeScript</h3>
+                        <p class="text-body-2 text-medium-emphasis mb-0">
+                          Типизированный JavaScript
+                        </p>
+                      </div>
+                    </div>
+
+                    <div class="mb-4">
+                      <v-chip color="success" size="small" class="mr-2 mb-2"> Junior: 8 </v-chip>
+                      <v-chip color="warning" size="small" class="mr-2 mb-2"> Middle: 25 </v-chip>
+                      <v-chip color="error" size="small" class="mr-2 mb-2"> Senior: 18 </v-chip>
+                    </div>
+
+                    <p class="text-body-2 mb-0">
+                      Вопросы по типам, интерфейсам, дженерикам, утилитным типам и продвинутым
+                      возможностям TypeScript.
+                    </p>
+                  </v-card-text>
+
+                  <v-card-actions class="pa-6 pt-0">
+                    <v-btn color="blue-darken-1" variant="tonal" append-icon="mdi-arrow-right">
+                      Начать подготовку
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-col>
+
               <!-- Паттерны блок -->
               <v-col cols="12" md="6">
                 <v-card variant="outlined" hover class="h-100" disabled>

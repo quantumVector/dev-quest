@@ -132,6 +132,7 @@ import TSMappedTypesTestPage from '@/views/tests/TSMappedTypesTestPage.vue'
 import TSConditionalTypesTestPage from '@/views/tests/TSConditionalTypesTestPage.vue'
 import TSInferTypesTestPage from '@/views/tests/TSInferTypesTestPage.vue'
 import TSClassesDecoratorsTestPage from '@/views/tests/TSClassesDecoratorsTestPage.vue'
+import TSInterviewPage from '@/views/interview/TSInterviewPage.vue'
 
 export const routes = [
   {
@@ -629,6 +630,10 @@ export const routes = [
   {
     path: '/typescript/classes-decorators-test',
     component: TSClassesDecoratorsTestPage,
+  },
+  {
+    path: '/typescript/ts-interview',
+    component: TSInterviewPage,
   },
   {
     path: '/docker/docker',
