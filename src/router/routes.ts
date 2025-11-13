@@ -131,6 +131,7 @@ import TSGenericsTestPage from '@/views/tests/TSGenericsTestPage.vue'
 import TSMappedTypesTestPage from '@/views/tests/TSMappedTypesTestPage.vue'
 import TSConditionalTypesTestPage from '@/views/tests/TSConditionalTypesTestPage.vue'
 import TSInferTypesTestPage from '@/views/tests/TSInferTypesTestPage.vue'
+import TSClassesDecoratorsTestPage from '@/views/tests/TSClassesDecoratorsTestPage.vue'
 
 export const routes = [
   {
@@ -624,6 +625,10 @@ export const routes = [
   {
     path: '/typescript/infer-types-test',
     component: TSInferTypesTestPage,
+  },
+  {
+    path: '/typescript/classes-decorators-test',
+    component: TSClassesDecoratorsTestPage,
   },
   {
     path: '/docker/docker',

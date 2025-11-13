@@ -152,6 +152,9 @@
           <v-list-item to="/typescript/infer-types-test">
             <v-list-item-title>9. Infer Types</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/typescript/classes-decorators-test">
+            <v-list-item-title>10. Классы и Декораторы</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
