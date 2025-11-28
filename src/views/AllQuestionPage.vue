@@ -315,6 +315,9 @@
           <v-list-item to="/react/jsx">
             <v-list-item-title>3. JSX</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/react/events">
+            <v-list-item-title>4. События (Events) в React</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
