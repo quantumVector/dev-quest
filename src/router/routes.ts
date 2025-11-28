@@ -138,6 +138,7 @@ import VirtualDOM from '@/views/react/VirtualDOM.vue'
 import JSXSyntax from '@/views/react/JSXSyntax.vue'
 import ReactEvents from '@/views/react/ReactEvents.vue'
 import RefAndForwardRef from '@/views/react/RefAndForwardRef.vue'
+import UseMemo from '@/views/react/UseMemo.vue'
 
 export const routes = [
   {
@@ -659,6 +660,10 @@ export const routes = [
   {
     path: '/react/ref-forward-ref',
     component: RefAndForwardRef,
+  },
+  {
+    path: '/react/use-memo',
+    component: UseMemo,
   },
   {
     path: '/docker/docker',
