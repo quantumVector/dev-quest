@@ -137,6 +137,7 @@ import ReactIntro from '@/views/react/ReactIntro.vue'
 import VirtualDOM from '@/views/react/VirtualDOM.vue'
 import JSXSyntax from '@/views/react/JSXSyntax.vue'
 import ReactEvents from '@/views/react/ReactEvents.vue'
+import RefAndForwardRef from '@/views/react/RefAndForwardRef.vue'
 
 export const routes = [
   {
@@ -654,6 +655,10 @@ export const routes = [
   {
     path: '/react/events',
     component: ReactEvents,
+  },
+  {
+    path: '/react/ref-forward-ref',
+    component: RefAndForwardRef,
   },
   {
     path: '/docker/docker',

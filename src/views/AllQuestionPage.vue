@@ -316,7 +316,10 @@
             <v-list-item-title>3. JSX</v-list-item-title>
           </v-list-item>
           <v-list-item to="/react/events">
-            <v-list-item-title>4. События (Events) в React</v-list-item-title>
+            <v-list-item-title>4. События (Events)</v-list-item-title>
+          </v-list-item>
+          <v-list-item to="/react/ref-forward-ref">
+            <v-list-item-title>5. Ref и ForwardRef</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-expansion-panel-text>
