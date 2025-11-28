@@ -330,6 +330,9 @@
           <v-list-item to="/react/use-effect-flow">
             <v-list-item-title>8. useEffect Flow</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/react/render-optimization">
+            <v-list-item-title>9. Отслеживание лишних рендеров</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
