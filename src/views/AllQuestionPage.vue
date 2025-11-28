@@ -324,6 +324,9 @@
           <v-list-item to="/react/use-memo">
             <v-list-item-title>6. useMemo</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/react/use-callback">
+            <v-list-item-title>7. useCallback</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
