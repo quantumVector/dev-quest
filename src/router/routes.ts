@@ -134,6 +134,8 @@ import TSInferTypesTestPage from '@/views/tests/TSInferTypesTestPage.vue'
 import TSClassesDecoratorsTestPage from '@/views/tests/TSClassesDecoratorsTestPage.vue'
 import TSInterviewPage from '@/views/interview/TSInterviewPage.vue'
 import ReactIntro from '@/views/react/ReactIntro.vue'
+import VirtualDOM from '@/views/react/VirtualDOM.vue'
+import JSXSyntax from '@/views/react/JSXSyntax.vue'
 
 export const routes = [
   {
@@ -639,6 +641,14 @@ export const routes = [
   {
     path: '/react/react-intro',
     component: ReactIntro,
+  },
+  {
+    path: '/react/virtual-dom',
+    component: VirtualDOM,
+  },
+  {
+    path: '/react/jsx',
+    component: JSXSyntax,
   },
   {
     path: '/docker/docker',
