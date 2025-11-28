@@ -140,6 +140,7 @@ import ReactEvents from '@/views/react/ReactEvents.vue'
 import RefAndForwardRef from '@/views/react/RefAndForwardRef.vue'
 import UseMemo from '@/views/react/UseMemo.vue'
 import UseCallback from '@/views/react/UseCallback.vue'
+import UseEffectFlow from '@/views/react/UseEffectFlow.vue'
 
 export const routes = [
   {
@@ -669,6 +670,10 @@ export const routes = [
   {
     path: '/react/use-callback',
     component: UseCallback,
+  },
+  {
+    path: '/react/use-effect-flow',
+    component: UseEffectFlow,
   },
   {
     path: '/docker/docker',
