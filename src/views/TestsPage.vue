@@ -180,6 +180,9 @@
           <v-list-item to="/react/memo-callback-test">
             <v-list-item-title>6. useMemo и useCallback</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/react/use-effect-flow-test">
+            <v-list-item-title>7. useEffect Flow</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
