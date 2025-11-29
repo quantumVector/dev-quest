@@ -426,5 +426,110 @@ export const reactInterviewQuestions: InterviewQuestion[] = [
     answer: "<p><strong>onSubmit:</strong></p><ul><li>Срабатывает при отправке формы (Enter или кнопка submit)</li><li>Всегда вызывать event.preventDefault() чтобы избежать перезагрузки страницы</li><li>Регистрируется на <form>, не на кнопке</li></ul><p><strong>onChange:</strong></p><ul><li>В React работает как нативный onInput — при каждом изменении</li><li>Основа для controlled компонентов</li><li>Работает для input, textarea, select</li></ul><p><strong>onInput:</strong></p><ul><li>Нативное событие, работает аналогично React onChange</li><li>В React лучше использовать onChange для единообразия</li></ul><p><strong>Best practices:</strong></p><p>Использовать onSubmit на форме, onChange для полей, всегда preventDefault для onSubmit, валидировать данные до отправки.</p>",
     difficulty: 'middle',
     tags: ['события', 'формы', 'onSubmit', 'onChange']
+  },
+  {
+    id: 61,
+    question: "Что такое ref в React и для чего он используется?",
+    answer: "<p><strong>Ref (reference)</strong> — это способ получить прямой доступ к DOM элементу или экземпляру компонента.</p><p><strong>Основное назначение:</strong></p><ul><li>Доступ к DOM узлам для императивных операций</li><li>Хранение мутабельных значений между рендерами</li><li>Интеграция со сторонними библиотеками</li><li>Управление фокусом, выделением текста, анимациями</li></ul><p><strong>Ключевая особенность:</strong></p><p>Изменение ref.current НЕ вызывает ререндер — это делает ref идеальным для хранения данных, которые не влияют на UI.</p><p><strong>Когда использовать:</strong></p><p>Когда нужно «вырваться» из декларативного подхода React и выполнить императивные действия с DOM или сохранить значение без триггера рендера.</p>",
+    difficulty: 'junior',
+    tags: ['ref', 'основы', 'DOM']
+  },
+  {
+    id: 62,
+    question: "В чем разница между useRef и createRef?",
+    answer: "<p><strong>useRef (хук):</strong></p><ul><li>Для функциональных компонентов</li><li>Создается один раз при монтировании</li><li>Сохраняет значение между рендерами</li><li>Возвращает один и тот же объект всегда</li></ul><p><strong>createRef (классический API):</strong></p><ul><li>Для классовых компонентов</li><li>Создает новый ref объект при каждом вызове</li><li>В функциональных компонентах создавал бы новый ref каждый рендер</li><li>Сохраняется в поле класса (this.myRef)</li></ul><p><strong>Важное отличие:</strong></p><p>useRef персистентен между рендерами, createRef — нет. В функциональных компонентах всегда используем useRef.</p><p><strong>Современная практика:</strong></p><p>useRef — стандарт для функциональных компонентов, createRef остался для legacy классовых компонентов.</p>",
+    difficulty: 'middle',
+    tags: ['useRef', 'createRef', 'отличия', 'хуки']
+  },
+  {
+    id: 63,
+    question: "Какой основной сценарий использования useRef кроме доступа к DOM?",
+    answer: "<p><strong>Хранение мутабельных значений</strong> — главный неочевидный use case для useRef.</p><p><strong>Типичные сценарии:</strong></p><ul><li><strong>Хранение предыдущих значений</strong> — сохранить предыдущий state для сравнения</li><li><strong>Таймеры и интервалы</strong> — хранить ID для clearTimeout/clearInterval</li><li><strong>Счетчики без ререндера</strong> — отслеживание количества рендеров</li><li><strong>Флаги состояния</strong> — isMounted, isFirstRender</li><li><strong>Кеширование вычислений</strong> — сохранить результат без useMemo</li></ul><p><strong>Почему ref, а не state:</strong></p><p>ref не вызывает ререндер при изменении — идеально для вспомогательных данных, которые не должны влиять на UI.</p><p><strong>Принцип:</strong></p><p>Если данные не отображаются в UI — используй ref, если отображаются — state.</p>",
+    difficulty: 'middle',
+    tags: ['useRef', 'мутабельность', 'сценарии использования']
+  },
+  {
+    id: 64,
+    question: "Что такое forwardRef и зачем он нужен?",
+    answer: "<p><strong>forwardRef</strong> — это функция высшего порядка, позволяющая компоненту передать ref дальше к дочернему элементу.</p><p><strong>Проблема без forwardRef:</strong></p><p>Обычные функциональные компоненты не могут принимать ref как prop — React его игнорирует. ref это специальный prop, как key.</p><p><strong>Как работает:</strong></p><p>forwardRef оборачивает компонент и предоставляет ref вторым параметром после props. Внутри можно прокинуть ref дальше к нужному элементу.</p><p><strong>Когда использовать:</strong></p><ul><li>Библиотеки UI компонентов — Input, Button с доступом к DOM</li><li>HOC компоненты — сохранение возможности получить ref</li><li>Wrapper компоненты — прокидывание ref через обертку</li></ul>",
+    difficulty: 'middle',
+    tags: ['forwardRef', 'ref', 'компоненты']
+  },
+  {
+    id: 65,
+    question: "Какие преимущества дает forwardRef при работе с компонентами?",
+    answer: "<p><strong>Основные преимущества forwardRef:</strong></p><ul><li><strong>Прозрачность API</strong> — компонент работает как нативный элемент</li><li><strong>Композиция</strong> — можно оборачивать компоненты без потери функциональности</li><li><strong>Доступ к DOM</strong> — родитель может управлять фокусом, прокруткой</li><li><strong>Интеграция</strong> — компоненты легко использовать со сторонними библиотеками</li><li><strong>Совместимость</strong> — работа с императивными API без костылей</li></ul><p><strong>Практическая ценность:</strong></p><p>Позволяет создавать переиспользуемые компоненты, которые не скрывают возможности нативных элементов.</p><p><strong>Пример:</strong></p><p>Input компонент с forwardRef позволяет родителю вызвать focus() без дополнительных пропсов или callback'ов.</p>",
+    difficulty: 'middle',
+    tags: ['forwardRef', 'преимущества', 'архитектура']
+  },
+  {
+    id: 66,
+    question: "Как работать с несколькими ref в одном компоненте?",
+    answer: "<p>Есть несколько подходов для работы с множественными ref:</p><p><strong>1. Несколько useRef:</strong></p><p>Создать отдельный ref для каждого элемента — самый простой способ.</p><p><strong>2. Ref как объект/массив:</strong></p><p>Хранить все ref'ы в одном объекте или массиве — удобно для динамических списков.</p><p><strong>3. Callback ref:</strong></p><p>Использовать функцию вместо объекта ref — даст больше контроля при присвоении.</p><p><strong>4. useImperativeHandle:</strong></p><p>Собрать методы из разных элементов в один API для родителя.</p><p><strong>Best practice для списков:</strong></p><p>Создать Map или объект для хранения ref'ов по ключу элемента, использовать callback ref для добавления в коллекцию.</p>",
+    difficulty: 'senior',
+    tags: ['ref', 'множественные ref', 'паттерны']
+  },
+  {
+    id: 67,
+    question: "Что такое useImperativeHandle и когда его использовать?",
+    answer: "<p><strong>useImperativeHandle</strong> — хук для кастомизации значения ref, передаваемого родителю через forwardRef.</p><p><strong>Зачем нужен:</strong></p><ul><li>Ограничить API — не давать полный доступ к DOM</li><li>Создать кастомные методы для родителя</li><li>Скрыть внутреннюю реализацию</li><li>Объединить несколько элементов в один интерфейс</li></ul><p><strong>Как работает:</strong></p><p>Вместо прокидывания ref напрямую к DOM, создаем объект с нужными методами. Родитель получает не DOM элемент, а наш кастомный API.</p><p><strong>Когда использовать:</strong></p><p>В библиотеках компонентов, когда нужен контроль над публичным API, для инкапсуляции логики.</p><p><strong>Важно:</strong></p><p>Это escape hatch — использовать умеренно, предпочитать декларативный подход через props.</p>",
+    difficulty: 'senior',
+    tags: ['useImperativeHandle', 'forwardRef', 'API', 'хуки']
+  },
+  {
+    id: 68,
+    question: "В чем разница между callback ref и object ref?",
+    answer: "<p><strong>Object ref (useRef):</strong></p><ul><li>Объект с полем current</li><li>Присваивается автоматически React'ом</li><li>Статичный — один и тот же объект</li><li>Не уведомляет об изменениях</li></ul><p><strong>Callback ref:</strong></p><ul><li>Функция, вызываемая с DOM элементом</li><li>Вызывается при монтировании (с элементом) и размонтировании (с null)</li><li>Можно выполнить side effects</li><li>Уведомляет об изменениях ref</li></ul><p><strong>Когда использовать callback:</strong></p><ul><li>Нужно выполнить действие при получении ref</li><li>Динамические списки с ref</li><li>Интеграция со сторонними библиотеками</li><li>Измерение размеров элемента</li></ul><p><strong>Особенность:</strong></p><p>Callback ref вызывается дважды при каждом изменении — сначала с null (unmount), потом с элементом (mount).</p>",
+    difficulty: 'senior',
+    tags: ['ref', 'callback ref', 'отличия', 'продвинутое']
+  },
+  {
+    id: 69,
+    question: "Почему изменение ref.current не вызывает ререндер?",
+    answer: "<p>ref.current — это обычное JavaScript свойство объекта, не связанное с системой реактивности React.</p><p><strong>Техническое объяснение:</strong></p><ul><li>ref это просто объект {current: значение}</li><li>React не отслеживает изменения в ref.current</li><li>Нет геттеров/сеттеров для перехвата мутаций</li><li>ref живет вне системы state/props</li></ul><p><strong>Почему так спроектировано:</strong></p><p>ref нужен именно для хранения мутабельных значений БЕЗ ререндера — это его основная фича, не баг.</p><p><strong>Когда это полезно:</strong></p><p>Хранение DOM элементов, таймеров, счетчиков, флагов — данных, которые нужны для логики, но не для отображения.</p><p><strong>Если нужен ререндер:</strong></p><p>Используй state вместо ref — это фундаментальное различие между ними.</p>",
+    difficulty: 'middle',
+    tags: ['ref', 'ререндер', 'реактивность', 'принципы']
+  },
+  {
+    id: 70,
+    question: "Как правильно очищать ref в useEffect cleanup?",
+    answer: "<p>При работе с ref в useEffect важно правильно управлять ресурсами.</p><p><strong>Паттерн очистки:</strong></p><p>Сохранить ref.current в переменную в начале effect, использовать эту переменную в cleanup. Это защищает от ситуации, когда ref.current изменился к моменту cleanup.</p><p><strong>Почему важно:</strong></p><ul><li>ref.current может быть null в cleanup</li><li>Элемент мог размонтироваться</li><li>ref мог быть переназначен</li></ul><p><strong>Частые ошибки:</strong></p><ul><li>Использовать ref.current напрямую в cleanup — может быть null</li><li>Не проверять на существование перед удалением обработчиков</li><li>Забыть сохранить локальную копию для cleanup</li></ul><p><strong>Best practice:</strong></p><p>Всегда захватывать ref.current в переменную в теле effect, использовать в cleanup, проверять на null.</p>",
+    difficulty: 'senior',
+    tags: ['ref', 'useEffect', 'cleanup', 'best practices']
+  },
+  {
+    id: 71,
+    question: "Можно ли передать ref как обычный prop?",
+    answer: "<p><strong>Напрямую нельзя</strong> — ref это зарезервированный prop, как key.</p><p><strong>Что происходит:</strong></p><p>Если передать ref={myRef} в компонент, React не передаст его в props — он обработается специальным образом.</p><p><strong>Решения:</strong></p><ul><li><strong>forwardRef</strong> — стандартный способ для передачи ref</li><li><strong>Другое имя</strong> — innerRef, inputRef, customRef как обычный prop</li><li><strong>Callback prop</strong> — передать функцию, которая получит элемент</li></ul><p><strong>Почему ref особенный:</strong></p><p>React обрабатывает ref и key на особом уровне — они не попадают в props компонента, чтобы избежать конфликтов и упростить внутреннюю работу.</p><p><strong>Best practice:</strong></p><p>Для библиотечных компонентов — forwardRef. Для внутренних — можно innerRef как prop.</p>",
+    difficulty: 'middle',
+    tags: ['ref', 'props', 'ограничения', 'forwardRef']
+  },
+  {
+    id: 72,
+    question: "Что такое управляемый и неуправляемый ref в React?",
+    answer: "<p>Это концепция аналогичная controlled/uncontrolled компонентам, но для ref.</p><p><strong>Управляемый ref (controlled):</strong></p><ul><li>Родитель создает ref и передает в дочерний компонент</li><li>Родитель контролирует и использует ref</li><li>Компонент получает ref через forwardRef</li><li>Источник истины — родитель</li></ul><p><strong>Неуправляемый ref (uncontrolled):</strong></p><ul><li>Компонент создает свой внутренний ref</li><li>Родитель не имеет доступа</li><li>Источник истины — сам компонент</li><li>Используется для внутренней логики</li></ul><p><strong>Когда что использовать:</strong></p><p>Controlled ref — когда родителю нужен доступ к DOM. Uncontrolled — для внутренней реализации компонента.</p><p><strong>Можно комбинировать:</strong></p><p>Компонент может иметь внутренний ref и принимать внешний через forwardRef.</p>",
+    difficulty: 'senior',
+    tags: ['ref', 'controlled', 'uncontrolled', 'паттерны']
+  },
+  {
+    id: 73,
+    question: "Как объединить внешний forwardedRef с внутренним ref?",
+    answer: "<p>Часто компоненту нужен собственный ref для логики И нужно пробросить ref родителю.</p><p><strong>Проблема:</strong></p><p>У элемента может быть только один ref. Как использовать и внутренний, и внешний одновременно?</p><p><strong>Решение 1 — Callback ref:</strong></p><p>Создать функцию, которая присваивает элемент обоим ref'ам — и внутреннему, и forwardedRef.</p><p><strong>Решение 2 — useImperativeHandle:</strong></p><p>Использовать внутренний ref для логики, через useImperativeHandle дать родителю кастомный API.</p><p><strong>Решение 3 — Библиотека:</strong></p><p>Использовать хелпер типа useForkRef из библиотек (MUI использует этот паттерн).</p><p><strong>Best practice:</strong></p><p>Для простых случаев — callback ref. Для сложных — useImperativeHandle с ограниченным API.</p>",
+    difficulty: 'senior',
+    tags: ['ref', 'forwardRef', 'объединение', 'продвинутое']
+  },
+  {
+    id: 74,
+    question: "Когда следует избегать использования ref?",
+    answer: "<p>ref — это escape hatch, который нужно использовать осторожно.</p><p><strong>Не использовать ref для:</strong></p><ul><li><strong>Данных для рендера</strong> — используй state</li><li><strong>Коммуникации компонентов</strong> — используй props/context</li><li><strong>Замены state</strong> — теряется реактивность</li><li><strong>Обхода однонаправленного потока</strong> — нарушается архитектура</li></ul><p><strong>Антипаттерны:</strong></p><ul><li>Вызывать методы дочерних компонентов через ref</li><li>Хранить в ref данные, которые влияют на UI</li><li>Использовать ref для избежания ререндеров (есть лучшие способы)</li></ul><p><strong>Когда ref оправдан:</strong></p><p>DOM манипуляции (фокус, скролл), интеграция со сторонними библиотеками, измерения, анимации, хранение мутабельных значений.</p><p><strong>Принцип:</strong></p><p>Сначала попробуй решить декларативно через props/state. ref — последнее средство.</p>",
+    difficulty: 'middle',
+    tags: ['ref', 'антипаттерны', 'best practices', 'архитектура']
+  },
+  {
+    id: 75,
+    question: "Как ref работает с React StrictMode и почему компонент с ref может рендериться дважды?",
+    answer: "<p><strong>StrictMode в разработке</strong> намеренно делает двойной рендер для выявления проблем.</p><p><strong>Влияние на ref:</strong></p><ul><li>Callback ref вызывается 4 раза вместо 2 (mount-unmount-mount-unmount)</li><li>useEffect cleanup/setup запускается дважды</li><li>ref.current может временно быть null даже после монтирования</li></ul><p><strong>Почему это происходит:</strong></p><p>StrictMode симулирует размонтирование/монтирование для проверки корректности cleanup логики.</p><p><strong>Как это учитывать:</strong></p><ul><li>Код должен быть идемпотентным</li><li>Cleanup должен корректно отменять side effects</li><li>Не полагаться на количество вызовов</li></ul><p><strong>В продакшене:</strong></p><p>Двойного рендера нет — это только dev режим для помощи в отладке.</p>",
+    difficulty: 'senior',
+    tags: ['ref', 'StrictMode', 'debugging', 'особенности']
   }
 ]
