@@ -321,5 +321,110 @@ export const reactInterviewQuestions: InterviewQuestion[] = [
     answer: "<p>JSX обрабатывает whitespace (пробелы, табы, переносы) не так, как HTML.</p><p><strong>Правила JSX:</strong></p><ul><li>Пробелы в начале и конце строки удаляются</li><li>Пустые строки удаляются</li><li>Переносы строк рядом с тегами сворачиваются</li><li>Множественные пробелы между словами сохраняются</li></ul><p><strong>Отличие от HTML:</strong></p><p>HTML сворачивает любые последовательности whitespace в один пробел. JSX более предсказуем.</p><p><strong>Как контролировать:</strong></p><ul><li>Явные пробелы через {' '}</li><li>&nbsp; для неразрывного пробела</li><li>CSS white-space для управления отображением</li></ul><p><strong>На практике:</strong></p><p>Обычно достаточно знать, что пробелы между тегами схлопываются, и использовать {' '} когда нужен гарантированный пробел.</p>",
     difficulty: 'middle',
     tags: ['JSX', 'whitespace', 'форматирование', 'особенности']
+  },
+  {
+    id: 46,
+    question: "Что такое SyntheticEvent в React и зачем он нужен?",
+    answer: "<p><strong>SyntheticEvent</strong> — это кросс-браузерная обертка React над нативными событиями браузера.</p><p><strong>Зачем нужен:</strong></p><ul><li><strong>Единый API</strong> — одинаковое поведение во всех браузерах</li><li><strong>Производительность</strong> — переиспользование объектов событий (event pooling до React 17)</li><li><strong>Удобство</strong> — нормализация различий между браузерами</li><li><strong>Совместимость с Virtual DOM</strong> — интеграция в систему React</li></ul><p><strong>Ключевые особенности:</strong></p><p>SyntheticEvent имеет тот же интерфейс, что и нативное событие: stopPropagation(), preventDefault(), target, currentTarget. Но это отдельный объект, который React создает и управляет его жизненным циклом.</p>",
+    difficulty: 'middle',
+    tags: ['события', 'SyntheticEvent', 'основы']
+  },
+  {
+    id: 47,
+    question: "В чем разница между SyntheticEvent и нативным браузерным событием?",
+    answer: "<p><strong>SyntheticEvent (React):</strong></p><ul><li>Кросс-браузерная обертка</li><li>Единый интерфейс для всех браузеров</li><li>Переиспользуется React (pooling до версии 17)</li><li>Имеет дополнительное поле nativeEvent</li><li>Null-ится после обработки (в старых версиях)</li></ul><p><strong>Native Event (браузер):</strong></p><ul><li>Нативный объект браузера</li><li>Может отличаться между браузерами</li><li>Не переиспользуется</li><li>Доступен через event.nativeEvent в React</li><li>Живет до сборки мусора</li></ul><p><strong>Важно:</strong></p><p>В большинстве случаев можно работать с SyntheticEvent как с обычным событием. Доступ к нативному событию нужен редко.</p>",
+    difficulty: 'middle',
+    tags: ['события', 'SyntheticEvent', 'отличия', 'Native Events']
+  },
+  {
+    id: 48,
+    question: "Как в React обрабатываются события? Опишите механизм event delegation.",
+    answer: "<p>React использует паттерн <strong>event delegation</strong> для оптимизации обработки событий.</p><p><strong>Как работает:</strong></p><ul><li>React не регистрирует обработчики на каждом элементе</li><li>Все события регистрируются на корневом узле приложения</li><li>При всплытии события React определяет целевой компонент</li><li>Создает SyntheticEvent и вызывает нужный обработчик</li></ul><p><strong>Преимущества:</strong></p><ul><li><strong>Память</strong> — один обработчик вместо тысяч</li><li><strong>Производительность</strong> — меньше регистраций/удалений</li><li><strong>Динамичность</strong> — работает для динамически добавленных элементов</li></ul><p><strong>Изменение в React 17:</strong></p><p>События теперь регистрируются на корне React приложения, а не на document — это улучшает работу с несколькими React приложениями на странице.</p>",
+    difficulty: 'senior',
+    tags: ['события', 'event delegation', 'производительность', 'архитектура']
+  },
+  {
+    id: 49,
+    question: "Почему нельзя использовать асинхронный доступ к SyntheticEvent?",
+    answer: "<p>До React 17 SyntheticEvent объекты переиспользовались (event pooling).</p><p><strong>Проблема:</strong></p><ul><li>После выполнения обработчика все свойства события обнулялись</li><li>Асинхронный доступ (setTimeout, Promise) получал null значения</li><li>React очищал объект для переиспользования</li></ul><p><strong>Решение в старых версиях:</strong></p><p>Использовать event.persist() — убирало событие из пула и сохраняло значения. Или копировать нужные значения в переменные.</p><p><strong>React 17+:</strong></p><p>Event pooling убрали! Теперь можно безопасно использовать события асинхронно без persist(). Это упростило работу, но немного снизило производительность.</p><p><strong>Best practice:</strong></p><p>Все равно лучше извлекать нужные значения сразу для читаемости кода.</p>",
+    difficulty: 'senior',
+    tags: ['события', 'SyntheticEvent', 'pooling', 'React 17']
+  },
+  {
+    id: 50,
+    question: "В чем разница между onClick и onclick в React?",
+    answer: "<p><strong>onClick (React/JSX):</strong></p><ul><li>CamelCase нотация</li><li>Принимает функцию как значение</li><li>SyntheticEvent обертка</li><li>Работает через event delegation</li><li>Рекомендуемый способ в React</li></ul><p><strong>onclick (нативный HTML):</strong></p><ul><li>Lowercase</li><li>Принимает строку с JavaScript кодом</li><li>Нативное событие браузера</li><li>Прямая регистрация на элементе</li><li>Антипаттерн в React</li></ul><p><strong>Почему camelCase:</strong></p><p>JSX следует JavaScript конвенциям именования, не HTML. Все DOM свойства и атрибуты в React используют camelCase: onClick, onChange, onSubmit.</p><p><strong>Важно:</strong></p><p>В React всегда используем onClick={handler}, никогда onclick=\"handler()\".</p>",
+    difficulty: 'junior',
+    tags: ['события', 'именование', 'onClick', 'основы']
+  },
+  {
+    id: 51,
+    question: "Как правильно передавать аргументы в обработчики событий?",
+    answer: "<p>Есть несколько способов передать аргументы в event handler:</p><p><strong>1. Стрелочная функция inline:</strong></p><p>Создаем новую функцию при каждом рендере. Просто, но может влиять на производительность при частых ререндерах.</p><p><strong>2. Метод bind:</strong></p><p>Привязываем аргументы через bind(). Тоже создает новую функцию при каждом рендере.</p><p><strong>3. Data-атрибуты:</strong></p><p>Храним данные в data-* атрибутах, читаем через event.currentTarget.dataset.</p><p><strong>4. Каррирование:</strong></p><p>Функция возвращает функцию. Внешняя создается один раз, внутренняя — при событии.</p><p><strong>Best practice:</strong></p><p>Для списков и оптимизации — каррирование или useCallback. Для простых случаев — стрелочная функция inline.</p>",
+    difficulty: 'middle',
+    tags: ['события', 'аргументы', 'обработчики', 'паттерны']
+  },
+  {
+    id: 52,
+    question: "Что такое event.preventDefault() и event.stopPropagation()? Когда их использовать?",
+    answer: "<p><strong>event.preventDefault():</strong></p><ul><li>Отменяет действие браузера по умолчанию</li><li>Не влияет на всплытие события</li><li>Используется для: отмены отправки формы, предотвращения перехода по ссылке, отмены контекстного меню</li></ul><p><strong>event.stopPropagation():</strong></p><ul><li>Останавливает всплытие события вверх по дереву</li><li>Не отменяет действие по умолчанию</li><li>Родительские обработчики не будут вызваны</li><li>Используется когда событие должно обработаться только на текущем элементе</li></ul><p><strong>Важное отличие:</strong></p><p>preventDefault() отменяет браузерное поведение, stopPropagation() — распространение события в React/DOM дереве.</p><p><strong>Можно использовать вместе:</strong></p><p>Если нужно и отменить действие, и остановить всплытие.</p>",
+    difficulty: 'middle',
+    tags: ['события', 'preventDefault', 'stopPropagation', 'методы']
+  },
+  {
+    id: 53,
+    question: "В чем разница между event.target и event.currentTarget?",
+    answer: "<p><strong>event.target:</strong></p><ul><li>Элемент, который инициировал событие</li><li>Элемент, на котором произошел клик/действие</li><li>Может быть дочерним элементом</li><li>Не меняется при всплытии</li></ul><p><strong>event.currentTarget:</strong></p><ul><li>Элемент, на котором зарегистрирован обработчик</li><li>Элемент, к которому привязан onClick</li><li>Всегда совпадает с this в классовых компонентах</li><li>Меняется при всплытии</li></ul><p><strong>Практический пример:</strong></p><p>Если кликнуть на span внутри div с обработчиком: target будет span (где кликнули), currentTarget — div (где обработчик).</p><p><strong>Когда важно:</strong></p><p>При работе с делегированием событий или когда нужно получить данные из элемента с обработчиком, а не из вложенного.</p>",
+    difficulty: 'middle',
+    tags: ['события', 'target', 'currentTarget', 'отличия']
+  },
+  {
+    id: 54,
+    question: "Как в React обрабатывать события в фазе capture?",
+    answer: "<p>По умолчанию React обрабатывает события в фазе <strong>bubbling</strong> (всплытие), но можно использовать фазу <strong>capture</strong> (погружение).</p><p><strong>Синтаксис:</strong></p><p>Добавить суффикс Capture к имени события: onClickCapture, onChangeCapture, onFocusCapture.</p><p><strong>Фазы события:</strong></p><ul><li><strong>Capture</strong> — событие идет от корня к цели (сверху вниз)</li><li><strong>Target</strong> — событие достигло целевого элемента</li><li><strong>Bubble</strong> — событие всплывает обратно к корню (снизу вверх)</li></ul><p><strong>Порядок выполнения:</strong></p><p>Сначала все onClickCapture от корня к цели, потом onClick от цели к корню.</p><p><strong>Когда использовать:</strong></p><p>Для перехвата событий до дочерних элементов, блокировки действий, глобальных обработчиков.</p>",
+    difficulty: 'senior',
+    tags: ['события', 'capture', 'bubbling', 'фазы']
+  },
+  {
+    id: 55,
+    question: "Почему важно не использовать стрелочные функции и bind в render?",
+    answer: "<p>Создание новых функций в render может вызывать проблемы с производительностью.</p><p><strong>Проблемы:</strong></p><ul><li>Новая функция создается при каждом рендере</li><li>Нарушается сравнение пропсов в React.memo</li><li>Дочерние компоненты ре-рендерятся без необходимости</li><li>Невозможна оптимизация через shouldComponentUpdate</li></ul><p><strong>Решения:</strong></p><ul><li><strong>useCallback</strong> — мемоизация функций в функциональных компонентах</li><li><strong>Метод класса</strong> — определение обработчика как метода класса</li><li><strong>Bind в constructor</strong> — однократная привязка контекста</li><li><strong>Class field syntax</strong> — стрелочные функции как поля класса</li></ul><p><strong>Когда можно игнорировать:</strong></p><p>Для простых компонентов без оптимизации или когда дочерние компоненты легковесные.</p>",
+    difficulty: 'senior',
+    tags: ['события', 'производительность', 'оптимизация', 'best practices']
+  },
+  {
+    id: 56,
+    question: "Как работает onChange в React и чем отличается от нативного?",
+    answer: "<p>React нормализовал поведение onChange для лучшего developer experience.</p><p><strong>В React onChange:</strong></p><ul><li>Срабатывает при каждом изменении значения</li><li>Работает как onInput в нативном DOM</li><li>Срабатывает на каждый ввод символа</li><li>Единообразно для всех input элементов</li></ul><p><strong>Нативный onchange:</strong></p><ul><li>Срабатывает при потере фокуса (для текстовых input)</li><li>Для radio/checkbox — сразу при изменении</li><li>Непредсказуемое поведение между элементами</li></ul><p><strong>Почему React изменил поведение:</strong></p><p>Для создания controlled компонентов нужна мгновенная реакция на изменения. Нативный onchange срабатывал слишком поздно.</p><p><strong>Нативный аналог:</strong></p><p>Если нужно нативное поведение, можно использовать onBlur.</p>",
+    difficulty: 'middle',
+    tags: ['события', 'onChange', 'формы', 'отличия']
+  },
+  {
+    id: 57,
+    question: "Что такое пассивные события (passive events) и как они влияют на производительность?",
+    answer: "<p><strong>Passive events</strong> — это события с опцией {passive: true}, которые обещают не вызывать preventDefault().</p><p><strong>Зачем нужны:</strong></p><ul><li>Браузер не ждет выполнения обработчика для scroll/touch</li><li>Улучшается плавность прокрутки и касаний</li><li>Особенно важно на мобильных устройствах</li></ul><p><strong>В React:</strong></p><p>React автоматически делает некоторые события пассивными (wheel, touchstart, touchmove). Нельзя вызвать preventDefault() для пассивных событий.</p><p><strong>Как использовать непассивное:</strong></p><p>Нужно регистрировать напрямую через addEventListener с {passive: false} в useEffect, если требуется preventDefault().</p><p><strong>Важно:</strong></p><p>Это оптимизация браузера, React просто следует спецификации.</p>",
+    difficulty: 'senior',
+    tags: ['события', 'производительность', 'passive events', 'оптимизация']
+  },
+  {
+    id: 58,
+    question: "Как обрабатывать события клавиатуры в React?",
+    answer: "<p>React предоставляет несколько событий для работы с клавиатурой:</p><p><strong>Основные события:</strong></p><ul><li><strong>onKeyDown</strong> — клавиша нажата</li><li><strong>onKeyPress</strong> — клавиша нажата (deprecated, не использовать)</li><li><strong>onKeyUp</strong> — клавиша отпущена</li></ul><p><strong>Свойства события:</strong></p><ul><li><strong>key</strong> — название клавиши ('Enter', 'a', 'ArrowUp')</li><li><strong>code</strong> — физический код клавиши ('KeyA', 'Enter')</li><li><strong>keyCode</strong> — числовой код (deprecated)</li><li><strong>altKey, ctrlKey, shiftKey, metaKey</strong> — модификаторы</li></ul><p><strong>Best practices:</strong></p><p>Использовать event.key вместо keyCode. Для горячих клавиш проверять комбинации модификаторов. onKeyDown для большинства случаев, onKeyUp для специфичных сценариев.</p>",
+    difficulty: 'middle',
+    tags: ['события', 'клавиатура', 'onKeyDown', 'обработка']
+  },
+  {
+    id: 59,
+    question: "Как правильно работать с событиями в useEffect?",
+    answer: "<p>При работе с нативными событиями в useEffect нужно соблюдать правила:</p><p><strong>Паттерн подписки:</strong></p><ul><li>Регистрировать обработчик в useEffect</li><li>Обязательно удалять в cleanup функции</li><li>Использовать один и тот же reference функции</li></ul><p><strong>Частые ошибки:</strong></p><ul><li>Забыть cleanup — утечка памяти и множественные обработчики</li><li>Создать новую функцию в cleanup — удаление не сработает</li><li>Не указать зависимости — stale closure на старые значения</li></ul><p><strong>Когда использовать:</strong></p><p>Для событий window, document, нативных элементов через ref, сторонних библиотек. Для обычных React событий использовать onClick и др.</p><p><strong>Best practice:</strong></p><p>Выносить обработчик в отдельную функцию, мемоизировать через useCallback с правильными зависимостями.</p>",
+    difficulty: 'senior',
+    tags: ['события', 'useEffect', 'cleanup', 'хуки']
+  },
+  {
+    id: 60,
+    question: "В чем особенности событий форм в React (onSubmit, onChange, onInput)?",
+    answer: "<p><strong>onSubmit:</strong></p><ul><li>Срабатывает при отправке формы (Enter или кнопка submit)</li><li>Всегда вызывать event.preventDefault() чтобы избежать перезагрузки страницы</li><li>Регистрируется на <form>, не на кнопке</li></ul><p><strong>onChange:</strong></p><ul><li>В React работает как нативный onInput — при каждом изменении</li><li>Основа для controlled компонентов</li><li>Работает для input, textarea, select</li></ul><p><strong>onInput:</strong></p><ul><li>Нативное событие, работает аналогично React onChange</li><li>В React лучше использовать onChange для единообразия</li></ul><p><strong>Best practices:</strong></p><p>Использовать onSubmit на форме, onChange для полей, всегда preventDefault для onSubmit, валидировать данные до отправки.</p>",
+    difficulty: 'middle',
+    tags: ['события', 'формы', 'onSubmit', 'onChange']
   }
 ]
