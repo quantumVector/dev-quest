@@ -216,5 +216,110 @@ export const reactInterviewQuestions: InterviewQuestion[] = [
     answer: "<p>JSX — это синтаксический сахар, который компилируется в вызовы createElement (в React 17+: jsx() runtime).</p><p><strong>JSX код:</strong></p><p>Выглядит как HTML, но это JavaScript, который Babel транспилирует.</p><p><strong>React.createElement():</strong></p><p>Создает JavaScript объект (React элемент) — узел Virtual DOM дерева. Принимает тип, props, children.</p><p><strong>Virtual DOM узел:</strong></p><p>Это просто объект с полями: type (компонент/тег), props (атрибуты), key, ref, children.</p><p><strong>Процесс:</strong></p><p>JSX → createElement → Virtual DOM объект → reconciliation → реальный DOM</p><p>Вся магия React построена на манипуляции этими легковесными объектами вместо тяжелого DOM.</p>",
     difficulty: 'middle',
     tags: ['JSX', 'createElement', 'компиляция']
+  },
+  {
+    id: 31,
+    question: "Что такое JSX и чем он отличается от обычного JavaScript?",
+    answer: "<p><strong>JSX (JavaScript XML)</strong> — это синтаксическое расширение JavaScript, которое позволяет писать разметку, похожую на HTML, прямо в JavaScript коде.</p><p><strong>Ключевые отличия от JavaScript:</strong></p><ul><li>JSX не является валидным JavaScript — требует транспиляции</li><li>Использует XML-подобный синтаксис для описания UI</li><li>Позволяет встраивать JavaScript выражения через фигурные скобки {}</li><li>Имеет свои правила именования (className вместо class, htmlFor вместо for)</li></ul><p><strong>Важно понимать:</strong></p><p>JSX — это не шаблонный язык и не HTML. Это JavaScript код, который выглядит как разметка для удобства восприятия. После компиляции JSX превращается в обычные функции JavaScript.</p>",
+    difficulty: 'junior',
+    tags: ['JSX', 'основы', 'синтаксис']
+  },
+  {
+    id: 32,
+    question: "Какие инструменты используются для поддержки JSX-синтаксиса?",
+    answer: "<p>JSX требует транспиляции в обычный JavaScript. Основные инструменты:</p><p><strong>Babel:</strong></p><ul><li>Самый популярный транспилятор для JSX</li><li>Плагин @babel/preset-react для JSX трансформации</li><li>Используется в Create React App, Next.js и большинстве проектов</li></ul><p><strong>TypeScript:</strong></p><ul><li>Нативная поддержка JSX через расширение .tsx</li><li>Встроенная проверка типов для JSX элементов</li><li>Опция jsx в tsconfig.json определяет способ компиляции</li></ul><p><strong>Другие инструменты:</strong></p><ul><li>SWC — современная быстрая альтернатива Babel на Rust</li><li>esbuild — сверхбыстрый бандлер с поддержкой JSX</li></ul><p>В современных проектах настройка часто скрыта в инструментах типа Vite или Next.js.</p>",
+    difficulty: 'middle',
+    tags: ['JSX', 'инструменты', 'Babel', 'TypeScript']
+  },
+  {
+    id: 33,
+    question: "Во что преобразуются JSX-теги при компиляции?",
+    answer: "<p>JSX теги компилируются в вызовы функций создания React элементов.</p><p><strong>До React 17:</strong></p><p>JSX компилировался в React.createElement() вызовы. Поэтому React нужно было импортировать в каждом файле.</p><p><strong>React 17+ (новый JSX Transform):</strong></p><p>JSX компилируется в специальные функции jsx() и jsxs() из 'react/jsx-runtime'. Import React больше не требуется.</p><p><strong>Что создается:</strong></p><p>В результате получается обычный JavaScript объект — React элемент, который описывает структуру Virtual DOM узла. Объект содержит: type (тип элемента), props (свойства и children), key, ref.</p><p>Эти объекты — основа Virtual DOM, с которыми React работает при reconciliation.</p>",
+    difficulty: 'middle',
+    tags: ['JSX', 'компиляция', 'createElement', 'transform']
+  },
+  {
+    id: 34,
+    question: "Почему в JSX используется className вместо class?",
+    answer: "<p>В JSX используется className вместо class по историческим и техническим причинам:</p><p><strong>Техническая причина:</strong></p><ul><li>class — зарезервированное ключевое слово в JavaScript</li><li>JSX компилируется в JavaScript объекты с полем props</li><li>Использование class как имени свойства может вызвать проблемы</li></ul><p><strong>Исторический контекст:</strong></p><p>Когда создавался React, использование зарезервированных слов в объектах было более проблематичным. Хотя современный JavaScript позволяет 'class' как ключ объекта, React сохранил className для обратной совместимости.</p><p><strong>Аналогично:</strong></p><ul><li>htmlFor вместо for</li><li>onChange вместо onchange</li><li>dangerouslySetInnerHTML вместо innerHTML</li></ul>",
+    difficulty: 'junior',
+    tags: ['JSX', 'атрибуты', 'отличия от HTML']
+  },
+  {
+    id: 35,
+    question: "Можно ли использовать if-else внутри JSX?",
+    answer: "<p><strong>Напрямую нельзя</strong> — внутри фигурных скобок JSX можно использовать только выражения, а if-else это statement (инструкция).</p><p><strong>Альтернативы:</strong></p><p><strong>1. Тернарный оператор:</strong></p><p>Самый частый способ для простых условий.</p><p><strong>2. Логический оператор &&:</strong></p><p>Для рендера при выполнении условия.</p><p><strong>3. Переменная перед return:</strong></p><p>Можно использовать полноценный if-else до JSX, сохранив результат в переменную.</p><p><strong>4. IIFE (Immediately Invoked Function Expression):</strong></p><p>Можно вызвать функцию с if-else внутри фигурных скобок, но это редкий паттерн.</p><p>В большинстве случаев достаточно тернарного оператора или &&.</p>",
+    difficulty: 'junior',
+    tags: ['JSX', 'условия', 'выражения']
+  },
+  {
+    id: 36,
+    question: "Что можно и что нельзя рендерить в JSX?",
+    answer: "<p><strong>Можно рендерить:</strong></p><ul><li>Строки и числа — отображаются как текст</li><li>React элементы — результат JSX или createElement</li><li>Массивы элементов — React отрендерит каждый</li><li>null, undefined, false, true — не рендерятся (пустота)</li><li>Фрагменты (<></> или <Fragment>)</li></ul><p><strong>Нельзя рендерить напрямую:</strong></p><ul><li>Объекты — вызовут ошибку \"Objects are not valid as a React child\"</li><li>Функции — нужно их вызвать</li><li>Promises — нужно обработать через then или async/await</li><li>Символы и другие не-примитивные типы</li></ul><p><strong>Важно:</strong></p><p>0 (ноль) рендерится как текст, что иногда неожиданно при условном рендере. Пустые строки тоже рендерятся.</p>",
+    difficulty: 'middle',
+    tags: ['JSX', 'рендеринг', 'типы данных']
+  },
+  {
+    id: 37,
+    question: "Как работают комментарии в JSX?",
+    answer: "<p>В JSX комментарии отличаются от обычного JavaScript и HTML.</p><p><strong>Внутри JSX разметки:</strong></p><p>Используются JavaScript комментарии внутри фигурных скобок: {/* комментарий */}. Обычные // или /* */ вне скобок не работают.</p><p><strong>Вне JSX (в коде JavaScript):</strong></p><p>Работают стандартные JavaScript комментарии: // или /* */.</p><p><strong>Почему так:</strong></p><p>JSX это JavaScript, поэтому внутри разметки нужно явно указать, что это комментарий через {}. Компилятор видит это как JavaScript выражение.</p><p><strong>HTML комментарии:</strong></p><p>HTML комментарии <!-- --> не работают в JSX и вызовут ошибку.</p>",
+    difficulty: 'junior',
+    tags: ['JSX', 'комментарии', 'синтаксис']
+  },
+  {
+    id: 38,
+    question: "Почему JSX элементы должны иметь один корневой элемент?",
+    answer: "<p>JSX выражение должно иметь один корневой элемент, потому что оно компилируется в один вызов функции.</p><p><strong>Техническое объяснение:</strong></p><p>Функция может вернуть только одно значение. JSX компилируется в вызов createElement/jsx(), который возвращает один объект. Несколько соседних элементов — это несколько объектов, что невозможно вернуть напрямую.</p><p><strong>Решения:</strong></p><ul><li><strong>Fragment</strong> (<React.Fragment> или <>...</>) — группирует без лишнего DOM</li><li><strong>Обертка div</strong> — добавляет реальный DOM элемент</li><li><strong>Массив</strong> — можно вернуть массив элементов с ключами</li></ul><p><strong>Современный подход:</strong></p><p>Фрагменты (<></>) — стандартное решение, не добавляющее лишних узлов в DOM.</p>",
+    difficulty: 'junior',
+    tags: ['JSX', 'фрагменты', 'ограничения']
+  },
+  {
+    id: 39,
+    question: "В чем разница между React.createElement и JSX?",
+    answer: "<p>JSX — это синтаксический сахар над React.createElement (или современным jsx() runtime).</p><p><strong>JSX:</strong></p><ul><li>Декларативный, читаемый синтаксис</li><li>Похож на HTML</li><li>Требует транспиляции</li><li>Удобен для написания UI</li></ul><p><strong>createElement:</strong></p><ul><li>Императивный вызов функции</li><li>Работает без транспиляции</li><li>Менее читаем при сложной вложенности</li><li>Это то, во что компилируется JSX</li></ul><p><strong>Функционально идентичны:</strong></p><p>Оба создают одинаковые React элементы (объекты Virtual DOM). JSX просто удобнее читать и писать.</p><p><strong>Когда использовать createElement:</strong></p><p>При динамическом создании элементов, в библиотеках, или когда нужно избежать транспиляции.</p>",
+    difficulty: 'middle',
+    tags: ['JSX', 'createElement', 'API', 'отличия']
+  },
+  {
+    id: 40,
+    question: "Как JSX предотвращает XSS атаки?",
+    answer: "<p>JSX автоматически экранирует значения перед рендерингом, что защищает от XSS (Cross-Site Scripting).</p><p><strong>Как это работает:</strong></p><ul><li>Все значения в {} преобразуются в строки и экранируются</li><li>Специальные символы (<, >, &, кавычки) заменяются на HTML entities</li><li>Вредоносный код не может быть выполнен</li></ul><p><strong>Пример защиты:</strong></p><p>Если пользователь введет <script>alert('XSS')</script>, React отобразит это как текст, а не выполнит скрипт.</p><p><strong>Исключение:</strong></p><p>dangerouslySetInnerHTML — специальный prop для вставки сырого HTML. Название предупреждает об опасности. Использовать только с проверенными данными.</p><p>Это встроенная защита делает React безопасным по умолчанию.</p>",
+    difficulty: 'middle',
+    tags: ['JSX', 'безопасность', 'XSS']
+  },
+  {
+    id: 41,
+    question: "Что такое JSX spread attributes и когда их использовать?",
+    answer: "<p><strong>Spread attributes</strong> — это способ передать все свойства объекта как props компоненту через оператор расширения (...).</p><p><strong>Применение:</strong></p><p>Полезно при проксировании props, создании wrapper компонентов, или передаче множества пропсов от родителя к ребенку.</p><p><strong>Преимущества:</strong></p><ul><li>Меньше кода при множестве пропсов</li><li>Удобно для компонентов-оберток</li><li>Гибкость при неизвестном наборе props</li></ul><p><strong>Недостатки:</strong></p><ul><li>Неявность — непонятно какие props передаются</li><li>Можно случайно передать лишние props</li><li>Хуже для производительности при частом использовании</li></ul><p><strong>Best practice:</strong></p><p>Использовать умеренно, деструктурировать нужные props явно, остальное в spread.</p>",
+    difficulty: 'middle',
+    tags: ['JSX', 'spread', 'props', 'паттерны']
+  },
+  {
+    id: 42,
+    question: "Как в JSX работают булевы атрибуты?",
+    answer: "<p>Булевы атрибуты в JSX ведут себя иначе, чем в HTML.</p><p><strong>В HTML:</strong></p><p>Наличие атрибута = true, отсутствие = false. Значение не важно.</p><p><strong>В JSX:</strong></p><p>Нужно явно передавать true или false. Можно использовать краткую запись: disabled эквивалентно disabled={true}.</p><p><strong>Особенности:</strong></p><ul><li>false делает атрибут отсутствующим в DOM</li><li>true добавляет атрибут в DOM</li><li>undefined/null также убирают атрибут</li></ul><p><strong>Распространенные булевы атрибуты:</strong></p><p>disabled, checked, required, readOnly, autoFocus, multiple.</p><p><strong>Важно:</strong></p><p>Строки \"false\" или \"true\" — это не boolean, а строки, что может вызвать баги.</p>",
+    difficulty: 'junior',
+    tags: ['JSX', 'атрибуты', 'boolean', 'HTML']
+  },
+  {
+    id: 43,
+    question: "В чем разница между {} и {{}} в JSX?",
+    answer: "<p>Это частый источник путаницы для новичков.</p><p><strong>Одинарные фигурные скобки {}:</strong></p><ul><li>Обозначают JavaScript выражение внутри JSX</li><li>Используются для вставки переменных, вызова функций, условий</li></ul><p><strong>Двойные фигурные скобки {{}}:</strong></p><ul><li>Это не специальный синтаксис JSX</li><li>Внешние {} — синтаксис JSX</li><li>Внутренние {} — литерал JavaScript объекта</li><li>Используются для передачи объектов как props</li></ul><p><strong>Типичное применение {{}}:</strong></p><p>Inline стили в JSX — style={{color: 'red'}}. Первые {} говорят \"это JS\", вторые {} создают объект стилей.</p><p><strong>Важно понимать:</strong></p><p>Это просто объект внутри JavaScript выражения, никакой магии.</p>",
+    difficulty: 'junior',
+    tags: ['JSX', 'синтаксис', 'фигурные скобки', 'объекты']
+  },
+  {
+    id: 44,
+    question: "Почему нельзя использовать for и while циклы прямо в JSX?",
+    answer: "<p>for и while — это statements (инструкции), а в JSX можно использовать только expressions (выражения).</p><p><strong>В чем разница:</strong></p><ul><li><strong>Expression</strong> — возвращает значение (тернарный оператор, вызов функции)</li><li><strong>Statement</strong> — выполняет действие, не возвращает значение (for, while, if)</li></ul><p><strong>Альтернативы в JSX:</strong></p><ul><li><strong>map()</strong> — самый частый способ для списков</li><li><strong>filter()</strong> — для условной фильтрации элементов</li><li><strong>reduce()</strong> — для сложных трансформаций</li><li><strong>IIFE</strong> — можно обернуть цикл в функцию и сразу вызвать</li></ul><p><strong>Best practice:</strong></p><p>Использовать функциональные методы массивов (map, filter) — это декларативнее и читаемее.</p>",
+    difficulty: 'middle',
+    tags: ['JSX', 'циклы', 'выражения', 'ограничения']
+  },
+  {
+    id: 45,
+    question: "Как JSX обрабатывает пробелы и переносы строк?",
+    answer: "<p>JSX обрабатывает whitespace (пробелы, табы, переносы) не так, как HTML.</p><p><strong>Правила JSX:</strong></p><ul><li>Пробелы в начале и конце строки удаляются</li><li>Пустые строки удаляются</li><li>Переносы строк рядом с тегами сворачиваются</li><li>Множественные пробелы между словами сохраняются</li></ul><p><strong>Отличие от HTML:</strong></p><p>HTML сворачивает любые последовательности whitespace в один пробел. JSX более предсказуем.</p><p><strong>Как контролировать:</strong></p><ul><li>Явные пробелы через {' '}</li><li>&nbsp; для неразрывного пробела</li><li>CSS white-space для управления отображением</li></ul><p><strong>На практике:</strong></p><p>Обычно достаточно знать, что пробелы между тегами схлопываются, и использовать {' '} когда нужен гарантированный пробел.</p>",
+    difficulty: 'middle',
+    tags: ['JSX', 'whitespace', 'форматирование', 'особенности']
   }
 ]
