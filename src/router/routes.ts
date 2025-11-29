@@ -144,6 +144,7 @@ import UseEffectFlow from '@/views/react/UseEffectFlow.vue'
 import RenderOptimization from '@/views/react/RenderOptimization.vue'
 import RenderOptimizationAdvanced from '@/views/react/RenderOptimizationAdvanced.vue'
 import React18 from '@/views/react/React18.vue'
+import React19 from '@/views/react/React19.vue'
 
 export const routes = [
   {
@@ -689,6 +690,10 @@ export const routes = [
   {
     path: '/react/react-18',
     component: React18,
+  },
+  {
+    path: '/react/react-19',
+    component: React19,
   },
   {
     path: '/docker/docker',

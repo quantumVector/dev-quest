@@ -339,6 +339,9 @@
           <v-list-item to="/react/react-18">
             <v-list-item-title>11. React 18</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/react/react-19">
+            <v-list-item-title>12. React 19</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
