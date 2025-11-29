@@ -152,6 +152,7 @@ import ReactEventsTestPage from '@/views/tests/ReactEventsTestPage.vue'
 import ReactRefForwardRefTestPage from '@/views/tests/ReactRefForwardRefTestPage.vue'
 import ReactMemoCallbackTestPage from '@/views/tests/ReactMemoCallbackTestPage.vue'
 import ReactUseEffectFlowTestPage from '@/views/tests/ReactUseEffectFlowTestPage.vue'
+import ReactRerenderCausesTestPage from '@/views/tests/ReactRerenderCausesTestPage.vue'
 
 export const routes = [
   {
@@ -729,6 +730,10 @@ export const routes = [
   {
     path: '/react/use-effect-flow-test',
     component: ReactUseEffectFlowTestPage,
+  },
+  {
+    path: '/react/rerender-causes-test',
+    component: ReactRerenderCausesTestPage,
   },
   {
     path: '/docker/docker',

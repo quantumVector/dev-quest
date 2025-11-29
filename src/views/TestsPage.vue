@@ -183,6 +183,9 @@
           <v-list-item to="/react/use-effect-flow-test">
             <v-list-item-title>7. useEffect Flow</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/react/rerender-causes-test">
+            <v-list-item-title>8. Причины ререндеров</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
