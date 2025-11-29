@@ -154,6 +154,7 @@ import ReactMemoCallbackTestPage from '@/views/tests/ReactMemoCallbackTestPage.v
 import ReactUseEffectFlowTestPage from '@/views/tests/ReactUseEffectFlowTestPage.vue'
 import ReactRerenderCausesTestPage from '@/views/tests/ReactRerenderCausesTestPage.vue'
 import ReactRenderOptimizationTestPage from '@/views/tests/ReactRenderOptimizationTestPage.vue'
+import React18TestPage from '@/views/tests/React18TestPage.vue'
 
 export const routes = [
   {
@@ -739,6 +740,10 @@ export const routes = [
   {
     path: '/react/render-optimization-test',
     component: ReactRenderOptimizationTestPage,
+  },
+  {
+    path: '/react/react-18-test',
+    component: React18TestPage,
   },
   {
     path: '/docker/docker',

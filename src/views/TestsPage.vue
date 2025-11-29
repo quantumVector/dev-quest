@@ -189,6 +189,9 @@
           <v-list-item to="/react/rerender-causes-test">
             <v-list-item-title>9. Оптимизация рендеринга</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/react/react-18-test">
+            <v-list-item-title>10. React 18</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
