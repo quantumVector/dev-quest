@@ -696,6 +696,10 @@ export const routes = [
     component: React19,
   },
   {
+    path: '/react/react-intro-test',
+    // component: ,
+  },
+  {
     path: '/docker/docker',
     component: Docker,
   },

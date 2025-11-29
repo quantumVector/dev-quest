@@ -158,5 +158,15 @@
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
+
+    <v-expansion-panel title="React">
+      <v-expansion-panel-text>
+        <v-list>
+          <v-list-item to="/react/react-intro-test">
+            <v-list-item-title>1. React</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-expansion-panel-text>
+    </v-expansion-panel>
   </v-expansion-panels>
 </template>
