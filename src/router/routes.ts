@@ -156,6 +156,7 @@ import ReactRerenderCausesTestPage from '@/views/tests/ReactRerenderCausesTestPa
 import ReactRenderOptimizationTestPage from '@/views/tests/ReactRenderOptimizationTestPage.vue'
 import React18TestPage from '@/views/tests/React18TestPage.vue'
 import React19TestPage from '@/views/tests/React19TestPage.vue'
+import OpsCommands from '@/views/ops/OpsCommands.vue'
 
 export const routes = [
   {
@@ -749,6 +750,10 @@ export const routes = [
   {
     path: '/react/react-19-test',
     component: React19TestPage,
+  },
+  {
+    path: '/ops/ops-commands',
+    component: OpsCommands,
   },
   {
     path: '/docker/docker',
