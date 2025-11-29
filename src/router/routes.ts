@@ -155,6 +155,7 @@ import ReactUseEffectFlowTestPage from '@/views/tests/ReactUseEffectFlowTestPage
 import ReactRerenderCausesTestPage from '@/views/tests/ReactRerenderCausesTestPage.vue'
 import ReactRenderOptimizationTestPage from '@/views/tests/ReactRenderOptimizationTestPage.vue'
 import React18TestPage from '@/views/tests/React18TestPage.vue'
+import React19TestPage from '@/views/tests/React19TestPage.vue'
 
 export const routes = [
   {
@@ -744,6 +745,10 @@ export const routes = [
   {
     path: '/react/react-18-test',
     component: React18TestPage,
+  },
+  {
+    path: '/react/react-19-test',
+    component: React19TestPage,
   },
   {
     path: '/docker/docker',

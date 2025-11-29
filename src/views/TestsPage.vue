@@ -192,6 +192,9 @@
           <v-list-item to="/react/react-18-test">
             <v-list-item-title>10. React 18</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/react/react-19-test">
+            <v-list-item-title>11. React 19</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
