@@ -157,6 +157,7 @@ import ReactRenderOptimizationTestPage from '@/views/tests/ReactRenderOptimizati
 import React18TestPage from '@/views/tests/React18TestPage.vue'
 import React19TestPage from '@/views/tests/React19TestPage.vue'
 import OpsCommands from '@/views/ops/OpsCommands.vue'
+import ShellScripts from '@/views/ops/ShellScripts.vue'
 
 export const routes = [
   {
@@ -754,6 +755,10 @@ export const routes = [
   {
     path: '/ops/ops-commands',
     component: OpsCommands,
+  },
+  {
+    path: '/ops/shell-scripts',
+    component: ShellScripts,
   },
   {
     path: '/docker/docker',

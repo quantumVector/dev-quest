@@ -389,6 +389,9 @@
           <v-list-item to="/ops/ops-commands">
             <v-list-item-title>1. pwd, echo, cat, ls, pipes</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/ops/shell-scripts">
+            <v-list-item-title>2. shell-скрипты. Синтаксис, переменные, циклы, аргументы</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
