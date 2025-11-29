@@ -165,6 +165,9 @@
           <v-list-item to="/react/react-intro-test">
             <v-list-item-title>1. React</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/react/virtual-dom-test">
+            <v-list-item-title>2. Virtual DOM</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

@@ -145,6 +145,8 @@ import RenderOptimization from '@/views/react/RenderOptimization.vue'
 import RenderOptimizationAdvanced from '@/views/react/RenderOptimizationAdvanced.vue'
 import React18 from '@/views/react/React18.vue'
 import React19 from '@/views/react/React19.vue'
+import ReactIntroTestPage from '@/views/tests/ReactIntroTestPage.vue'
+import ReactVirtualDOMTestPage from '@/views/tests/ReactVirtualDOMTestPage.vue'
 
 export const routes = [
   {
@@ -697,7 +699,11 @@ export const routes = [
   },
   {
     path: '/react/react-intro-test',
-    // component: ,
+    component: ReactIntroTestPage,
+  },
+  {
+    path: '/react/virtual-dom-test',
+    component: ReactVirtualDOMTestPage,
   },
   {
     path: '/docker/docker',
