@@ -160,6 +160,7 @@ import OpsCommands from '@/views/ops/OpsCommands.vue'
 import ShellScripts from '@/views/ops/ShellScripts.vue'
 import GrepAwkTail from '@/views/ops/GrepAwkTail.vue'
 import SedTutorial from '@/views/ops/SedTutorial.vue'
+import ReactInterviewPage from '@/views/interview/ReactInterviewPage.vue'
 
 export const routes = [
   {
@@ -809,5 +810,9 @@ export const routes = [
   {
     path: '/docker/debugging',
     component: DockerDebugging,
+  },
+  {
+    path: '/react/react-interview',
+    component: ReactInterviewPage,
   },
 ]

@@ -263,9 +263,9 @@
                 </v-card>
               </v-col>
 
-              <!-- React блок (пока заглушка) -->
+              <!-- React блок -->
               <v-col cols="12" md="6">
-                <v-card variant="outlined" hover class="h-100" disabled>
+                <v-card variant="outlined" hover class="h-100" to="/react/react-interview">
                   <v-card-text class="pa-6">
                     <div class="d-flex align-center mb-4">
                       <v-avatar color="cyan" size="large" class="mr-4">
@@ -278,19 +278,19 @@
                     </div>
 
                     <div class="mb-4">
-                      <v-chip color="grey" size="small" class="mr-2 mb-2">
-                        Скоро будет доступно
-                      </v-chip>
+                      <v-chip color="success" size="small" class="mr-2 mb-2"> Junior: 6 </v-chip>
+                      <v-chip color="warning" size="small" class="mr-2 mb-2"> Middle: 7 </v-chip>
+                      <v-chip color="error" size="small" class="mr-2 mb-2"> Senior: 2 </v-chip>
                     </div>
 
                     <p class="text-body-2 mb-0">
-                      Вопросы по компонентам, хукам, состоянию, жизненному циклу и экосистеме React.
+                      Вопросы по основам React, компонентам, Virtual DOM, JSX и ключевым концепциям библиотеки.
                     </p>
                   </v-card-text>
 
                   <v-card-actions class="pa-6 pt-0">
-                    <v-btn color="cyan" variant="tonal" disabled append-icon="mdi-arrow-right">
-                      В разработке
+                    <v-btn color="cyan" variant="tonal" append-icon="mdi-arrow-right">
+                      Начать подготовку
                     </v-btn>
                   </v-card-actions>
                 </v-card>
