@@ -159,6 +159,7 @@ import React19TestPage from '@/views/tests/React19TestPage.vue'
 import OpsCommands from '@/views/ops/OpsCommands.vue'
 import ShellScripts from '@/views/ops/ShellScripts.vue'
 import GrepAwkTail from '@/views/ops/GrepAwkTail.vue'
+import SedTutorial from '@/views/ops/SedTutorial.vue'
 
 export const routes = [
   {
@@ -764,6 +765,10 @@ export const routes = [
   {
     path: '/ops/grep-awk-tail',
     component: GrepAwkTail,
+  },
+  {
+    path: '/ops/sed',
+    component: SedTutorial,
   },
   {
     path: '/docker/docker',

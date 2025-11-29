@@ -395,6 +395,9 @@
           <v-list-item to="/ops/grep-awk-tail">
             <v-list-item-title>3. grep, awk, tail</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/ops/sed">
+            <v-list-item-title>4. sed — редактор потоков</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
