@@ -186,6 +186,9 @@
           <v-list-item to="/react/rerender-causes-test">
             <v-list-item-title>8. Причины ререндеров</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/react/rerender-causes-test">
+            <v-list-item-title>9. Оптимизация рендеринга</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
