@@ -174,6 +174,9 @@
           <v-list-item to="/react/react-events-test">
             <v-list-item-title>4. Events</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/react/ref-forwardref-test">
+            <v-list-item-title>5. Ref и ForwardRef</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

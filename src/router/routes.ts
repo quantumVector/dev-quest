@@ -149,6 +149,7 @@ import ReactIntroTestPage from '@/views/tests/ReactIntroTestPage.vue'
 import ReactVirtualDOMTestPage from '@/views/tests/ReactVirtualDOMTestPage.vue'
 import ReactJSXTestPage from '@/views/tests/ReactJSXTestPage.vue'
 import ReactEventsTestPage from '@/views/tests/ReactEventsTestPage.vue'
+import ReactRefForwardRefTestPage from '@/views/tests/ReactRefForwardRefTestPage.vue'
 
 export const routes = [
   {
@@ -714,6 +715,10 @@ export const routes = [
   {
     path: '/react/react-events-test',
     component: ReactEventsTestPage,
+  },
+  {
+    path: '/react/ref-forwardref-test',
+    component: ReactRefForwardRefTestPage,
   },
   {
     path: '/docker/docker',
