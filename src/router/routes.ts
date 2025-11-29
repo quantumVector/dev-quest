@@ -143,6 +143,7 @@ import UseCallback from '@/views/react/UseCallback.vue'
 import UseEffectFlow from '@/views/react/UseEffectFlow.vue'
 import RenderOptimization from '@/views/react/RenderOptimization.vue'
 import RenderOptimizationAdvanced from '@/views/react/RenderOptimizationAdvanced.vue'
+import React18 from '@/views/react/React18.vue'
 
 export const routes = [
   {
@@ -684,6 +685,10 @@ export const routes = [
   {
     path: '/react/render-optimization-advanced',
     component: RenderOptimizationAdvanced,
+  },
+  {
+    path: '/react/react-18',
+    component: React18,
   },
   {
     path: '/docker/docker',
