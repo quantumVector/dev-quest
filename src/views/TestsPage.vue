@@ -177,6 +177,9 @@
           <v-list-item to="/react/ref-forwardref-test">
             <v-list-item-title>5. Ref и ForwardRef</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/react/memo-callback-test">
+            <v-list-item-title>6. useMemo и useCallback</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

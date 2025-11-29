@@ -150,6 +150,7 @@ import ReactVirtualDOMTestPage from '@/views/tests/ReactVirtualDOMTestPage.vue'
 import ReactJSXTestPage from '@/views/tests/ReactJSXTestPage.vue'
 import ReactEventsTestPage from '@/views/tests/ReactEventsTestPage.vue'
 import ReactRefForwardRefTestPage from '@/views/tests/ReactRefForwardRefTestPage.vue'
+import ReactMemoCallbackTestPage from '@/views/tests/ReactMemoCallbackTestPage.vue'
 
 export const routes = [
   {
@@ -719,6 +720,10 @@ export const routes = [
   {
     path: '/react/ref-forwardref-test',
     component: ReactRefForwardRefTestPage,
+  },
+  {
+    path: '/react/memo-callback-test',
+    component: ReactMemoCallbackTestPage,
   },
   {
     path: '/docker/docker',
