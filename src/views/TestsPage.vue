@@ -168,6 +168,9 @@
           <v-list-item to="/react/virtual-dom-test">
             <v-list-item-title>2. Virtual DOM</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/react/jsx-test">
+            <v-list-item-title>3. JSX</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
