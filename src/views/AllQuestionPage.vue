@@ -382,5 +382,15 @@
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
+
+    <v-expansion-panel title="Ops">
+      <v-expansion-panel-text>
+        <v-list>
+          <v-list-item to="/ops/commands">
+            <v-list-item-title>1. pwd, echo, cat, ls, pipes</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-expansion-panel-text>
+    </v-expansion-panel>
   </v-expansion-panels>
 </template>
