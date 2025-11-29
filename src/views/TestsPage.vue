@@ -171,6 +171,9 @@
           <v-list-item to="/react/jsx-test">
             <v-list-item-title>3. JSX</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/react/react-events-test">
+            <v-list-item-title>4. Events</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

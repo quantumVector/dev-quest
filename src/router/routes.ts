@@ -148,6 +148,7 @@ import React19 from '@/views/react/React19.vue'
 import ReactIntroTestPage from '@/views/tests/ReactIntroTestPage.vue'
 import ReactVirtualDOMTestPage from '@/views/tests/ReactVirtualDOMTestPage.vue'
 import ReactJSXTestPage from '@/views/tests/ReactJSXTestPage.vue'
+import ReactEventsTestPage from '@/views/tests/ReactEventsTestPage.vue'
 
 export const routes = [
   {
@@ -709,6 +710,10 @@ export const routes = [
   {
     path: '/react/jsx-test',
     component: ReactJSXTestPage,
+  },
+  {
+    path: '/react/react-events-test',
+    component: ReactEventsTestPage,
   },
   {
     path: '/docker/docker',
