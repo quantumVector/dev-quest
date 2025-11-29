@@ -333,6 +333,9 @@
           <v-list-item to="/react/render-optimization">
             <v-list-item-title>9. Отслеживание лишних рендеров</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/react/render-optimization-advanced">
+            <v-list-item-title>10. Оптимизация рендеринга (memo, useMemo, useCallback)</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

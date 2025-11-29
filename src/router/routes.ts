@@ -142,6 +142,7 @@ import UseMemo from '@/views/react/UseMemo.vue'
 import UseCallback from '@/views/react/UseCallback.vue'
 import UseEffectFlow from '@/views/react/UseEffectFlow.vue'
 import RenderOptimization from '@/views/react/RenderOptimization.vue'
+import RenderOptimizationAdvanced from '@/views/react/RenderOptimizationAdvanced.vue'
 
 export const routes = [
   {
@@ -679,6 +680,10 @@ export const routes = [
   {
     path: '/react/render-optimization',
     component: RenderOptimization,
+  },
+  {
+    path: '/react/render-optimization-advanced',
+    component: RenderOptimizationAdvanced,
   },
   {
     path: '/docker/docker',
