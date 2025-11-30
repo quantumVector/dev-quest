@@ -951,5 +951,110 @@ export const reactInterviewQuestions: InterviewQuestion[] = [
     answer: "<p><strong>Преждевременная оптимизация — корень всех зол.</strong> Важно сначала измерить, потом оптимизировать.</p><p><strong>Процесс правильной оптимизации:</strong></p><p><strong>1. Измерение (Profiling):</strong></p><ul><li>React DevTools Profiler — найти медленные компоненты</li><li>Chrome Performance tab — общая картина</li><li>User Timing API — кастомные метки</li><li>Web Vitals — реальные метрики UX</li></ul><p><strong>2. Приоритизация:</strong></p><ul><li>Оптимизировать самое медленное место</li><li>Правило 80/20 — 20% кода дает 80% проблем</li><li>Фокус на критичных user flows</li></ul><p><strong>3. Итеративный подход:</strong></p><ul><li>Одна оптимизация → измерение → следующая</li><li>Не оптимизировать всё сразу</li></ul><p><strong>Правила здравого смысла:</strong></p><ul><li>Код работает → не трогай</li><li>Пользователь не жалуется → не оптимизируй</li><li>Профайлер не показывает проблему → не изменяй</li></ul><p><strong>Помнить:</strong></p><p>Простой читаемый код ценнее преждевременно оптимизированного.</p>",
     difficulty: 'senior',
     tags: ['оптимизация', 'best practices', 'измерения', 'профилирование']
+  },
+  {
+    id: 136,
+    question: "Что нового появилось в React 18? Назовите основные изменения.",
+    answer: "<p>React 18 принес несколько революционных изменений:</p><p><strong>Главные нововведения:</strong></p><ul><li><strong>Automatic Batching</strong> — батчинг setState везде, не только в event handlers</li><li><strong>Transitions API</strong> — startTransition для неблокирующих обновлений</li><li><strong>Suspense на сервере</strong> — streaming SSR с выборочной гидратацией</li><li><strong>Concurrent Rendering</strong> — прерываемый рендеринг по умолчанию</li><li><strong>новый Root API</strong> — createRoot вместо render</li><li><strong>useId хук</strong> — генерация уникальных ID для SSR</li><li><strong>useDeferredValue</strong> — откладывание несрочных обновлений</li><li><strong>useSyncExternalStore</strong> — для библиотек state management</li></ul><p><strong>Философия изменений:</strong></p><p>React 18 фокусируется на улучшении UX через приоритизацию обновлений — срочные (ввод текста) выполняются мгновенно, фоновые (поиск) могут подождать.</p>",
+    difficulty: 'middle',
+    tags: ['React 18', 'нововведения', 'concurrent', 'обзор']
+  },
+  {
+    id: 137,
+    question: "Что такое Automatic Batching в React 18 и чем он отличается от предыдущих версий?",
+    answer: "<p><strong>Automatic Batching</strong> — автоматическая группировка нескольких обновлений state в один ререндер.</p><p><strong>До React 18:</strong></p><ul><li>Батчинг работал только внутри event handlers React</li><li>В промисах, setTimeout, native events — каждый setState вызывал отдельный рендер</li><li>Приходилось использовать unstable_batchedUpdates вручную</li></ul><p><strong>В React 18:</strong></p><ul><li>Батчинг работает ВЕЗДЕ автоматически</li><li>В промисах, async функциях, setTimeout — всё батчится</li><li>Меньше ререндеров = лучше производительность</li></ul><p><strong>Пример влияния:</strong></p><p>fetch().then(() => {setState1(); setState2()}) — до React 18 два рендера, после — один.</p><p><strong>Opt-out:</strong></p><p>Если нужно принудительно синхронное обновление — использовать flushSync(), но это редкий случай.</p>",
+    difficulty: 'middle',
+    tags: ['React 18', 'batching', 'производительность', 'изменения']
+  },
+  {
+    id: 138,
+    question: "Объясните концепцию Transitions в React 18. Для чего нужен startTransition?",
+    answer: "<p><strong>Transitions</strong> — механизм пометки обновлений как неблокирующих и низкоприоритетных.</p><p><strong>Проблема:</strong></p><p>Тяжелые обновления (фильтрация большого списка) блокируют UI — пользователь видит зависание при вводе в поле поиска.</p><p><strong>startTransition решение:</strong></p><p>Обернуть несрочное обновление в startTransition — React отдаст приоритет срочным обновлениям (ввод текста), а transition может подождать или прерваться.</p><p><strong>Как это работает:</strong></p><ul><li>Срочные обновления (input value) выполняются сразу</li><li>Transition обновления (результаты поиска) откладываются</li><li>React может прервать transition если пришло новое срочное обновление</li><li>UI остается отзывчивым</li></ul><p><strong>useTransition хук:</strong></p><p>Предоставляет isPending флаг для показа loading state во время transition.</p><p><strong>Когда использовать:</strong></p><p>Медленные рендеры, которые не должны блокировать взаимодействие — фильтрация, навигация, сложные вычисления.</p>",
+    difficulty: 'senior',
+    tags: ['React 18', 'transitions', 'startTransition', 'приоритизация']
+  },
+  {
+    id: 139,
+    question: "В чем разница между startTransition и setTimeout/debounce?",
+    answer: "<p>На первый взгляд похожи — оба откладывают обновления. Но принципиально разные.</p><p><strong>setTimeout/debounce:</strong></p><ul><li>Откладывают ВЫЗОВ функции на фиксированное время</li><li>Даже когда вызов произошел, рендер блокирует UI</li><li>Нужно подбирать задержку вручную</li><li>Не отменяются при новых событиях</li></ul><p><strong>startTransition:</strong></p><ul><li>Выполняется сразу, но с низким приоритетом</li><li>React сам решает когда рендерить, основываясь на загрузке</li><li>Может прерваться если пришло срочное обновление</li><li>Адаптивно — быстро на мощных устройствах, медленнее на слабых</li><li>Не блокирует UI даже во время выполнения</li></ul><p><strong>Можно комбинировать:</strong></p><p>debounce для уменьшения частоты вызовов + startTransition для неблокирующего рендера.</p><p><strong>Когда что:</strong></p><p>debounce для API запросов, startTransition для тяжелых UI обновлений.</p>",
+    difficulty: 'senior',
+    tags: ['React 18', 'startTransition', 'debounce', 'отличия']
+  },
+  {
+    id: 140,
+    question: "Что такое useDeferredValue и когда его использовать?",
+    answer: "<p><strong>useDeferredValue</strong> — хук для создания отложенной версии значения с низким приоритетом обновления.</p><p><strong>Как работает:</strong></p><p>Принимает значение, возвращает его же, но обновление этой копии происходит с низким приоритетом. При быстрых изменениях React откладывает обновление deferred значения.</p><p><strong>Типичный use case — поиск:</strong></p><p>input value обновляется мгновенно (пользователь видит что печатает), deferredValue для результатов поиска обновляется с задержкой. UI не блокируется тяжелым рендером списка.</p><p><strong>Отличие от startTransition:</strong></p><ul><li>useDeferredValue — когда не контролируешь код обновления (props извне)</li><li>startTransition — когда контролируешь setState</li></ul><p><strong>Преимущества:</strong></p><ul><li>Автоматическая адаптация к производительности устройства</li><li>React сам выбирает оптимальную задержку</li><li>Можно показать stale data с индикатором загрузки</li></ul>",
+    difficulty: 'senior',
+    tags: ['React 18', 'useDeferredValue', 'хуки', 'оптимизация']
+  },
+  {
+    id: 141,
+    question: "Что такое Concurrent Rendering и как он работает в React 18?",
+    answer: "<p><strong>Concurrent Rendering</strong> — способность React прерывать, приостанавливать и возобновлять рендеринг.</p><p><strong>До React 18:</strong></p><p>Рендеринг был синхронным и блокирующим — начав рендер, React обязан его завершить, блокируя главный поток.</p><p><strong>Concurrent режим:</strong></p><ul><li>React может начать рендерить обновление и прервать его</li><li>Приоритетные обновления обрабатываются первыми</li><li>Низкоприоритетные могут подождать</li><li>Старые результаты рендера могут быть отброшены</li></ul><p><strong>Ключевые возможности:</strong></p><ul><li><strong>Прерывание</strong> — отменить устаревшую работу</li><li><strong>Переиспользование</strong> — продолжить прерванную работу позже</li><li><strong>Приоритизация</strong> — срочные обновления не ждут фоновых</li></ul><p><strong>Важно:</strong></p><p>Concurrent режим включается автоматически при использовании transitions, Suspense, или новых хуков. Это opt-in через фичи, а не глобальный флаг.</p>",
+    difficulty: 'senior',
+    tags: ['React 18', 'concurrent', 'рендеринг', 'архитектура']
+  },
+  {
+    id: 142,
+    question: "Зачем нужен новый Root API (createRoot) в React 18?",
+    answer: "<p>React 18 изменил способ инициализации приложения с render() на createRoot().</p><p><strong>Старый способ (React 17):</strong></p><p>ReactDOM.render(&lt;App /&gt;, container) — legacy mode, синхронный рендеринг.</p><p><strong>Новый способ (React 18):</strong></p><p>const root = ReactDOM.createRoot(container); root.render(&lt;App /&gt;) — concurrent режим по умолчанию.</p><p><strong>Зачем изменили:</strong></p><ul><li>createRoot включает все фичи React 18 (batching, transitions, Suspense)</li><li>Явное создание root объекта для лучшего контроля</li><li>render() теперь legacy API с предупреждениями</li></ul><p><strong>Обратная совместимость:</strong></p><p>Старый render() продолжает работать, но без новых фич. Для миграции достаточно заменить на createRoot.</p><p><strong>Важно:</strong></p><p>В React 18 рекомендуется использовать только createRoot для доступа ко всем возможностям.</p>",
+    difficulty: 'middle',
+    tags: ['React 18', 'createRoot', 'Root API', 'миграция']
+  },
+  {
+    id: 143,
+    question: "Что такое useId и зачем он нужен для SSR?",
+    answer: "<p><strong>useId</strong> — хук для генерации уникальных стабильных ID, совместимых с SSR.</p><p><strong>Проблема до React 18:</strong></p><p>При генерации ID на клиенте (Math.random, uuid) получаем разные ID на сервере и клиенте. Hydration mismatch — React жалуется на несовпадение.</p><p><strong>useId решение:</strong></p><p>Генерирует одинаковые ID на сервере и клиенте для одного компонента. ID детерминированы и основаны на позиции в дереве компонентов.</p><p><strong>Когда использовать:</strong></p><ul><li>Связь label и input через htmlFor/id</li><li>ARIA атрибуты (aria-describedby)</li><li>Уникальные ID для элементов форм</li></ul><p><strong>Особенности:</strong></p><ul><li>ID уникальны в рамках приложения</li><li>Не подходят для ключей в списках (используй данные)</li><li>Формат ID служебный, не полагаться на конкретный вид</li></ul><p><strong>Пример использования:</strong></p><p>const id = useId(); &lt;label htmlFor={id}&gt; &lt;input id={id} /&gt;</p>",
+    difficulty: 'middle',
+    tags: ['React 18', 'useId', 'SSR', 'хуки']
+  },
+  {
+    id: 144,
+    question: "Объясните Streaming SSR и Selective Hydration в React 18",
+    answer: "<p>React 18 революционизировал SSR через streaming и выборочную гидратацию.</p><p><strong>Классический SSR проблемы:</strong></p><ul><li>Весь HTML генерируется до отправки — долгое ожидание</li><li>Весь JavaScript загружается до гидратации</li><li>Вся страница гидратируется целиком — блокирует UI</li></ul><p><strong>Streaming SSR (renderToPipeableStream):</strong></p><ul><li>HTML отправляется частями по мере готовности</li><li>Suspense границы стримятся независимо</li><li>Пользователь видит контент раньше</li></ul><p><strong>Selective Hydration:</strong></p><ul><li>Гидратация начинается до загрузки всего JS</li><li>Части страницы гидратируются независимо</li><li>React приоритизирует гидратацию там, где пользователь взаимодействует</li><li>Клик по негидратированной области делает её приоритетной</li></ul><p><strong>Результат:</strong></p><p>Быстрее Time to First Byte, быстрее Time to Interactive, лучше UX.</p>",
+    difficulty: 'senior',
+    tags: ['React 18', 'SSR', 'Streaming', 'Hydration']
+  },
+  {
+    id: 145,
+    question: "Что такое useSyncExternalStore и для чего он нужен?",
+    answer: "<p><strong>useSyncExternalStore</strong> — хук для подписки на внешние хранилища данных с поддержкой concurrent режима.</p><p><strong>Проблема:</strong></p><p>В concurrent режиме React может рендерить несколько версий UI одновременно. Внешние store (Redux, Zustand) могут изменяться между рендерами, вызывая tearing — разные части UI показывают разные версии данных.</p><p><strong>Решение useSyncExternalStore:</strong></p><ul><li>Гарантирует консистентные данные во время рендера</li><li>Предотвращает tearing в concurrent режиме</li><li>Синхронизирует обновления store с React</li></ul><p><strong>Для кого это:</strong></p><p>В основном для авторов библиотек state management. Обычным разработчикам не нужно использовать напрямую — библиотеки уже обновлены (Redux, Zustand).</p><p><strong>API:</strong></p><p>useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot) — subscribe для подписки, getSnapshot для чтения значения.</p>",
+    difficulty: 'senior',
+    tags: ['React 18', 'useSyncExternalStore', 'external store', 'хуки']
+  },
+  {
+    id: 146,
+    question: "Как Suspense изменился в React 18?",
+    answer: "<p>React 18 сделал Suspense полноценной фичей с поддержкой на сервере и в data fetching.</p><p><strong>До React 18:</strong></p><ul><li>Suspense работал только с React.lazy для code splitting</li><li>Экспериментальная поддержка data fetching</li><li>Не работал на сервере</li></ul><p><strong>В React 18:</strong></p><ul><li><strong>SSR поддержка</strong> — Suspense границы стримятся независимо</li><li><strong>Data fetching готов</strong> — с библиотеками типа React Query, Relay</li><li><strong>Transitions интеграция</strong> — startTransition + Suspense для плавных переходов</li><li><strong>Множественные fallbacks</strong> — вложенные Suspense с разными загрузками</li></ul><p><strong>Новые возможности:</strong></p><p>Показать старый контент во время загрузки нового (через transitions), независимая загрузка частей страницы, приоритизация важного контента.</p><p><strong>Best practice:</strong></p><p>Обернуть медленно загружающиеся части в Suspense, не один Suspense на всё приложение.</p>",
+    difficulty: 'senior',
+    tags: ['React 18', 'Suspense', 'изменения', 'SSR']
+  },
+  {
+    id: 147,
+    question: "Что нужно изменить при миграции с React 17 на React 18?",
+    answer: "<p>Миграция на React 18 обычно проста, но есть важные моменты.</p><p><strong>Обязательные изменения:</strong></p><ul><li><strong>Обновить Root API</strong> — ReactDOM.render → createRoot().render()</li><li><strong>Обновить типы</strong> — @types/react и @types/react-dom до 18 версии</li></ul><p><strong>Проверить код на:</strong></p><ul><li><strong>Automatic batching</strong> — может изменить порядок обновлений</li><li><strong>StrictMode двойные вызовы</strong> — effects вызываются дважды в dev</li><li><strong>Event pooling удален</strong> — можно убрать event.persist()</li><li><strong>Консистентность useEffect timing</strong> — все эффекты асинхронные</li></ul><p><strong>Библиотеки:</strong></p><p>Проверить совместимость зависимостей — state management, UI библиотеки должны поддерживать React 18.</p><p><strong>Постепенная миграция:</strong></p><p>Можно использовать новый Root API сразу, а фичи типа transitions добавлять постепенно.</p><p><strong>Тестирование:</strong></p><p>Особое внимание на формы, анимации, data fetching — там чаще проблемы.</p>",
+    difficulty: 'middle',
+    tags: ['React 18', 'миграция', 'обновление', 'breaking changes']
+  },
+  {
+    id: 148,
+    question: "Какие breaking changes есть в React 18?",
+    answer: "<p>React 18 достаточно обратно совместим, но есть тонкости.</p><p><strong>Основные breaking changes:</strong></p><ul><li><strong>Automatic batching</strong> — setState в промисах теперь батчится (один рендер вместо нескольких)</li><li><strong>Более строгий Strict Mode</strong> — двойные вызовы effects, проверка cleanup</li><li><strong>Consistency improvements</strong> — useEffect всегда асинхронный, в старых версиях были исключения</li><li><strong>Suspense требует boundaries</strong> — нужны error boundaries для обработки ошибок</li></ul><p><strong>Удаленные API:</strong></p><ul><li>Event pooling — SyntheticEvent больше не обнуляется</li><li>Некоторые legacy APIs получили deprecation warnings</li></ul><p><strong>Поведение при гидратации:</strong></p><p>Более строгие проверки несоответствий SSR и клиента, больше предупреждений о mismatches.</p><p><strong>На практике:</strong></p><p>Большинство приложений работают без изменений, проблемы возникают в edge cases и при нестандартном использовании API.</p>",
+    difficulty: 'senior',
+    tags: ['React 18', 'breaking changes', 'несовместимости', 'миграция']
+  },
+  {
+    id: 149,
+    question: "Как transitions влияют на производительность приложения?",
+    answer: "<p>Transitions — один из главных инструментов производительности в React 18.</p><p><strong>Измеримое влияние:</strong></p><ul><li><strong>Снижение input lag</strong> — ввод текста не блокируется тяжелыми обновлениями</li><li><strong>Улучшение FPS</strong> — UI остается плавным при фоновой работе</li><li><strong>Responsive UI</strong> — приложение реагирует мгновенно даже при загрузке данных</li></ul><p><strong>Как это работает технически:</strong></p><p>React разделяет работу на маленькие части, между которыми браузер может обрабатывать input, рисовать кадры. Низкоприоритетная работа не блокирует event loop.</p><p><strong>Реальные сценарии улучшений:</strong></p><ul><li>Поиск с живой фильтрацией большого списка</li><li>Переключение табов с тяжелым контентом</li><li>Навигация в SPA с data fetching</li></ul><p><strong>Измерить эффект:</strong></p><p>React DevTools Profiler покажет разницу — с transitions компоненты помечаются как deferred, основной UI обновляется моментально.</p>",
+    difficulty: 'senior',
+    tags: ['React 18', 'transitions', 'производительность', 'UX']
+  },
+  {
+    id: 150,
+    question: "Что такое tearing и как React 18 его предотвращает?",
+    answer: "<p><strong>Tearing (разрыв)</strong> — когда разные части UI показывают разные версии одних и тех же данных.</p><p><strong>Как возникает:</strong></p><p>В concurrent режиме React может рендерить несколько версий компонента параллельно. Если внешний store (Redux) меняется во время рендера, разные компоненты могут прочитать разные значения.</p><p><strong>Визуально:</strong></p><p>Счетчик показывает 5 в header, 6 в sidebar — данные рассинхронизированы, UI выглядит сломанным.</p><p><strong>Решения в React 18:</strong></p><ul><li><strong>useSyncExternalStore</strong> — для внешних хранилищ, гарантирует консистентность</li><li><strong>useState/useReducer</strong> — встроенная защита от tearing</li><li><strong>Обновленные библиотеки</strong> — Redux, Zustand используют useSyncExternalStore</li></ul><p><strong>Для разработчика:</strong></p><p>Если используешь useState или современные библиотеки — tearing не проблема. Проблема только при самописных внешних хранилищах.</p>",
+    difficulty: 'senior',
+    tags: ['React 18', 'tearing', 'concurrent', 'проблемы']
   }
 ]
