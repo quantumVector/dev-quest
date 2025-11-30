@@ -163,6 +163,7 @@ import SedTutorial from '@/views/ops/SedTutorial.vue'
 import ReactInterviewPage from '@/views/interview/ReactInterviewPage.vue'
 import HTTPProtocol from '@/views/web/HTTPProtocol.vue'
 import CookieInfo from '@/views/web/CookieInfo.vue'
+import CorsInfo from '@/views/web/CorsInfo.vue'
 
 export const routes = [
   {
@@ -824,5 +825,9 @@ export const routes = [
   {
     path: '/web/cookie',
     component: CookieInfo,
+  },
+  {
+    path: '/web/cors-info',
+    component: CorsInfo,
   }
 ]
