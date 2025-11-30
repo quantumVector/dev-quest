@@ -165,6 +165,7 @@ import HTTPProtocol from '@/views/web/HTTPProtocol.vue'
 import CookieInfo from '@/views/web/CookieInfo.vue'
 import CorsInfo from '@/views/web/CorsInfo.vue'
 import XSSAndCSRF from '@/views/web/XSSAndCSRF.vue'
+import JWTInfo from '@/views/web/JWTInfo.vue'
 
 export const routes = [
   {
@@ -834,5 +835,9 @@ export const routes = [
   {
     path: '/web/xss-csrf',
     component: XSSAndCSRF,
+  },
+  {
+    path: '/web/jwt-info',
+    component: JWTInfo,
   }
 ]
