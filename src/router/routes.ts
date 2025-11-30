@@ -164,6 +164,7 @@ import ReactInterviewPage from '@/views/interview/ReactInterviewPage.vue'
 import HTTPProtocol from '@/views/web/HTTPProtocol.vue'
 import CookieInfo from '@/views/web/CookieInfo.vue'
 import CorsInfo from '@/views/web/CorsInfo.vue'
+import XSSAndCSRF from '@/views/web/XSSAndCSRF.vue'
 
 export const routes = [
   {
@@ -829,5 +830,9 @@ export const routes = [
   {
     path: '/web/cors-info',
     component: CorsInfo,
+  },
+  {
+    path: '/web/xss-csrf',
+    component: XSSAndCSRF,
   }
 ]
