@@ -636,5 +636,110 @@ export const reactInterviewQuestions: InterviewQuestion[] = [
     answer: "<p><strong>Топ ошибок:</strong></p><ul><li><strong>Преждевременная оптимизация</strong> — обернуть всё подряд без измерения проблемы</li><li><strong>Неполные зависимости</strong> — пропустить значения в deps → stale closure</li><li><strong>Объекты в deps</strong> — передать нестабильный объект → бесконечные пересчеты</li><li><strong>Побочные эффекты</strong> — делать API запросы или мутации в useMemo</li><li><strong>Игнорирование overhead</strong> — мемоизировать простые вычисления</li><li><strong>Мемоизация без React.memo</strong> — useCallback для props немемоизированного компонента</li><li><strong>Забыть зависимости</strong> — пустой массив [] где нужны реальные deps</li></ul><p><strong>Best practice:</strong></p><p>Начинай без оптимизаций. Профилируй. Оптимизируй узкие места. Проверяй exhaustive-deps. Тестируй после изменений.</p>",
     difficulty: 'senior',
     tags: ['useMemo', 'useCallback', 'ошибки', 'best practices']
+  },
+  {
+    id: 91,
+    question: "Что такое useEffect и для чего он используется?",
+    answer: "<p><strong>useEffect</strong> — это хук для выполнения побочных эффектов в функциональных компонентах.</p><p><strong>Основное назначение:</strong></p><ul><li>Синхронизация компонента с внешними системами</li><li>Выполнение кода после рендеринга</li><li>Замена методов жизненного цикла классовых компонентов</li><li>Управление подписками и таймерами</li></ul><p><strong>Что такое побочный эффект:</strong></p><p>Любое взаимодействие с миром за пределами React: API запросы, DOM манипуляции, подписки, таймеры, логирование.</p><p><strong>Ключевая идея:</strong></p><p>useEffect запускается ПОСЛЕ того, как React отрисовал изменения в DOM — это гарантирует, что UI обновлен до выполнения эффекта.</p>",
+    difficulty: 'junior',
+    tags: ['useEffect', 'хуки', 'побочные эффекты', 'основы']
+  },
+  {
+    id: 92,
+    question: "В чем разница между useEffect и методами жизненного цикла классовых компонентов?",
+    answer: "<p><strong>Концептуальное различие:</strong></p><p>Методы жизненного цикла думают о моменте времени (монтирование, обновление, размонтирование). useEffect думает о синхронизации — что нужно синхронизировать и когда.</p><p><strong>componentDidMount + componentDidUpdate:</strong></p><p>useEffect с зависимостями покрывает оба случая одной функцией — код не дублируется.</p><p><strong>componentWillUnmount:</strong></p><p>Cleanup функция из useEffect — но она вызывается не только при размонтировании, но и перед каждым новым эффектом.</p><p><strong>Принципиальная разница:</strong></p><p>Lifecycle методы — императивные (делай это в этот момент). useEffect — декларативный (синхронизируй это с тем).</p>",
+    difficulty: 'middle',
+    tags: ['useEffect', 'lifecycle', 'отличия', 'концепции']
+  },
+  {
+    id: 93,
+    question: "В какой момент вызывается useEffect? До или после отрисовки в DOM?",
+    answer: "<p><strong>useEffect вызывается ПОСЛЕ отрисовки в DOM.</strong></p><p><strong>Порядок выполнения:</strong></p><ul><li>React рендерит компонент (вычисляет JSX)</li><li>React применяет изменения к DOM</li><li>Браузер отрисовывает (paint)</li><li>Только потом запускается useEffect</li></ul><p><strong>Почему так:</strong></p><p>Это гарантирует, что пользователь видит обновленный UI как можно быстрее. Эффекты не блокируют визуальное обновление.</p><p><strong>Исключение — useLayoutEffect:</strong></p><p>Выполняется синхронно ПОСЛЕ мутаций DOM, но ДО отрисовки браузером. Блокирует paint.</p><p><strong>Практический смысл:</strong></p><p>В useEffect уже можно безопасно читать размеры элементов, фокусировать input — DOM уже обновлен.</p>",
+    difficulty: 'middle',
+    tags: ['useEffect', 'timing', 'рендеринг', 'порядок выполнения']
+  },
+  {
+    id: 94,
+    question: "Что такое cleanup функция в useEffect и когда она вызывается?",
+    answer: "<p><strong>Cleanup функция</strong> — это функция, которую возвращает эффект для очистки ресурсов.</p><p><strong>Когда вызывается:</strong></p><ul><li><strong>Перед повторным запуском эффекта</strong> — если зависимости изменились</li><li><strong>При размонтировании компонента</strong> — финальная очистка</li></ul><p><strong>Важно понимать:</strong></p><p>Cleanup вызывается НЕ только при unmount, но и перед каждым новым эффектом. Это ключевое отличие от componentWillUnmount.</p><p><strong>Зачем нужна:</strong></p><ul><li>Отменить подписки</li><li>Очистить таймеры</li><li>Отменить запросы</li><li>Удалить обработчики событий</li></ul><p><strong>Порядок:</strong></p><p>Cleanup предыдущего эффекта → новый эффект. Это гарантирует отсутствие дублирования подписок.</p>",
+    difficulty: 'middle',
+    tags: ['useEffect', 'cleanup', 'жизненный цикл']
+  },
+  {
+    id: 95,
+    question: "Объясните порядок выполнения useEffect при монтировании, обновлении и размонтировании компонента",
+    answer: "<p><strong>При монтировании:</strong></p><ul><li>Render компонента</li><li>React обновляет DOM</li><li>Браузер рисует экран</li><li>useEffect выполняется</li></ul><p><strong>При обновлении (изменились deps):</strong></p><ul><li>Render компонента</li><li>React обновляет DOM</li><li>Браузер рисует экран</li><li>Cleanup функция предыдущего эффекта</li><li>Новый useEffect выполняется</li></ul><p><strong>При размонтировании:</strong></p><ul><li>Cleanup функция последнего эффекта</li><li>Компонент удаляется из DOM</li></ul><p><strong>Ключевой момент:</strong></p><p>Cleanup ВСЕГДА выполняется с замыканием на старые значения props/state — это защищает от race conditions.</p>",
+    difficulty: 'middle',
+    tags: ['useEffect', 'порядок выполнения', 'lifecycle', 'flow']
+  },
+  {
+    id: 96,
+    question: "Что происходит, если не указать массив зависимостей в useEffect?",
+    answer: "<p><strong>Без массива зависимостей</strong> эффект запускается после КАЖДОГО рендера.</p><p><strong>Поведение:</strong></p><ul><li>Эффект выполняется при монтировании</li><li>Эффект выполняется после каждого обновления</li><li>Cleanup вызывается перед каждым новым эффектом</li><li>Финальный cleanup при размонтировании</li></ul><p><strong>Когда это уместно:</strong></p><p>Очень редко. Обычно это ошибка — бесконечные циклы, лишние запросы, проблемы с производительностью.</p><p><strong>Легитимные случаи:</strong></p><p>Логирование каждого рендера, синхронизация с быстро меняющимися внешними данными.</p><p><strong>Best practice:</strong></p><p>Всегда явно указывать deps, даже если это пустой массив [].</p>",
+    difficulty: 'middle',
+    tags: ['useEffect', 'зависимости', 'поведение']
+  },
+  {
+    id: 97,
+    question: "В чем разница между useEffect с пустым массивом [] и без массива зависимостей?",
+    answer: "<p><strong>Пустой массив []:</strong></p><ul><li>Эффект выполняется ОДИН раз при монтировании</li><li>Cleanup один раз при размонтировании</li><li>Аналог componentDidMount + componentWillUnmount</li><li>Замыкание на начальные значения props/state</li></ul><p><strong>Без массива:</strong></p><ul><li>Эффект после КАЖДОГО рендера</li><li>Cleanup перед каждым следующим эффектом + при unmount</li><li>Аналог componentDidMount + componentDidUpdate + componentWillUnmount</li><li>Всегда актуальные значения</li></ul><p><strong>Распространенная ошибка:</strong></p><p>Использовать [] когда нужны зависимости — получаем stale closure на устаревшие значения.</p><p><strong>Правило:</strong></p><p>[] только для эффектов, которые действительно нужны один раз. Для всего остального — явные deps.</p>",
+    difficulty: 'middle',
+    tags: ['useEffect', 'зависимости', 'отличия', 'поведение']
+  },
+  {
+    id: 98,
+    question: "Что такое stale closure в контексте useEffect и как его избежать?",
+    answer: "<p><strong>Stale closure</strong> — это когда эффект захватил устаревшие значения из-за неправильных зависимостей.</p><p><strong>Как возникает:</strong></p><p>useEffect с пустым массивом [] или неполными deps захватывает значения при первом рендере. При изменении этих значений эффект продолжает видеть старые.</p><p><strong>Типичный пример:</strong></p><p>Интервал с [] в deps, который использует state — setInterval всегда видит начальное значение счетчика.</p><p><strong>Как избежать:</strong></p><ul><li><strong>Правильные deps</strong> — включить все используемые значения</li><li><strong>Функциональный setState</strong> — setState(prev => prev + 1) не требует state в deps</li><li><strong>useRef</strong> — для мутабельных значений без deps</li><li><strong>ESLint</strong> — правило exhaustive-deps предупредит</li></ul>",
+    difficulty: 'senior',
+    tags: ['useEffect', 'stale closure', 'проблемы', 'зависимости']
+  },
+  {
+    id: 99,
+    question: "Почему useEffect может вызываться дважды в development режиме?",
+    answer: "<p><strong>React 18 Strict Mode</strong> в development намеренно вызывает эффекты дважды.</p><p><strong>Порядок в dev:</strong></p><ul><li>Mount → Effect → Cleanup → Effect снова</li><li>Это симулирует unmount/remount цикл</li></ul><p><strong>Зачем это нужно:</strong></p><ul><li>Проверка корректности cleanup логики</li><li>Выявление проблем с ресурсами (утечки памяти)</li><li>Подготовка к будущим фичам (сохранение состояния при unmount)</li></ul><p><strong>В production:</strong></p><p>Двойного вызова нет — эффект выполняется один раз при монтировании.</p><p><strong>Как должен быть написан код:</strong></p><p>Эффект должен быть идемпотентным — повторный вызов не должен ломать логику. Cleanup должен корректно отменять все side effects.</p>",
+    difficulty: 'senior',
+    tags: ['useEffect', 'StrictMode', 'development', 'особенности']
+  },
+  {
+    id: 100,
+    question: "В чем разница между useEffect и useLayoutEffect?",
+    answer: "<p><strong>Timing выполнения:</strong></p><p><strong>useEffect:</strong></p><ul><li>Асинхронный — после paint браузера</li><li>Не блокирует визуальное обновление</li><li>Используется в 99% случаев</li></ul><p><strong>useLayoutEffect:</strong></p><ul><li>Синхронный — после DOM мутаций, ДО paint</li><li>Блокирует отрисовку браузера</li><li>Используется для измерений DOM и синхронных мутаций</li></ul><p><strong>Когда использовать useLayoutEffect:</strong></p><ul><li>Измерение размеров элементов</li><li>Синхронные DOM мутации перед отрисовкой</li><li>Предотвращение визуального мерцания</li><li>Синхронизация с анимациями</li></ul><p><strong>Проблемы useLayoutEffect:</strong></p><p>Может вызвать задержки UI, так как блокирует paint. В SSR вызывает предупреждения.</p>",
+    difficulty: 'senior',
+    tags: ['useEffect', 'useLayoutEffect', 'отличия', 'timing']
+  },
+  {
+    id: 101,
+    question: "Как правильно отменять async операции в useEffect cleanup?",
+    answer: "<p><strong>Проблема:</strong></p><p>async/await нельзя использовать напрямую в useEffect — эффект не может быть async функцией.</p><p><strong>Паттерны отмены:</strong></p><p><strong>1. AbortController для fetch:</strong></p><p>Создать AbortController, передать signal в fetch, вызвать abort() в cleanup.</p><p><strong>2. Флаг isActive/isMounted:</strong></p><p>Переменная let isMounted = true, проверять перед setState, в cleanup установить false.</p><p><strong>3. Отмена через ref:</strong></p><p>Хранить promise в ref, отменять через кастомную логику отмены.</p><p><strong>4. Библиотеки:</strong></p><p>use-async-effect, react-use — готовые решения.</p><p><strong>Best practice:</strong></p><p>AbortController для fetch запросов — стандартный и надежный способ.</p>",
+    difficulty: 'senior',
+    tags: ['useEffect', 'async', 'cleanup', 'отмена запросов']
+  },
+  {
+    id: 102,
+    question: "Можно ли вызвать несколько useEffect в одном компоненте? Как определяется порядок их выполнения?",
+    answer: "<p><strong>Да, можно и нужно!</strong> Множественные useEffect — это best practice для разделения логики.</p><p><strong>Порядок выполнения:</strong></p><p>Эффекты выполняются в порядке их объявления в коде — сверху вниз.</p><p><strong>Зачем несколько эффектов:</strong></p><ul><li><strong>Separation of concerns</strong> — каждый эффект отвечает за одну вещь</li><li><strong>Разные зависимости</strong> — не пересекающиеся deps для разной логики</li><li><strong>Читаемость</strong> — проще понять назначение каждого эффекта</li><li><strong>Независимая cleanup</strong> — каждая подписка очищается отдельно</li></ul><p><strong>Пример:</strong></p><p>Один useEffect для WebSocket подписки, другой для document.title, третий для аналитики — все с разными deps.</p><p><strong>Не стоит:</strong></p><p>Объединять несвязанную логику в один огромный useEffect.</p>",
+    difficulty: 'middle',
+    tags: ['useEffect', 'множественные эффекты', 'best practices', 'порядок']
+  },
+  {
+    id: 103,
+    question: "Что произойдет, если изменить state внутри useEffect без зависимостей?",
+    answer: "<p><strong>Зависит от массива зависимостей:</strong></p><p><strong>С пустым массивом []:</strong></p><p>State изменится один раз при монтировании, вызовет ререндер компонента, но эффект не запустится снова — безопасно.</p><p><strong>Без массива зависимостей:</strong></p><p>Бесконечный цикл! Effect → setState → render → effect → setState → ...</p><p><strong>С неполными deps:</strong></p><p>Stale closure — эффект видит старые значения, setState может работать некорректно.</p><p><strong>Правильный подход:</strong></p><ul><li>Указать state в deps если он используется</li><li>Использовать функциональный setState если нужно предыдущее значение</li><li>Проверить логику — возможно state нужно вычислять при рендере, не в эффекте</li></ul><p><strong>Принцип:</strong></p><p>Эффекты для синхронизации с внешним миром, не для вычисления state.</p>",
+    difficulty: 'middle',
+    tags: ['useEffect', 'state', 'бесконечный цикл', 'проблемы']
+  },
+  {
+    id: 104,
+    question: "Как правильно работать с event listeners в useEffect?",
+    answer: "<p><strong>Стандартный паттерн подписки:</strong></p><p><strong>1. Setup в эффекте:</strong></p><p>addEventListener на window/document/element в теле эффекта.</p><p><strong>2. Cleanup:</strong></p><p>removeEventListener в cleanup функции с той же самой функцией-обработчиком.</p><p><strong>Важные детали:</strong></p><ul><li><strong>Одна и та же функция</strong> — нельзя создавать новую в cleanup</li><li><strong>Сохранить ссылку</strong> — определить обработчик до addEventListener</li><li><strong>Зависимости</strong> — если обработчик использует props/state, включить в deps или использовать ref</li></ul><p><strong>Частые ошибки:</strong></p><ul><li>Забыть cleanup — утечка памяти, множественные подписки</li><li>Стрелочная функция в addEventListener — не получится удалить</li><li>Неправильные deps — stale closure в обработчике</li></ul>",
+    difficulty: 'middle',
+    tags: ['useEffect', 'events', 'cleanup', 'подписки']
+  },
+  {
+    id: 105,
+    question: "Какие распространенные ошибки делают при работе с useEffect?",
+    answer: "<p><strong>Топ ошибок:</strong></p><ul><li><strong>Бесконечные циклы</strong> — setState без deps или с объектом в deps</li><li><strong>Забытый cleanup</strong> — утечки памяти, дублирование подписок</li><li><strong>Stale closure</strong> — пустой [] когда нужны реальные deps</li><li><strong>Логика вместо синхронизации</strong> — вычисления в эффекте вместо рендера</li><li><strong>async useEffect</strong> — нельзя делать эффект async функцией</li><li><strong>Игнорирование exhaustive-deps</strong> — отключение ESLint правила</li><li><strong>Мутации в эффекте</strong> — изменение props/state напрямую</li><li><strong>Эффект для однократных действий</strong> — onClick логика в useEffect</li></ul><p><strong>Best practice:</strong></p><p>Понимать назначение useEffect — синхронизация с внешними системами. Для логики есть другие места.</p>",
+    difficulty: 'senior',
+    tags: ['useEffect', 'ошибки', 'антипаттерны', 'best practices']
   }
 ]
