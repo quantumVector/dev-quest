@@ -1056,5 +1056,110 @@ export const reactInterviewQuestions: InterviewQuestion[] = [
     answer: "<p><strong>Tearing (разрыв)</strong> — когда разные части UI показывают разные версии одних и тех же данных.</p><p><strong>Как возникает:</strong></p><p>В concurrent режиме React может рендерить несколько версий компонента параллельно. Если внешний store (Redux) меняется во время рендера, разные компоненты могут прочитать разные значения.</p><p><strong>Визуально:</strong></p><p>Счетчик показывает 5 в header, 6 в sidebar — данные рассинхронизированы, UI выглядит сломанным.</p><p><strong>Решения в React 18:</strong></p><ul><li><strong>useSyncExternalStore</strong> — для внешних хранилищ, гарантирует консистентность</li><li><strong>useState/useReducer</strong> — встроенная защита от tearing</li><li><strong>Обновленные библиотеки</strong> — Redux, Zustand используют useSyncExternalStore</li></ul><p><strong>Для разработчика:</strong></p><p>Если используешь useState или современные библиотеки — tearing не проблема. Проблема только при самописных внешних хранилищах.</p>",
     difficulty: 'senior',
     tags: ['React 18', 'tearing', 'concurrent', 'проблемы']
+  },
+  {
+    id: 151,
+    question: "Что нового появилось в React 19? Назовите основные изменения.",
+    answer: "<p>React 19 принес множество долгожданных улучшений и новых возможностей:</p><p><strong>Главные нововведения:</strong></p><ul><li><strong>React Compiler</strong> — автоматическая оптимизация без memo/useCallback</li><li><strong>Actions</strong> — встроенная поддержка асинхронных операций в формах</li><li><strong>use() хук</strong> — чтение promises и context условно</li><li><strong>Document Metadata</strong> — встроенная поддержка title, meta в компонентах</li><li><strong>ref как prop</strong> — больше не нужен forwardRef</li><li><strong>Context как provider</strong> — можно использовать <Context> вместо <Context.Provider></li><li><strong>useFormStatus/useFormState</strong> — хуки для работы с формами</li><li><strong>useOptimistic</strong> — оптимистичные обновления UI</li></ul><p><strong>Философия изменений:</strong></p><p>React 19 фокусируется на упрощении разработки — меньше бойлерплейта, больше встроенных возможностей, автоматическая оптимизация.</p>",
+    difficulty: 'middle',
+    tags: ['React 19', 'нововведения', 'обзор', 'compiler']
+  },
+  {
+    id: 152,
+    question: "Что такое React Compiler и как он меняет подход к оптимизации?",
+    answer: "<p><strong>React Compiler</strong> — революционная фича, автоматически оптимизирующая компоненты на этапе сборки.</p><p><strong>Что делает:</strong></p><ul><li>Автоматически мемоизирует компоненты и значения</li><li>Убирает необходимость в React.memo, useMemo, useCallback</li><li>Анализирует зависимости и оптимизирует ререндеры</li><li>Работает на уровне сборки, не runtime</li></ul><p><strong>Как это меняет разработку:</strong></p><p>Раньше: думать о производительности, расставлять memo вручную, следить за референсами. Теперь: писать простой код, компилятор оптимизирует сам.</p><p><strong>Ограничения:</strong></p><ul><li>Требует соблюдения Rules of React</li><li>Не магия — плохой код останется плохим</li><li>Может не оптимизировать edge cases</li></ul><p><strong>Практическое значение:</strong></p><p>Можно удалить большую часть ручных оптимизаций — компилятор справится лучше и консистентнее.</p>",
+    difficulty: 'senior',
+    tags: ['React 19', 'compiler', 'оптимизация', 'автоматизация']
+  },
+  {
+    id: 153,
+    question: "Объясните концепцию Actions в React 19. Как они упрощают работу с формами?",
+    answer: "<p><strong>Actions</strong> — встроенный паттерн для обработки асинхронных операций, особенно в формах.</p><p><strong>Ключевые особенности:</strong></p><ul><li>Автоматическое управление pending состоянием</li><li>Оптимистичные обновления из коробки</li><li>Обработка ошибок встроена</li><li>Работают с обычными форм action атрибутом</li></ul><p><strong>Что упрощается:</strong></p><p>Раньше: вручную управлять isLoading, isError, обрабатывать submit, предотвращать двойную отправку. Теперь: передать async функцию в action — React управляет состоянием.</p><p><strong>Интеграция с формами:</strong></p><p>form action={handleSubmit} — React автоматически preventDefault, показывает loading, обрабатывает ошибки.</p><p><strong>useFormStatus хук:</strong></p><p>Дочерние компоненты могут узнать о pending состоянии формы без prop drilling.</p><p><strong>Это декларативно:</strong></p><p>Описываем что должно произойти при submit, React управляет процессом.</p>",
+    difficulty: 'middle',
+    tags: ['React 19', 'actions', 'формы', 'async']
+  },
+  {
+    id: 154,
+    question: "Что такое use() хук и чем он отличается от других хуков?",
+    answer: "<p><strong>use()</strong> — первый хук, который можно вызывать условно и в циклах.</p><p><strong>Что он делает:</strong></p><ul><li>Читает значение из Promise или Context</li><li>Suspends компонент пока Promise не resolved</li><li>Можно вызывать условно — if (condition) use(promise)</li><li>Можно в циклах и после return</li></ul><p><strong>Революционное отличие:</strong></p><p>Все остальные хуки должны вызываться безусловно на верхнем уровне. use() ломает это правило — можно использовать гибко.</p><p><strong>Use cases:</strong></p><ul><li>Условное чтение данных — if (needData) use(fetchPromise)</li><li>Динамическая загрузка — use(import('./module'))</li><li>Условный context — use(theme ? DarkContext : LightContext)</li></ul><p><strong>С Promise:</strong></p><p>Работает с Suspense — компонент suspended до resolve. Повторный рендер с тем же promise не вызовет новую загрузку.</p><p><strong>Важно:</strong></p><p>Promise должен быть стабильным между рендерами или кэшироваться.</p>",
+    difficulty: 'senior',
+    tags: ['React 19', 'use', 'хуки', 'promises', 'Suspense']
+  },
+  {
+    id: 155,
+    question: "Как в React 19 изменилась работа с ref? Зачем убрали forwardRef?",
+    answer: "<p>React 19 упростил работу с ref — теперь это обычный prop.</p><p><strong>Раньше (React 18):</strong></p><ul><li>ref — специальный prop, не попадает в props</li><li>Нужен forwardRef для пробрасывания ref</li><li>Дополнительная обертка, усложнение кода</li><li>TypeScript типы сложнее</li></ul><p><strong>Теперь (React 19):</strong></p><ul><li>ref — обычный prop как любой другой</li><li>Принимаем прямо в props: function Input({ref, ...props})</li><li>forwardRef deprecated, но работает для совместимости</li><li>Проще типизация, меньше бойлерплейта</li></ul><p><strong>Миграция:</strong></p><p>Можно постепенно убирать forwardRef, заменяя на прямой прием ref в props.</p><p><strong>Преимущества:</strong></p><p>Проще для новичков, меньше магии, единообразие с другими props.</p><p><strong>Важно:</strong></p><p>ref всё еще особенный в том что React его обрабатывает специально, но API проще.</p>",
+    difficulty: 'middle',
+    tags: ['React 19', 'ref', 'forwardRef', 'упрощение', 'API']
+  },
+  {
+    id: 156,
+    question: "Что такое useOptimistic и когда его использовать?",
+    answer: "<p><strong>useOptimistic</strong> — хук для оптимистичных обновлений UI до завершения серверной операции.</p><p><strong>Как работает:</strong></p><p>Принимает текущее состояние и функцию обновления. Возвращает оптимистичное состояние и функцию для применения оптимистичного обновления. При успехе серверной операции — остается, при ошибке — откатывается.</p><p><strong>Типичный сценарий — лайки:</strong></p><p>Пользователь кликает лайк → UI мгновенно показывает лайк → запрос на сервер → если успех, ничего не меняем → если ошибка, откатываем UI.</p><p><strong>Преимущества:</strong></p><ul><li>Мгновенный отклик UI</li><li>Лучший UX — не ждем сервера</li><li>Автоматический rollback при ошибке</li><li>Встроенное управление pending состоянием</li></ul><p><strong>Интеграция с Actions:</strong></p><p>Отлично работает вместе — action делает запрос, useOptimistic управляет UI.</p><p><strong>Когда использовать:</strong></p><p>Лайки, добавление в избранное, простые формы, чат сообщения.</p>",
+    difficulty: 'middle',
+    tags: ['React 19', 'useOptimistic', 'UX', 'оптимистичные обновления']
+  },
+  {
+    id: 157,
+    question: "Как работает встроенная поддержка метаданных документа в React 19?",
+    answer: "<p>React 19 позволяет рендерить title, meta, link прямо в компонентах.</p><p><strong>Раньше:</strong></p><ul><li>React Helmet или next/head для метаданных</li><li>Дополнительные библиотеки</li><li>Сложности с SSR</li></ul><p><strong>Теперь встроено:</strong></p><p>Можно писать <title>Страница</title> и <meta name='description' content='...' /> прямо в компонентах. React автоматически поднимает их в <head>.</p><p><strong>Как это работает:</strong></p><ul><li>React находит эти теги в любом месте дерева</li><li>Перемещает их в document.head автоматически</li><li>Дедуплицирует — последний wins</li><li>Работает и на сервере и на клиенте</li></ul><p><strong>Особенности:</strong></p><p>Можно в каждом компоненте свой title — React покажет правильный в зависимости от отрисованных компонентов.</p><p><strong>Удобство:</strong></p><p>Метаданные рядом с компонентом, не нужно прокидывать через props или context.</p>",
+    difficulty: 'middle',
+    tags: ['React 19', 'metadata', 'document', 'title', 'SEO']
+  },
+  {
+    id: 158,
+    question: "Что изменилось с Context.Provider в React 19?",
+    answer: "<p>React 19 упростил синтаксис Context — можно использовать Context напрямую как Provider.</p><p><strong>Раньше (React 18):</strong></p><p>&lt;ThemeContext.Provider value={theme}&gt; — обязательный .Provider.</p><p><strong>Теперь (React 19):</strong></p><p>&lt;ThemeContext value={theme}&gt; — Context сам является Provider. Короче и интуитивнее.</p><p><strong>Обратная совместимость:</strong></p><p>Старый синтаксис с .Provider продолжает работать, можно мигрировать постепенно.</p><p><strong>Преимущества:</strong></p><ul><li>Меньше бойлерплейта</li><li>Понятнее для новичков</li><li>Единообразие — Context используется как компонент</li></ul><p><strong>Context.Consumer:</strong></p><p>Тоже упростили — можно просто использовать useContext вместо render props паттерна.</p><p><strong>Миграция:</strong></p><p>Find & Replace .Provider на ничего — вот и вся миграция.</p>",
+    difficulty: 'junior',
+    tags: ['React 19', 'Context', 'Provider', 'упрощение', 'API']
+  },
+  {
+    id: 159,
+    question: "Объясните useFormStatus и useFormState хуки",
+    answer: "<p>Это специализированные хуки для работы с формами и Actions.</p><p><strong>useFormStatus:</strong></p><ul><li>Дает доступ к статусу родительской формы</li><li>Узнать pending, data, method, action</li><li>Работает только внутри form компонента</li><li>Не нужен prop drilling для состояния</li></ul><p><strong>Пример использования:</strong></p><p>Кнопка Submit внутри формы может узнать pending без передачи через props. Показать loading spinner автоматически.</p><p><strong>useFormState:</strong></p><ul><li>Управляет state формы с server actions</li><li>Возвращает state и action обертку</li><li>Автоматически обновляет state из action result</li><li>Progressive enhancement — работает без JS</li></ul><p><strong>Когда использовать:</strong></p><p>useFormStatus — для UI элементов внутри формы (кнопки, спиннеры). useFormState — для server-side форм с валидацией.</p><p><strong>Вместе с Actions:</strong></p><p>Создают полноценную систему управления формами без библиотек.</p>",
+    difficulty: 'middle',
+    tags: ['React 19', 'useFormStatus', 'useFormState', 'формы', 'хуки']
+  },
+  {
+    id: 160,
+    question: "Как React Compiler определяет что нужно оптимизировать?",
+    answer: "<p>React Compiler анализирует код на этапе сборки и применяет оптимизации автоматически.</p><p><strong>Что анализирует:</strong></p><ul><li>Зависимости компонентов — какие props/state влияют на вывод</li><li>Чистоту функций — нет side effects в render</li><li>Стабильность значений — можно ли закешировать</li><li>Паттерны использования — условный рендеринг, списки</li></ul><p><strong>Оптимизации которые применяет:</strong></p><ul><li>Автоматическая мемоизация компонентов (как React.memo)</li><li>Кеширование вычислений (как useMemo)</li><li>Стабилизация callbacks (как useCallback)</li><li>Оптимизация списков и условного рендеринга</li></ul><p><strong>Требования к коду:</strong></p><p>Компонент должен следовать Rules of React — быть чистой функцией, не мутировать props, правильно использовать хуки.</p><p><strong>Когда не оптимизирует:</strong></p><p>Если детектит нарушения правил, side effects, или паттерны которые не может безопасно оптимизировать.</p>",
+    difficulty: 'senior',
+    tags: ['React 19', 'compiler', 'оптимизация', 'анализ кода']
+  },
+  {
+    id: 161,
+    question: "Нужно ли удалять все useMemo/useCallback при переходе на React 19?",
+    answer: "<p><strong>Нет, не обязательно.</strong> Но можно делать это постепенно.</p><p><strong>Стратегия миграции:</strong></p><ul><li>Включить React Compiler постепенно (по файлам/директориям)</li><li>В новом коде не использовать ручные оптимизации</li><li>Старый код оставить как есть — не сломается</li><li>Постепенно рефакторить при изменениях</li></ul><p><strong>Когда оставить ручные оптимизации:</strong></p><ul><li>Компилятор еще не поддерживает ваш паттерн</li><li>Специфичная бизнес-логика требует контроля</li><li>Семантическое использование (не для производительности)</li></ul><p><strong>Когда можно удалить:</strong></p><ul><li>Простая мемоизация для производительности</li><li>React.memo на простых компонентах</li><li>useCallback для props в дочерних компонентах</li></ul><p><strong>Правило:</strong></p><p>Если оптимизация только для производительности — компилятор справится. Если есть семантический смысл — оставить.</p>",
+    difficulty: 'middle',
+    tags: ['React 19', 'compiler', 'миграция', 'useMemo', 'useCallback']
+  },
+  {
+    id: 162,
+    question: "Как Actions интегрируются с Server Components?",
+    answer: "<p>Actions и Server Components созданы друг для друга — они решают проблему server mutations.</p><p><strong>Server Actions:</strong></p><ul><li>Функции помеченные 'use server'</li><li>Выполняются на сервере, вызываются с клиента</li><li>Автоматическая сериализация аргументов</li><li>Возвращают данные напрямую</li></ul><p><strong>Интеграция с формами:</strong></p><p>form action={serverAction} — React автоматически создает endpoint, обрабатывает запрос, обновляет UI. Все без написания API route.</p><p><strong>Progressive Enhancement:</strong></p><p>Формы работают даже без JavaScript — graceful degradation. С JS — enhanced UX с optimistic updates.</p><p><strong>Преимущества:</strong></p><ul><li>Не нужны отдельные API endpoints</li><li>Type-safe — TypeScript проверяет аргументы</li><li>Автоматическая revalidation данных</li><li>Встроенная обработка ошибок</li></ul><p><strong>Это меняет парадигму:</strong></p><p>Вместо REST API пишем функции, вызываем как обычные функции.</p>",
+    difficulty: 'senior',
+    tags: ['React 19', 'actions', 'Server Components', 'Server Actions']
+  },
+  {
+    id: 163,
+    question: "Что такое Rules of React и почему они важны для компилятора?",
+    answer: "<p><strong>Rules of React</strong> — набор правил написания компонентов, которые всегда существовали, но теперь критичны для компилятора.</p><p><strong>Основные правила:</strong></p><ul><li><strong>Компоненты чистые функции</strong> — одинаковый input дает одинаковый output</li><li><strong>Не мутировать props/state</strong> — всегда иммутабельные обновления</li><li><strong>Хуки на верхнем уровне</strong> — не в условиях/циклах (кроме use)</li><li><strong>Нет side effects в render</strong> — только в useEffect</li></ul><p><strong>Почему важно для компилятора:</strong></p><p>Compiler полагается на эти правила для безопасной оптимизации. Нарушение правил → компилятор не может оптимизировать или сломает код.</p><p><strong>Проверка правил:</strong></p><ul><li>ESLint plugin — eslint-plugin-react-compiler</li><li>Статический анализ кода</li><li>Предупреждения при нарушениях</li></ul><p><strong>На практике:</strong></p><p>Большинство хорошо написанных компонентов уже следуют правилам. Проблемы в legacy коде с мутациями и side effects.</p>",
+    difficulty: 'senior',
+    tags: ['React 19', 'Rules of React', 'compiler', 'best practices']
+  },
+  {
+    id: 164,
+    question: "Какие проблемы решает встроенная поддержка асинхронных операций?",
+    answer: "<p>React 19 упрощает работу с async через Actions, решая множество болевых точек.</p><p><strong>Проблемы которые были:</strong></p><ul><li><strong>Управление состоянием</strong> — вручную isLoading, isError, data</li><li><strong>Двойная отправка</strong> — нужен флаг pending и disabled кнопки</li><li><strong>Оптимистичные обновления</strong> — сложная логика rollback</li><li><strong>Race conditions</strong> — старые запросы перезаписывают новые</li><li><strong>Error handling</strong> — try/catch в каждом месте</li></ul><p><strong>Что дает React 19:</strong></p><ul><li>Автоматический pending state через useFormStatus</li><li>Встроенные оптимистичные обновления через useOptimistic</li><li>Отмена устаревших запросов автоматически</li><li>Error boundaries для деклара тивной обработки ошибок</li></ul><p><strong>Результат:</strong></p><p>Меньше кода, меньше багов, лучше UX, декларативный подход вместо императивного управления состоянием.</p>",
+    difficulty: 'middle',
+    tags: ['React 19', 'actions', 'async', 'проблемы', 'решения']
+  },
+  {
+    id: 165,
+    question: "Что нужно знать при миграции на React 19? Основные шаги и подводные камни.",
+    answer: "<p>Миграция на React 19 обычно плавная, но есть важные моменты.</p><p><strong>Обязательные шаги:</strong></p><ul><li>Обновить React и React DOM до версии 19</li><li>Обновить @types/react если используете TypeScript</li><li>Обновить зависимости — библиотеки должны поддерживать React 19</li><li>Проверить и обновить тесты</li></ul><p><strong>Потенциальные breaking changes:</strong></p><ul><li><strong>Строгий StrictMode</strong> — больше проверок, новые warnings</li><li><strong>Hydration изменения</strong> — строже проверки SSR/client match</li><li><strong>Удалены deprecated APIs</strong> — defaultProps, contextTypes (класс)</li><li><strong>ref как prop</strong> — может конфликтовать с существующим ref prop</li></ul><p><strong>Постепенная миграция:</strong></p><ul><li>Не обязательно сразу использовать новые фичи</li><li>React Compiler можно включить выборочно</li><li>Actions опциональны — старый подход работает</li></ul><p><strong>Тестирование:</strong></p><p>Особое внимание формам, асинхронным операциям, SSR — там больше изменений.</p>",
+    difficulty: 'middle',
+    tags: ['React 19', 'миграция', 'breaking changes', 'обновление']
   }
 ]
