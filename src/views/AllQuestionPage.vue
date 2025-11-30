@@ -346,6 +346,19 @@
       </v-expansion-panel-text>
     </v-expansion-panel>
 
+    <v-expansion-panel title="Web">
+      <v-expansion-panel-text>
+        <v-list>
+          <v-list-item to="/web/http-protocol">
+            <v-list-item-title>1. HTTP Protocol</v-list-item-title>
+          </v-list-item>
+          <v-list-item to="/web/cookie">
+            <v-list-item-title>2. Cookie</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-expansion-panel-text>
+    </v-expansion-panel>
+
     <v-expansion-panel title="Docker">
       <v-expansion-panel-text>
         <v-list>
