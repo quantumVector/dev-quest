@@ -166,6 +166,7 @@ import CookieInfo from '@/views/web/CookieInfo.vue'
 import CorsInfo from '@/views/web/CorsInfo.vue'
 import XSSAndCSRF from '@/views/web/XSSAndCSRF.vue'
 import JWTInfo from '@/views/web/JWTInfo.vue'
+import OAuthInfo from '@/views/web/OAuthInfo.vue'
 
 export const routes = [
   {
@@ -839,5 +840,9 @@ export const routes = [
   {
     path: '/web/jwt-info',
     component: JWTInfo,
+  },
+  {
+    path: '/web/oauth-info',
+    component: OAuthInfo,
   }
 ]
