@@ -169,6 +169,7 @@ import JWTInfo from '@/views/web/JWTInfo.vue'
 import OAuthInfo from '@/views/web/OAuthInfo.vue'
 import SSOInfo from '@/views/web/SSOInfo.vue'
 import WebVitals from '@/views/web/WebVitals.vue'
+import ChromeDevTools from '@/views/web/ChromeDevTools.vue'
 
 export const routes = [
   {
@@ -854,5 +855,9 @@ export const routes = [
   {
     path: '/web/web-vitals',
     component: WebVitals,
+  },
+  {
+    path: '/web/chrome-dev-tools',
+    component: ChromeDevTools,
   }
 ]
