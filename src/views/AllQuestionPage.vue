@@ -379,6 +379,9 @@
           <v-list-item to="/web/ssr">
             <v-list-item-title>10. SSR</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/web/bff">
+            <v-list-item-title>11. BFF</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
