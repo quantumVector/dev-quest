@@ -367,6 +367,9 @@
           <v-list-item to="/web/oauth-info">
             <v-list-item-title>6. oAuth</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/web/sso-info">
+            <v-list-item-title>7. SSO</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
