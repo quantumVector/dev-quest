@@ -174,6 +174,7 @@ import SSR from '@/views/web/SSR.vue'
 import BFFInfo from '@/views/web/BFFInfo.vue'
 import WebHTTPTestPage from '@/views/tests/WebHTTPTestPage.vue'
 import WebCookieTestPage from '@/views/tests/WebCookieTestPage.vue'
+import WebCorsTestPage from '@/views/tests/WebCorsTestPage.vue'
 
 export const routes = [
   {
@@ -879,5 +880,9 @@ export const routes = [
   {
     path: '/web/cookie-test',
     component: WebCookieTestPage,
+  },
+  {
+    path: '/web/cors-test',
+    component: WebCorsTestPage,
   }
 ]

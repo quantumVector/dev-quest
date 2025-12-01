@@ -208,6 +208,9 @@
           <v-list-item to="/web/cookie-test">
             <v-list-item-title>2. Cookie</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/web/cors-test">
+            <v-list-item-title>3. CORS</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
