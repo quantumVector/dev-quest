@@ -172,6 +172,7 @@ import WebVitals from '@/views/web/WebVitals.vue'
 import ChromeDevTools from '@/views/web/ChromeDevTools.vue'
 import SSR from '@/views/web/SSR.vue'
 import BFFInfo from '@/views/web/BFFInfo.vue'
+import WebHTTPTestPage from '@/views/tests/WebHTTPTestPage.vue'
 
 export const routes = [
   {
@@ -869,5 +870,9 @@ export const routes = [
   {
     path: '/web/bff',
     component: BFFInfo,
+  },
+  {
+    path: '/web/http-test',
+    component: WebHTTPTestPage,
   }
 ]
