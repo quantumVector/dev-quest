@@ -198,5 +198,15 @@
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
+
+    <v-expansion-panel title="Web">
+      <v-expansion-panel-text>
+        <v-list>
+          <v-list-item to="/web/http-test">
+            <v-list-item-title>1. HTTP</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-expansion-panel-text>
+    </v-expansion-panel>
   </v-expansion-panels>
 </template>
