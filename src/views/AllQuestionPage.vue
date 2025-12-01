@@ -376,6 +376,9 @@
           <v-list-item to="/web/chrome-dev-tools">
             <v-list-item-title>9. ChromeDevTools</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/web/ssr">
+            <v-list-item-title>10. SSR</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

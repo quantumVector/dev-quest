@@ -170,6 +170,7 @@ import OAuthInfo from '@/views/web/OAuthInfo.vue'
 import SSOInfo from '@/views/web/SSOInfo.vue'
 import WebVitals from '@/views/web/WebVitals.vue'
 import ChromeDevTools from '@/views/web/ChromeDevTools.vue'
+import SSR from '@/views/web/SSR.vue'
 
 export const routes = [
   {
@@ -859,5 +860,9 @@ export const routes = [
   {
     path: '/web/chrome-dev-tools',
     component: ChromeDevTools,
+  },
+  {
+    path: '/web/ssr',
+    component: SSR,
   }
 ]
