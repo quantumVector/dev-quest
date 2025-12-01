@@ -205,6 +205,9 @@
           <v-list-item to="/web/http-test">
             <v-list-item-title>1. HTTP</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/web/cookie-test">
+            <v-list-item-title>2. Cookie</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
