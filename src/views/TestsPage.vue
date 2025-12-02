@@ -211,6 +211,12 @@
           <v-list-item to="/web/cors-test">
             <v-list-item-title>3. CORS</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/web/xss-csrf-test">
+            <v-list-item-title>4. XSS и CSRF</v-list-item-title>
+          </v-list-item>
+          <v-list-item to="/web/jwt-test">
+            <v-list-item-title>5. JWT</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

@@ -175,6 +175,8 @@ import BFFInfo from '@/views/web/BFFInfo.vue'
 import WebHTTPTestPage from '@/views/tests/WebHTTPTestPage.vue'
 import WebCookieTestPage from '@/views/tests/WebCookieTestPage.vue'
 import WebCorsTestPage from '@/views/tests/WebCorsTestPage.vue'
+import WebXssCsrfTestPage from '@/views/tests/WebXssCsrfTestPage.vue'
+import WebJWTTestPage from '@/views/tests/WebJWTTestPage.vue'
 
 export const routes = [
   {
@@ -884,5 +886,13 @@ export const routes = [
   {
     path: '/web/cors-test',
     component: WebCorsTestPage,
+  },
+  {
+    path: '/web/xss-csrf-test',
+    component: WebXssCsrfTestPage,
+  },
+  {
+    path: '/web/jwt-test',
+    component: WebJWTTestPage,
   }
 ]
