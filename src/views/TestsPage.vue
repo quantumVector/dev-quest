@@ -217,6 +217,9 @@
           <v-list-item to="/web/jwt-test">
             <v-list-item-title>5. JWT</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/web/oauth-test">
+            <v-list-item-title>6. OAuth</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

@@ -177,6 +177,7 @@ import WebCookieTestPage from '@/views/tests/WebCookieTestPage.vue'
 import WebCorsTestPage from '@/views/tests/WebCorsTestPage.vue'
 import WebXssCsrfTestPage from '@/views/tests/WebXssCsrfTestPage.vue'
 import WebJWTTestPage from '@/views/tests/WebJWTTestPage.vue'
+import WebOAuthTestPage from '@/views/tests/WebOAuthTestPage.vue'
 
 export const routes = [
   {
@@ -894,5 +895,9 @@ export const routes = [
   {
     path: '/web/jwt-test',
     component: WebJWTTestPage,
+  },
+  {
+    path: '/web/oauth-test',
+    component: WebOAuthTestPage,
   }
 ]
