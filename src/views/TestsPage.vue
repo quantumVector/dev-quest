@@ -232,6 +232,9 @@
           <v-list-item to="/web/ssr-test">
             <v-list-item-title>10. SSR</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/web/bff-test">
+            <v-list-item-title>11. BFF (Backend For Frontend)</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

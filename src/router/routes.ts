@@ -182,6 +182,7 @@ import WebSSOTestPage from '@/views/tests/WebSSOTestPage.vue'
 import WebVitalsTestPage from '@/views/tests/WebVitalsTestPage.vue'
 import WebChromeDevToolsTestPage from '@/views/tests/WebChromeDevToolsTestPage.vue'
 import WebSSRTestPage from '@/views/tests/WebSSRTestPage.vue'
+import WebBFFTestPage from '@/views/tests/WebBFFTestPage.vue'
 
 export const routes = [
   {
@@ -919,5 +920,9 @@ export const routes = [
   {
     path: '/web/ssr-test',
     component: WebSSRTestPage,
+  },
+  {
+    path: '/web/bff-test',
+    component: WebBFFTestPage,
   }
 ]
