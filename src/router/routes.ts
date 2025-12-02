@@ -180,6 +180,7 @@ import WebJWTTestPage from '@/views/tests/WebJWTTestPage.vue'
 import WebOAuthTestPage from '@/views/tests/WebOAuthTestPage.vue'
 import WebSSOTestPage from '@/views/tests/WebSSOTestPage.vue'
 import WebVitalsTestPage from '@/views/tests/WebVitalsTestPage.vue'
+import WebChromeDevToolsTestPage from '@/views/tests/WebChromeDevToolsTestPage.vue'
 
 export const routes = [
   {
@@ -909,5 +910,9 @@ export const routes = [
   {
     path: '/web/web-vitals-test',
     component: WebVitalsTestPage,
+  },
+  {
+    path: '/web/web-chrome-test',
+    component: WebChromeDevToolsTestPage,
   }
 ]

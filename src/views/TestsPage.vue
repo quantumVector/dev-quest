@@ -226,6 +226,9 @@
           <v-list-item to="/web/web-vitals-test">
             <v-list-item-title>8. Web Vitals</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/web/web-chrome-test">
+            <v-list-item-title>9. ChromeDevTools</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
