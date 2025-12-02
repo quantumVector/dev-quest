@@ -179,6 +179,7 @@ import WebXssCsrfTestPage from '@/views/tests/WebXssCsrfTestPage.vue'
 import WebJWTTestPage from '@/views/tests/WebJWTTestPage.vue'
 import WebOAuthTestPage from '@/views/tests/WebOAuthTestPage.vue'
 import WebSSOTestPage from '@/views/tests/WebSSOTestPage.vue'
+import WebVitalsTestPage from '@/views/tests/WebVitalsTestPage.vue'
 
 export const routes = [
   {
@@ -904,5 +905,9 @@ export const routes = [
   {
     path: '/web/sso-test',
     component: WebSSOTestPage,
+  },
+  {
+    path: '/web/web-vitals-test',
+    component: WebVitalsTestPage,
   }
 ]
