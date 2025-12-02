@@ -181,6 +181,7 @@ import WebOAuthTestPage from '@/views/tests/WebOAuthTestPage.vue'
 import WebSSOTestPage from '@/views/tests/WebSSOTestPage.vue'
 import WebVitalsTestPage from '@/views/tests/WebVitalsTestPage.vue'
 import WebChromeDevToolsTestPage from '@/views/tests/WebChromeDevToolsTestPage.vue'
+import WebSSRTestPage from '@/views/tests/WebSSRTestPage.vue'
 
 export const routes = [
   {
@@ -914,5 +915,9 @@ export const routes = [
   {
     path: '/web/web-chrome-test',
     component: WebChromeDevToolsTestPage,
+  },
+  {
+    path: '/web/ssr-test',
+    component: WebSSRTestPage,
   }
 ]
