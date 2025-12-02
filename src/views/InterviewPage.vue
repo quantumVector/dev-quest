@@ -295,6 +295,41 @@
                   </v-card-actions>
                 </v-card>
               </v-col>
+
+              <!-- блок Web -->
+              <v-col cols="12" md="6">
+                <v-card variant="outlined" hover class="h-100" to="/web/web-interview">
+                  <v-card-text class="pa-6">
+                    <div class="d-flex align-center mb-4">
+                      <v-avatar color="indigo" size="large" class="mr-4">
+                        <v-icon size="large">mdi-web</v-icon>
+                      </v-avatar>
+                      <div>
+                        <h3 class="text-h5 mb-1">Web</h3>
+                        <p class="text-body-2 text-medium-emphasis mb-0">
+                          Веб-технологии
+                        </p>
+                      </div>
+                    </div>
+
+                    <div class="mb-4">
+                      <v-chip color="success" size="small" class="mr-2 mb-2"> Junior: 4 </v-chip>
+                      <v-chip color="warning" size="small" class="mr-2 mb-2"> Middle: 8 </v-chip>
+                      <v-chip color="error" size="small" class="mr-2 mb-2"> Senior: 3 </v-chip>
+                    </div>
+
+                    <p class="text-body-2 mb-0">
+                      Вопросы по протоколу HTTP, методам запросов, заголовкам, статусам, кэшированию и безопасности.
+                    </p>
+                  </v-card-text>
+
+                  <v-card-actions class="pa-6 pt-0">
+                    <v-btn color="indigo" variant="tonal" append-icon="mdi-arrow-right">
+                      Начать подготовку
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-col>
             </v-row>
 
             <!-- Информационный блок -->
