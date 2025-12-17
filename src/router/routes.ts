@@ -188,6 +188,7 @@ import TestingIntro from '@/views/testing/TestingIntro.vue'
 import TestingPyramid from '@/views/testing/TestingPyramid.vue'
 import TestingIntroTestPage from '@/views/tests/TestingIntroTestPage.vue'
 import TestingPyramidTestPage from '@/views/tests/TestingPyramidTestPage.vue'
+import TestingInterviewPage from '@/views/interview/TestingInterviewPage.vue'
 
 export const routes = [
   {
@@ -949,5 +950,9 @@ export const routes = [
   {
     path: '/testing/pyramid-test',
     component: TestingPyramidTestPage,
+  },
+  {
+    path: '/testing/testing-interview',
+    component: TestingInterviewPage,
   }
 ]
