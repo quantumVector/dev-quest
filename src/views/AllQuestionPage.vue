@@ -386,6 +386,16 @@
       </v-expansion-panel-text>
     </v-expansion-panel>
 
+    <v-expansion-panel title="Testing">
+      <v-expansion-panel-text>
+        <v-list>
+          <v-list-item to="/testing/intro">
+            <v-list-item-title>1. Тестирование: что это и зачем нужно? Виды тестирования</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-expansion-panel-text>
+    </v-expansion-panel>
+
     <v-expansion-panel title="Docker">
       <v-expansion-panel-text>
         <v-list>

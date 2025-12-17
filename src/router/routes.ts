@@ -184,6 +184,7 @@ import WebChromeDevToolsTestPage from '@/views/tests/WebChromeDevToolsTestPage.v
 import WebSSRTestPage from '@/views/tests/WebSSRTestPage.vue'
 import WebBFFTestPage from '@/views/tests/WebBFFTestPage.vue'
 import WebInterviewPage from '@/views/interview/WebInterviewPage.vue'
+import TestingIntro from '@/views/testing/TestingIntro.vue'
 
 export const routes = [
   {
@@ -929,5 +930,9 @@ export const routes = [
   {
     path: '/web/web-interview',
     component: WebInterviewPage,
+  },
+  {
+    path: '/testing/intro',
+    component: TestingIntro,
   }
 ]
