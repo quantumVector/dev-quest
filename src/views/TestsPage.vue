@@ -238,5 +238,15 @@
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
+
+    <v-expansion-panel title="Testing">
+      <v-expansion-panel-text>
+        <v-list>
+          <v-list-item to="/testing/intro-test">
+            <v-list-item-title>1. Введение в тестирование</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-expansion-panel-text>
+    </v-expansion-panel>
   </v-expansion-panels>
 </template>
