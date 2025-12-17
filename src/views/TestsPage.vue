@@ -245,6 +245,9 @@
           <v-list-item to="/testing/intro-test">
             <v-list-item-title>1. Введение в тестирование</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/testing/pyramid-test">
+            <v-list-item-title>2. Пирамида тестирования</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
