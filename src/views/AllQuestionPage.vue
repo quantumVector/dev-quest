@@ -392,6 +392,9 @@
           <v-list-item to="/testing/intro">
             <v-list-item-title>1. Тестирование: что это и зачем нужно? Виды тестирования</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/testing/pyramid">
+            <v-list-item-title>2. Пирамида тестирования: концепция и применение</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

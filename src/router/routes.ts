@@ -185,6 +185,7 @@ import WebSSRTestPage from '@/views/tests/WebSSRTestPage.vue'
 import WebBFFTestPage from '@/views/tests/WebBFFTestPage.vue'
 import WebInterviewPage from '@/views/interview/WebInterviewPage.vue'
 import TestingIntro from '@/views/testing/TestingIntro.vue'
+import TestingPyramid from '@/views/testing/TestingPyramid.vue'
 
 export const routes = [
   {
@@ -934,5 +935,9 @@ export const routes = [
   {
     path: '/testing/intro',
     component: TestingIntro,
+  },
+  {
+    path: '/testing/pyramid',
+    component: TestingPyramid,
   }
 ]
