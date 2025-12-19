@@ -417,6 +417,9 @@
           <v-list-item to="/patterns/solid-principles">
             <v-list-item-title>5. SOLID: Принципы проектирования и их применение на фронтенде</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/patterns/structural-patterns">
+            <v-list-item-title>6. Структурные паттерны проектирования</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

@@ -194,6 +194,7 @@ import DryKissYagni from '@/views/patterns/DryKissYagni.vue'
 import FluxArchitecture from '@/views/patterns/FluxArchitecture.vue'
 import MvcMvpMvvm from '@/views/patterns/MvcMvpMvvm.vue'
 import SolidPrinciples from '@/views/patterns/SolidPrinciples.vue'
+import StructuralPatterns from '@/views/patterns/StructuralPatterns.vue'
 
 export const routes = [
   {
@@ -979,5 +980,9 @@ export const routes = [
   {
     path: '/patterns/solid-principles',
     component: SolidPrinciples,
+  },
+  {
+    path: '/patterns/structural-patterns',
+    component: StructuralPatterns,
   }
 ]
