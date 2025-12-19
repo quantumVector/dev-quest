@@ -190,6 +190,7 @@ import TestingIntroTestPage from '@/views/tests/TestingIntroTestPage.vue'
 import TestingPyramidTestPage from '@/views/tests/TestingPyramidTestPage.vue'
 import TestingInterviewPage from '@/views/interview/TestingInterviewPage.vue'
 import BasicFP from '@/views/patterns/BasicFP.vue'
+import DryKissYagni from '@/views/patterns/DryKissYagni.vue'
 
 export const routes = [
   {
@@ -959,5 +960,9 @@ export const routes = [
   {
     path: '/patterns/basic-fp',
     component: BasicFP,
+  },
+  {
+    path: '/patterns/dry-kiss-yagni',
+    component: DryKissYagni,
   }
 ]
