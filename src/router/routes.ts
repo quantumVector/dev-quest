@@ -191,6 +191,7 @@ import TestingPyramidTestPage from '@/views/tests/TestingPyramidTestPage.vue'
 import TestingInterviewPage from '@/views/interview/TestingInterviewPage.vue'
 import BasicFP from '@/views/patterns/BasicFP.vue'
 import DryKissYagni from '@/views/patterns/DryKissYagni.vue'
+import FluxArchitecture from '@/views/patterns/FluxArchitecture.vue'
 
 export const routes = [
   {
@@ -964,5 +965,9 @@ export const routes = [
   {
     path: '/patterns/dry-kiss-yagni',
     component: DryKissYagni,
+  },
+  {
+    path: '/patterns/flux-architecture',
+    component: FluxArchitecture,
   }
 ]

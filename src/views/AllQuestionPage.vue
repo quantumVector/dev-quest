@@ -408,6 +408,9 @@
           <v-list-item to="/patterns/dry-kiss-yagni">
             <v-list-item-title>2. DRY / KISS / YAGNI: Принципы чистого кода</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/patterns/flux-architecture">
+            <v-list-item-title>3. Flux: архитектура однонаправленного потока данных</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
