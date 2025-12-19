@@ -195,6 +195,7 @@ import FluxArchitecture from '@/views/patterns/FluxArchitecture.vue'
 import MvcMvpMvvm from '@/views/patterns/MvcMvpMvvm.vue'
 import SolidPrinciples from '@/views/patterns/SolidPrinciples.vue'
 import StructuralPatterns from '@/views/patterns/StructuralPatterns.vue'
+import BehavioralPatterns from '@/views/patterns/BehavioralPatterns.vue'
 
 export const routes = [
   {
@@ -984,5 +985,9 @@ export const routes = [
   {
     path: '/patterns/structural-patterns',
     component: StructuralPatterns,
+  },
+  {
+    path: '/patterns/behavioral-patterns',
+    component: BehavioralPatterns,
   }
 ]

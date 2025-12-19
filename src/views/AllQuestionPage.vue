@@ -420,6 +420,9 @@
           <v-list-item to="/patterns/structural-patterns">
             <v-list-item-title>6. Структурные паттерны проектирования</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/patterns/behavioral-patterns">
+            <v-list-item-title>7. Поведенческие паттерны проектирования</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
