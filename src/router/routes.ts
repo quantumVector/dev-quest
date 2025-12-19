@@ -192,6 +192,7 @@ import TestingInterviewPage from '@/views/interview/TestingInterviewPage.vue'
 import BasicFP from '@/views/patterns/BasicFP.vue'
 import DryKissYagni from '@/views/patterns/DryKissYagni.vue'
 import FluxArchitecture from '@/views/patterns/FluxArchitecture.vue'
+import MvcMvpMvvm from '@/views/patterns/MvcMvpMvvm.vue'
 
 export const routes = [
   {
@@ -969,5 +970,9 @@ export const routes = [
   {
     path: '/patterns/flux-architecture',
     component: FluxArchitecture,
+  },
+  {
+    path: '/patterns/mvc-mvp-mvvm',
+    component: MvcMvpMvvm,
   }
 ]

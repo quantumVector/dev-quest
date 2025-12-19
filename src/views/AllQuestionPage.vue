@@ -411,6 +411,9 @@
           <v-list-item to="/patterns/flux-architecture">
             <v-list-item-title>3. Flux: архитектура однонаправленного потока данных</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/patterns/mvc-mvp-mvvm">
+            <v-list-item-title>4. MVC / MVP / MVVM: выбор архитектуры для проекта</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
