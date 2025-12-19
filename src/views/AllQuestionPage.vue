@@ -399,6 +399,16 @@
       </v-expansion-panel-text>
     </v-expansion-panel>
 
+    <v-expansion-panel title="Patterns">
+      <v-expansion-panel-text>
+        <v-list>
+          <v-list-item to="/patterns/basic-fp">
+            <v-list-item-title>1. Basic FP: Основы функционального программирования</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-expansion-panel-text>
+    </v-expansion-panel>
+
     <v-expansion-panel title="Docker">
       <v-expansion-panel-text>
         <v-list>

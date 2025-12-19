@@ -189,6 +189,7 @@ import TestingPyramid from '@/views/testing/TestingPyramid.vue'
 import TestingIntroTestPage from '@/views/tests/TestingIntroTestPage.vue'
 import TestingPyramidTestPage from '@/views/tests/TestingPyramidTestPage.vue'
 import TestingInterviewPage from '@/views/interview/TestingInterviewPage.vue'
+import BasicFP from '@/views/patterns/BasicFP.vue'
 
 export const routes = [
   {
@@ -954,5 +955,9 @@ export const routes = [
   {
     path: '/testing/testing-interview',
     component: TestingInterviewPage,
+  },
+  {
+    path: '/patterns/basic-fp',
+    component: BasicFP,
   }
 ]
