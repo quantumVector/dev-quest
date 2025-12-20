@@ -202,6 +202,7 @@ import PatternsDryKissYagniTestPage from '@/views/tests/PatternsDryKissYagniTest
 import PatternsFluxTestPage from '@/views/tests/PatternsFluxTestPage.vue'
 import PatternsMvcMvpMvvmTestPage from '@/views/tests/PatternsMvcMvpMvvmTestPage.vue'
 import SOLIDPrinciplesTestPage from '@/views/tests/SOLIDPrinciplesTestPage.vue'
+import PatternsStructuralTestPage from '@/views/tests/PatternsStructuralTestPage.vue'
 
 export const routes = [
   {
@@ -1019,5 +1020,9 @@ export const routes = [
   {
     path: '/patterns/solid-test',
     component: SOLIDPrinciplesTestPage,
+  },
+  {
+    path: '/patterns/structural-test',
+    component: PatternsStructuralTestPage,
   }
 ]
