@@ -264,6 +264,9 @@
           <v-list-item to="/patterns/flux-test">
             <v-list-item-title>3. Flux Architecture</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/patterns/mvc-mvp-mvvm-test">
+            <v-list-item-title>4. MVC, MVP, MVVM</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
