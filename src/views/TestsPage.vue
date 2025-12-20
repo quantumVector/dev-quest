@@ -251,5 +251,15 @@
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
+
+    <v-expansion-panel title="Patterns & Architecture">
+      <v-expansion-panel-text>
+        <v-list>
+          <v-list-item to="/patterns/basic-fp-test">
+            <v-list-item-title>1. Basic FP (Чистые функции, HOF, Каррирование)</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-expansion-panel-text>
+    </v-expansion-panel>
   </v-expansion-panels>
 </template>

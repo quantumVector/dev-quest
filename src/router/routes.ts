@@ -197,6 +197,7 @@ import SolidPrinciples from '@/views/patterns/SolidPrinciples.vue'
 import StructuralPatterns from '@/views/patterns/StructuralPatterns.vue'
 import BehavioralPatterns from '@/views/patterns/BehavioralPatterns.vue'
 import CreationalPatterns from '@/views/patterns/CreationalPatterns.vue'
+import PatternsBasicFPTestPage from '@/views/tests/PatternsBasicFPTestPage.vue'
 
 export const routes = [
   {
@@ -994,5 +995,9 @@ export const routes = [
   {
     path: '/patterns/creational-patterns',
     component: CreationalPatterns,
+  },
+  {
+    path: '/patterns/basic-fp-test',
+    component: PatternsBasicFPTestPage,
   }
 ]
