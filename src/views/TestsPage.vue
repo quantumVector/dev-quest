@@ -267,6 +267,9 @@
           <v-list-item to="/patterns/mvc-mvp-mvvm-test">
             <v-list-item-title>4. MVC, MVP, MVVM</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/patterns/solid-test">
+            <v-list-item-title>5. SOLID принципы</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

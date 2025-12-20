@@ -201,6 +201,7 @@ import PatternsBasicFPTestPage from '@/views/tests/PatternsBasicFPTestPage.vue'
 import PatternsDryKissYagniTestPage from '@/views/tests/PatternsDryKissYagniTestPage.vue'
 import PatternsFluxTestPage from '@/views/tests/PatternsFluxTestPage.vue'
 import PatternsMvcMvpMvvmTestPage from '@/views/tests/PatternsMvcMvpMvvmTestPage.vue'
+import SOLIDPrinciplesTestPage from '@/views/tests/SOLIDPrinciplesTestPage.vue'
 
 export const routes = [
   {
@@ -1014,5 +1015,9 @@ export const routes = [
   {
     path: '/patterns/mvc-mvp-mvvm-test',
     component: PatternsMvcMvpMvvmTestPage,
+  },
+  {
+    path: '/patterns/solid-test',
+    component: SOLIDPrinciplesTestPage,
   }
 ]
