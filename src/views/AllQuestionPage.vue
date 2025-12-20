@@ -423,6 +423,9 @@
           <v-list-item to="/patterns/behavioral-patterns">
             <v-list-item-title>7. Поведенческие паттерны проектирования</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/patterns/creational-patterns">
+            <v-list-item-title>8. Порождающие паттерны проектирования</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

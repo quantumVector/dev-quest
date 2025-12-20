@@ -196,6 +196,7 @@ import MvcMvpMvvm from '@/views/patterns/MvcMvpMvvm.vue'
 import SolidPrinciples from '@/views/patterns/SolidPrinciples.vue'
 import StructuralPatterns from '@/views/patterns/StructuralPatterns.vue'
 import BehavioralPatterns from '@/views/patterns/BehavioralPatterns.vue'
+import CreationalPatterns from '@/views/patterns/CreationalPatterns.vue'
 
 export const routes = [
   {
@@ -989,5 +990,9 @@ export const routes = [
   {
     path: '/patterns/behavioral-patterns',
     component: BehavioralPatterns,
+  },
+  {
+    path: '/patterns/creational-patterns',
+    component: CreationalPatterns,
   }
 ]
