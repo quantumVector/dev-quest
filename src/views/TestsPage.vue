@@ -252,7 +252,7 @@
       </v-expansion-panel-text>
     </v-expansion-panel>
 
-    <v-expansion-panel title="Patterns & Architecture">
+    <v-expansion-panel title="Patterns">
       <v-expansion-panel-text>
         <v-list>
           <v-list-item to="/patterns/basic-fp-test">
