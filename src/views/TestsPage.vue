@@ -273,6 +273,9 @@
           <v-list-item to="/patterns/structural-test">
             <v-list-item-title>6. Структурные паттерны</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/patterns/behavioral-test">
+            <v-list-item-title>7. Поведенческие паттерны</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

@@ -203,6 +203,7 @@ import PatternsFluxTestPage from '@/views/tests/PatternsFluxTestPage.vue'
 import PatternsMvcMvpMvvmTestPage from '@/views/tests/PatternsMvcMvpMvvmTestPage.vue'
 import SOLIDPrinciplesTestPage from '@/views/tests/SOLIDPrinciplesTestPage.vue'
 import PatternsStructuralTestPage from '@/views/tests/PatternsStructuralTestPage.vue'
+import PatternsBehavioralTestPage from '@/views/tests/PatternsBehavioralTestPage.vue'
 
 export const routes = [
   {
@@ -1024,5 +1025,9 @@ export const routes = [
   {
     path: '/patterns/structural-test',
     component: PatternsStructuralTestPage,
+  },
+  {
+    path: '/patterns/behavioral-test',
+    component: PatternsBehavioralTestPage,
   }
 ]
