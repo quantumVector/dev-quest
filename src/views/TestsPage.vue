@@ -261,6 +261,9 @@
           <v-list-item to="/patterns/dry-kiss-yagni-test">
             <v-list-item-title>2. DRY, KISS, YAGNI</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/patterns/flux-test">
+            <v-list-item-title>3. Flux Architecture</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

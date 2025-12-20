@@ -199,6 +199,7 @@ import BehavioralPatterns from '@/views/patterns/BehavioralPatterns.vue'
 import CreationalPatterns from '@/views/patterns/CreationalPatterns.vue'
 import PatternsBasicFPTestPage from '@/views/tests/PatternsBasicFPTestPage.vue'
 import PatternsDryKissYagniTestPage from '@/views/tests/PatternsDryKissYagniTestPage.vue'
+import PatternsFluxTestPage from '@/views/tests/PatternsFluxTestPage.vue'
 
 export const routes = [
   {
@@ -1004,5 +1005,9 @@ export const routes = [
   {
     path: '/patterns/dry-kiss-yagni-test',
     component: PatternsDryKissYagniTestPage,
+  },
+  {
+    path: '/patterns/flux-test',
+    component: PatternsFluxTestPage,
   }
 ]
