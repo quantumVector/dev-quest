@@ -204,6 +204,7 @@ import PatternsMvcMvpMvvmTestPage from '@/views/tests/PatternsMvcMvpMvvmTestPage
 import SOLIDPrinciplesTestPage from '@/views/tests/SOLIDPrinciplesTestPage.vue'
 import PatternsStructuralTestPage from '@/views/tests/PatternsStructuralTestPage.vue'
 import PatternsBehavioralTestPage from '@/views/tests/PatternsBehavioralTestPage.vue'
+import PatternsCreationalTestPage from '@/views/tests/PatternsCreationalTestPage.vue'
 
 export const routes = [
   {
@@ -1029,5 +1030,9 @@ export const routes = [
   {
     path: '/patterns/behavioral-test',
     component: PatternsBehavioralTestPage,
+  },
+  {
+    path: '/patterns/creational-test',
+    component: PatternsCreationalTestPage,
   }
 ]

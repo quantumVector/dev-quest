@@ -276,6 +276,9 @@
           <v-list-item to="/patterns/behavioral-test">
             <v-list-item-title>7. Поведенческие паттерны</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/patterns/creational-test">
+            <v-list-item-title>8. Порождающие паттерны</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
