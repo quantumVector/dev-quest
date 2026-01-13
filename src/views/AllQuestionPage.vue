@@ -485,5 +485,15 @@
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
+
+    <v-expansion-panel title="Optimization">
+      <v-expansion-panel-text>
+        <v-list>
+          <v-list-item to="/optimization/web-vitals">
+            <v-list-item-title>Web Vitals: FCP, LCP, CLS, INP, TTFB, TBT</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-expansion-panel-text>
+    </v-expansion-panel>
   </v-expansion-panels>
 </template>

@@ -205,6 +205,7 @@ import SOLIDPrinciplesTestPage from '@/views/tests/SOLIDPrinciplesTestPage.vue'
 import PatternsStructuralTestPage from '@/views/tests/PatternsStructuralTestPage.vue'
 import PatternsBehavioralTestPage from '@/views/tests/PatternsBehavioralTestPage.vue'
 import PatternsCreationalTestPage from '@/views/tests/PatternsCreationalTestPage.vue'
+import WebVitalsOptimization from '@/views/optimization/WebVitalsOptimization.vue'
 
 export const routes = [
   {
@@ -1034,5 +1035,9 @@ export const routes = [
   {
     path: '/patterns/creational-test',
     component: PatternsCreationalTestPage,
+  },
+  {
+    path: '/optimization/web-vitals',
+    component: WebVitalsOptimization,
   }
 ]
