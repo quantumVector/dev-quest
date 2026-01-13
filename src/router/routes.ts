@@ -206,6 +206,7 @@ import PatternsStructuralTestPage from '@/views/tests/PatternsStructuralTestPage
 import PatternsBehavioralTestPage from '@/views/tests/PatternsBehavioralTestPage.vue'
 import PatternsCreationalTestPage from '@/views/tests/PatternsCreationalTestPage.vue'
 import WebVitalsOptimization from '@/views/optimization/WebVitalsOptimization.vue'
+import SEO from '@/views/optimization/SEO.vue'
 
 export const routes = [
   {
@@ -1039,5 +1040,9 @@ export const routes = [
   {
     path: '/optimization/web-vitals',
     component: WebVitalsOptimization,
+  },
+  {
+    path: '/optimization/seo',
+    component: SEO,
   }
 ]
