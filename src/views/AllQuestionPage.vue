@@ -495,6 +495,24 @@
           <v-list-item to="/optimization/seo">
             <v-list-item-title>2. SEO: полное руководство по оптимизации</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/optimization/og-twitter-cards">
+            <v-list-item-title>3. Open Graph и Twitter Cards для соцсетей</v-list-item-title>
+          </v-list-item>
+          <v-list-item to="/optimization/schema-org">
+            <v-list-item-title>4. Schema.org разметка: Article, Product, Breadcrumb</v-list-item-title>
+          </v-list-item>
+          <v-list-item to="/optimization/sitemap-and-robots">
+            <v-list-item-title>5. XML Sitemap и robots.txt</v-list-item-title>
+          </v-list-item>
+          <v-list-item to="/optimization/lazy-loading">
+            <v-list-item-title>6. Lazy-loading для изображений и iframe</v-list-item-title>
+          </v-list-item>
+          <v-list-item to="/optimization/meta-tags">
+            <v-list-item-title>7. Дефолтные meta-теги: title, description, keywords</v-list-item-title>
+          </v-list-item>
+          <v-list-item to="/optimization/canonical-hreflang">
+            <v-list-item-title>8. Canonical URL и hreflang для мультиязычных сайтов</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

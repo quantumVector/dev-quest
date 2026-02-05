@@ -5,790 +5,28 @@ import 'prismjs/themes/prism-tomorrow.css'
 import 'prismjs/components/prism-javascript.js'
 
 const measuringSnippet = `
-// ===================================================================
-// ИЗМЕРЕНИЕ WEB VITALS
-// ===================================================================
+// Измерение Web Vitals
 
-// 1. Web Vitals Library (Рекомендуемый способ)
+// 1. Библиотека web-vitals (рекомендуется)
 import {onCLS, onFCP, onLCP, onTTFB, onINP} from 'web-vitals';
+onLCP(metric => console.log('LCP:', metric.value));
 
-// Отправка метрик в аналитику
-function sendToAnalytics(metric) {
-  const body = JSON.stringify({
-    name: metric.name,
-    value: metric.value,
-    rating: metric.rating, // 'good', 'needs-improvement', 'poor'
-    delta: metric.delta,
-    id: metric.id,
-  });
-
-  // Используем sendBeacon для надежной отправки
-  if (navigator.sendBeacon) {
-    navigator.sendBeacon('/analytics', body);
-  } else {
-    fetch('/analytics', {method: 'POST', body, keepalive: true});
-  }
-}
-
-// Регистрация всех метрик
-onCLS(sendToAnalytics);
-onFCP(sendToAnalytics);
-onLCP(sendToAnalytics);
-onTTFB(sendToAnalytics);
-onINP(sendToAnalytics);
-
-// ===================================================================
-
-// 2. Performance Observer API (Нативный подход)
-
-// Наблюдение за paint метриками (FCP, LCP)
-const paintObserver = new PerformanceObserver((list) => {
-  for (const entry of list.getEntries()) {
-    console.log(\`\${entry.name}: \${entry.startTime}ms\`);
-
-    if (entry.name === 'first-contentful-paint') {
-      console.log('FCP:', entry.startTime);
-    }
-  }
+// 2. Performance Observer API (нативный способ)
+const observer = new PerformanceObserver(list => {
+  list.getEntries().forEach(entry => console.log(entry));
 });
-paintObserver.observe({entryTypes: ['paint']});
-
-// Наблюдение за LCP
-const lcpObserver = new PerformanceObserver((list) => {
-  const entries = list.getEntries();
-  const lastEntry = entries[entries.length - 1];
-  console.log('LCP:', lastEntry.renderTime || lastEntry.loadTime);
-});
-lcpObserver.observe({entryTypes: ['largest-contentful-paint']});
-
-// Наблюдение за Layout Shifts (CLS)
-let clsScore = 0;
-const clsObserver = new PerformanceObserver((list) => {
-  for (const entry of list.getEntries()) {
-    if (!entry.hadRecentInput) {
-      clsScore += entry.value;
-      console.log('Current CLS:', clsScore);
-    }
-  }
-});
-clsObserver.observe({entryTypes: ['layout-shift']});
-
-// Наблюдение за Long Tasks (для TBT/INP)
-const longTaskObserver = new PerformanceObserver((list) => {
-  for (const entry of list.getEntries()) {
-    console.log('Long task:', entry.duration);
-  }
-});
-longTaskObserver.observe({entryTypes: ['longtask']});
-
-// ===================================================================
-
-// 3. Performance Navigation Timing
-window.addEventListener('load', () => {
-  const perfData = performance.getEntriesByType('navigation')[0];
-
-  console.log('TTFB:', perfData.responseStart - perfData.requestStart);
-  console.log('DOM Load:', perfData.domContentLoadedEventEnd - perfData.domContentLoadedEventStart);
-  console.log('Window Load:', perfData.loadEventEnd - perfData.loadEventStart);
-});
-
-// ===================================================================
-
-// 4. Measurement в React/Next.js
-
-// Next.js - встроенная поддержка
-// pages/_app.js
-export function reportWebVitals(metric) {
-  console.log(metric);
-
-  // Отправка в Google Analytics
-  if (window.gtag) {
-    window.gtag('event', metric.name, {
-      value: Math.round(metric.value),
-      event_label: metric.id,
-      non_interaction: true,
-    });
-  }
-}
-
-// React - кастомный хук
-import {useEffect} from 'react';
-import {onCLS, onFCP, onLCP} from 'web-vitals';
-
-function useWebVitals() {
-  useEffect(() => {
-    onCLS(console.log);
-    onFCP(console.log);
-    onLCP(console.log);
-  }, []);
-}
-`
-
-const optimizationSnippet = `
-// ===================================================================
-// ОПТИМИЗАЦИЯ WEB VITALS
-// ===================================================================
-
-// ============ 1. LCP (Largest Contentful Paint) ============
-// Цель: < 2.5s (Good), < 4.0s (Needs Improvement)
-
-// 1.1. Оптимизация изображений
-// ❌ Плохо
-<img src="hero.jpg" alt="Hero">
-
-// ✅ Хорошо
-<img
-  src="hero-800.jpg"
-  srcset="hero-400.jpg 400w, hero-800.jpg 800w, hero-1200.jpg 1200w"
-  sizes="(max-width: 600px) 100vw, 50vw"
-  loading="eager"
-  fetchpriority="high"
-  alt="Hero"
->
-
-// 1.2. Preload критических ресурсов
-<link rel="preload" as="image" href="hero.jpg" fetchpriority="high">
-<link rel="preload" as="font" href="/fonts/main.woff2" crossorigin>
-
-// 1.3. Современные форматы изображений
-<picture>
-  <source srcset="hero.avif" type="image/avif">
-  <source srcset="hero.webp" type="image/webp">
-  <img src="hero.jpg" alt="Hero">
-</picture>
-
-// 1.4. Оптимизация серверного времени (TTFB)
-// - CDN для статики
-// - HTTP/2 или HTTP/3
-// - Server-side caching (Redis)
-// - Database query optimization
-
-// 1.5. Resource Hints
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="dns-prefetch" href="https://api.example.com">
-
-// ============ 2. CLS (Cumulative Layout Shift) ============
-// Цель: < 0.1 (Good), < 0.25 (Needs Improvement)
-
-// 2.1. Резервирование места для изображений
-// ❌ Плохо
-<img src="photo.jpg" alt="Photo">
-
-// ✅ Хорошо - явные размеры
-<img src="photo.jpg" width="800" height="600" alt="Photo">
-
-// ✅ Хорошо - aspect-ratio
-<img src="photo.jpg" style="aspect-ratio: 16/9; width: 100%;" alt="Photo">
-
-// 2.2. Резервирование места для динамического контента
-// CSS
-.ad-slot {
-  min-height: 250px; /* Минимальная высота для рекламы */
-}
-
-.skeleton {
-  height: 200px; /* Placeholder для контента */
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-}
-
-// 2.3. Избегайте вставки контента над существующим
-// ❌ Плохо - баннер появляется сверху
-<div id="banner"></div>
-<main>Content</main>
-
-// ✅ Хорошо - резервируем место
-<div id="banner" style="min-height: 60px;"></div>
-<main>Content</main>
-
-// 2.4. Web Fonts без layout shift
-// CSS
-@font-face {
-  font-family: 'CustomFont';
-  src: url('/fonts/custom.woff2') format('woff2');
-  font-display: optional; /* Или swap с size-adjust */
-}
-
-// Fallback с похожими метриками
-body {
-  font-family: 'CustomFont', Arial, sans-serif;
-}
-
-// 2.5. Transforms вместо top/left для анимаций
-// ❌ Плохо - вызывает layout
-.element {
-  transition: top 0.3s;
-}
-.element:hover {
-  top: 10px;
-}
-
-// ✅ Хорошо - не вызывает layout
-.element {
-  transition: transform 0.3s;
-}
-.element:hover {
-  transform: translateY(10px);
-}
-
-// ============ 3. INP (Interaction to Next Paint) ============
-// Цель: < 200ms (Good), < 500ms (Needs Improvement)
-
-// 3.1. Оптимизация JavaScript
-// Разбивка тяжелых задач
-function processLargeDataset(data) {
-  const chunkSize = 100;
-  let index = 0;
-
-  function processChunk() {
-    const chunk = data.slice(index, index + chunkSize);
-
-    // Обработка chunk
-    chunk.forEach(item => {
-      // Обработка
-    });
-
-    index += chunkSize;
-
-    if (index < data.length) {
-      // Уступаем место браузеру для отрисовки
-      setTimeout(processChunk, 0);
-    }
-  }
-
-  processChunk();
-}
-
-// 3.2. Debouncing и Throttling
-function debounce(func, wait) {
-  let timeout;
-  return function executedFunction(...args) {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func(...args), wait);
-  };
-}
-
-const handleSearch = debounce((query) => {
-  // Выполняем поиск
-}, 300);
-
-// 3.3. Web Workers для тяжелых вычислений
-// main.js
-const worker = new Worker('worker.js');
-
-worker.postMessage({data: largeDataset});
-
-worker.onmessage = (e) => {
-  console.log('Result:', e.data);
-};
-
-// worker.js
-self.onmessage = (e) => {
-  const result = processData(e.data);
-  self.postMessage(result);
-};
-
-// 3.4. Passive Event Listeners
-// ❌ Плохо - блокирует скролл
-element.addEventListener('touchstart', handler);
-
-// ✅ Хорошо
-element.addEventListener('touchstart', handler, {passive: true});
-
-// 3.5. requestIdleCallback для неважных задач
-requestIdleCallback(() => {
-  // Аналитика, логирование
-  sendAnalytics();
-});
-
-// ============ 4. FCP (First Contentful Paint) ============
-// Цель: < 1.8s (Good), < 3.0s (Needs Improvement)
-
-// 4.1. Critical CSS inline
-<style>
-  /* Критические стили для above-the-fold */
-  body { margin: 0; font-family: sans-serif; }
-  .header { background: #000; color: #fff; }
-</style>
-
-// 4.2. Отложенная загрузка некритичного CSS
-<link rel="preload" href="styles.css" as="style" onload="this.rel='stylesheet'">
-
-// 4.3. Defer/Async для скриптов
-// Defer - выполнится после парсинга HTML
-<script defer src="app.js"><\/script>
-
-// Async - выполнится как загрузится
-<script async src="analytics.js"><\/script>
-
-// 4.4. Минимизация блокирующих ресурсов
-// Webpack/Vite configuration
-{
-optimization: {
-splitChunks: {
-chunks: 'all',
-cacheGroups: {
-vendor: {
-test: /[\\\\/]node_modules[\\\\/]/,
-priority: -10
-}
-}
-}
-}
-}
-
-// ============ 5. TTFB (Time to First Byte) ============
-// Цель: < 800ms (Good), < 1800ms (Needs Improvement)
-
-// 5.1. CDN
-// Используйте Cloudflare, AWS CloudFront, Fastly
-
-// 5.2. Edge Computing
-// Cloudflare Workers, Vercel Edge Functions
-export default async function handler(request) {
-// Обработка на edge
-return new Response('Hello from Edge!');
-}
-
-// 5.3. Кэширование
-// HTTP Headers
-Cache-Control: public, max-age=31536000, immutable
-
-// Service Worker
-self.addEventListener('fetch', (event) => {
-event.respondWith(
-caches.match(event.request).then((response) => {
-return response || fetch(event.request);
-})
-);
-});
-
-// 5.4. HTTP/2 Server Push (осторожно!)
-// Только для критических ресурсов
-Link: </style.css>; rel=preload; as=style
-
-// ============ 6. TBT (Total Blocking Time) ============
-// Цель: < 200ms (Good), < 600ms (Needs Improvement)
-
-// 6.1. Code Splitting
-// React lazy loading
-import {lazy, Suspense} from 'react';
-
-const HeavyComponent = lazy(() => import('./HeavyComponent'));
-
-function App() {
-return (
-<Suspense fallback={<div>Loading...</div>}>
-<HeavyComponent />
-</Suspense>
-);
-}
-
-// 6.2. Tree Shaking
-// Import только нужное
-// ❌ Плохо
-import _ from 'lodash';
-
-// ✅ Хорошо
-import debounce from 'lodash/debounce';
-
-// 6.3. Удаление неиспользуемого кода
-// Vite/Webpack автоматически при production build
-
-// 6.4. Lighthouse CI для мониторинга
-// .github/workflows/lighthouse.yml
-- name: Run Lighthouse CI
-run: |
-npm install -g @lhci/cli
-lhci autorun
-`
-
-const monitoringSnippet = `
-// ===================================================================
-// МОНИТОРИНГ WEB VITALS
-// ===================================================================
-
-// 1. Google Analytics 4
-function sendToGoogleAnalytics({name, value, id, rating}) {
-gtag('event', name, {
-event_category: 'Web Vitals',
-event_label: id,
-value: Math.round(name === 'CLS' ? value * 1000 : value),
-metric_rating: rating,
-non_interaction: true,
-});
-}
-
-import {onCLS, onFCP, onLCP, onTTFB, onINP} from 'web-vitals';
-
-onCLS(sendToGoogleAnalytics);
-onFCP(sendToGoogleAnalytics);
-onLCP(sendToGoogleAnalytics);
-onTTFB(sendToGoogleAnalytics);
-onINP(sendToGoogleAnalytics);
-
-// ===================================================================
-
-// 2. Sentry Performance Monitoring
-import * as Sentry from '@sentry/browser';
-import {BrowserTracing} from '@sentry/tracing';
-
-Sentry.init({
-dsn: 'YOUR_SENTRY_DSN',
-integrations: [new BrowserTracing()],
-tracesSampleRate: 0.1, // 10% transactions
-});
-
-// ===================================================================
-
-// 3. Custom Analytics Backend
-class PerformanceMonitor {
-constructor(endpoint) {
-this.endpoint = endpoint;
-this.metrics = new Map();
-}
-
-recordMetric(name, value, context = {}) {
-this.metrics.set(name, {
-value,
-timestamp: Date.now(),
-context
-});
-}
-
-async flush() {
-const data = Array.from(this.metrics.entries()).map(([name, data]) => ({
-name,
-...data
-}));
-
-try {
-await fetch(this.endpoint, {
-method: 'POST',
-headers: {'Content-Type': 'application/json'},
-body: JSON.stringify({
-metrics: data,
-page: window.location.pathname,
-userAgent: navigator.userAgent,
-connection: navigator.connection?.effectiveType
-}),
-keepalive: true
-});
-
-this.metrics.clear();
-} catch (error) {
-console.error('Failed to send metrics:', error);
-}
-}
-}
-
-const monitor = new PerformanceMonitor('/api/metrics');
-
-// Использование с web-vitals
-onLCP((metric) => {
-monitor.recordMetric('LCP', metric.value, {
-rating: metric.rating,
-element: metric.entries[0]?.element?.tagName
-});
-monitor.flush();
-});
-
-// ===================================================================
-
-// 4. Real User Monitoring (RUM)
-class RUMCollector {
-constructor() {
-this.sessionId = this.generateSessionId();
-this.pageViewId = this.generatePageViewId();
-
-this.collectDeviceInfo();
-this.startCollecting();
-}
-
-collectDeviceInfo() {
-this.deviceInfo = {
-screen: \`\${screen.width}x\${screen.height}\`,
-viewport: \`\${window.innerWidth}x\${window.innerHeight}\`,
-deviceMemory: navigator.deviceMemory,
-hardwareConcurrency: navigator.hardwareConcurrency,
-connection: navigator.connection?.effectiveType,
-saveData: navigator.connection?.saveData
-};
-}
-
-startCollecting() {
-// Web Vitals
-onLCP(metric => this.send('LCP', metric));
-onFCP(metric => this.send('FCP', metric));
-onCLS(metric => this.send('CLS', metric));
-onTTFB(metric => this.send('TTFB', metric));
-onINP(metric => this.send('INP', metric));
-
-// Custom metrics
-this.collectResourceTiming();
-this.collectLongTasks();
-this.collectErrors();
-}
-
-collectResourceTiming() {
-const observer = new PerformanceObserver((list) => {
-for (const entry of list.getEntries()) {
-if (entry.duration > 1000) { // Медленные ресурсы
-this.send('slow-resource', {
-name: entry.name,
-duration: entry.duration,
-type: entry.initiatorType
-});
-}
-}
-});
-observer.observe({entryTypes: ['resource']});
-}
-
-collectLongTasks() {
-const observer = new PerformanceObserver((list) => {
-for (const entry of list.getEntries()) {
-this.send('long-task', {
-duration: entry.duration,
-startTime: entry.startTime
-});
-}
-});
-observer.observe({entryTypes: ['longtask']});
-}
-
-collectErrors() {
-window.addEventListener('error', (event) => {
-this.send('js-error', {
-message: event.message,
-filename: event.filename,
-lineno: event.lineno,
-colno: event.colno
-});
-});
-
-window.addEventListener('unhandledrejection', (event) => {
-this.send('unhandled-rejection', {
-reason: event.reason?.message || String(event.reason)
-});
-});
-}
-
-send(metricName, data) {
-const payload = {
-sessionId: this.sessionId,
-pageViewId: this.pageViewId,
-metricName,
-data,
-deviceInfo: this.deviceInfo,
-page: window.location.pathname,
-timestamp: Date.now()
-};
-
-navigator.sendBeacon('/api/rum', JSON.stringify(payload));
-}
-
-generateSessionId() {
-return \`session_\${Date.now()}_\${Math.random().toString(36).substr(2, 9)}\`;
-}
-
-generatePageViewId() {
-return \`page_\${Date.now()}_\${Math.random().toString(36).substr(2, 9)}\`;
-}
-}
-
-// Инициализация
-const rum = new RUMCollector();
-
-// ===================================================================
-
-// 5. Performance Budget Monitoring
-class PerformanceBudget {
-constructor(budgets) {
-this.budgets = budgets;
-this.violations = [];
-}
-
-check(metric, value) {
-const budget = this.budgets[metric];
-
-if (!budget) return;
-
-if (value > budget.max) {
-this.violations.push({
-metric,
-value,
-budget: budget.max,
-severity: value > budget.max * 1.5 ? 'critical' : 'warning'
-});
-}
-}
-
-report() {
-if (this.violations.length === 0) {
-console.log('✅ All performance budgets met!');
-return;
-}
-
-console.warn('⚠️ Performance budget violations:');
-this.violations.forEach(v => {
-console.warn(\`\${v.metric}: \${v.value}ms (budget: \${v.budget}ms) - \${v.severity}\`);
-});
-
-// Отправка в мониторинг
-fetch('/api/budget-violations', {
-method: 'POST',
-body: JSON.stringify(this.violations),
-keepalive: true
-});
-}
-}
-
-const budget = new PerformanceBudget({
-LCP: {max: 2500},
-FCP: {max: 1800},
-CLS: {max: 0.1},
-INP: {max: 200},
-TTFB: {max: 800}
-});
-
-onLCP(metric => budget.check('LCP', metric.value));
-onFCP(metric => budget.check('FCP', metric.value));
-onCLS(metric => budget.check('CLS', metric.value));
-onINP(metric => budget.check('INP', metric.value));
-onTTFB(metric => budget.check('TTFB', metric.value));
-
-window.addEventListener('load', () => {
-setTimeout(() => budget.report(), 1000);
-});
-`
-
-const toolsSnippet = `
-// ===================================================================
-// ИНСТРУМЕНТЫ ДЛЯ МОНИТОРИНГА И ОПТИМИЗАЦИИ
-// ===================================================================
-
-// 1. Chrome DevTools Performance
-// - Performance tab → Record → Analyze
-// - Показывает FPS, Main thread activity, Network
-// - Web Vitals в Experience section
-
-// 2. Lighthouse
-// - Chrome DevTools → Lighthouse tab
-// - CLI: npm install -g lighthouse
-lighthouse https://example.com --view
-
-// 3. PageSpeed Insights
-// - https://pagespeed.web.dev/
-// - Real user data (CrUX) + Lab data (Lighthouse)
-
-// 4. WebPageTest
-// - https://www.webpagetest.org/
-// - Multiple locations, devices, connections
-// - Filmstrip view, waterfall charts
-
-// 5. Chrome User Experience Report (CrUX)
-// - Real user data from Chrome browsers
-// - BigQuery: https://web.dev/chrome-ux-report-bigquery/
-SELECT
-origin,
-ROUND(p75_lcp / 1000, 2) AS lcp_p75
-FROM
-\`chrome-ux-report.all.202401\`
-WHERE
-origin = 'https://example.com'
-
-// 6. Lighthouse CI для CI/CD
-// lighthouserc.js
-module.exports = {
-ci: {
-collect: {
-url: ['http://localhost:3000/'],
-numberOfRuns: 3,
-},
-assert: {
-assertions: {
-'categories:performance': ['error', {minScore: 0.9}],
-'largest-contentful-paint': ['error', {maxNumericValue: 2500}],
-'cumulative-layout-shift': ['error', {maxNumericValue: 0.1}],
-'total-blocking-time': ['error', {maxNumericValue: 200}],
-},
-},
-upload: {
-target: 'temporary-public-storage',
-},
-},
-};
-
-// GitHub Actions
-- name: Run Lighthouse CI
-run: |
-npm install -g @lhci/cli
-lhci autorun
-
-// 7. Monitoring Services
-// - Sentry Performance
-// - New Relic Browser
-// - Datadog RUM
-// - SpeedCurve
-// - Calibre
-// - DebugBear
-
-// 8. Bundle Analyzers
-// Webpack Bundle Analyzer
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-
-module.exports = {
-plugins: [
-new BundleAnalyzerPlugin()
-]
-};
-
-// Vite Bundle Visualizer
-import {visualizer} from 'rollup-plugin-visualizer';
-
-export default {
-plugins: [
-visualizer({
-open: true,
-gzipSize: true,
-brotliSize: true,
-})
-]
-};
-
-// 9. Performance Budgets
-// package.json
-{
-"scripts": {
-"check-size": "size-limit"
-},
-"size-limit": [
-{
-"path": "dist/bundle.js",
-"limit": "170 KB"
-},
-{
-"path": "dist/vendor.js",
-"limit": "100 KB"
-}
-]
-}
-
-// 10. Web Vitals Extension
-// Chrome Extension: Web Vitals
-// Показывает метрики прямо в браузере в реальном времени
+observer.observe({entryTypes: ['largest-contentful-paint']});
+
+// 3. Инструменты:
+// • Chrome DevTools → Lighthouse
+// • PageSpeed Insights (https://pagespeed.web.dev/)
+// • WebPageTest (https://www.webpagetest.org/)
 `
 
 const highlightedMeasuring = ref('')
-const highlightedOptimization = ref('')
-const highlightedMonitoring = ref('')
-const highlightedTools = ref('')
 
 onMounted(() => {
-highlightedMeasuring.value = Prism.highlight(measuringSnippet, Prism.languages.javascript, 'javascript')
-highlightedOptimization.value = Prism.highlight(optimizationSnippet, Prism.languages.javascript, 'javascript')
-highlightedMonitoring.value = Prism.highlight(monitoringSnippet, Prism.languages.javascript, 'javascript')
-highlightedTools.value = Prism.highlight(toolsSnippet, Prism.languages.javascript, 'javascript')
+  highlightedMeasuring.value = Prism.highlight(measuringSnippet, Prism.languages.javascript, 'javascript')
 })
 </script>
 
@@ -799,17 +37,16 @@ highlightedTools.value = Prism.highlight(toolsSnippet, Prism.languages.javascrip
         <v-row justify="center">
           <v-col lg="10">
             <h1 class="text-h4 font-weight-bold mb-6">
-              Web Vitals — ключевые метрики производительности веб-приложений
+              Web Vitals — ключевые метрики производительности
             </h1>
 
             <p class="font-weight-regular mb-6">
-              <b>Web Vitals</b> — это набор метрик от Google, которые измеряют реальный пользовательский опыт.
-              Они влияют на SEO ранжирование и критически важны для конверсии. <b>Core Web Vitals</b> — три
-              основные метрики: <b>LCP</b> (скорость загрузки), <b>INP</b> (интерактивность),
-              <b>CLS</b> (визуальная стабильность).
+              <b>Web Vitals</b> — набор метрик от Google для измерения реального пользовательского опыта.
+              Влияют на SEO и критически важны для конверсии. <b>Core Web Vitals</b> — три основные метрики:
+              <b>LCP</b>, <b>INP</b>, <b>CLS</b>.
             </p>
 
-            <h2 class="text-h5 font-weight-bold mb-3">Core Web Vitals — ключевые метрики</h2>
+            <h2 class="text-h5 font-weight-bold mb-3">Core Web Vitals</h2>
 
             <v-row class="mb-6">
               <v-col cols="12" md="4">
@@ -825,7 +62,7 @@ highlightedTools.value = Prism.highlight(toolsSnippet, Prism.languages.javascrip
                   <v-icon size="large" color="success" class="mb-2">mdi-cursor-default-click</v-icon>
                   <h3 class="text-h6 font-weight-bold mb-2">INP</h3>
                   <p class="text-h5 font-weight-bold text-success mb-1">&lt; 200ms</p>
-                  <p class="text-body-2 ma-0">Interaction to Next Paint<br>Время отклика на действия</p>
+                  <p class="text-body-2 ma-0">Interaction to Next Paint<br>Отклик на действия</p>
                 </v-card>
               </v-col>
               <v-col cols="12" md="4">
@@ -838,14 +75,13 @@ highlightedTools.value = Prism.highlight(toolsSnippet, Prism.languages.javascrip
               </v-col>
             </v-row>
 
-            <h2 class="text-h5 font-weight-bold mb-3">Все Web Vitals метрики</h2>
+            <h2 class="text-h5 font-weight-bold mb-3">Все метрики</h2>
             <v-table density="comfortable" class="mb-8">
               <thead>
               <tr>
                 <th class="text-left font-weight-bold">Метрика</th>
                 <th class="text-left font-weight-bold">Что измеряет</th>
                 <th class="text-left font-weight-bold">Good</th>
-                <th class="text-left font-weight-bold">Needs Improvement</th>
                 <th class="text-left font-weight-bold">Poor</th>
               </tr>
               </thead>
@@ -854,281 +90,769 @@ highlightedTools.value = Prism.highlight(toolsSnippet, Prism.languages.javascrip
                 <td><b>LCP</b></td>
                 <td>Время загрузки самого большого элемента</td>
                 <td class="text-success">&lt; 2.5s</td>
-                <td class="text-warning">2.5s - 4.0s</td>
                 <td class="text-error">&gt; 4.0s</td>
               </tr>
               <tr class="bg-success-lighten-5">
                 <td><b>INP</b></td>
                 <td>Время реакции на взаимодействие</td>
                 <td class="text-success">&lt; 200ms</td>
-                <td class="text-warning">200ms - 500ms</td>
                 <td class="text-error">&gt; 500ms</td>
               </tr>
               <tr class="bg-warning-lighten-5">
                 <td><b>CLS</b></td>
                 <td>Сдвиг макета во время загрузки</td>
                 <td class="text-success">&lt; 0.1</td>
-                <td class="text-warning">0.1 - 0.25</td>
                 <td class="text-error">&gt; 0.25</td>
               </tr>
               <tr>
                 <td><b>FCP</b></td>
                 <td>Первый рендер контента</td>
                 <td class="text-success">&lt; 1.8s</td>
-                <td class="text-warning">1.8s - 3.0s</td>
                 <td class="text-error">&gt; 3.0s</td>
               </tr>
               <tr>
                 <td><b>TTFB</b></td>
                 <td>Время до первого байта от сервера</td>
                 <td class="text-success">&lt; 800ms</td>
-                <td class="text-warning">800ms - 1.8s</td>
                 <td class="text-error">&gt; 1.8s</td>
               </tr>
               <tr>
                 <td><b>TBT</b></td>
                 <td>Время блокировки главного потока</td>
                 <td class="text-success">&lt; 200ms</td>
-                <td class="text-warning">200ms - 600ms</td>
                 <td class="text-error">&gt; 600ms</td>
-              </tr>
-              <tr>
-                <td><b>FID</b> (устарел)</td>
-                <td>Задержка первого взаимодействия</td>
-                <td class="text-success">&lt; 100ms</td>
-                <td class="text-warning">100ms - 300ms</td>
-                <td class="text-error">&gt; 300ms</td>
               </tr>
               </tbody>
             </v-table>
 
             <v-alert color="info" class="mb-6">
               <v-icon class="mr-2">mdi-information</v-icon>
-              <strong>Важно:</strong> С марта 2024 <b>FID заменен на INP</b>. INP более точно отражает отзывчивость
-              на все взаимодействия пользователя, а не только на первое.
+              С марта 2024 <b>FID заменен на INP</b>. INP точнее отражает отзывчивость на все взаимодействия.
             </v-alert>
 
-            <h2 class="text-h5 font-weight-bold mb-3">Как измерять Web Vitals</h2>
+            <h2 class="text-h5 font-weight-bold mb-3">Как измерять</h2>
             <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedMeasuring"></code></pre>
 
-            <h2 class="text-h5 font-weight-bold mb-3">Способы оптимизации каждой метрики</h2>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedOptimization"></code></pre>
-
-            <h2 class="text-h5 font-weight-bold mb-3">Мониторинг в Production</h2>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedMonitoring"></code></pre>
-
-            <h2 class="text-h5 font-weight-bold mb-3">Инструменты для анализа</h2>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedTools"></code></pre>
-
-            <h2 class="text-h5 font-weight-bold mb-3">Краткая сводка оптимизаций</h2>
+            <h2 class="text-h5 font-weight-bold mb-3">Способы оптимизации</h2>
 
             <v-expansion-panels variant="accordion" class="mb-6">
               <v-expansion-panel>
-                <v-expansion-panel-title>
-                  <strong>LCP — Largest Contentful Paint</strong>
+                <v-expansion-panel-title class="text-h6">
+                  <strong>LCP — Largest Contentful Paint (< 2.5s)</strong>
                 </v-expansion-panel-title>
                 <v-expansion-panel-text>
-                  <ul class="pl-4">
-                    <li>Оптимизация изображений (WebP, AVIF, srcset)</li>
-                    <li>Preload критических ресурсов</li>
-                    <li>CDN для статики</li>
-                    <li>Уменьшение TTFB (кэширование, edge computing)</li>
-                    <li>Удаление render-blocking ресурсов</li>
-                    <li>fetchpriority="high" для LCP элемента</li>
+                  <h4 class="font-weight-bold mt-2 mb-2">Оптимизация изображений</h4>
+                  <ul class="pl-4 mb-3">
+                    <li>
+                      <strong>Современные форматы:</strong> WebP (на 25-35% меньше JPG), AVIF (на 50% меньше JPG)
+                      с fallback на JPG для старых браузеров через &lt;picture&gt; элемент.
+                      AVIF даёт лучшее качество при меньшем размере, но поддержка хуже чем у WebP.
+                    </li>
+                    <li>
+                      <strong>Responsive images:</strong> Используйте srcset с размерами 320w, 640w, 1024w, 1920w
+                      для разных экранов. Браузер автоматически выберет оптимальный размер.
+                      Добавьте sizes="(max-width: 768px) 100vw, 50vw" для указания желаемого размера отображения.
+                    </li>
+                    <li>
+                      <strong>fetchpriority="high":</strong> Явно указывает браузеру загрузить hero-изображение
+                      с максимальным приоритетом, до скриптов и стилей. Применяйте только к самому важному изображению
+                      above-the-fold (обычно 1-2 изображения на страницу).
+                    </li>
+                    <li>
+                      <strong>loading="eager":</strong> Отключает ленивую загрузку для критичного контента
+                      в видимой области. По умолчанию браузер может откладывать загрузку, что увеличивает LCP.
+                      Используйте для первых 2-3 изображений на странице.
+                    </li>
+                    <li>
+                      <strong>Правильные размеры:</strong> Загружайте изображения в нужном разрешении, а не 4K
+                      картинку с масштабированием в CSS. Изображение 1920x1080 для контейнера 960x540 —
+                      это 4x больше данных чем нужно. Используйте автоматическую оптимизацию (Next.js Image,
+                      Cloudinary, imgix).
+                    </li>
+                    <li>
+                      <strong>Компрессия:</strong> ImageOptim, Squoosh, или Sharp для сжатия без потери визуального
+                      качества. Для JPG используйте качество 80-85%, для WebP — 75-80%. Автоматизируйте через
+                      build pipeline или CDN.
+                    </li>
+                  </ul>
+
+                  <h4 class="font-weight-bold mb-2">Preload критических ресурсов</h4>
+                  <ul class="pl-4 mb-3">
+                    <li>
+                      <strong>Preload hero-изображения:</strong>
+                      &lt;link rel="preload" as="image" href="hero.webp" type="image/webp"&gt;
+                      в &lt;head&gt; заставляет браузер начать загрузку до парсинга HTML.
+                      Экономит 100-500ms на LCP. Не злоупотребляйте — максимум 2-3 ресурса.
+                    </li>
+                    <li>
+                      <strong>Preload шрифтов:</strong>
+                      &lt;link rel="preload" href="font.woff2" as="font" type="font/woff2" crossorigin&gt;
+                      предотвращает FOIT/FOUT (мерцание текста). Атрибут crossorigin обязателен даже для
+                      same-origin шрифтов из-за CORS политики браузеров.
+                    </li>
+                    <li>
+                      <strong>Preconnect к важным доменам:</strong>
+                      &lt;link rel="preconnect" href="https://fonts.googleapis.com"&gt; устанавливает
+                      TCP/TLS соединение заранее, экономя 100-300ms на DNS lookup, TCP handshake, TLS negotiation.
+                      Используйте для CDN, API, шрифтов.
+                    </li>
+                    <li>
+                      <strong>DNS-prefetch:</strong>
+                      &lt;link rel="dns-prefetch" href="https://analytics.example.com"&gt;
+                      только резолвит DNS без установки соединения. Менее агрессивен чем preconnect,
+                      используйте для второстепенных доменов (аналитика, виджеты).
+                    </li>
+                  </ul>
+
+                  <h4 class="font-weight-bold mb-2">Оптимизация сервера</h4>
+                  <ul class="pl-4 mb-3">
+                    <li>
+                      <strong>CDN для статики:</strong> Cloudflare, AWS CloudFront, Fastly кэшируют контент
+                      в edge locations близко к пользователям. Сокращают latency с 200-500ms до 10-50ms.
+                      Настройте aggressive caching для immutable ресурсов (с hash в имени файла).
+                      Используйте Brotli compression на CDN уровне.
+                    </li>
+                    <li>
+                      <strong>HTTP/2 или HTTP/3:</strong> Multiplexing позволяет параллельно загружать множество
+                      ресурсов по одному соединению вместо 6 параллельных в HTTP/1.1. HTTP/3 (QUIC) дополнительно
+                      уменьшает latency за счёт 0-RTT handshake. Включается в настройках сервера (Nginx, Cloudflare).
+                    </li>
+                    <li>
+                      <strong>Server-side caching:</strong> Redis или Memcached для кэширования результатов
+                      DB запросов, API ответов, рендеринга страниц. Сокращает время генерации страницы
+                      с 500ms до 5-10ms. Настройте TTL стратегии и cache invalidation при обновлениях.
+                    </li>
+                    <li>
+                      <strong>Database query optimization:</strong> Добавьте индексы на часто запрашиваемые поля.
+                      Используйте EXPLAIN для анализа медленных запросов. Избегайте N+1 проблемы через
+                      eager loading или DataLoader паттерн. Денормализуйте данные где нужна скорость чтения.
+                    </li>
+                    <li>
+                      <strong>Edge computing:</strong> Cloudflare Workers, Vercel Edge Functions, Deno Deploy
+                      выполняют код максимально близко к пользователю. Идеально для API routes, A/B тестов,
+                      персонализации, геолокационного контента. Латентность 10-50ms вместо 200-500ms к origin серверу.
+                    </li>
+                    <li>
+                      <strong>Gzip/Brotli компрессия:</strong> Brotli на 15-20% эффективнее Gzip.
+                      Для текстовых ресурсов (HTML, CSS, JS, JSON) сжатие даёт уменьшение в 3-5 раз.
+                      Используйте уровень компрессии 4-6 (баланс между размером и CPU).
+                      Настраивается в Nginx, Apache, CloudFront.
+                    </li>
+                  </ul>
+
+                  <h4 class="font-weight-bold mb-2">Удаление render-blocking ресурсов</h4>
+                  <ul class="pl-4 mb-3">
+                    <li>
+                      <strong>Critical CSS inline:</strong> Извлеките стили для контента above-the-fold
+                      (первый экран) и встройте в &lt;style&gt; в &lt;head&gt;. Остальные стили загружайте
+                      асинхронно через loadCSS. Инструменты: Critical, Critters (для Angular/React).
+                      Размер inline CSS должен быть &lt;14KB (один TCP пакет).
+                    </li>
+                    <li>
+                      <strong>Defer/async для скриптов:</strong> defer загружает параллельно и выполняет после
+                      парсинга HTML в порядке объявления. async загружает параллельно и выполняет сразу
+                      (порядок не гарантирован). Используйте defer для app скриптов, async для независимых
+                      (аналитика, ads). Современные бандлеры (Vite, Next.js) добавляют это автоматически.
+                    </li>
+                    <li>
+                      <strong>Отложенная загрузка CSS:</strong>
+                      &lt;link rel="preload" as="style" href="non-critical.css" onload="this.rel='stylesheet'"&gt;
+                      загружает CSS без блокировки рендера. Добавьте &lt;noscript&gt; fallback для браузеров без JS.
+                      Полезно для шрифтов, иконок, стилей ниже fold.
+                    </li>
                   </ul>
                 </v-expansion-panel-text>
               </v-expansion-panel>
 
               <v-expansion-panel>
-                <v-expansion-panel-title>
-                  <strong>INP — Interaction to Next Paint</strong>
+                <v-expansion-panel-title class="text-h6">
+                  <strong>INP — Interaction to Next Paint (< 200ms)</strong>
                 </v-expansion-panel-title>
                 <v-expansion-panel-text>
-                  <ul class="pl-4">
-                    <li>Разбивка длинных задач</li>
-                    <li>Web Workers для вычислений</li>
-                    <li>Debounce/throttle для событий</li>
-                    <li>Code splitting и lazy loading</li>
-                    <li>Passive event listeners</li>
-                    <li>requestIdleCallback для второстепенных задач</li>
+                  <h4 class="font-weight-bold mt-2 mb-2">Разбивка тяжелых задач</h4>
+                  <ul class="pl-4 mb-3">
+                    <li>
+                      <strong>Long Tasks разбивка:</strong> Задачи >50ms блокируют главный поток и вызывают lag.
+                      Разбивайте на chunks по 20-30ms через setTimeout(() => {...}, 0) или async/await с Promise.
+                      Например, обработку 1000 элементов списка делайте батчами по 50 элементов с паузами.
+                      Chrome DevTools Performance покажет Long Tasks красными полосами.
+                    </li>
+                    <li>
+                      <strong>requestIdleCallback:</strong> Выполняет код когда браузер не занят (idle time
+                      между фреймами). Идеально для аналитики, предзагрузки данных, некритичных обновлений UI.
+                      Добавьте timeout для гарантии выполнения: requestIdleCallback(task, {timeout: 2000}).
+                    </li>
+                    <li>
+                      <strong>Yield to main thread:</strong> После каждой тяжелой операции отдавайте контроль
+                      браузеру для обработки user input. Паттерн:
+                      await new Promise(resolve => setTimeout(resolve, 0)).
+                      Это позволяет браузеру обработать клики/скроллы между вашими задачами.
+                    </li>
+                    <li>
+                      <strong>Scheduler API:</strong> scheduler.yield() (новый API) или scheduler.postTask()
+                      с приоритетами (user-blocking, user-visible, background). Более гибкий чем setTimeout.
+                      scheduler.postTask(() => {...}, {priority: 'background'}) откладывает низкоприоритетные
+                      задачи. Поддержка пока экспериментальная (Chrome 94+).
+                    </li>
+                  </ul>
+
+                  <h4 class="font-weight-bold mb-2">Оптимизация JavaScript</h4>
+                  <ul class="pl-4 mb-3">
+                    <li>
+                      <strong>Code splitting:</strong> Разбивайте бандл на chunks по роутам или функциональности.
+                      React.lazy(), Vue defineAsyncComponent(), динамические import().
+                      Вместо бандла 2MB загружайте 200KB для текущего роута + 100KB vendor bundle.
+                      Webpack/Vite делают это автоматически при правильной настройке.
+                    </li>
+                    <li>
+                      <strong>Tree shaking:</strong> Удаляет неиспользуемый код при сборке. Работает с ES modules.
+                      import { debounce } from 'lodash-es' включит только debounce, а не всю библиотеку.
+                      Используйте sideEffects: false в package.json. Vite/Rollup делают агрессивный tree shaking.
+                      Проверяйте через Bundle Analyzer что unused код действительно удалён.
+                    </li>
+                    <li>
+                      <strong>Lazy loading компонентов:</strong> Загружайте компоненты только когда они нужны.
+                      Модалки, табы, аккордеоны, тяжелые виджеты (графики, карты) — всё через lazy import.
+                      React: const Modal = lazy(() => import('./Modal')).
+                      Экономия: initial bundle 500KB вместо 1.2MB.
+                    </li>
+                    <li>
+                      <strong>Web Workers:</strong> Переносите тяжелые вычисления (обработка больших данных,
+                      сложная математика, парсинг) в отдельный поток. Worker не блокирует главный поток.
+                      Используйте Comlink для упрощения взаимодействия. Примеры: обработка изображений,
+                      data processing, криптография. Ограничения: нет доступа к DOM.
+                    </li>
+                    <li>
+                      <strong>Минификация и компрессия:</strong> Terser для JS, cssnano для CSS удаляют пробелы,
+                      комментарии, сокращают имена переменных. Экономия 20-30%. Далее Gzip/Brotli даёт ещё 3-5x.
+                      Итого: 1MB исходника → 700KB после минификации → 150KB после Brotli.
+                      Production builds делают это автоматически.
+                    </li>
+                  </ul>
+
+                  <h4 class="font-weight-bold mb-2">Event Handlers</h4>
+                  <ul class="pl-4 mb-3">
+                    <li>
+                      <strong>Debouncing:</strong> Откладывает выполнение функции пока events перестают приходить.
+                      Для input, search, resize, scroll. Lodash _.debounce(fn, 300) выполнит функцию через 300ms
+                      после последнего события. Без debounce onChange может вызываться 50+ раз в секунду,
+                      с debounce — 3-4 раза. Критично для API запросов при поиске.
+                    </li>
+                    <li>
+                      <strong>Throttling:</strong> Ограничивает выполнение функции до N раз в период.
+                      Для scroll, mousemove, resize когда нужны периодические обновления.
+                      _.throttle(fn, 100) выполнит максимум раз в 100ms независимо от количества событий.
+                      Используйте для tracking позиции scroll, infinite scroll, drag&drop.
+                    </li>
+                    <li>
+                      <strong>Passive event listeners:</strong> {passive: true} сообщает браузеру что вы не будете
+                      вызывать preventDefault(). Браузер может начать scroll сразу, не дожидаясь выполнения обработчика.
+                      Критично для touchstart, touchmove, wheel, scroll событий. Добавляет ~10-20% плавности скролла.
+                      addEventListener('touchstart', handler, {passive: true}).
+                    </li>
+                    <li>
+                      <strong>Делегирование событий:</strong> Вместо 1000 обработчиков на каждый элемент списка,
+                      один обработчик на родителе с проверкой event.target. Экономит память и улучшает производительность
+                      при добавлении/удалении элементов. Особенно важно для динамических списков, таблиц, tree views.
+                      React делает это автоматически на уровне root.
+                    </li>
+                  </ul>
+
+                  <h4 class="font-weight-bold mb-2">Оптимизация рендеринга</h4>
+                  <ul class="pl-4 mb-3">
+                    <li>
+                      <strong>React.memo / useMemo / useCallback:</strong> React.memo предотвращает re-render
+                      компонента если props не изменились. useMemo кэширует результат вычислений.
+                      useCallback кэширует функции для предотвращения re-render дочерних компонентов.
+                      Не используйте везде — только для тяжелых компонентов и вычислений.
+                      Профилируйте через React DevTools Profiler.
+                    </li>
+                    <li>
+                      <strong>Virtual scrolling:</strong> Для списков 1000+ элементов рендерите только видимые
+                      ~20-30 элементов + buffer. React: react-window, react-virtuoso. Vue: vue-virtual-scroller.
+                      Вместо 10000 DOM элементов → 50 элементов. Scroll остаётся плавным. Критично для таблиц,
+                      feeds, логов. Экономия памяти: 500MB → 10MB.
+                    </li>
+                    <li>
+                      <strong>requestAnimationFrame:</strong> Синхронизирует обновления с refresh rate монитора
+                      (обычно 60fps = каждые 16.67ms). Используйте для анимаций, визуальных обновлений,
+                      smooth scroll. requestAnimationFrame(() => element.style.transform = ...).
+                      Браузер оптимизирует и группирует изменения. Не используйте для логики — только для визуала.
+                    </li>
+                    <li>
+                      <strong>Избегать forced reflow:</strong> Чтение layout свойств (offsetHeight, scrollTop)
+                      после изменения DOM вызывает synchronous reflow (layout thrashing).
+                      Паттерн: сначала все чтения, потом все записи. Batch обновления через DocumentFragment.
+                      Используйте CSS transforms вместо left/top для анимаций — они не вызывают reflow.
+                      FastDOM библиотека помогает группировать read/write операции.
+                    </li>
                   </ul>
                 </v-expansion-panel-text>
               </v-expansion-panel>
 
               <v-expansion-panel>
-                <v-expansion-panel-title>
-                  <strong>CLS — Cumulative Layout Shift</strong>
+                <v-expansion-panel-title class="text-h6">
+                  <strong>CLS — Cumulative Layout Shift (< 0.1)</strong>
                 </v-expansion-panel-title>
                 <v-expansion-panel-text>
-                  <ul class="pl-4">
-                    <li>Явные размеры изображений (width/height)</li>
-                    <li>Резервирование места для динамического контента</li>
-                    <li>font-display: optional для шрифтов</li>
-                    <li>Transform вместо top/left для анимаций</li>
-                    <li>Избегайте вставки контента сверху</li>
-                    <li>Минимальная высота для рекламных слотов</li>
+                  <h4 class="font-weight-bold mt-2 mb-2">Резервирование места</h4>
+                  <ul class="pl-4 mb-3">
+                    <li>
+                      <strong>Явные width/height:</strong> Всегда указывайте размеры изображений в HTML атрибутах
+                      или CSS. &lt;img width="800" height="600"&gt; позволяет браузеру зарезервировать место
+                      до загрузки изображения. Без этого изображение "прыгает" при загрузке, сдвигая контент вниз.
+                      Это основная причина высокого CLS на 90% сайтов.
+                    </li>
+                    <li>
+                      <strong>aspect-ratio в CSS:</strong> Для responsive изображений используйте
+                      aspect-ratio: 16 / 9; чтобы сохранить пропорции при любой ширине. Браузер автоматически
+                      вычислит height. Работает с width: 100%. Альтернатива padding-bottom: 56.25% hack'у.
+                      Поддержка: все современные браузеры (2021+).
+                    </li>
+                    <li>
+                      <strong>min-height для динамического контента:</strong> Реклама, виджеты, embeds часто
+                      загружаются async. Установите min-height: 250px для блока рекламы до её загрузки.
+                      Когда реклама загрузится, она заполнит зарезервированное место без layout shift.
+                      То же для YouTube embeds, Twitter карточек, комментариев.
+                    </li>
+                    <li>
+                      <strong>Skeleton loaders:</strong> Показывайте placeholder'ы с серыми блоками вместо
+                      пустого пространства. Визуально приятнее и резервирует место под контент.
+                      Используйте реальные размеры будущего контента. React: react-content-loader.
+                      CSS: background с linear-gradient + animation для shimmer эффекта.
+                    </li>
+                    <li>
+                      <strong>Placeholder для iframe:</strong> iframe (YouTube, Google Maps) без размеров
+                      вызывают большой layout shift. Всегда устанавливайте width/height или aspect-ratio.
+                      Используйте facade pattern: показывайте preview изображение и загружайте iframe только
+                      по клику. Экономия: 500KB iframe → 50KB превью + улучшение CLS.
+                    </li>
+                  </ul>
+
+                  <h4 class="font-weight-bold mb-2">Web Fonts</h4>
+                  <ul class="pl-4 mb-3">
+                    <li>
+                      <strong>font-display: optional:</strong> Если шрифт не загрузился за 100ms, браузер использует
+                      системный шрифт и не меняет его. Предотвращает FOUT (Flash of Unstyled Text) и layout shift.
+                      Альтернатива: font-display: swap показывает системный шрифт сразу, но меняет его после загрузки
+                      (может вызвать CLS). Для критичных шрифтов используйте optional, для брендинга — swap с size-adjust.
+                    </li>
+                    <li>
+                      <strong>Preload критических шрифтов:</strong>
+                      &lt;link rel="preload" href="font.woff2" as="font" type="font/woff2" crossorigin&gt;
+                      в &lt;head&gt; начинает загрузку до CSS. Сокращает время до отображения текста на 300-500ms.
+                      Preload только 1-2 самых важных шрифта (обычно regular и bold), остальные загрузятся по мере надобности.
+                    </li>
+                    <li>
+                      <strong>Fallback с похожими метриками:</strong> Используйте @font-face size-adjust,
+                      ascent-override, descent-override чтобы системный fallback шрифт занимал такое же пространство
+                      как веб-шрифт. Предотвращает layout shift при смене шрифтов.
+                      Инструмент: Fallback Font Generator. Пример: Arial настроенный под Roboto.
+                    </li>
+                    <li>
+                      <strong>WOFF2 формат:</strong> На 30% меньше чем WOFF, на 50% меньше чем TTF.
+                      Поддержка: все современные браузеры (2016+). Используйте только WOFF2, старые форматы не нужны.
+                      Google Fonts возвращает WOFF2 по умолчанию. Self-hosting: конвертируйте через FontSquirrel
+                      или cloudconvert.
+                    </li>
+                  </ul>
+
+                  <h4 class="font-weight-bold mb-2">Анимации</h4>
+                  <ul class="pl-4 mb-3">
+                    <li>
+                      <strong>transform/opacity:</strong> Эти свойства обрабатываются на GPU compositor layer,
+                      не вызывают layout или paint. Используйте transform: translateX() вместо left,
+                      transform: scale() вместо width/height. 60fps анимации гарантированы.
+                      Любое изменение left/top/width/height вызывает reflow всей страницы — это медленно и вызывает jank.
+                    </li>
+                    <li>
+                      <strong>will-change:</strong> Подсказывает браузеру что элемент будет анимироваться,
+                      создаётся отдельный layer. will-change: transform создаст layer до начала анимации.
+                      НЕ злоупотребляйте — каждый layer занимает память. Применяйте только к элементам которые
+                      реально анимируются. Удаляйте after animation: element.style.willChange = 'auto'.
+                    </li>
+                    <li>
+                      <strong>CSS animations:</strong> Предпочтительнее JavaScript для простых анимаций.
+                      @keyframes обрабатываются на отдельном потоке, не блокируются Long Tasks.
+                      Для сложных — Web Animations API или GSAP. Избегайте setInterval для анимаций —
+                      используйте requestAnimationFrame или CSS.
+                    </li>
+                  </ul>
+
+                  <h4 class="font-weight-bold mb-2">Чего избегать</h4>
+                  <ul class="pl-4 mb-3">
+                    <li>
+                      <strong>Контент над существующим:</strong> Cookie banners, announcement bars, notification toasts
+                      появляющиеся после загрузки сдвигают весь контент вниз. Решения: резервируйте место сразу,
+                      используйте position: fixed/sticky, показывайте overlay вместо inline insertion,
+                      загружайте до first paint через SSR.
+                    </li>
+                    <li>
+                      <strong>Изображения без размеров:</strong> Главная причина CLS. Браузер не знает сколько места
+                      зарезервировать, контент "прыгает" когда изображение загрузится. Всегда указывайте width/height
+                      или aspect-ratio. Используйте автоматические инструменты (Next.js Image) которые добавляют размеры.
+                    </li>
+                    <li>
+                      <strong>Динамический контент без резервирования:</strong> Загрузка комментариев, related posts,
+                      рекомендаций после рендера страницы. Решение: показывайте skeleton с правильным размером,
+                      загружайте контент на сервере (SSR), используйте min-height для контейнеров.
+                    </li>
+                    <li>
+                      <strong>Поздняя загрузка шрифтов:</strong> Если шрифт грузится 2 секунды, текст сначала
+                      отображается системным шрифтом (Arial), потом меняется на веб-шрифт (Roboto) с другими размерами —
+                      layout shift. Решения: preload шрифтов, font-display: optional, fallback с size-adjust,
+                      inline base64 для критичных шрифтов (только малые размеры).
+                    </li>
                   </ul>
                 </v-expansion-panel-text>
               </v-expansion-panel>
 
               <v-expansion-panel>
-                <v-expansion-panel-title>
-                  <strong>FCP — First Contentful Paint</strong>
+                <v-expansion-panel-title class="text-h6">
+                  <strong>FCP — First Contentful Paint (< 1.8s)</strong>
                 </v-expansion-panel-title>
                 <v-expansion-panel-text>
-                  <ul class="pl-4">
-                    <li>Critical CSS inline</li>
-                    <li>Defer/async для скриптов</li>
-                    <li>Preconnect для важных доменов</li>
-                    <li>Минификация HTML/CSS/JS</li>
-                    <li>HTTP/2 или HTTP/3</li>
+                  <h4 class="font-weight-bold mt-2 mb-2">Critical CSS</h4>
+                  <ul class="pl-4 mb-3">
+                    <li>
+                      <strong>Inline критических стилей:</strong> Извлеките CSS для контента above-the-fold
+                      (header, hero section, первый экран) и встройте в &lt;style&gt; тег в &lt;head&gt;.
+                      Браузер отрендерит первый экран сразу, не дожидаясь загрузки всего CSS файла.
+                      Размер inline CSS: 10-14KB (один TCP segment). Инструменты: Critical, Penthouse, Critters.
+                    </li>
+                    <li>
+                      <strong>Отложенная загрузка остального CSS:</strong> После inline critical CSS, загружайте
+                      полный CSS асинхронно через &lt;link rel="preload" as="style"&gt; с onload fallback.
+                      Или через loadCSS library. Контент below-the-fold получит стили чуть позже, но FCP улучшится
+                      на 0.5-1 секунду.
+                    </li>
+                    <li>
+                      <strong>Удаление неиспользуемых стилей:</strong> PurgeCSS, UnCSS анализируют HTML и удаляют
+                      CSS селекторы которые нигде не используются. Особенно эффективно для Bootstrap, Tailwind,
+                      Material UI где используется 10-20% стилей. Результат: 500KB CSS → 50KB. Интеграция в Webpack,
+                      Vite, PostCSS. ВАЖНО: whitelist динамических классов.
+                    </li>
+                    <li>
+                      <strong>Минификация CSS:</strong> cssnano удаляет пробелы, комментарии, объединяет правила,
+                      сокращает цвета (#ffffff → #fff), оптимизирует calc(). Экономия 15-25%.
+                      + Gzip/Brotli даёт ещё 3-4x. Все modern bundlers делают это автоматически в production.
+                    </li>
+                  </ul>
+
+                  <h4 class="font-weight-bold mb-2">JavaScript</h4>
+                  <ul class="pl-4 mb-3">
+                    <li>
+                      <strong>defer для скриптов:</strong> &lt;script defer src="app.js"&gt; загружает скрипт
+                      параллельно с HTML парсингом, но выполняет только после полного парсинга DOM.
+                      Гарантирует порядок выполнения скриптов. Не блокирует FCP, так как парсер HTML
+                      продолжает работу. Идеально для app bundle и библиотек с зависимостями.
+                      Все современные фреймворки (React, Vue, Angular) работают с defer.
+                    </li>
+                    <li>
+                      <strong>async для независимых скриптов:</strong> &lt;script async&gt; загружает
+                      параллельно и выполняет сразу после загрузки, не дожидаясь парсинга. Порядок выполнения
+                      не гарантирован. Используйте для независимых скриптов: Google Analytics, рекламные сети,
+                      A/B тестирование, chat виджеты. НЕ используйте для критичных скриптов с зависимостями.
+                    </li>
+                    <li>
+                      <strong>Минимизация render-blocking:</strong> Перенесите все некритичные скрипты
+                      в конец &lt;body&gt; или используйте defer/async. Только critical inline JS должен быть
+                      в &lt;head&gt;. Каждый blocking скрипт добавляет 50-200ms к FCP. Используйте
+                      Coverage tool в Chrome DevTools чтобы найти неиспользуемый JS на первом экране.
+                    </li>
+                    <li>
+                      <strong>Удаление неиспользуемого JavaScript:</strong> UnusedCSS, PurgeJS анализируют код
+                      и удаляют dead code. Особенно эффективно после рефакторинга когда остались legacy модули.
+                      Webpack/Vite производят tree shaking автоматически при правильной настройке sideEffects.
+                      Проверяйте bundle через Bundle Analyzer — часто находятся неожиданные зависимости.
+                    </li>
+                  </ul>
+
+                  <h4 class="font-weight-bold mb-2">Оптимизация бандлов</h4>
+                  <ul class="pl-4 mb-3">
+                    <li>
+                      <strong>Code splitting по роутам:</strong> Загружайте код для каждого роута отдельно.
+                      React Router + lazy(), Vue Router + component: () => import(). Пользователь на /home
+                      не должен загружать код для /admin. Initial bundle уменьшается с 500KB до 100KB.
+                      Каждый роут подгружается on-demand за 50-100ms. Настраивается автоматически в Next.js, Nuxt.
+                    </li>
+                    <li>
+                      <strong>Vendor bundles отдельно:</strong> React, Vue, lodash редко меняются — выносите
+                      в отдельный vendor.js с долгим кэшем (1 год). При обновлении app кода пользователь
+                      не перекачивает vendor bundle. Webpack: optimization.splitChunks, Vite делает это автоматически.
+                      Экономия трафика: при каждом deploy пользователь качает 50KB app вместо 500KB полного бандла.
+                    </li>
+                    <li>
+                      <strong>Dynamic imports для тяжелых библиотек:</strong> Подгружайте тяжелые библиотеки
+                      (chart.js 200KB, moment.js 300KB, PDF readers) только когда они нужны.
+                      const Chart = await import('chart.js') при клике на график. Не нагружайте initial bundle
+                      кодом который может никогда не понадобиться. Альтернатива: ищите легкие замены
+                      (date-fns вместо moment, recharts вместо chart.js).
+                    </li>
+                    <li>
+                      <strong>Module/nomodule pattern:</strong> Современные браузеры (95%+ пользователей)
+                      поддерживают ES modules и не нуждаются в полифиллах. &lt;script type="module"&gt; для
+                      современного кода без Babel трансформаций, &lt;script nomodule&gt; для legacy с полифиллами.
+                      Modern bundle на 20-30% легче. Vite, Next.js поддерживают это из коробки.
+                      Старые браузеры игнорируют type="module", новые игнорируют nomodule.
+                    </li>
                   </ul>
                 </v-expansion-panel-text>
               </v-expansion-panel>
 
               <v-expansion-panel>
-                <v-expansion-panel-title>
-                  <strong>TTFB — Time to First Byte</strong>
+                <v-expansion-panel-title class="text-h6">
+                  <strong>TTFB — Time to First Byte (< 800ms)</strong>
                 </v-expansion-panel-title>
                 <v-expansion-panel-text>
-                  <ul class="pl-4">
-                    <li>CDN близко к пользователям</li>
-                    <li>Server-side caching (Redis, Memcached)</li>
-                    <li>Database optimization</li>
-                    <li>Edge computing</li>
-                    <li>HTTP/2 Server Push (осторожно)</li>
+                  <h4 class="font-weight-bold mt-2 mb-2">Оптимизация инфраструктуры</h4>
+                  <ul class="pl-4 mb-3">
+                    <li>
+                      <strong>CDN близко к пользователям:</strong> Cloudflare, AWS CloudFront, Fastly кэшируют
+                      контент в 200+ локациях по миру. Latency из Москвы до московского edge: 10-20ms, до origin
+                      сервера в США: 150-250ms. Разница 10x в скорости. Настройте Cache-Control headers правильно:
+                      immutable ресурсы (с hash) кэшируйте на год, HTML на 5 минут с stale-while-revalidate.
+                      Проверяйте X-Cache header что контент отдаётся из edge, а не origin.
+                    </li>
+                    <li>
+                      <strong>Edge computing для динамики:</strong> Cloudflare Workers, Vercel Edge Functions,
+                      Deno Deploy выполняют код на edge серверах. Вместо запроса в США (200ms) + DB query (100ms) +
+                      рендер (50ms) = 350ms получаете edge execution (20ms) + cached DB (10ms) = 30ms.
+                      Используйте для: API endpoints, A/B тесты, персонализация, геолокация, JWT верификация.
+                      Ограничения: холодный старт, лимиты CPU time, нет доступа к файловой системе.
+                    </li>
+                    <li>
+                      <strong>HTTP/2 или HTTP/3:</strong> HTTP/2 multiplexing загружает 100+ ресурсов параллельно
+                      по одному TCP соединению. HTTP/1.1 ограничен 6 параллельными соединениями. HTTP/3 (QUIC)
+                      работает поверх UDP вместо TCP — устойчив к потере пакетов, 0-RTT connection для repeat visitors.
+                      Настройка: Nginx add_header Alt-Svc 'h3=":443"', Cloudflare включает автоматически.
+                      Проверка: Chrome DevTools Network → Protocol column.
+                    </li>
+                    <li>
+                      <strong>Качественный хостинг:</strong> Shared hosting (5-10$ месяц) даёт TTFB 500-1500ms.
+                      VPS/Dedicated (20-100$ месяц) даёт 100-300ms. Cloud providers (AWS, GCP, DO) с правильной
+                      настройкой дают 50-150ms. Измеряйте TTFB из разных регионов через WebPageTest.
+                      Факторы: CPU/RAM, network bandwidth, расстояние до users, DB latency.
+                    </li>
+                    <li>
+                      <strong>Географически распределённые серверы:</strong> Если 30% пользователей из Европы,
+                      30% из Азии, 40% из США — разместите серверы в каждом регионе. AWS Regions, GCP Zones,
+                      DigitalOcean Datacenters. Route 53, Cloudflare Load Balancing автоматически направляют
+                      пользователей к ближайшему серверу. Альтернатива: один origin + aggressive CDN caching.
+                      Сложность: синхронизация данных между регионами.
+                    </li>
+                  </ul>
+
+                  <h4 class="font-weight-bold mb-2">Стратегии кэширования</h4>
+                  <ul class="pl-4 mb-3">
+                    <li>
+                      <strong>Server-side кэш (Redis/Memcached):</strong> Кэшируйте результаты тяжелых DB запросов,
+                      API ответов, рендеринга страниц. DB query 200ms → Redis lookup 2ms. Пример: список продуктов
+                      с фильтрами — генерируйте раз в минуту, остальные запросы из кэша. TTL стратегии:
+                      статичные данные 1 час, пользовательский контент 5 минут, real-time данные без кэша.
+                      Cache invalidation при обновлениях. Redis Cluster для high availability.
+                    </li>
+                    <li>
+                      <strong>Static Site Generation (SSG):</strong> Рендерите страницы в HTML на build time.
+                      Next.js getStaticProps, Nuxt generate, Gatsby. TTFB = время отдачи файла из CDN = 10-50ms.
+                      Идеально для блогов, документации, маркетинговых страниц. Ограничение: нужен rebuild при
+                      изменении контента. Решение: Incremental Static Regeneration (ISR) — обновление страниц
+                      по расписанию без полного rebuild.
+                    </li>
+                    <li>
+                      <strong>HTTP cache headers:</strong> Cache-Control: max-age=31536000, immutable для JS/CSS
+                      с hash в имени файла. Браузер не делает запрос вообще. Cache-Control: max-age=300,
+                      must-revalidate для HTML. ETag для проверки изменений — сервер вернёт 304 Not Modified
+                      если контент не изменился. stale-while-revalidate=86400 отдаёт старый кэш моментально
+                      и обновляет в фоне. CDN настройки важнее браузерных для публичного контента.
+                    </li>
+                    <li>
+                      <strong>Service Worker кэширование:</strong> Программируемый proxy между браузером и сетью.
+                      Cache-First стратегия: пытаемся отдать из кэша, при промахе — network. Network-First:
+                      пытаемся из сети, при офлайне — из кэша. Stale-While-Revalidate: отдаём кэш моментально
+                      и обновляем в фоне. Workbox library упрощает работу. Критично для PWA, offline functionality,
+                      instant navigation. Размер кэша: 50-100MB безопасно.
+                    </li>
+                    <li>
+                      <strong>Stale-while-revalidate паттерн:</strong> Комбинация быстрого ответа и актуальности.
+                      Сервер отдаёт кэшированный контент моментально (stale) и одновременно обновляет кэш в фоне.
+                      Следующий запрос получит свежие данные. Cache-Control: max-age=3600, stale-while-revalidate=86400.
+                      Пользователь видит контент за 10ms вместо 200ms, но данные не старше часа.
+                      Идеально для API, feed'ов, списков продуктов.
+                    </li>
+                  </ul>
+
+                  <h4 class="font-weight-bold mb-2">Оптимизация бэкенда</h4>
+                  <ul class="pl-4 mb-3">
+                    <li>
+                      <strong>Database индексы:</strong> Создавайте индексы на поля используемые в WHERE, JOIN,
+                      ORDER BY. Query без индекса: full table scan 500ms для 100K записей. С индексом:
+                      B-tree lookup 5ms. Но избыток индексов замедляет INSERT/UPDATE. CREATE INDEX idx_user_email
+                      ON users(email). Composite индексы для частых комбинаций: (user_id, created_at).
+                      Мониторьте slow query log. EXPLAIN ANALYZE покажет используются ли индексы.
+                    </li>
+                    <li>
+                      <strong>Query optimization и N+1 проблема:</strong> N+1: загружаете 100 постов за 1 запрос,
+                      потом для каждого поста автора — ещё 100 запросов = 101 query. Решение: JOIN или eager loading.
+                      GraphQL DataLoader батчит запросы. Sequelize: include, Django: select_related, Rails: includes.
+                      Избегайте SELECT * — выбирайте только нужные поля. Pagination для больших списков.
+                      Агрегация на DB уровне вместо в коде.
+                    </li>
+                    <li>
+                      <strong>Connection pooling:</strong> Создание нового DB connection: 50-200ms (TCP handshake,
+                      auth, session init). Connection pool держит 10-50 открытых соединений, переиспользует их.
+                      Latency запроса: 2-5ms вместо 50-200ms. PgBouncer для PostgreSQL, ProxySQL для MySQL.
+                      Настройки: min 10 connections, max 50, idle timeout 5 минут. Мониторьте pool exhaustion —
+                      симптом slow queries или нехватки connections.
+                    </li>
+                    <li>
+                      <strong>Асинхронная обработка:</strong> Тяжёлые операции (отправка email, обработка изображений,
+                      генерация отчётов, external API calls) делайте в background jobs. Пользователь получает
+                      instant ответ (50ms), job обрабатывается отдельно. Redis Queue, Bull, Celery, Sidekiq.
+                      Pattern: API создаёт task, возвращает task_id, клиент poll'ит статус или WebSocket notification.
+                      Retry механизм для failed jobs. Dead letter queue для debugging.
+                    </li>
+                    <li>
+                      <strong>Профилирование медленных эндпоинтов:</strong> APM tools (New Relic, Datadog, Sentry)
+                      показывают где тратится время: DB queries 60%, external API 25%, CPU 10%, rendering 5%.
+                      Flask-Profiler, Django Debug Toolbar, Express middleware для детального breakdown.
+                      Оптимизируйте узкие места: кэшируйте, добавляйте индексы, переносите в background,
+                      используйте faster algorithms. Мониторьте p95/p99 latency, не только average.
+                    </li>
                   </ul>
                 </v-expansion-panel-text>
               </v-expansion-panel>
 
               <v-expansion-panel>
-                <v-expansion-panel-title>
-                  <strong>TBT — Total Blocking Time</strong>
+                <v-expansion-panel-title class="text-h6">
+                  <strong>TBT — Total Blocking Time (< 200ms)</strong>
                 </v-expansion-panel-title>
                 <v-expansion-panel-text>
-                  <ul class="pl-4">
-                    <li>Code splitting</li>
-                    <li>Tree shaking</li>
-                    <li>Удаление неиспользуемого кода</li>
-                    <li>Lazy loading компонентов</li>
-                    <li>Import только необходимого</li>
+                  <h4 class="font-weight-bold mt-2 mb-2">Оптимизация JavaScript бандлов</h4>
+                  <ul class="pl-4 mb-3">
+                    <li>
+                      <strong>Code splitting по функциональности:</strong> Разбивайте не только по роутам,
+                      но и по фичам. Admin panel, dashboard widgets, map components — всё в отдельных chunks.
+                      React.lazy() с Suspense, Vue defineAsyncComponent(). Webpack magic comments:
+                      import(/* webpackChunkName: "admin" */ './Admin') для именованных chunks.
+                      Приоритет загрузки: critical first, nice-to-have lazy. Preload для предсказуемых chunks.
+                    </li>
+                    <li>
+                      <strong>Tree shaking максимизация:</strong> Работает только с ES modules.
+                      CommonJS (require/module.exports) не позволяет tree shaking. Используйте
+                      lodash-es вместо lodash, date-fns вместо moment. package.json: "sideEffects": false
+                      разрешает агрессивное удаление. "sideEffects": ["*.css"] сохраняет только CSS импорты.
+                      Избегайте import * as — импортирует весь модуль. Проверяйте через Bundle Analyzer
+                      что unused exports действительно удалены.
+                    </li>
+                    <li>
+                      <strong>Lazy loading компонентов стратегически:</strong> Модалки, табы, dropdown меню,
+                      tooltips, charts, maps — всё это должно быть lazy. НО не lazy loading above-the-fold контента —
+                      это ухудшит LCP. React: const Modal = lazy(() => import('./Modal')), Vue:
+                      defineAsyncComponent(() => import('./Modal.vue')). Intersection Observer для lazy load
+                      при scroll в viewport. Приоритет: загружайте visible content сразу, below-fold ленивозагружайте.
+                    </li>
+                    <li>
+                      <strong>Import только необходимого:</strong> import {debounce} from 'lodash' импортирует
+                      всю библиотеку (70KB). import debounce from 'lodash/debounce' — только функцию (2KB).
+                      Babel плагины: babel-plugin-lodash, babel-plugin-import для автоматической оптимизации.
+                      Webpack resolve.alias для замены тяжелых библиотек легкими (moment → dayjs экономит 250KB).
+                      Проверяйте import statements в code review.
+                    </li>
+                    <li>
+                      <strong>Удаление polyfills для современных браузеров:</strong> core-js, regenerator-runtime
+                      добавляют 50-100KB для старых браузеров. Используйте browserslist: "> 0.5%, last 2 versions,
+                      not dead" чтобы не поддерживать IE11. Babel preset-env с targets автоматически добавляет
+                      только нужные polyfills. Differential serving: modern bundle без polyfills для 95% пользователей,
+                      legacy с polyfills для старых браузеров. Экономия: 200KB modern bundle vs 350KB legacy.
+                    </li>
+                  </ul>
+
+                  <h4 class="font-weight-bold mb-2">Мониторинг и контроль бандлов</h4>
+                  <ul class="pl-4 mb-3">
+                    <li>
+                      <strong>Bundle analyzers для визуализации:</strong> Webpack Bundle Analyzer показывает treemap
+                      всех модулей в бандле с размерами. Находите неожиданные зависимости (случайно импортировали
+                      всю библиотеку), дубликаты (одна либа в разных версиях), тяжелые модули (moment.js 300KB).
+                      Vite: rollup-plugin-visualizer. npm run build -- --analyze. Регулярно проверяйте после
+                      добавления новых зависимостей. Цель: каждый chunk < 200KB gzipped.
+                    </li>
+                    <li>
+                      <strong>Lighthouse CI в CI/CD pipeline:</strong> Автоматический запуск Lighthouse на каждый PR.
+                      Блокируйте merge если метрики регрессировали. GitHub Actions:
+                      @treosh/lighthouse-ci-action, GitLab CI с Docker. Конфиг: минимальные пороги
+                      (LCP < 2.5s, TBT < 300ms, CLS < 0.1). Временные графики показывают тренды.
+                      Комментарий в PR с результатами и comparison с main branch.
+                    </li>
+                    <li>
+                      <strong>Performance budgets:</strong> Жёсткие лимиты на размеры: total JS < 500KB,
+                      total CSS < 100KB, images < 2MB, fonts < 200KB. webpack-bundle-size-analyzer,
+                      size-limit с pre-commit hook. Нарушение бюджета = failed build. Prevent bloat до того
+                      как он попадёт в production. Настройка в webpack.config.js performance.maxAssetSize.
+                      Мониторинг через Bundlephobia перед установкой новых пакетов.
+                    </li>
+                    <li>
+                      <strong>Coverage tool в Chrome DevTools:</strong> Показывает какой процент загруженного JS/CSS
+                      реально используется на странице. Часто 60-70% кода не выполняется на first load.
+                      Coverage → Record → Reload page → Stop. Красным выделен unused код. Находите кандидатов для
+                      code splitting и lazy loading. Особенно полезно для legacy кодбейз с накопленным техдолгом.
+                      Цель: >80% utilization rate.
+                    </li>
                   </ul>
                 </v-expansion-panel-text>
               </v-expansion-panel>
             </v-expansion-panels>
 
-            <h2 class="text-h5 font-weight-bold mb-3">Частые вопросы на собеседовании</h2>
-
-            <v-expansion-panels variant="accordion" class="mb-6">
-              <v-expansion-panel>
-                <v-expansion-panel-title>
-                  <strong>1. Что такое Core Web Vitals и почему они важны?</strong>
-                </v-expansion-panel-title>
-                <v-expansion-panel-text>
-                  Core Web Vitals — три ключевые метрики пользовательского опыта: <b>LCP</b> (скорость загрузки),
-                  <b>INP</b> (интерактивность), <b>CLS</b> (визуальная стабильность). Они важны потому что:
-                  влияют на SEO ранжирование в Google, напрямую коррелируют с конверсией (медленные сайты теряют
-                  пользователей), и являются измеримыми показателями UX.
-                </v-expansion-panel-text>
-              </v-expansion-panel>
-
-              <v-expansion-panel>
-                <v-expansion-panel-title>
-                  <strong>2. В чем разница между FID и INP?</strong>
-                </v-expansion-panel-title>
-                <v-expansion-panel-text>
-                  <b>FID</b> (First Input Delay) измерял только первое взаимодействие пользователя.
-                  <b>INP</b> (Interaction to Next Paint) измеряет все взаимодействия на странице и берет
-                  наихудший показатель (с исключением выбросов). INP лучше отражает реальную отзывчивость.
-                  С марта 2024 INP заменил FID в Core Web Vitals.
-                </v-expansion-panel-text>
-              </v-expansion-panel>
-
-              <v-expansion-panel>
-                <v-expansion-panel-title>
-                  <strong>3. Как оптимизировать LCP для страницы с большим hero-изображением?</strong>
-                </v-expansion-panel-title>
-                <v-expansion-panel-text>
+            <h2 class="text-h5 font-weight-bold mb-3">Инструменты</h2>
+            <v-row class="mb-6">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100" color="primary" variant="tonal">
+                  <h3 class="text-h6 font-weight-bold mb-3">📊 Анализ (Lab Data)</h3>
                   <ul class="pl-4">
-                    <li>Современные форматы (WebP, AVIF) с fallback</li>
-                    <li>Адаптивные изображения через srcset и sizes</li>
-                    <li>Preload изображения: <code>&lt;link rel="preload" as="image" href="hero.jpg"&gt;</code></li>
-                    <li>fetchpriority="high" на img теге</li>
-                    <li>CDN для доставки</li>
-                    <li>loading="eager" (не lazy!)</li>
-                    <li>Правильные размеры (не масштабирование в CSS)</li>
+                    <li>Lighthouse (Chrome DevTools / CLI)</li>
+                    <li>PageSpeed Insights</li>
+                    <li>WebPageTest</li>
+                    <li>Chrome DevTools Performance</li>
                   </ul>
-                </v-expansion-panel-text>
-              </v-expansion-panel>
-
-              <v-expansion-panel>
-                <v-expansion-panel-title>
-                  <strong>4. Почему CLS 0.15 считается плохим показателем?</strong>
-                </v-expansion-panel-title>
-                <v-expansion-panel-text>
-                  CLS > 0.1 попадает в категорию "Needs Improvement". Это означает заметные сдвиги контента,
-                  которые раздражают пользователей. Причины: изображения без размеров, динамический контент
-                  без резервирования места, web fonts с FOUT/FOIT, реклама без min-height. Пороги:
-                  Good < 0.1, Needs Improvement 0.1-0.25, Poor > 0.25.
-                </v-expansion-panel-text>
-              </v-expansion-panel>
-
-              <v-expansion-panel>
-                <v-expansion-panel-title>
-                  <strong>5. Как измерить Web Vitals в production?</strong>
-                </v-expansion-panel-title>
-                <v-expansion-panel-text>
-                  Используйте библиотеку <code>web-vitals</code> от Google + отправка в аналитику
-                  (Google Analytics, Sentry, кастомный бэкенд). Real User Monitoring (RUM) дает реальные
-                  данные, в отличие от синтетических тестов (Lighthouse). Важно собирать данные от реальных
-                  пользователей, так как лабораторные условия не отражают разнообразие устройств и сетей.
-                </v-expansion-panel-text>
-              </v-expansion-panel>
-
-              <v-expansion-panel>
-                <v-expansion-panel-title>
-                  <strong>6. Что такое Long Tasks и как они влияют на INP?</strong>
-                </v-expansion-panel-title>
-                <v-expansion-panel-text>
-                  Long Tasks — задачи JavaScript, которые блокируют главный поток более чем на 50ms.
-                  Они напрямую влияют на INP, так как браузер не может обработать взаимодействия пользователя
-                  во время их выполнения. Решения: разбивка на более мелкие задачи, Web Workers,
-                  <code>requestIdleCallback</code>, code splitting.
-                </v-expansion-panel-text>
-              </v-expansion-panel>
-
-              <v-expansion-panel>
-                <v-expansion-panel-title>
-                  <strong>7. Какие инструменты использовать для анализа Web Vitals?</strong>
-                </v-expansion-panel-title>
-                <v-expansion-panel-text>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100" color="success" variant="tonal">
+                  <h3 class="text-h6 font-weight-bold mb-3">👥 Real User Monitoring</h3>
                   <ul class="pl-4">
-                    <li><b>Lab data</b>: Lighthouse (DevTools/CLI), PageSpeed Insights, WebPageTest</li>
-                    <li><b>Field data (RUM)</b>: Chrome UX Report (CrUX), web-vitals library, Sentry Performance</li>
-                    <li><b>CI/CD</b>: Lighthouse CI, Performance budgets</li>
-                    <li><b>Monitoring</b>: Google Analytics 4, New Relic, Datadog</li>
+                    <li>Chrome UX Report (CrUX)</li>
+                    <li>web-vitals библиотека</li>
+                    <li>Google Analytics 4</li>
+                    <li>Sentry Performance</li>
+                    <li>New Relic, Datadog</li>
                   </ul>
-                </v-expansion-panel-text>
-              </v-expansion-panel>
-
-              <v-expansion-panel>
-                <v-expansion-panel-title>
-                  <strong>8. Что делать, если TTFB медленный?</strong>
-                </v-expansion-panel-title>
-                <v-expansion-panel-text>
-                  TTFB > 800ms указывает на проблемы сервера:
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100" color="warning" variant="tonal">
+                  <h3 class="text-h6 font-weight-bold mb-3">📦 Bundle Analysis</h3>
                   <ul class="pl-4">
-                    <li>Медленные database queries (добавить индексы, кэширование)</li>
-                    <li>Большая географическая дистанция (использовать CDN)</li>
-                    <li>Нет server-side кэширования (Redis, Memcached)</li>
-                    <li>Slow network (HTTP/2, HTTP/3)</li>
-                    <li>Не используется edge computing</li>
+                    <li>Webpack Bundle Analyzer</li>
+                    <li>Vite Bundle Visualizer</li>
+                    <li>source-map-explorer</li>
+                    <li>size-limit</li>
                   </ul>
-                </v-expansion-panel-text>
-              </v-expansion-panel>
-            </v-expansion-panels>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100" color="info" variant="tonal">
+                  <h3 class="text-h6 font-weight-bold mb-3">🔄 CI/CD Integration</h3>
+                  <ul class="pl-4">
+                    <li>Lighthouse CI</li>
+                    <li>Performance budgets</li>
+                    <li>Chromatic для визуальной регрессии</li>
+                    <li>Bundle size checks</li>
+                  </ul>
+                </v-card>
+              </v-col>
+            </v-row>
 
-            <h2 class="text-h5 font-weight-bold mb-3">Практический чеклист оптимизации</h2>
+            <h2 class="text-h5 font-weight-bold mb-3">Практический чеклист</h2>
 
             <v-row class="mb-8">
               <v-col cols="12" md="6">
@@ -1137,7 +861,7 @@ highlightedTools.value = Prism.highlight(toolsSnippet, Prism.languages.javascrip
                   <ul class="pl-4">
                     <li>Сжатие изображений (WebP/AVIF)</li>
                     <li>Defer/async для скриптов</li>
-                    <li>Width/height для img</li>
+                    <li>Width/height для изображений</li>
                     <li>CDN для статики</li>
                     <li>Минификация CSS/JS</li>
                     <li>Gzip/Brotli сжатие</li>
@@ -1149,10 +873,10 @@ highlightedTools.value = Prism.highlight(toolsSnippet, Prism.languages.javascrip
                   <h3 class="text-h6 font-weight-bold mb-3">🔧 Средней сложности</h3>
                   <ul class="pl-4">
                     <li>Code splitting</li>
-                    <li>Lazy loading компонентов</li>
+                    <li>Lazy loading</li>
                     <li>Critical CSS inline</li>
                     <li>Preload ключевых ресурсов</li>
-                    <li>Resource hints (preconnect)</li>
+                    <li>Resource hints</li>
                     <li>Service Worker caching</li>
                   </ul>
                 </v-card>
@@ -1185,14 +909,110 @@ highlightedTools.value = Prism.highlight(toolsSnippet, Prism.languages.javascrip
               </v-col>
             </v-row>
 
-            <h2 class="text-h5 font-weight-bold mb-3">Итог</h2>
-            <p class="font-weight-regular mb-6">
-              <b>Web Vitals</b> — это объективные метрики пользовательского опыта, влияющие на SEO и конверсию.
-              <b>Core Web Vitals</b> (LCP, INP, CLS) — минимальный набор, который должен быть в норме.
-              Измерение через <code>web-vitals</code> библиотеку + RUM, оптимизация через комплекс техник
-              (изображения, код, инфраструктура), мониторинг через Lighthouse CI и production analytics.
-              Ключ к успеху — систематический подход: измерение → оптимизация → валидация → мониторинг.
-            </p>
+            <h2 class="text-h5 font-weight-bold mb-3">Частые вопросы</h2>
+
+            <v-expansion-panels variant="accordion" class="mb-6">
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  <strong>Что такое Core Web Vitals и почему они важны?</strong>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  Core Web Vitals — три ключевые метрики UX: LCP (скорость загрузки), INP (интерактивность),
+                  CLS (стабильность). Важны потому что: влияют на SEO ранжирование Google, напрямую коррелируют
+                  с конверсией, являются измеримыми показателями пользовательского опыта.
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  <strong>В чем разница между FID и INP?</strong>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  FID (First Input Delay) измерял только первое взаимодействие. INP (Interaction to Next Paint)
+                  измеряет все взаимодействия и берет наихудший показатель. INP лучше отражает реальную отзывчивость.
+                  С марта 2024 INP заменил FID.
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  <strong>Как оптимизировать LCP для страницы с большим hero-изображением?</strong>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  Современные форматы (WebP, AVIF), адаптивные изображения (srcset), preload изображения,
+                  fetchpriority="high", loading="eager", CDN для доставки, правильные размеры без масштабирования в CSS.
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  <strong>Почему CLS 0.15 — плохой показатель?</strong>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  CLS > 0.1 попадает в "Needs Improvement". Означает заметные сдвиги контента, которые раздражают
+                  пользователей. Причины: изображения без размеров, динамический контент без резервирования места,
+                  проблемы с шрифтами, реклама без min-height.
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  <strong>Что такое Long Tasks и как они влияют на INP?</strong>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  Long Tasks — задачи JavaScript >50ms, блокирующие главный поток. Напрямую влияют на INP,
+                  так как браузер не может обработать взаимодействия. Решения: разбивка на мелкие задачи,
+                  Web Workers, requestIdleCallback, code splitting.
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+            </v-expansion-panels>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Связь метрик с бизнес-целями</h2>
+
+            <v-alert color="info" class="mb-6">
+              <v-icon class="mr-2">mdi-chart-line</v-icon>
+              <strong>Важно:</strong> Улучшение Web Vitals напрямую влияет на бизнес-метрики.
+              Исследования показывают, что улучшение LCP на 100ms увеличивает конверсию на 0.5-1%.
+            </v-alert>
+
+            <v-table density="comfortable" class="mb-8">
+              <thead>
+              <tr>
+                <th class="text-left font-weight-bold">Метрика</th>
+                <th class="text-left font-weight-bold">Влияние на бизнес</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td><b>LCP</b></td>
+                <td>
+                  Каждые 100ms задержки снижают конверсию на ~0.7%. Пользователи покидают медленные сайты.
+                  Особенно критично для e-commerce.
+                </td>
+              </tr>
+              <tr>
+                <td><b>INP</b></td>
+                <td>
+                  Медленный отклик разочаровывает пользователей. Падает engagement и повторные визиты.
+                  Критично для интерактивных приложений.
+                </td>
+              </tr>
+              <tr>
+                <td><b>CLS</b></td>
+                <td>
+                  Непредвиденные сдвиги раздражают пользователей, могут привести к случайным кликам по рекламе.
+                  Снижает trust и credibility.
+                </td>
+              </tr>
+              <tr>
+                <td><b>SEO</b></td>
+                <td>
+                  Core Web Vitals — официальный ranking фактор Google с 2021 года. Плохие показатели снижают
+                  позиции в поиске.
+                </td>
+              </tr>
+              </tbody>
+            </v-table>
 
             <div class="d-flex justify-end">
               <v-btn
@@ -1228,3 +1048,17 @@ highlightedTools.value = Prism.highlight(toolsSnippet, Prism.languages.javascrip
     </v-main>
   </v-app>
 </template>
+
+<style scoped>
+.custom-code {
+  background-color: #2d2d2d;
+  overflow-x: auto;
+}
+
+.custom-code code {
+  color: #ccc;
+  font-family: 'Fira Code', 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+}
+</style>

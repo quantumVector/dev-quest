@@ -207,6 +207,12 @@ import PatternsBehavioralTestPage from '@/views/tests/PatternsBehavioralTestPage
 import PatternsCreationalTestPage from '@/views/tests/PatternsCreationalTestPage.vue'
 import WebVitalsOptimization from '@/views/optimization/WebVitalsOptimization.vue'
 import SEO from '@/views/optimization/SEO.vue'
+import OpenGraphAndTwitterCards from '@/views/optimization/OpenGraphAndTwitterCards.vue'
+import SchemaOrg from '@/views/optimization/SchemaOrg.vue'
+import SitemapAndRobots from '@/views/optimization/SitemapAndRobots.vue'
+import MetaTags from '@/views/optimization/MetaTags.vue'
+import LazyLoading from '@/views/optimization/LazyLoading.vue'
+import CanonicalHreflang from '@/views/optimization/CanonicalHreflang.vue'
 
 export const routes = [
   {
@@ -1044,5 +1050,29 @@ export const routes = [
   {
     path: '/optimization/seo',
     component: SEO,
+  },
+  {
+    path: '/optimization/og-twitter-cards',
+    component: OpenGraphAndTwitterCards,
+  },
+  {
+    path: '/optimization/schema-org',
+    component: SchemaOrg,
+  },
+  {
+    path: '/optimization/sitemap-and-robots',
+    component: SitemapAndRobots,
+  },
+  {
+    path: '/optimization/meta-tags',
+    component: MetaTags,
+  },
+  {
+    path: '/optimization/lazy-loading',
+    component: LazyLoading,
+  },
+  {
+    path: '/optimization/canonical-hreflang',
+    component: CanonicalHreflang,
   }
 ]
