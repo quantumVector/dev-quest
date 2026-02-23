@@ -127,7 +127,7 @@ const collapseAll = () => {
                   <div class="d-flex align-center justify-space-between w-100">
                     <div class="flex-grow-1" style="max-width: 500px">
                       <div class="text-subtitle-1 font-weight-medium">
-                        {{ question.question }}
+                        {{question.id}}. {{ question.question }}
                       </div>
                     </div>
                     <div class="ml-4 d-flex align-center">

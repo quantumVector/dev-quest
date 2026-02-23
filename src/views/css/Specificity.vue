@@ -126,7 +126,7 @@ onMounted(() => {
         <v-row justify="center">
           <v-col lg="8">
             <h1 class="text-h4 font-weight-bold mb-6">
-              5. Специфичность селекторов в CSS
+              1. Специфичность селекторов в CSS
             </h1>
 
             <p class="font-weight-regular mb-6">
