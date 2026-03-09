@@ -38,21 +38,8 @@
           <v-list-item to="/css/flex-vs-grid">
             <v-list-item-title>4. Flex и Grid</v-list-item-title>
           </v-list-item>
-          <v-list-subheader>Трансформации</v-list-subheader>
           <v-list-item to="/css/transformations">
-            <v-list-item-title>5.1. Какие виды трансформаций можно применять в CSS и для чего они используются?</v-list-item-title>
-          </v-list-item>
-          <v-list-item to="/css/animatable-properties">
-            <v-list-item-title>5.2. Какие свойства CSS можно анимировать с помощью трансформаций?</v-list-item-title>
-          </v-list-item>
-          <v-list-item to="/css/optimized-transform-animations">
-            <v-list-item-title>5.3. Как можно оптимизировать анимации с использованием трансформаций для улучшения производительности?</v-list-item-title>
-          </v-list-item>
-          <v-list-item to="/css/hardware-acceleration">
-            <v-list-item-title>5.4. Как использование аппаратного ускорения (hardware acceleration) может влиять на анимации с помощью трансформаций?</v-list-item-title>
-          </v-list-item>
-          <v-list-item to="/css/smooth-transform-animations">
-            <v-list-item-title>5.5. Какие техники или подходы могут помочь достичь плавных и эффективных анимаций с использованием трансформаций?</v-list-item-title>
+            <v-list-item-title>5. Трансформации</v-list-item-title>
           </v-list-item>
           <v-list-subheader>CSS-In-JS</v-list-subheader>
           <v-list-item to="/css/css-in-js">

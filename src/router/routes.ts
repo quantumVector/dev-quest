@@ -13,11 +13,6 @@ import CSSIsolationTestPage from '@/views/tests/CSSIsolationTestPage.vue'
 import CSSRelativeUnitsTestPage from '@/views/tests/CSSRelativeUnitsTestPage.vue'
 import FlexboxVsGrid from '@/views/css/FlexboxVsGrid.vue'
 import CSSFlexVsGridTestPage from '@/views/tests/CSSFlexVsGridTestPage.vue'
-import Transformations from '@/views/css/Transformations.vue'
-import AnimatableProperties from '@/views/css/AnimatableProperties.vue'
-import OptimizedTransformAnimations from '@/views/css/OptimizedTransformAnimations.vue'
-import HardwareAcceleration from '@/views/css/HardwareAcceleration.vue'
-import SmoothTransformAnimations from '@/views/css/SmoothTransformAnimations.vue'
 import TransformationsTestPage from '@/views/tests/TransformationsTestPage.vue'
 import CSSInJS from '@/views/css/CSSInJS.vue'
 import CSSInJSApproaches from '@/views/css/CSSInJSApproaches.vue'
@@ -207,6 +202,7 @@ import MetaTags from '@/views/optimization/MetaTags.vue'
 import LazyLoading from '@/views/optimization/LazyLoading.vue'
 import CanonicalHreflang from '@/views/optimization/CanonicalHreflang.vue'
 import IsolationCSS from '@/views/css/IsolationCSS.vue'
+import Transformations from '@/views/css/Transformations.vue'
 
 export const routes = [
   {
@@ -288,22 +284,6 @@ export const routes = [
   {
     path: '/css/transformations',
     component: Transformations,
-  },
-  {
-    path: '/css/animatable-properties',
-    component: AnimatableProperties,
-  },
-  {
-    path: '/css/optimized-transform-animations',
-    component: OptimizedTransformAnimations,
-  },
-  {
-    path: '/css/hardware-acceleration',
-    component: HardwareAcceleration,
-  },
-  {
-    path: '/css/smooth-transform-animations',
-    component: SmoothTransformAnimations,
   },
   {
     path: '/css/transformations-test',

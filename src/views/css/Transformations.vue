@@ -5,454 +5,142 @@ import 'prismjs/themes/prism-tomorrow.css'
 import 'prismjs/components/prism-css.js'
 import 'prismjs/components/prism-javascript.js'
 
-const snippet1 = `
-/* Основные 2D трансформации */
-.translate-example {
-  transform: translate(50px, 100px);
-  /* или раздельно */
-  transform: translateX(50px) translateY(100px);
-}
-
-.rotate-example {
-  transform: rotate(45deg);
-  /* или в радианах */
-  transform: rotate(0.785rad);
-}
-
-.scale-example {
-  transform: scale(1.5); /* увеличение в 1.5 раза */
-  transform: scale(2, 0.5); /* ширина x2, высота x0.5 */
-  transform: scaleX(2) scaleY(0.5); /* раздельно */
-}
-
-.skew-example {
-  transform: skew(15deg, 10deg);
-  transform: skewX(15deg) skewY(10deg); /* раздельно */
-}
-`
-
-const snippet2 = `
-/* 3D трансформации */
-.transform-3d {
-  /* Включаем 3D контекст */
-  transform-style: preserve-3d;
-  perspective: 1000px;
-}
-
-.translate-3d {
-  transform: translate3d(50px, 100px, -20px);
-  /* или раздельно */
-  transform: translateX(50px) translateY(100px) translateZ(-20px);
-}
-
-.rotate-3d {
-  transform: rotateX(45deg); /* вращение вокруг оси X */
-  transform: rotateY(45deg); /* вращение вокруг оси Y */
-  transform: rotateZ(45deg); /* вращение вокруг оси Z */
-
-  /* или единой функцией */
-  transform: rotate3d(1, 1, 0, 45deg);
-}
-
-.scale-3d {
-  transform: scale3d(2, 1.5, 0.8);
-  transform: scaleZ(2); /* масштабирование по оси Z */
-}
-
-.perspective-example {
-  perspective: 500px; /* расстояние до точки наблюдения */
-  perspective-origin: 50% 50%; /* точка перспективы */
-}
-`
-
-const snippet3 = `
-/* Matrix трансформации - максимальный контроль */
-.matrix-2d {
-  /* matrix(scaleX, skewY, skewX, scaleY, translateX, translateY) */
-  transform: matrix(1.5, 0.2, -0.3, 1.2, 50, 100);
-
-  /* Эквивалентно комбинации: */
-  /* transform: scale(1.5, 1.2) skew(-0.3rad, 0.2rad) translate(50px, 100px); */
-}
-
-.matrix-3d {
-  /* matrix3d - 16 параметров для полного 3D контроля */
-  transform: matrix3d(
-    1, 0, 0, 0,    /* первая строка матрицы */
-    0, 1, 0, 0,    /* вторая строка */
-    0, 0, 1, 0,    /* третья строка */
-    0, 0, 0, 1     /* четвертая строка */
-  );
-}
-
-/* Пример сложной matrix для поворота и масштабирования */
-.complex-matrix {
-  transform: matrix(
-    0.866, 0.5,    /* cos(30°), sin(30°) - поворот */
-    -0.5, 0.866,   /* -sin(30°), cos(30°) */
-    100, 50        /* translateX, translateY */
-  );
-}
-`
-
-const snippet4 = `
-/* Transform origin - точка трансформации */
-.transform-origin-examples {
-  /* По умолчанию центр элемента */
-  transform-origin: center center; /* 50% 50% */
-
-  /* Угол элемента */
-  transform-origin: top left; /* 0% 0% */
-  transform-origin: bottom right; /* 100% 100% */
-
-  /* Точные значения */
-  transform-origin: 20px 30px;
-  transform-origin: 25% 75%;
-
-  /* 3D версия */
-  transform-origin: 50% 50% 100px; /* x, y, z */
-}
-
-/* Примеры использования */
-.rotate-around-corner {
-  transform-origin: top left;
-  transform: rotate(45deg);
-  /* Поворот вокруг левого верхнего угла */
-}
-
-.scale-from-bottom {
-  transform-origin: bottom center;
-  transform: scale(1.5);
-  /* Масштабирование от нижней границы */
-}
-`
-
-const snippet5 = `
-/* Практические примеры использования */
-
-/* 1. Карточка с hover эффектом */
+const snippetTransformTypes = `
+/* 2D трансформации */
 .card {
+  transform: translateY(-10px) scale(1.02) rotate(2deg);
   transition: transform 0.3s ease;
-  transform-origin: center bottom;
 }
 
-.card:hover {
-  transform: translateY(-10px) scale(1.02);
-}
-
-/* 2. Кнопка с press эффектом */
-.button {
-  transition: transform 0.1s ease;
-}
-
-.button:active {
-  transform: scale(0.95);
-}
-
-/* 3. Вращающийся loader */
-.spinner {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-/* 4. Flip карточка */
+/* 3D трансформации — нужен контекст */
 .flip-container {
   perspective: 1000px;
 }
-
 .flip-card {
   transform-style: preserve-3d;
-  transition: transform 0.6s;
+  transition: transform 0.6s ease;
 }
-
-.flip-container:hover .flip-card {
+.flip-card:hover {
   transform: rotateY(180deg);
 }
-
 .flip-card-back {
   transform: rotateY(180deg);
-}
-`
-
-const snippet6 = `
-/* Сложные анимации с множественными трансформациями */
-
-/* Волновой эффект */
-.wave-animation {
-  animation: wave 2s ease-in-out infinite;
-}
-
-@keyframes wave {
-  0%, 100% {
-    transform: translateY(0) rotate(0deg) scale(1);
-  }
-  25% {
-    transform: translateY(-20px) rotate(5deg) scale(1.1);
-  }
-  50% {
-    transform: translateY(-10px) rotate(-5deg) scale(1.05);
-  }
-  75% {
-    transform: translateY(-15px) rotate(3deg) scale(1.08);
-  }
-}
-
-/* 3D куб */
-.cube {
-  width: 100px;
-  height: 100px;
-  transform-style: preserve-3d;
-  animation: rotate-cube 4s infinite linear;
-}
-
-.cube-face {
-  position: absolute;
-  width: 100px;
-  height: 100px;
-}
-
-.cube-front { transform: translateZ(50px); }
-.cube-back { transform: rotateY(180deg) translateZ(50px); }
-.cube-right { transform: rotateY(90deg) translateZ(50px); }
-.cube-left { transform: rotateY(-90deg) translateZ(50px); }
-.cube-top { transform: rotateX(90deg) translateZ(50px); }
-.cube-bottom { transform: rotateX(-90deg) translateZ(50px); }
-
-@keyframes rotate-cube {
-  from { transform: rotateX(0) rotateY(0); }
-  to { transform: rotateX(360deg) rotateY(360deg); }
-}
-`
-
-const snippet7 = `
-/* Производительность и оптимизация */
-
-/* ХОРОШО - используем transform вместо изменения position */
-.optimized-animation {
-  /* Создает композитный слой */
-  will-change: transform;
-  transform: translateZ(0); /* включает аппаратное ускорение */
-}
-
-.slide-in {
-  transform: translateX(-100%);
-  transition: transform 0.3s ease;
-}
-
-.slide-in.active {
-  transform: translateX(0);
-}
-
-/* ПЛОХО - вызывает reflow/repaint */
-.non-optimized {
-  left: -100px;
-  transition: left 0.3s ease;
-}
-
-.non-optimized.active {
-  left: 0;
-}
-
-/* GPU ускорение */
-.gpu-accelerated {
-  transform: translate3d(0, 0, 0); /* принудительно создает слой */
-  /* или */
-  will-change: transform;
-}
-
-/* Батчинг трансформаций */
-.combined-transforms {
-  /* Лучше объединить в одну декларацию */
-  transform: translateX(50px) rotate(45deg) scale(1.2);
-
-  /* Чем несколько отдельных */
-  /* transform: translateX(50px);
-     transform: rotate(45deg);      ← перезапишет предыдущий
-     transform: scale(1.2); */
-}
-`
-
-const snippet8 = `
-/* Backface visibility и transform-style */
-
-/* Скрытие обратной стороны */
-.card-flip {
   backface-visibility: hidden;
-  transition: transform 0.6s;
+}
+`
+
+const snippetAnimatable = `
+/* ✅ Анимируемые свойства — плавный переход */
+.box {
+  transform: scale(1);
+  transform-origin: top left;
+  perspective: 1000px;
+  perspective-origin: 50% 50%;
+  transition: transform 0.3s ease, perspective 0.3s ease;
+}
+.box:hover {
+  transform: scale(1.2) rotate(10deg);
+  perspective: 600px;
 }
 
-.card-container:hover .card-flip {
-  transform: rotateY(180deg);
-}
-
-/* 3D контекст для дочерних элементов */
-.preserve-3d-container {
-  transform-style: preserve-3d;
-}
-
-.preserve-3d-container .child {
-  /* Наследует 3D контекст от родителя */
-  transform: rotateX(45deg) translateZ(20px);
-}
-
-/* Плоское отображение (по умолчанию) */
-.flat-container {
+/* ❌ Неанимируемые — мгновенный переход, transition бессмысленен */
+.non-animatable {
   transform-style: flat;
+  backface-visibility: visible;
+  transition: transform-style 0.3s; /* не сработает */
 }
-
-/* Пример: карусель с 3D эффектом */
-.carousel-3d {
-  perspective: 800px;
-  transform-style: preserve-3d;
+.non-animatable:hover {
+  transform-style: preserve-3d;    /* резкий скачок */
+  backface-visibility: hidden;     /* резкий скачок */
 }
-
-.carousel-item {
-  backface-visibility: hidden;
-  transition: transform 0.5s;
-}
-
-.carousel-item:nth-child(1) { transform: rotateY(0deg) translateZ(200px); }
-.carousel-item:nth-child(2) { transform: rotateY(60deg) translateZ(200px); }
-.carousel-item:nth-child(3) { transform: rotateY(120deg) translateZ(200px); }
-.carousel-item:nth-child(4) { transform: rotateY(180deg) translateZ(200px); }
-.carousel-item:nth-child(5) { transform: rotateY(240deg) translateZ(200px); }
-.carousel-item:nth-child(6) { transform: rotateY(300deg) translateZ(200px); }
 `
 
-const snippet9 = `
-/* Интерактивные трансформации с JavaScript */
-// Следование за курсором
-const followMouse = (element) => {
-  document.addEventListener('mousemove', (e) => {
-    const rect = element.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
+const snippetGPU = `
+/* ❌ Медленно — вызывает Layout + Paint + Composite на CPU */
+.slow {
+  transition: left 0.3s ease, width 0.3s ease, background 0.3s ease;
+}
 
-    const deltaX = (e.clientX - centerX) * 0.1;
-    const deltaY = (e.clientY - centerY) * 0.1;
+/* ✅ Быстро — только Composite на GPU */
+.fast {
+  will-change: transform;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.fast:hover {
+  transform: translate3d(100px, 0, 0) scale(1.1);
+  opacity: 0.9;
+}
 
-    element.style.transform = \`translate(\${deltaX}px, \${deltaY}px)\`;
-  });
-};
+/* Управление will-change через JS — включаем только перед анимацией */
+/* element.style.willChange = 'transform';          */
+/* element.addEventListener('transitionend', () => {*/
+/*   element.style.willChange = 'auto';             */
+/* });                                              */
+`
 
-// Параллакс эффект
-const parallaxScroll = () => {
-  const scrolled = window.scrollY;
-  const elements = document.querySelectorAll('.parallax');
+const snippetOptimization = `
+/* Intersection Observer — анимируем только видимые элементы */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const el = entry.target;
+      el.style.willChange = 'transform, opacity';
+      el.style.transform = 'translateY(0)';
+      el.style.opacity = '1';
 
-  elements.forEach((element, index) => {
-    const speed = (index + 1) * 0.5;
-    element.style.transform = \`translateY(\${scrolled * speed}px)\`;
-  });
-};
+      el.addEventListener('transitionend', () => {
+        el.style.willChange = 'auto'; /* освобождаем GPU память */
+      }, { once: true });
 
-window.addEventListener('scroll', parallaxScroll);
-
-// Плавная анимация с requestAnimationFrame
-let animationId;
-const smoothTransform = (element, targetX, targetY) => {
-  let currentX = 0;
-  let currentY = 0;
-
-  const animate = () => {
-    currentX += (targetX - currentX) * 0.1;
-    currentY += (targetY - currentY) * 0.1;
-
-    element.style.transform = \`translate(\${currentX}px, \${currentY}px)\`;
-
-    if (Math.abs(targetX - currentX) > 0.1 || Math.abs(targetY - currentY) > 0.1) {
-      animationId = requestAnimationFrame(animate);
+      observer.unobserve(el);
     }
-  };
+  });
+}, { threshold: 0.1 });
 
-  animate();
-};
+document.querySelectorAll('.lazy-animate').forEach(el => {
+  el.style.transform = 'translateY(40px)';
+  el.style.opacity = '0';
+  el.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
+  observer.observe(el);
+});
 `
 
-const snippet10 = `
-/* Адаптивные трансформации */
-
-/* Масштабирование на разных экранах */
-@media (max-width: 768px) {
-  .responsive-transform {
-    transform: scale(0.8) translateY(-20px);
-  }
-}
-
-@media (max-width: 480px) {
-  .responsive-transform {
-    transform: scale(0.6) translateY(-10px);
-  }
-}
-
-/* Container queries для точного контроля */
-@container (max-width: 300px) {
-  .container-responsive {
-    transform: scale(0.9);
-  }
-}
-
-/* Предпочтения пользователя */
+const snippetA11y = `
+/* Уважаем системные настройки пользователя */
 @media (prefers-reduced-motion: reduce) {
-  .respect-motion-preferences {
-    transform: none !important;
-    transition: none !important;
-    animation: none !important;
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
-/* Поддержка темной темы в трансформациях */
-@media (prefers-color-scheme: dark) {
-  .theme-aware-transform {
-    transform: scale(1.1); /* больше в темной теме */
+/* Hover-эффекты только для устройств с точным указателем */
+@media (hover: hover) and (pointer: fine) {
+  .card:hover {
+    transform: translateY(-8px) scale(1.02);
   }
 }
 
-/* CSS Custom Properties для динамических трансформаций */
-.dynamic-transform {
-  --scale: 1;
-  --rotation: 0deg;
-  --translate-x: 0px;
-  --translate-y: 0px;
-
-  transform:
-    scale(var(--scale))
-    rotate(var(--rotation))
-    translate(var(--translate-x), var(--translate-y));
+/* CSS Containment — изолируем влияние анимации на соседние элементы */
+.animation-container {
+  contain: layout style paint;
 }
-
-/* Изменение через JavaScript */
-/* element.style.setProperty('--scale', '1.5'); */
 `
 
-const highlightedSnippet1 = ref('')
-const highlightedSnippet2 = ref('')
-const highlightedSnippet3 = ref('')
-const highlightedSnippet4 = ref('')
-const highlightedSnippet5 = ref('')
-const highlightedSnippet6 = ref('')
-const highlightedSnippet7 = ref('')
-const highlightedSnippet8 = ref('')
-const highlightedSnippet9 = ref('')
-const highlightedSnippet10 = ref('')
+const h1 = ref('')
+const h2 = ref('')
+const h3 = ref('')
+const h4 = ref('')
+const h5 = ref('')
 
 onMounted(() => {
-  highlightedSnippet1.value = Prism.highlight(snippet1, Prism.languages.css, 'css')
-  highlightedSnippet2.value = Prism.highlight(snippet2, Prism.languages.css, 'css')
-  highlightedSnippet3.value = Prism.highlight(snippet3, Prism.languages.css, 'css')
-  highlightedSnippet4.value = Prism.highlight(snippet4, Prism.languages.css, 'css')
-  highlightedSnippet5.value = Prism.highlight(snippet5, Prism.languages.css, 'css')
-  highlightedSnippet6.value = Prism.highlight(snippet6, Prism.languages.css, 'css')
-  highlightedSnippet7.value = Prism.highlight(snippet7, Prism.languages.css, 'css')
-  highlightedSnippet8.value = Prism.highlight(snippet8, Prism.languages.css, 'css')
-  highlightedSnippet9.value = Prism.highlight(snippet9, Prism.languages.javascript, 'javascript')
-  highlightedSnippet10.value = Prism.highlight(snippet10, Prism.languages.css, 'css')
+  h1.value = Prism.highlight(snippetTransformTypes, Prism.languages.css, 'css')
+  h2.value = Prism.highlight(snippetAnimatable, Prism.languages.css, 'css')
+  h3.value = Prism.highlight(snippetGPU, Prism.languages.css, 'css')
+  h4.value = Prism.highlight(snippetOptimization, Prism.languages.javascript, 'javascript')
+  h5.value = Prism.highlight(snippetA11y, Prism.languages.css, 'css')
 })
-
 </script>
 
 <template>
@@ -461,269 +149,402 @@ onMounted(() => {
       <v-container>
         <v-row justify="center">
           <v-col lg="8">
+
             <h1 class="text-h4 font-weight-bold mb-6">
-              Какие виды трансформаций можно применять в CSS и для чего они используются?
+              CSS трансформации: виды, анимируемость, GPU-ускорение и оптимизация
             </h1>
 
-            <p class="font-weight-regular mb-6">
-              <b>CSS трансформации</b> позволяют изменять внешний вид элементов без влияния на layout:
-              перемещать, вращать, масштабировать и искажать элементы в 2D и 3D пространстве.
-              Трансформации обрабатываются на GPU, что обеспечивает высокую производительность анимаций.
+            <p class="font-weight-regular mb-8">
+              CSS-трансформации — один из ключевых инструментов современного фронтенда. Они позволяют
+              перемещать, вращать, масштабировать и искажать элементы без влияния на поток документа,
+              а при правильном применении обеспечивают плавные 60fps-анимации даже на слабых устройствах.
+              В этой статье разберём всё: от видов трансформаций до тонкостей GPU-ускорения и доступности.
             </p>
 
-            <h2 class="text-h5 font-weight-bold mb-3">Основные виды трансформаций</h2>
-            <v-table density="comfortable" class="mb-8">
+            <!-- 1. Виды трансформаций -->
+            <h2 class="text-h5 font-weight-bold mb-3">Виды трансформаций</h2>
+
+            <p class="font-weight-regular mb-4">
+              Все трансформации задаются через единственное свойство <code>transform</code>, которое
+              принимает одну или несколько функций через пробел. Важно: порядок функций имеет значение —
+              каждая следующая применяется к результату предыдущей, поэтому
+              <code>translateX(100px) rotate(45deg)</code> и <code>rotate(45deg) translateX(100px)</code>
+              дают разный визуальный результат.
+            </p>
+
+            <v-table density="comfortable" class="mb-6">
               <thead>
               <tr>
-                <th class="text-left font-weight-bold">Тип</th>
-                <th class="text-left font-weight-bold">Функции</th>
-                <th class="text-left font-weight-bold">Назначение</th>
-                <th class="text-left font-weight-bold">Примеры использования</th>
+                <th class="font-weight-bold">Тип</th>
+                <th class="font-weight-bold">Основные функции</th>
+                <th class="font-weight-bold">Типичное применение</th>
               </tr>
               </thead>
               <tbody>
               <tr>
                 <td class="pt-2 pb-2"><b>Translate</b></td>
-                <td class="pt-2 pb-2">translateX(), translateY(), translate()</td>
-                <td class="pt-2 pb-2">Перемещение элемента</td>
-                <td class="pt-2 pb-2">Анимации, позиционирование</td>
+                <td class="pt-2 pb-2"><code>translateX/Y/Z()</code>, <code>translate()</code>, <code>translate3d()</code></td>
+                <td class="pt-2 pb-2">Плавное перемещение, hover-смещения, слайдеры</td>
               </tr>
               <tr>
                 <td class="pt-2 pb-2"><b>Rotate</b></td>
-                <td class="pt-2 pb-2">rotate(), rotateX(), rotateY(), rotateZ()</td>
-                <td class="pt-2 pb-2">Поворот элемента</td>
-                <td class="pt-2 pb-2">Спиннеры, hover эффекты</td>
+                <td class="pt-2 pb-2"><code>rotate()</code>, <code>rotateX/Y/Z()</code>, <code>rotate3d()</code></td>
+                <td class="pt-2 pb-2">Спиннеры, flip-карточки, иконки раскрытия меню</td>
               </tr>
               <tr>
                 <td class="pt-2 pb-2"><b>Scale</b></td>
-                <td class="pt-2 pb-2">scale(), scaleX(), scaleY(), scaleZ()</td>
-                <td class="pt-2 pb-2">Масштабирование</td>
-                <td class="pt-2 pb-2">Zoom эффекты, responsive дизайн</td>
+                <td class="pt-2 pb-2"><code>scale()</code>, <code>scaleX/Y/Z()</code>, <code>scale3d()</code></td>
+                <td class="pt-2 pb-2">Zoom-эффекты, нажатие кнопок, акцентирование</td>
               </tr>
               <tr>
                 <td class="pt-2 pb-2"><b>Skew</b></td>
-                <td class="pt-2 pb-2">skew(), skewX(), skewY()</td>
-                <td class="pt-2 pb-2">Искажение/наклон</td>
-                <td class="pt-2 pb-2">Декоративные эффекты</td>
+                <td class="pt-2 pb-2"><code>skewX/Y()</code>, <code>skew()</code></td>
+                <td class="pt-2 pb-2">Декоративные наклоны, параллелограммы</td>
               </tr>
               <tr>
                 <td class="pt-2 pb-2"><b>Matrix</b></td>
-                <td class="pt-2 pb-2">matrix(), matrix3d()</td>
-                <td class="pt-2 pb-2">Комплексные трансформации</td>
-                <td class="pt-2 pb-2">Точный математический контроль</td>
+                <td class="pt-2 pb-2"><code>matrix()</code>, <code>matrix3d()</code></td>
+                <td class="pt-2 pb-2">Математически точные комбинированные трансформации</td>
               </tr>
               <tr>
                 <td class="pt-2 pb-2"><b>Perspective</b></td>
-                <td class="pt-2 pb-2">perspective()</td>
-                <td class="pt-2 pb-2">3D глубина</td>
-                <td class="pt-2 pb-2">3D эффекты, карточки</td>
+                <td class="pt-2 pb-2"><code>perspective()</code></td>
+                <td class="pt-2 pb-2">Создание глубины для 3D-дочерних элементов</td>
               </tr>
               </tbody>
             </v-table>
 
-            <h2 class="text-h5 font-weight-bold mb-3">2D трансформации</h2>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet1"></code></pre>
-
-            <h2 class="text-h5 font-weight-bold mb-3">3D трансформации</h2>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet2"></code></pre>
-
-            <h2 class="text-h5 font-weight-bold mb-3">Matrix трансформации</h2>
             <p class="font-weight-regular mb-4">
-              Matrix предоставляет математический способ описания любых трансформаций через матрицы:
+              Для 3D-трансформаций необходимо создать трёхмерный контекст. Это делается двумя способами:
+              свойство <code>perspective</code> на родителе задаёт расстояние от наблюдателя до плоскости Z=0,
+              а <code>transform-style: preserve-3d</code> позволяет дочерним элементам существовать
+              в трёхмерном пространстве родителя, а не быть спроецированными на плоскость. Без этих
+              двух свойств 3D-функции вроде <code>rotateY()</code> работают некорректно или вовсе не видны.
             </p>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet3"></code></pre>
 
-            <h2 class="text-h5 font-weight-bold mb-3">Transform Origin - точка трансформации</h2>
             <p class="font-weight-regular mb-4">
-              Определяет точку, относительно которой применяются трансформации:
+              Свойство <code>transform-origin</code> определяет точку, относительно которой применяется
+              трансформация. По умолчанию это центр элемента (<code>50% 50%</code>). Изменение origin
+              кардинально меняет визуальный результат: вращение с <code>transform-origin: top left</code>
+              будет выглядеть как «распахивание двери», а не «вращение на месте». В 3D у свойства есть
+              третья координата Z.
             </p>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet4"></code></pre>
 
-            <h2 class="text-h5 font-weight-bold mb-3">Практические примеры</h2>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet5"></code></pre>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="h1"></code></pre>
 
-            <h2 class="text-h5 font-weight-bold mb-3">Сложные анимации</h2>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet6"></code></pre>
+            <!-- 2. Анимируемые свойства -->
+            <h2 class="text-h5 font-weight-bold mb-3">Какие свойства трансформаций можно анимировать</h2>
 
-            <h2 class="text-h5 font-weight-bold mb-3">Производительность и оптимизация</h2>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet7"></code></pre>
+            <p class="font-weight-regular mb-4">
+              Не все свойства из семейства трансформаций поддерживают плавную интерполяцию. Браузер
+              умеет плавно переходить между двумя состояниями только тогда, когда значения можно
+              математически интерполировать — то есть вычислить промежуточные состояния. Свойства,
+              принимающие только ключевые слова (<code>flat</code> / <code>preserve-3d</code>,
+              <code>visible</code> / <code>hidden</code>), интерполировать невозможно, поэтому
+              transition на них игнорируется.
+            </p>
 
-            <h2 class="text-h5 font-weight-bold mb-3">3D контекст и видимость</h2>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet8"></code></pre>
-
-            <h2 class="text-h5 font-weight-bold mb-3">JavaScript интеграция</h2>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet9"></code></pre>
-
-            <h2 class="text-h5 font-weight-bold mb-3">Адаптивность и доступность</h2>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet10"></code></pre>
-
-            <h2 class="text-h5 font-weight-bold mb-3">Сравнение подходов</h2>
-            <v-row class="mb-8">
+            <v-row class="mb-6">
               <v-col cols="12" md="6">
                 <v-card class="pa-4 h-100" color="success" variant="tonal">
-                  <h3 class="text-h6 font-weight-bold mb-2">Преимущества Transform</h3>
+                  <h3 class="text-h6 font-weight-bold mb-3">✅ Анимируемые</h3>
                   <ul class="pl-4">
-                    <li><b>GPU ускорение</b> - плавные анимации</li>
-                    <li><b>Без reflow</b> - не влияет на layout</li>
-                    <li><b>Композитные слои</b> - изолированный рендеринг</li>
-                    <li><b>Субпиксельная точность</b> - гладкие трансформации</li>
-                    <li><b>3D возможности</b> - depth и perspective</li>
+                    <li class="mb-2">
+                      <code>transform</code> — интерполируется как матрица; браузер находит
+                      промежуточные значения для каждой функции
+                    </li>
+                    <li class="mb-2">
+                      <code>transform-origin</code> — координаты интерполируются независимо,
+                      создавая эффект «плавающей оси»
+                    </li>
+                    <li class="mb-2">
+                      <code>perspective</code> — числовое значение в px, легко интерполируется;
+                      позволяет динамически менять «выпуклость» 3D-сцены
+                    </li>
+                    <li>
+                      <code>perspective-origin</code> — координаты точки наблюдателя интерполируются
+                      как числа
+                    </li>
                   </ul>
                 </v-card>
               </v-col>
               <v-col cols="12" md="6">
-                <v-card class="pa-4 h-100" color="warning" variant="tonal">
-                  <h3 class="text-h6 font-weight-bold mb-2">Ограничения</h3>
+                <v-card class="pa-4 h-100" color="error" variant="tonal">
+                  <h3 class="text-h6 font-weight-bold mb-3">❌ Неанимируемые</h3>
                   <ul class="pl-4">
-                    <li><b>Не влияет на layout</b> - может пересекаться с другими элементами</li>
-                    <li><b>Поддержка браузеров</b> - 3D требует префиксов</li>
-                    <li><b>Точность float</b> - возможны артефакты</li>
-                    <li><b>Память GPU</b> - много слоев = больше потребления</li>
-                    <li><b>Accessibility</b> - может мешать screen readers</li>
+                    <li class="mb-2">
+                      <code>transform-style</code> — переключает между <code>flat</code>
+                      и <code>preserve-3d</code>; переход мгновенный
+                    </li>
+                    <li class="mb-2">
+                      <code>backface-visibility</code> — переключает между <code>visible</code>
+                      и <code>hidden</code>; переход мгновенный
+                    </li>
+                    <li>
+                      <code>will-change</code> — служебная подсказка браузеру, не визуальное
+                      свойство; анимация бессмысленна
+                    </li>
                   </ul>
                 </v-card>
               </v-col>
             </v-row>
 
-            <h2 class="text-h5 font-weight-bold mb-3">Случаи использования</h2>
-            <v-row class="mb-8">
-              <v-col cols="12" md="4">
-                <v-card class="pa-4 h-100">
-                  <h3 class="text-h6 font-weight-bold mb-2">UI/UX Эффекты</h3>
-                  <ul class="pl-4">
-                    <li>Hover состояния кнопок</li>
-                    <li>Модальные окна</li>
-                    <li>Карточки продуктов</li>
-                    <li>Навигационные меню</li>
-                    <li>Индикаторы загрузки</li>
-                  </ul>
-                </v-card>
-              </v-col>
-              <v-col cols="12" md="4">
-                <v-card class="pa-4 h-100">
-                  <h3 class="text-h6 font-weight-bold mb-2">Анимации</h3>
-                  <ul class="pl-4">
-                    <li>Переходы между страницами</li>
-                    <li>Параллакс эффекты</li>
-                    <li>Микроанимации</li>
-                    <li>Scroll-triggered анимации</li>
-                    <li>Игровые элементы</li>
-                  </ul>
-                </v-card>
-              </v-col>
-              <v-col cols="12" md="4">
-                <v-card class="pa-4 h-100">
-                  <h3 class="text-h6 font-weight-bold mb-2">3D Эффекты</h3>
-                  <ul class="pl-4">
-                    <li>Flip карточки</li>
-                    <li>Карусели и слайдеры</li>
-                    <li>Кубические интерфейсы</li>
-                    <li>Презентации</li>
-                    <li>AR/VR элементы</li>
-                  </ul>
-                </v-card>
-              </v-col>
-            </v-row>
+            <v-alert type="warning" class="mb-4">
+              <v-alert-title>Важная особенность transform</v-alert-title>
+              Нельзя анимировать отдельные функции внутри <code>transform</code> с разными таймингами.
+              Всё, что записано в одном свойстве, анимируется как единое целое. Если нужны независимые
+              тайминги для translateX и rotate — используйте вложенные элементы, каждый со своим
+              <code>transition: transform</code>.
+            </v-alert>
 
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="h2"></code></pre>
+
+            <!-- 3. GPU-ускорение -->
+            <h2 class="text-h5 font-weight-bold mb-3">Аппаратное ускорение и композитные слои</h2>
+
+            <p class="font-weight-regular mb-4">
+              Браузер рендерит страницу в три этапа: <b>Layout</b> (вычисление позиций и размеров),
+              <b>Paint</b> (растеризация пикселей) и <b>Composite</b> (склейка слоёв на GPU).
+              Анимация свойств вроде <code>left</code>, <code>width</code> или <code>background</code>
+              запускает весь конвейер с самого начала — это дорого. Анимация <code>transform</code>
+              и <code>opacity</code> пропускает Layout и Paint и работает только на этапе Composite,
+              который выполняется на GPU в отдельном потоке, не блокируя главный.
+            </p>
+
+            <p class="font-weight-regular mb-4">
+              Чтобы элемент обрабатывался на GPU, браузер должен вынести его в отдельный
+              <b>композитный слой</b>. Это происходит автоматически при наличии 3D-трансформаций,
+              <code>opacity &lt; 1</code>, <code>filter</code>, <code>position: fixed</code>.
+              Принудительно создать слой можно через <code>will-change: transform</code> (современный
+              стандартный способ) или старый хак <code>transform: translateZ(0)</code> /
+              <code>translate3d(0,0,0)</code>.
+            </p>
+
+            <v-alert type="warning" class="mb-4">
+              <v-alert-title>Layer explosion</v-alert-title>
+              Каждый композитный слой потребляет GPU-память. Если навесить
+              <code>will-change: transform</code> на все элементы подряд, это может привести к
+              исчерпанию памяти и падению производительности — особенно на мобильных устройствах.
+              Создавайте слои только для активно анимируемых элементов и удаляйте
+              <code>will-change</code> после завершения анимации.
+            </v-alert>
+
+            <v-table density="comfortable" class="mb-6">
+              <thead>
+              <tr>
+                <th class="font-weight-bold">Свойство</th>
+                <th class="font-weight-bold">GPU-ускорение</th>
+                <th class="font-weight-bold">Этапы рендеринга</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td class="pt-2 pb-2"><code>transform</code></td>
+                <td class="pt-2 pb-2"><v-chip color="success" size="small">✅ Полное</v-chip></td>
+                <td class="pt-2 pb-2">Только Composite</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><code>opacity</code></td>
+                <td class="pt-2 pb-2"><v-chip color="success" size="small">✅ Полное</v-chip></td>
+                <td class="pt-2 pb-2">Только Composite</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><code>filter</code></td>
+                <td class="pt-2 pb-2"><v-chip color="success" size="small">✅ Полное</v-chip></td>
+                <td class="pt-2 pb-2">Composite (иногда + Paint)</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><code>background-color</code></td>
+                <td class="pt-2 pb-2"><v-chip color="warning" size="small">⚠️ Нет</v-chip></td>
+                <td class="pt-2 pb-2">Paint + Composite</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><code>left / top</code></td>
+                <td class="pt-2 pb-2"><v-chip color="error" size="small">❌ Нет</v-chip></td>
+                <td class="pt-2 pb-2">Layout + Paint + Composite</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><code>width / height</code></td>
+                <td class="pt-2 pb-2"><v-chip color="error" size="small">❌ Нет</v-chip></td>
+                <td class="pt-2 pb-2">Layout + Paint + Composite</td>
+              </tr>
+              </tbody>
+            </v-table>
+
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="h3"></code></pre>
+
+            <!-- 4. Оптимизация -->
+            <h2 class="text-h5 font-weight-bold mb-3">Оптимизация анимаций</h2>
+
+            <p class="font-weight-regular mb-4">
+              Даже при использовании <code>transform</code> анимации можно организовать неэффективно.
+              Разберём ключевые техники.
+            </p>
+
+            <p class="font-weight-regular mb-2"><b>will-change</b></p>
+            <p class="font-weight-regular mb-4">
+              Это подсказка браузеру: «этот элемент скоро изменится». Браузер может заранее вынести
+              элемент на GPU-слой и подготовить оптимизации. Добавляйте его непосредственно перед
+              анимацией (например, на <code>:hover</code> родителя или через JS) и удаляйте сразу
+              после завершения, слушая событие <code>transitionend</code>.
+            </p>
+
+            <p class="font-weight-regular mb-2"><b>requestAnimationFrame</b></p>
+            <p class="font-weight-regular mb-4">
+              Для JS-анимаций всегда используйте <code>requestAnimationFrame</code>. Он синхронизирует
+              обновления с частотой обновления экрана (обычно 60 Гц) и не блокирует главный поток.
+              Важно батчить все изменения стилей внутри одного колбэка — не читайте вычисленные
+              стили и сразу не пишите новые в одном кадре, это вызывает принудительный reflow
+              (т.н. layout thrashing).
+            </p>
+
+            <p class="font-weight-regular mb-2"><b>CSS Containment</b></p>
+            <p class="font-weight-regular mb-4">
+              Свойство <code>contain: layout style paint</code> изолирует элемент от остальной страницы:
+              браузер знает, что изменения внутри контейнера не влияют на внешние элементы, и не
+              пересчитывает их. Для анимированных списков и карточек это даёт ощутимый прирост
+              производительности.
+            </p>
+
+            <p class="font-weight-regular mb-2"><b>Intersection Observer для ленивых анимаций</b></p>
+            <p class="font-weight-regular mb-4">
+              Не имеет смысла держать <code>will-change</code> на элементах, которые пользователь
+              ещё не видит. Intersection Observer позволяет включать анимацию только в момент попадания
+              элемента в viewport и сразу отключать GPU-слой после завершения перехода.
+            </p>
+
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="h4"></code></pre>
+
+            <!-- 5. Доступность -->
+            <h2 class="text-h5 font-weight-bold mb-3">Доступность и адаптивность</h2>
+
+            <p class="font-weight-regular mb-4">
+              У части пользователей есть вестибулярные нарушения, при которых движущиеся объекты
+              на экране вызывают физический дискомфорт или тошноту. Операционные системы предоставляют
+              системную настройку «Уменьшить движение», которую браузер транслирует через медиазапрос
+              <code>prefers-reduced-motion: reduce</code>. Это не опция — это требование к доступному
+              интерфейсу: при включённой настройке анимации должны либо отключаться, либо заменяться
+              мгновенными переходами.
+            </p>
+
+            <p class="font-weight-regular mb-4">
+              Также стоит разграничивать hover-эффекты: на сенсорных экранах состояние <code>:hover</code>
+              ведёт себя непредсказуемо. Медиазапрос <code>(hover: hover) and (pointer: fine)</code>
+              позволяет применять эффекты наведения только на устройствах с точным указателем —
+              то есть там, где пользователь действительно может навести курсор.
+            </p>
+
+            <p class="font-weight-regular mb-4">
+              CSS Containment, помимо оптимизации, полезен и для изоляции анимаций: он гарантирует,
+              что анимированный элемент не спровоцирует нежелательные сдвиги соседних элементов.
+            </p>
+
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="h5"></code></pre>
+
+            <!-- 6. Вопросы -->
             <h2 class="text-h5 font-weight-bold mb-3">Частые вопросы на собеседовании</h2>
+
             <ol class="ol-list mb-8">
               <li class="mb-4">
-                <p class="font-weight-bold mb-1">В чем разница между transform и изменением position?</p>
+                <p class="font-weight-bold mb-1">Почему transform быстрее, чем изменение left/top?</p>
                 <p class="font-weight-regular ma-0">
-                  Transform не вызывает reflow/repaint, работает на GPU, создает композитный слой.
-                  Position изменяет layout, может вызвать пересчет всей страницы.
-                  Transform лучше для анимаций.
+                  Потому что <code>transform</code> обрабатывается только на этапе Composite — на GPU,
+                  в отдельном потоке. Изменение <code>left</code> / <code>top</code> запускает полный
+                  конвейер: Layout → Paint → Composite на CPU, что блокирует главный поток и вызывает
+                  просадки FPS.
                 </p>
               </li>
               <li class="mb-4">
-                <p class="font-weight-bold mb-1">Когда использовать 3D трансформации?</p>
+                <p class="font-weight-bold mb-1">Можно ли анимировать translateX и rotate с разными таймингами?</p>
                 <p class="font-weight-regular ma-0">
-                  Для создания глубины, flip эффектов, каруселей, когда нужна перспектива.
-                  Требуют больше ресурсов GPU, нужна осторожность на мобильных устройствах.
+                  Напрямую — нет. Всё, что записано в <code>transform</code> одного элемента,
+                  анимируется единым transition. Для независимых таймингов нужны вложенные элементы:
+                  внешний анимирует translate, внутренний — rotate, каждый со своим
+                  <code>transition: transform</code>.
                 </p>
               </li>
               <li class="mb-4">
-                <p class="font-weight-bold mb-1">Как оптимизировать производительность трансформаций?</p>
+                <p class="font-weight-bold mb-1">В чём разница между will-change и translateZ(0)?</p>
                 <p class="font-weight-regular ma-0">
-                  Использовать will-change, translate3d(0,0,0) для принудительного GPU слоя,
-                  избегать сложных matrix вычислений, батчить изменения, использовать
-                  requestAnimationFrame для JS анимаций.
+                  Оба создают композитный слой, но <code>will-change</code> — семантичный современный
+                  стандарт: он описывает намерение, а не взламывает поведение. <code>translateZ(0)</code>
+                  — хак, который работает через побочный эффект 3D-контекста. На практике сегодня
+                  предпочтителен <code>will-change</code>.
                 </p>
               </li>
               <li class="mb-4">
-                <p class="font-weight-bold mb-1">Что такое transform-origin и зачем он нужен?</p>
+                <p class="font-weight-bold mb-1">Что такое layer explosion и как его избежать?</p>
                 <p class="font-weight-regular ma-0">
-                  Определяет точку, относительно которой происходят трансформации.
-                  По умолчанию center. Позволяет вращать элементы вокруг углов,
-                  масштабировать от определенной стороны.
+                  Это ситуация, когда на странице создаётся слишком много GPU-слоёв, что исчерпывает
+                  видеопамять и парадоксально ухудшает производительность. Решение: добавлять
+                  <code>will-change</code> только непосредственно перед анимацией и удалять его сразу
+                  после через <code>transitionend</code> / <code>animationend</code>.
                 </p>
               </li>
               <li class="mb-4">
-                <p class="font-weight-bold mb-1">Как комбинировать несколько трансформаций?</p>
+                <p class="font-weight-bold mb-1">Влияет ли порядок функций в transform на результат?</p>
                 <p class="font-weight-regular ma-0">
-                  Перечислить через пробел в одном свойстве transform.
-                  Порядок важен: сначала масштабирование, потом поворот, затем перемещение.
-                  Каждая следующая трансформация применяется к результату предыдущей.
+                  Да, критически. Трансформации применяются справа налево в системе координат.
+                  <code>translate(100px, 0) rotate(45deg)</code> — сначала сдвиг, потом поворот
+                  в исходной системе координат. <code>rotate(45deg) translate(100px, 0)</code> —
+                  сдвиг на 100px по уже повёрнутой оси X, что даёт совершенно другое положение.
                 </p>
               </li>
               <li class="mb-4">
-                <p class="font-weight-bold mb-1">Как комбинировать несколько трансформаций?</p>
+                <p class="font-weight-bold mb-1">Почему transform-style и backface-visibility нельзя анимировать?</p>
                 <p class="font-weight-regular ma-0">
-                  Перечислить через пробел в одном свойстве transform.
-                  Порядок важен: сначала масштабирование, потом поворот, затем перемещение.
-                  Каждая следующая трансформация применяется к результату предыдущей.
+                  Эти свойства принимают только ключевые слова без промежуточных значений.
+                  Браузер не может интерполировать между <code>flat</code> и <code>preserve-3d</code>
+                  — нет математической операции для «50% между ними». Поэтому transition игнорируется,
+                  и переход происходит мгновенно.
                 </p>
               </li>
               <li class="mb-4">
-                <p class="font-weight-bold mb-1">В чем особенности matrix трансформаций?</p>
+                <p class="font-weight-bold mb-1">Как проверить GPU-слои в DevTools?</p>
                 <p class="font-weight-regular ma-0">
-                  Matrix позволяет объединить все трансформации в одну математическую операцию.
-                  Более эффективно для сложных анимаций, но сложнее в понимании и отладке.
-                  Matrix3d предоставляет полный контроль над 3D трансформациями.
-                </p>
-              </li>
-              <li class="mb-4">
-                <p class="font-weight-bold mb-1">Какие проблемы могут возникнуть с трансформациями?</p>
-                <p class="font-weight-regular ma-0">
-                  Элементы могут выходить за границы контейнера, пересекаться с другими элементами,
-                  проблемы с z-index в 3D контексте, артефакты рендеринга на некоторых устройствах,
-                  проблемы с accessibility для людей с вестибулярными нарушениями.
+                  В Chrome DevTools: вкладка Rendering → включить «Layer borders» (синие рамки —
+                  плиточные слои, оранжевые — композитные). Вкладка Layers даёт полноценный 3D-обзор
+                  всех слоёв страницы с информацией о причине создания каждого. В Performance tab
+                  видно GPU Activity во время записи.
                 </p>
               </li>
             </ol>
 
-            <h2 class="text-h5 font-weight-bold mb-3">Лучшие практики</h2>
-            <v-alert type="info" class="mb-4">
-              <v-alert-title>Рекомендации по использованию</v-alert-title>
-              <ul class="pl-4 mt-2 mb-0">
-                <li>Используйте <code>transform</code> вместо изменения <code>left/top</code> для анимаций</li>
-                <li>Добавляйте <code>will-change: transform</code> перед анимацией</li>
-                <li>Убирайте <code>will-change</code> после завершения анимации</li>
-                <li>Используйте <code>translate3d()</code> для принудительного GPU ускорения</li>
-                <li>Тестируйте производительность на слабых устройствах</li>
-                <li>Учитывайте <code>prefers-reduced-motion</code> для accessibility</li>
-              </ul>
-            </v-alert>
+            <!-- Итог -->
+            <h2 class="text-h5 font-weight-bold mb-3">Итог</h2>
 
-            <h2 class="text-h5 font-weight-bold mb-3">Заключение</h2>
-            <p class="font-weight-regular mb-4">
-              CSS трансформации — это мощный инструмент для создания современных, интерактивных интерфейсов.
-              Они обеспечивают высокую производительность благодаря GPU ускорению и не влияют на layout страницы.
-              Правильное использование трансформаций позволяет создавать плавные анимации, 3D эффекты и
-              улучшать пользовательский опыт.
-            </p>
-
-            <v-card class="pa-4" color="info" variant="tonal">
-              <p class="font-weight-bold mb-2">💡 Ключевые моменты для собеседования:</p>
+            <v-card class="pa-4 mb-6" color="info" variant="tonal">
+              <p class="font-weight-bold mb-2">Ключевые выводы</p>
               <ul class="pl-4 mb-0">
-                <li>Трансформации работают на GPU и не вызывают reflow</li>
-                <li>Порядок трансформаций в одном свойстве имеет значение</li>
-                <li>3D трансформации требуют <code>perspective</code> и <code>transform-style: preserve-3d</code></li>
-                <li>Matrix предоставляет математический контроль над всеми трансформациями</li>
-                <li>Transform-origin определяет точку трансформации</li>
-                <li>Важно учитывать производительность и accessibility</li>
+                <li class="mb-1">Анимируйте только <code>transform</code> и <code>opacity</code> — они работают на GPU и не вызывают Layout/Paint</li>
+                <li class="mb-1">Из связанных свойств анимируемы: <code>transform</code>, <code>transform-origin</code>, <code>perspective</code>, <code>perspective-origin</code></li>
+                <li class="mb-1">Неанимируемы: <code>transform-style</code>, <code>backface-visibility</code>, <code>will-change</code></li>
+                <li class="mb-1">Порядок функций в <code>transform</code> определяет визуальный результат</li>
+                <li class="mb-1">Создавайте GPU-слои через <code>will-change</code> только перед анимацией и удаляйте после</li>
+                <li class="mb-1">Изолируйте анимации через <code>contain: layout style paint</code></li>
+                <li>Всегда поддерживайте <code>prefers-reduced-motion</code> и разграничивайте hover для touch-устройств</li>
               </ul>
             </v-card>
+
+            <div class="d-flex gap-2 justify-end">
+              <v-btn
+                color="second"
+                size="small"
+                variant="elevated"
+                href="https://web.dev/animations-guide/"
+                target="_blank">
+                Web.dev Animations Guide
+              </v-btn>
+              <v-btn
+                color="second"
+                size="small"
+                variant="elevated"
+                href="https://csstriggers.com/"
+                target="_blank">
+                CSS Triggers Reference
+              </v-btn>
+            </div>
+
           </v-col>
         </v-row>
       </v-container>
