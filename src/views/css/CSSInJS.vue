@@ -1,313 +1,119 @@
 <script setup lang="ts">
-import {onMounted, ref} from "vue"
+import { onMounted, ref } from "vue"
 import Prism from 'prismjs'
 import 'prismjs/themes/prism-tomorrow.css'
-import 'prismjs/components/prism-css.js'
 import 'prismjs/components/prism-javascript.js'
 
-const snippet1 = `
-// Styled Components - React
-import styled from 'styled-components';
+const snippetBasicExample = `
+// Styled Components — пример динамических стилей через пропсы
+import styled, { ThemeProvider } from 'styled-components';
 
 const Button = styled.button\`
-  background: \${props => props.primary ? '#007bff' : '#6c757d'};
+  padding: \${props => props.size === 'large' ? '16px 32px' : '12px 24px'};
+  background: \${props => props.primary
+    ? props.theme.primary
+    : props.theme.secondary};
   color: white;
-  padding: 12px 24px;
   border: none;
   border-radius: 4px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  cursor: \${props => props.disabled ? 'not-allowed' : 'pointer'};
+  opacity: \${props => props.disabled ? 0.6 : 1};
 
-  &:hover {
-    background: \${props => props.primary ? '#0056b3' : '#545b62'};
+  &:hover:not(:disabled) {
     transform: translateY(-1px);
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+    background: \${props => props.primary
+      ? props.theme.primaryDark
+      : props.theme.secondaryDark};
   }
 \`;
 
-// Использование
-<Button primary onClick={handleClick}>
-  Основная кнопка
-</Button>
+const theme = {
+  primary: '#007bff',
+  primaryDark: '#0056b3',
+  secondary: '#6c757d',
+  secondaryDark: '#545b62'
+};
+
+<ThemeProvider theme={theme}>
+  <Button primary size="large">Основная кнопка</Button>
+  <Button disabled>Недоступная кнопка</Button>
+</ThemeProvider>
 `
 
-const snippet2 = `
-// Emotion - объектный синтаксис
-import { css } from '@emotion/react';
+const snippetVanillaExtract = `
+// Vanilla Extract — всё вычисляется на этапе сборки, runtime = 0
+// button.css.ts
+import { style, styleVariants, recipe } from '@vanilla-extract/css';
+import { vars } from './theme.css';
 
-const buttonStyles = (theme, variant) => css({
-  background: variant === 'primary' ? theme.colors.primary : theme.colors.secondary,
-  color: 'white',
-  padding: '12px 24px',
-  border: 'none',
-  borderRadius: theme.borderRadius,
-  fontSize: '16px',
-  cursor: 'pointer',
-  transition: 'all 0.2s ease',
-
-  '&:hover': {
-    background: variant === 'primary' ? theme.colors.primaryDark : theme.colors.secondaryDark,
-    transform: 'translateY(-1px)',
-  },
-
-  '&:disabled': {
-    opacity: 0.6,
-    cursor: 'not-allowed',
-  }
-});
-
-// Использование
-<button css={buttonStyles(theme, 'primary')}>
-  Кнопка
-</button>
-`
-
-const snippet3 = `
-// JSS - JavaScript объекты
-import { createUseStyles } from 'react-jss';
-
-const useStyles = createUseStyles({
-  button: {
-    background: ({ variant, theme }) =>
-      variant === 'primary' ? theme.primary : theme.secondary,
-    color: 'white',
-    padding: [12, 24],
-    border: 'none',
-    borderRadius: 4,
-    fontSize: 16,
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-
-    '&:hover': {
-      background: ({ variant, theme }) =>
-        variant === 'primary' ? theme.primaryDark : theme.secondaryDark,
-      transform: 'translateY(-1px)',
-    }
-  }
-});
-
-function Button({ variant, children, ...props }) {
-  const classes = useStyles({ variant, theme });
-  return <button className={classes.button} {...props}>{children}</button>;
-}
-`
-
-const snippet4 = `
-// Stitches - утилитарный подход
-import { styled } from '@stitches/react';
-
-const Button = styled('button', {
+const base = style({
   padding: '12px 24px',
   border: 'none',
   borderRadius: '4px',
-  fontSize: '16px',
   cursor: 'pointer',
   transition: 'all 0.2s ease',
+  ':hover': { transform: 'translateY(-1px)' }
+});
 
+export const variants = styleVariants({
+  primary: { background: vars.colors.primary, color: 'white' },
+  secondary: { background: vars.colors.secondary, color: 'white' },
+  ghost: { background: 'transparent', color: vars.colors.primary,
+           border: \`1px solid \${vars.colors.primary}\` }
+});
+
+export const buttonRecipe = recipe({
+  base,
   variants: {
-    variant: {
-      primary: {
-        background: '$primary',
-        color: 'white',
-        '&:hover': { background: '$primaryDark' }
-      },
-      secondary: {
-        background: '$secondary',
-        color: 'white',
-        '&:hover': { background: '$secondaryDark' }
-      }
-    },
+    variant: variants,
     size: {
       small: { padding: '8px 16px', fontSize: '14px' },
       large: { padding: '16px 32px', fontSize: '18px' }
     }
   },
-
-  defaultVariants: {
-    variant: 'primary',
-    size: 'medium'
-  }
+  defaultVariants: { variant: 'primary', size: 'medium' }
 });
 
-// Использование
-<Button variant="primary" size="large">Кнопка</Button>
-`
-
-const snippet5 = `
-// Динамическая тематизация
-import styled, { ThemeProvider } from 'styled-components';
-
-const theme = {
-  light: {
-    bg: '#ffffff',
-    text: '#000000',
-    primary: '#007bff'
-  },
-  dark: {
-    bg: '#1a1a1a',
-    text: '#ffffff',
-    primary: '#4dabf7'
-  }
-};
-
-const Container = styled.div\`
-  background: \${props => props.theme.bg};
-  color: \${props => props.theme.text};
-  min-height: 100vh;
-  transition: all 0.3s ease;
-\`;
-
-const Button = styled.button\`
-  background: \${props => props.theme.primary};
-  color: white;
-  padding: 12px 24px;
-  border: none;
-  border-radius: 4px;
-\`;
-
-// Использование
-<ThemeProvider theme={darkMode ? theme.dark : theme.light}>
-  <Container>
-    <Button>Тематическая кнопка</Button>
-  </Container>
-</ThemeProvider>
-`
-
-const snippet6 = `
-// Server-Side Rendering с Styled Components
-import { ServerStyleSheet } from 'styled-components';
-
-// На сервере
-const sheet = new ServerStyleSheet();
-try {
-  const html = renderToString(
-    sheet.collectStyles(<App />)
-  );
-  const styleTags = sheet.getStyleTags();
-
-  // Вставляем стили в HTML
-  const fullHtml = \`
-    <!DOCTYPE html>
-    <html>
-      <head>
-        \${styleTags}
-      </head>
-      <body>
-        <div id="root">\${html}</div>
-      </body>
-    </html>
-  \`;
-} finally {
-  sheet.seal();
+// Компонент — только выбирает нужный класс, никаких вычислений в браузере
+export function Button({ variant, size, children }) {
+  return <button className={buttonRecipe({ variant, size })}>{children}</button>;
 }
 `
 
-const snippet7 = `
-// Производительность - мемоизация стилей
-import { useMemo } from 'react';
-import { css } from '@emotion/react';
+const snippetHybrid = `
+// Гибридный подход: статические классы + CSS-переменные для runtime-значений
+// styles.css.ts (Vanilla Extract)
+export const dynamicButton = style({
+  background: 'var(--btn-bg, #007bff)',
+  color: 'var(--btn-color, white)',
+  padding: 'var(--btn-padding, 12px 24px)',
+  border: 'none',
+  borderRadius: '4px',
+  cursor: 'pointer'
+});
 
-const ExpensiveComponent = ({ data, theme }) => {
-  // Мемоизируем стили, чтобы избежать пересчета
-  const styles = useMemo(() => ({
-    container: css({
-      background: theme.background,
-      padding: '20px',
-      borderRadius: '8px',
-      // Сложные вычисления стилей
-      boxShadow: \`0 \${theme.elevation * 2}px \${theme.elevation * 4}px rgba(0,0,0,0.1)\`
-    }),
-
-    item: css({
-      padding: '10px',
-      margin: '5px 0',
-      background: theme.surface,
-      // Условные стили
-      ...(data.isActive && {
-        borderLeft: \`4px solid \${theme.primary}\`,
-        background: theme.primaryLight
-      })
-    })
-  }), [theme, data.isActive]);
-
+// Компонент — статический класс + inline CSS-переменные для уникальных значений
+function BrandButton({ brandColor, children }) {
   return (
-    <div css={styles.container}>
-      {data.items.map(item => (
-        <div key={item.id} css={styles.item}>
-          {item.content}
-        </div>
-      ))}
-    </div>
+    <button
+      className={dynamicButton}
+      style={{ '--btn-bg': brandColor, '--btn-color': getContrastColor(brandColor) }}
+    >
+      {children}
+    </button>
   );
-};
+}
 `
 
-const snippet8 = `
-// Миграция с обычного CSS на CSS-in-JS
-// Было:
-/* styles.css */
-.card {
-  padding: 20px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-}
-
-.card-header {
-  margin-bottom: 15px;
-  font-weight: bold;
-}
-
-.card-primary {
-  border-color: #007bff;
-}
-
-// Стало:
-import styled from 'styled-components';
-
-const Card = styled.div\`
-  padding: 20px;
-  border: 1px solid \${props => props.variant === 'primary' ? '#007bff' : '#ddd'};
-  border-radius: 8px;
-\`;
-
-const CardHeader = styled.div\`
-  margin-bottom: 15px;
-  font-weight: bold;
-\`;
-
-// Или с Emotion
-const cardStyles = (variant) => css\`
-  padding: 20px;
-  border: 1px solid \${variant === 'primary' ? '#007bff' : '#ddd'};
-  border-radius: 8px;
-\`;
-`
-
-const highlightedSnippet1 = ref('')
-const highlightedSnippet2 = ref('')
-const highlightedSnippet3 = ref('')
-const highlightedSnippet4 = ref('')
-const highlightedSnippet5 = ref('')
-const highlightedSnippet6 = ref('')
-const highlightedSnippet7 = ref('')
-const highlightedSnippet8 = ref('')
+const highlightedBasic = ref('')
+const highlightedVanilla = ref('')
+const highlightedHybrid = ref('')
 
 onMounted(() => {
-  highlightedSnippet1.value = Prism.highlight(snippet1, Prism.languages.javascript, 'javascript')
-  highlightedSnippet2.value = Prism.highlight(snippet2, Prism.languages.javascript, 'javascript')
-  highlightedSnippet3.value = Prism.highlight(snippet3, Prism.languages.javascript, 'javascript')
-  highlightedSnippet4.value = Prism.highlight(snippet4, Prism.languages.javascript, 'javascript')
-  highlightedSnippet5.value = Prism.highlight(snippet5, Prism.languages.javascript, 'javascript')
-  highlightedSnippet6.value = Prism.highlight(snippet6, Prism.languages.javascript, 'javascript')
-  highlightedSnippet7.value = Prism.highlight(snippet7, Prism.languages.javascript, 'javascript')
-  highlightedSnippet8.value = Prism.highlight(snippet8, Prism.languages.javascript, 'javascript')
+  highlightedBasic.value = Prism.highlight(snippetBasicExample, Prism.languages.javascript, 'javascript')
+  highlightedVanilla.value = Prism.highlight(snippetVanillaExtract, Prism.languages.javascript, 'javascript')
+  highlightedHybrid.value = Prism.highlight(snippetHybrid, Prism.languages.javascript, 'javascript')
 })
-
 </script>
 
 <template>
@@ -316,305 +122,362 @@ onMounted(() => {
       <v-container>
         <v-row justify="center">
           <v-col lg="8">
-            <h1 class="text-h4 font-weight-bold mb-6">
-              Где лучше использовать подход CSS-in-JS. Плюсы и минусы CSS-in-JS
-            </h1>
 
-            <p class="font-weight-regular mb-6">
-              <b>CSS-in-JS</b> — это подход к написанию стилей, при котором CSS описывается
-              непосредственно в JavaScript коде. Стили создаются динамически во время выполнения
-              или компилируются в статические CSS файлы.
+            <!-- Заголовок -->
+            <h1 class="text-h4 font-weight-bold mb-4">CSS-in-JS: полное руководство</h1>
+            <p class="font-weight-regular mb-8">
+              CSS-in-JS — подход, при котором стили описываются непосредственно в JavaScript-коде.
+              Стили могут генерироваться динамически во время выполнения или компилироваться в статические
+              CSS-файлы на этапе сборки. В этой статье разберём, что такое CSS-in-JS, какие библиотеки существуют,
+              чем они отличаются и как выбрать правильный инструмент.
             </p>
 
-            <h2 class="text-h5 font-weight-bold mb-3">Основные библиотеки CSS-in-JS</h2>
-            <v-table density="comfortable" class="mb-8">
+            <!-- Что такое CSS-in-JS -->
+            <h2 class="text-h5 font-weight-bold mb-3">Что такое CSS-in-JS и зачем это нужно</h2>
+            <p class="font-weight-regular mb-4">
+              Традиционный CSS глобален по своей природе: любой класс, объявленный в одном месте, может
+              случайно перекрыть стили в другом. В больших командах это превращается в нескончаемую борьбу
+              с именами классов, специфичностью и «мёртвыми» стилями, которые никто не решается удалить.
+            </p>
+            <p class="font-weight-regular mb-4">
+              CSS-in-JS решает эту проблему, привязывая стили к конкретному компоненту. Библиотека автоматически
+              генерирует уникальные хэшированные имена классов, устраняя конфликты. Кроме того, стили
+              становятся реактивными: они могут меняться в зависимости от пропсов, состояния или темы
+              без единой строчки ручной манипуляции с DOM.
+            </p>
+            <p class="font-weight-regular mb-8">
+              Важно понимать, что CSS-in-JS — это не один инструмент, а целый класс решений с разными
+              компромиссами. Одни библиотеки генерируют CSS прямо в браузере (runtime), другие извлекают
+              его на этапе сборки (pre-compile). Выбор между ними определяет производительность,
+              гибкость и сложность проекта.
+            </p>
+
+            <!-- Обзор библиотек -->
+            <h2 class="text-h5 font-weight-bold mb-3">Основные библиотеки</h2>
+            <p class="font-weight-regular mb-4">
+              Экосистема CSS-in-JS достаточно разнообразна. Ниже — ключевые игроки с их характеристиками:
+            </p>
+            <v-table density="comfortable" class="mb-4">
               <thead>
               <tr>
                 <th class="text-left font-weight-bold">Библиотека</th>
-                <th class="text-left font-weight-bold">Подход</th>
-                <th class="text-left font-weight-bold">Размер</th>
-                <th class="text-left font-weight-bold">Особенности</th>
+                <th class="text-left font-weight-bold">Синтаксис</th>
+                <th class="text-left font-weight-bold">Runtime</th>
+                <th class="text-left font-weight-bold">Bundle</th>
+                <th class="text-left font-weight-bold">TypeScript</th>
               </tr>
               </thead>
               <tbody>
               <tr>
                 <td class="pt-2 pb-2"><b>Styled Components</b></td>
                 <td class="pt-2 pb-2">Template literals</td>
+                <td class="pt-2 pb-2 text-error">Да</td>
                 <td class="pt-2 pb-2">~40kb</td>
-                <td class="pt-2 pb-2">Популярная, большое сообщество</td>
+                <td class="pt-2 pb-2 text-warning">Средний</td>
               </tr>
               <tr>
                 <td class="pt-2 pb-2"><b>Emotion</b></td>
-                <td class="pt-2 pb-2">Объекты + strings</td>
+                <td class="pt-2 pb-2">Objects + strings</td>
+                <td class="pt-2 pb-2 text-error">Да</td>
                 <td class="pt-2 pb-2">~20kb</td>
-                <td class="pt-2 pb-2">Быстрая, гибкая</td>
+                <td class="pt-2 pb-2 text-success">Отличный</td>
               </tr>
               <tr>
                 <td class="pt-2 pb-2"><b>JSS</b></td>
-                <td class="pt-2 pb-2">JavaScript объекты</td>
+                <td class="pt-2 pb-2">JS-объекты</td>
+                <td class="pt-2 pb-2 text-error">Да</td>
                 <td class="pt-2 pb-2">~25kb</td>
-                <td class="pt-2 pb-2">Плагинная архитектура</td>
+                <td class="pt-2 pb-2 text-success">Хороший</td>
               </tr>
               <tr>
                 <td class="pt-2 pb-2"><b>Stitches</b></td>
-                <td class="pt-2 pb-2">Утилитарный</td>
+                <td class="pt-2 pb-2">Система вариантов</td>
+                <td class="pt-2 pb-2 text-warning">Минимальный</td>
                 <td class="pt-2 pb-2">~10kb</td>
-                <td class="pt-2 pb-2">Zero-runtime опция</td>
+                <td class="pt-2 pb-2 text-success">Отличный</td>
               </tr>
               <tr>
                 <td class="pt-2 pb-2"><b>Vanilla Extract</b></td>
-                <td class="pt-2 pb-2">Build-time</td>
-                <td class="pt-2 pb-2">0kb runtime</td>
-                <td class="pt-2 pb-2">TypeScript-first</td>
+                <td class="pt-2 pb-2">TS-объекты</td>
+                <td class="pt-2 pb-2 text-success">Нет</td>
+                <td class="pt-2 pb-2">~2kb</td>
+                <td class="pt-2 pb-2 text-success">Отличный</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>Linaria</b></td>
+                <td class="pt-2 pb-2">Template literals</td>
+                <td class="pt-2 pb-2 text-success">Нет</td>
+                <td class="pt-2 pb-2">~0kb</td>
+                <td class="pt-2 pb-2 text-warning">Средний</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>Goober</b></td>
+                <td class="pt-2 pb-2">Template literals</td>
+                <td class="pt-2 pb-2 text-error">Да</td>
+                <td class="pt-2 pb-2">~1kb</td>
+                <td class="pt-2 pb-2 text-warning">Средний</td>
+              </tr>
+              </tbody>
+            </v-table>
+            <p class="font-weight-regular mb-8">
+              <b>Styled Components</b> — самая популярная библиотека с огромным сообществом.
+              <b>Emotion</b> — быстрее и гибче, поддерживает как объектный, так и строковый синтаксис.
+              <b>JSS</b> отличается плагинной архитектурой и чистым JS-объектным подходом.
+              <b>Stitches</b> предлагает систему вариантов и минимальный runtime.
+              <b>Vanilla Extract</b> и <b>Linaria</b> — zero-runtime решения, извлекающие CSS на этапе сборки.
+              <b>Goober</b> — ультралёгкая альтернатива для небольших проектов.
+            </p>
+
+            <!-- Пример кода: runtime -->
+            <h2 class="text-h5 font-weight-bold mb-3">Как выглядит CSS-in-JS на практике</h2>
+            <p class="font-weight-regular mb-4">
+              Ниже — типичный пример runtime CSS-in-JS (Styled Components): стили вычисляются
+              прямо в браузере на основе пропсов и темы.
+            </p>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedBasic"></code></pre>
+
+            <!-- Плюсы и минусы -->
+            <h2 class="text-h5 font-weight-bold mb-3">Преимущества CSS-in-JS</h2>
+            <v-row class="mb-6">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">🎯 Изоляция стилей</h3>
+                  <p>
+                    Автоматически генерируются уникальные имена классов — никаких конфликтов между
+                    компонентами. Стиль живёт рядом с компонентом и удаляется вместе с ним,
+                    исключая «мёртвый» CSS.
+                  </p>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">⚡ Динамичность</h3>
+                  <p>
+                    Стили реагируют на пропсы, состояние и тему в реальном времени. Условная логика
+                    любой сложности — прямо в CSS, без манипуляций с классами вручную.
+                  </p>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">🎨 Тематизация</h3>
+                  <p>
+                    ThemeProvider передаёт тему через контекст. Переключение светлой и тёмной темы,
+                    брендовые вариации — всё это без дополнительных CSS-классов или data-атрибутов.
+                  </p>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">🔧 Developer Experience</h3>
+                  <p>
+                    TypeScript-поддержка, автокомплит CSS-свойств, отладка в DevTools с понятными
+                    именами компонентов. Один язык для логики и стилей снижает переключение контекста.
+                  </p>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">🚀 SSR и критические стили</h3>
+                  <p>
+                    Стили собираются на сервере и вставляются в HTML как критические — страница
+                    отображается корректно сразу, без «вспышки» нестилизованного контента (FOUC).
+                  </p>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">📦 Компонентный подход</h3>
+                  <p>
+                    Стиль, логика и разметка компонента хранятся вместе. Это упрощает переиспользование,
+                    рефакторинг и понимание кода — особенно в больших командах.
+                  </p>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Недостатки CSS-in-JS</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">🐌 Runtime-накладные расходы</h3>
+                  <p>
+                    Runtime-библиотеки вычисляют и инжектируют CSS при каждом рендере.
+                    Это добавляет 5–15ms на рендер, увеличивает размер JS-бандла на 12–40kb
+                    и может вызывать лишние перерисовки при изменении пропсов.
+                  </p>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">📈 Кривая обучения</h3>
+                  <p>
+                    CSS-разработчикам и дизайнерам, незнакомым с JavaScript, будет непросто.
+                    Разные библиотеки предлагают разные API, что усложняет переход между проектами
+                    и создаёт зависимость от конкретного инструмента.
+                  </p>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">🔒 Технические ограничения</h3>
+                  <p>
+                    Сгенерированные стили не кэшируются браузером как статические CSS-файлы.
+                    Некоторые функции CSS поддерживаются ограниченно. Строгие CSP-политики
+                    (Content Security Policy) могут блокировать inline-стили.
+                  </p>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">🔧 Инструментарий</h3>
+                  <p>
+                    Поддержка IDE и линтеров остаётся слабее, чем у обычного CSS.
+                    Отсутствие единого стандарта приводит к фрагментации экосистемы,
+                    а миграция между библиотеками требует значительных усилий.
+                  </p>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <!-- Runtime vs Pre-compile -->
+            <h2 class="text-h5 font-weight-bold mb-3">Runtime против Pre-compile: ключевое различие</h2>
+            <p class="font-weight-regular mb-4">
+              Это одно из самых важных архитектурных решений при выборе CSS-in-JS. Два подхода дают
+              принципиально разные компромиссы между гибкостью и производительностью.
+            </p>
+            <v-row class="mb-6">
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100 border-l-lg border-primary">
+                  <h3 class="text-h6 font-weight-bold mb-3 text-primary">🔄 Runtime</h3>
+                  <p class="mb-3">
+                    CSS генерируется прямо в браузере при каждом рендере. Библиотека вычисляет
+                    стили на основе текущих пропсов и состояния, создаёт уникальный класс и
+                    инжектирует его в &lt;head&gt;.
+                  </p>
+                  <p class="mb-2"><b>Библиотеки:</b> Styled Components, Emotion, JSS, Goober</p>
+                  <p class="mb-2"><b>Главное преимущество:</b> неограниченная динамичность — любые вычисления, любые данные из API или состояния</p>
+                  <p class="mb-0"><b>Главный недостаток:</b> накладные расходы в runtime, увеличенный бандл</p>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100 border-l-lg border-success">
+                  <h3 class="text-h6 font-weight-bold mb-3 text-success">⚡ Pre-compile</h3>
+                  <p class="mb-3">
+                    CSS извлекается в статические файлы на этапе сборки. В браузер попадает уже
+                    готовый CSS-файл, а компонент лишь выбирает нужный класс из предопределённого набора.
+                  </p>
+                  <p class="mb-2"><b>Библиотеки:</b> Vanilla Extract, Linaria, Compiled</p>
+                  <p class="mb-2"><b>Главное преимущество:</b> нулевой runtime-overhead, браузерное кэширование статического CSS</p>
+                  <p class="mb-0"><b>Главный недостаток:</b> ограниченная динамичность — все варианты стилей должны быть известны заранее</p>
+                </v-card>
+              </v-col>
+            </v-row>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Детальное сравнение характеристик</h2>
+            <v-table density="comfortable" class="mb-6">
+              <thead>
+              <tr>
+                <th class="text-left font-weight-bold">Характеристика</th>
+                <th class="text-left font-weight-bold">Runtime</th>
+                <th class="text-left font-weight-bold">Pre-compile</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td class="pt-3 pb-3"><b>Bundle Size</b></td>
+                <td class="pt-3 pb-3 text-error">12–40kb</td>
+                <td class="pt-3 pb-3 text-success">~2kb</td>
+              </tr>
+              <tr>
+                <td class="pt-3 pb-3"><b>Overhead на рендер</b></td>
+                <td class="pt-3 pb-3 text-error">5–15ms</td>
+                <td class="pt-3 pb-3 text-success">~1ms</td>
+              </tr>
+              <tr>
+                <td class="pt-3 pb-3"><b>Кэширование CSS</b></td>
+                <td class="pt-3 pb-3 text-error">Нет</td>
+                <td class="pt-3 pb-3 text-success">Да (статический файл)</td>
+              </tr>
+              <tr>
+                <td class="pt-3 pb-3"><b>Динамические стили</b></td>
+                <td class="pt-3 pb-3 text-success">Любые</td>
+                <td class="pt-3 pb-3 text-error">Только предопределённые варианты</td>
+              </tr>
+              <tr>
+                <td class="pt-3 pb-3"><b>TypeScript</b></td>
+                <td class="pt-3 pb-3 text-warning">Ограниченный</td>
+                <td class="pt-3 pb-3 text-success">Полная типизация</td>
+              </tr>
+              <tr>
+                <td class="pt-3 pb-3"><b>SSR-производительность</b></td>
+                <td class="pt-3 pb-3 text-warning">Средняя</td>
+                <td class="pt-3 pb-3 text-success">Отличная</td>
+              </tr>
+              <tr>
+                <td class="pt-3 pb-3"><b>Hot Reload</b></td>
+                <td class="pt-3 pb-3 text-success">Мгновенный</td>
+                <td class="pt-3 pb-3 text-warning">Требует пересборки</td>
+              </tr>
+              <tr>
+                <td class="pt-3 pb-3"><b>Порог входа</b></td>
+                <td class="pt-3 pb-3 text-success">Низкий</td>
+                <td class="pt-3 pb-3 text-warning">Выше</td>
               </tr>
               </tbody>
             </v-table>
 
-            <h2 class="text-h5 font-weight-bold mb-3">Примеры использования</h2>
+            <!-- Пример: Vanilla Extract -->
+            <p class="font-weight-regular mb-4">
+              Пример pre-compile подхода с Vanilla Extract: все варианты объявляются статически,
+              CSS генерируется при сборке, в браузере — только выбор класса.
+            </p>
+            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedVanilla"></code></pre>
 
-            <h3 class="text-h6 font-weight-bold mb-3">Styled Components</h3>
-            <pre class="mb-6 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet1"></code></pre>
-
-            <h3 class="text-h6 font-weight-bold mb-3">Emotion</h3>
-            <pre class="mb-6 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet2"></code></pre>
-
-            <h3 class="text-h6 font-weight-bold mb-3">JSS</h3>
-            <pre class="mb-6 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet3"></code></pre>
-
-            <h3 class="text-h6 font-weight-bold mb-3">Stitches</h3>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet4"></code></pre>
-
-            <h2 class="text-h5 font-weight-bold mb-3">Где лучше использовать CSS-in-JS</h2>
-            <v-row class="mb-8">
-              <v-col cols="12" md="6">
-                <v-card class="pa-4 h-100 border-success">
-                  <h3 class="text-h6 font-weight-bold mb-2 text-success">✅ Идеально подходит</h3>
-                  <ul class="pl-4">
-                    <li><b>React приложения</b> с компонентной архитектурой</li>
-                    <li><b>Дизайн-системы</b> с множеством вариантов компонентов</li>
-                    <li><b>Приложения с темами</b> (светлая/темная тема)</li>
-                    <li><b>Библиотеки компонентов</b> для переиспользования</li>
-                    <li><b>Динамические стили</b> на основе пропсов/состояния</li>
-                    <li><b>A/B тестирование</b> и персонализация</li>
-                    <li><b>Микрофронтенды</b> для изоляции стилей</li>
-                  </ul>
-                </v-card>
-              </v-col>
-              <v-col cols="12" md="6">
-                <v-card class="pa-4 h-100 border-error">
-                  <h3 class="text-h6 font-weight-bold mb-2 text-error">❌ Не рекомендуется</h3>
-                  <ul class="pl-4">
-                    <li><b>Статические сайты</b> без интерактивности</li>
-                    <li><b>Email шаблоны</b> (ограниченная поддержка)</li>
-                    <li><b>Критичная производительность</b> на слабых устройствах</li>
-                    <li><b>SEO-критичные страницы</b> без SSR</li>
-                    <li><b>Небольшие проекты</b> с простой стилизацией</li>
-                    <li><b>Команды без опыта React/JS</b></li>
-                    <li><b>Проекты с жесткими CSP</b> (Content Security Policy)</li>
-                  </ul>
-                </v-card>
-              </v-col>
-            </v-row>
-
-            <h2 class="text-h5 font-weight-bold mb-3">Плюсы CSS-in-JS</h2>
-            <v-row class="mb-6">
-              <v-col cols="12" md="4">
-                <v-card class="pa-4 h-100">
-                  <h3 class="text-h6 font-weight-bold mb-2">🎯 Локальность</h3>
-                  <ul class="pl-4">
-                    <li>Автоматическая изоляция стилей</li>
-                    <li>Нет конфликтов имен классов</li>
-                    <li>Dead code elimination</li>
-                    <li>Удаление неиспользуемых стилей</li>
-                  </ul>
-                </v-card>
-              </v-col>
-              <v-col cols="12" md="4">
-                <v-card class="pa-4 h-100">
-                  <h3 class="text-h6 font-weight-bold mb-2">⚡ Динамичность</h3>
-                  <ul class="pl-4">
-                    <li>Стили на основе пропсов</li>
-                    <li>Динамическая тематизация</li>
-                    <li>Условные стили</li>
-                    <li>Вычисляемые значения</li>
-                  </ul>
-                </v-card>
-              </v-col>
-              <v-col cols="12" md="4">
-                <v-card class="pa-4 h-100">
-                  <h3 class="text-h6 font-weight-bold mb-2">🔧 DX (Developer Experience)</h3>
-                  <ul class="pl-4">
-                    <li>TypeScript поддержка</li>
-                    <li>Автокомплит и валидация</li>
-                    <li>Отладка в DevTools</li>
-                    <li>Единый язык для логики и стилей</li>
-                  </ul>
-                </v-card>
-              </v-col>
-              <v-col cols="12" md="4">
-                <v-card class="pa-4 h-100">
-                  <h3 class="text-h6 font-weight-bold mb-2">🎨 Тематизация</h3>
-                  <ul class="pl-4">
-                    <li>Централизованные темы</li>
-                    <li>Легкое переключение</li>
-                    <li>Контекстные значения</li>
-                    <li>Runtime обновления</li>
-                  </ul>
-                </v-card>
-              </v-col>
-              <v-col cols="12" md="4">
-                <v-card class="pa-4 h-100">
-                  <h3 class="text-h6 font-weight-bold mb-2">📦 Компонентность</h3>
-                  <ul class="pl-4">
-                    <li>Стили как часть компонента</li>
-                    <li>Переиспользование</li>
-                    <li>Инкапсуляция</li>
-                    <li>Композиция стилей</li>
-                  </ul>
-                </v-card>
-              </v-col>
-              <v-col cols="12" md="4">
-                <v-card class="pa-4 h-100">
-                  <h3 class="text-h6 font-weight-bold mb-2">🚀 SSR</h3>
-                  <ul class="pl-4">
-                    <li>Критические стили inline</li>
-                    <li>Нет FOUC</li>
-                    <li>Гидратация стилей</li>
-                    <li>Оптимизация загрузки</li>
-                  </ul>
-                </v-card>
-              </v-col>
-            </v-row>
-
-            <h2 class="text-h5 font-weight-bold mb-3">Минусы CSS-in-JS</h2>
+            <!-- Гибридный подход -->
+            <h2 class="text-h5 font-weight-bold mb-3">Гибридный подход: лучшее из двух миров</h2>
+            <p class="font-weight-regular mb-4">
+              На практике часто оптимальным решением является комбинация: pre-compile для базовых
+              компонентов дизайн-системы и runtime-логика только там, где она действительно нужна.
+              Ключевым мостом между подходами служат CSS-переменные: статический класс задаёт структуру,
+              а inline-стиль через CSS custom properties передаёт динамическое значение без пересчёта CSS.
+            </p>
+            <pre class="mb-4 pa-6 rounded-lg custom-code"><code v-html="highlightedHybrid"></code></pre>
             <v-row class="mb-8">
               <v-col cols="12" md="4">
                 <v-card class="pa-4 h-100">
-                  <h3 class="text-h6 font-weight-bold mb-2">🐌 Производительность</h3>
+                  <h3 class="text-h6 font-weight-bold mb-2">Pre-compile покрывает</h3>
                   <ul class="pl-4">
-                    <li>Runtime overhead</li>
-                    <li>Дополнительные вычисления</li>
-                    <li>Увеличение размера бандла</li>
-                    <li>Возможные re-renders</li>
+                    <li>Базовые компоненты дизайн-системы</li>
+                    <li>Layout и типографику</li>
+                    <li>Предопределённые варианты кнопок, карточек, форм</li>
                   </ul>
                 </v-card>
               </v-col>
               <v-col cols="12" md="4">
                 <v-card class="pa-4 h-100">
-                  <h3 class="text-h6 font-weight-bold mb-2">📈 Сложность</h3>
+                  <h3 class="text-h6 font-weight-bold mb-2">Runtime — только для</h3>
                   <ul class="pl-4">
-                    <li>Кривая обучения</li>
-                    <li>Дополнительные абстракции</li>
-                    <li>Отладка сложнее</li>
-                    <li>Vendor lock-in</li>
+                    <li>Пользовательских тем и брендовых цветов</li>
+                    <li>Анимаций на основе live-данных</li>
+                    <li>A/B-тестирования стилей</li>
                   </ul>
                 </v-card>
               </v-col>
               <v-col cols="12" md="4">
                 <v-card class="pa-4 h-100">
-                  <h3 class="text-h6 font-weight-bold mb-2">🔒 Ограничения</h3>
+                  <h3 class="text-h6 font-weight-bold mb-2">CSS-переменные как мост</h3>
                   <ul class="pl-4">
-                    <li>Привязка к JavaScript</li>
-                    <li>CSP ограничения</li>
-                    <li>Нет кэширования браузером</li>
-                    <li>Хуже для статических стилей</li>
-                  </ul>
-                </v-card>
-              </v-col>
-              <v-col cols="12" md="4">
-                <v-card class="pa-4 h-100">
-                  <h3 class="text-h6 font-weight-bold mb-2">🎨 CSS ограничения</h3>
-                  <ul class="pl-4">
-                    <li>Не все CSS фичи поддерживаются</li>
-                    <li>Ограниченные селекторы</li>
-                    <li>Сложности с media queries</li>
-                    <li>Нет препроцессоров "из коробки"</li>
-                  </ul>
-                </v-card>
-              </v-col>
-              <v-col cols="12" md="4">
-                <v-card class="pa-4 h-100">
-                  <h3 class="text-h6 font-weight-bold mb-2">👥 Командные</h3>
-                  <ul class="pl-4">
-                    <li>Барьер для CSS-разработчиков</li>
-                    <li>Сложность для дизайнеров</li>
-                    <li>Разделение ответственности</li>
-                    <li>Миграция существующих стилей</li>
-                  </ul>
-                </v-card>
-              </v-col>
-              <v-col cols="12" md="4">
-                <v-card class="pa-4 h-100">
-                  <h3 class="text-h6 font-weight-bold mb-2">🔧 Инструменты</h3>
-                  <ul class="pl-4">
-                    <li>Ограниченная поддержка IDE</li>
-                    <li>Сложности с линтингом</li>
-                    <li>Отсутствие стандартизации</li>
-                    <li>Фрагментация экосистемы</li>
+                    <li>Динамические значения без пересчёта CSS</li>
+                    <li>Кэшируемый статический класс</li>
+                    <li>Нативная поддержка всех браузеров</li>
                   </ul>
                 </v-card>
               </v-col>
             </v-row>
 
-            <h2 class="text-h5 font-weight-bold mb-3">Динамическая тематизация</h2>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet5"></code></pre>
-
-            <h2 class="text-h5 font-weight-bold mb-3">Server-Side Rendering</h2>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet6"></code></pre>
-
-            <h2 class="text-h5 font-weight-bold mb-3">Оптимизация производительности</h2>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet7"></code></pre>
-
-            <h2 class="text-h5 font-weight-bold mb-3">Миграция на CSS-in-JS</h2>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet8"></code></pre>
-
-            <h2 class="text-h5 font-weight-bold mb-3">Частые вопросы на собеседовании</h2>
-            <ol class="ol-list mb-8">
-              <li class="mb-4">
-                <p class="font-weight-bold mb-1">В чем главное преимущество CSS-in-JS перед обычным CSS?</p>
-                <p class="font-weight-regular ma-0">
-                  Динамичность и изоляция. Стили могут изменяться на основе состояния компонента,
-                  автоматически изолируются и удаляются вместе с компонентом.
-                </p>
-              </li>
-              <li class="mb-4">
-                <p class="font-weight-bold mb-1">Какие проблемы с производительностью есть у CSS-in-JS?</p>
-                <p class="font-weight-regular ma-0">
-                  Runtime вычисления стилей, увеличение размера JS бандла, возможные re-renders при изменении стилей.
-                  Решается мемоизацией, статической экстракцией и оптимизацией.
-                </p>
-              </li>
-              <li class="mb-4">
-                <p class="font-weight-bold mb-1">Чем отличается Styled Components от Emotion?</p>
-                <p class="font-weight-regular ma-0">
-                  Styled Components использует template literals, Emotion поддерживает объектный синтаксис.
-                  Emotion легче и быстрее, Styled Components популярнее и имеет больше фич.
-                </p>
-              </li>
-              <li class="mb-4">
-                <p class="font-weight-bold mb-1">Как работает SSR с CSS-in-JS?</p>
-                <p class="font-weight-regular ma-0">
-                  Стили собираются на сервере, вставляются в HTML как критические,
-                  затем гидратируются на клиенте. Предотвращает FOUC и улучшает производительность.
-                </p>
-              </li>
-              <li class="mb-4">
-                <p class="font-weight-bold mb-1">Когда не стоит использовать CSS-in-JS?</p>
-                <p class="font-weight-regular ma-0">
-                  Для статических сайтов, при критичной производительности на слабых устройствах,
-                  в командах без опыта JavaScript, для простых проектов без динамических стилей.
-                </p>
-              </li>
-              <li class="mb-4">
-                <p class="font-weight-bold mb-1">Что такое "CSS-in-JS runtime" и "zero-runtime" подходы?</p>
-                <p class="font-weight-regular ma-0">
-                  Runtime генерирует стили во время выполнения. Zero-runtime (Vanilla Extract, Linaria)
-                  извлекает стили на этапе сборки, оставляя только статический CSS.
-                </p>
-              </li>
-            </ol>
-
-            <h2 class="text-h5 font-weight-bold mb-3">Сравнение подходов</h2>
+            <!-- Сравнение с другими подходами -->
+            <h2 class="text-h5 font-weight-bold mb-3">CSS-in-JS vs CSS Modules vs обычный CSS</h2>
             <v-table density="comfortable" class="mb-8">
               <thead>
               <tr>
@@ -644,21 +507,15 @@ onMounted(() => {
                 <td class="pt-2 pb-2 text-success">Лучшая</td>
               </tr>
               <tr>
-                <td class="pt-2 pb-2"><b>Размер бандла</b></td>
-                <td class="pt-2 pb-2 text-error">Больше</td>
-                <td class="pt-2 pb-2 text-warning">Средний</td>
-                <td class="pt-2 pb-2 text-success">Меньше</td>
-              </tr>
-              <tr>
                 <td class="pt-2 pb-2"><b>Кэширование</b></td>
-                <td class="pt-2 pb-2 text-error">Нет</td>
+                <td class="pt-2 pb-2 text-error">Нет (runtime)</td>
                 <td class="pt-2 pb-2 text-success">Да</td>
                 <td class="pt-2 pb-2 text-success">Да</td>
               </tr>
               <tr>
                 <td class="pt-2 pb-2"><b>TypeScript</b></td>
-                <td class="pt-2 pb-2 text-success">Отличная</td>
-                <td class="pt-2 pb-2 text-warning">Ограниченная</td>
+                <td class="pt-2 pb-2 text-success">Отличный</td>
+                <td class="pt-2 pb-2 text-warning">Ограниченный</td>
                 <td class="pt-2 pb-2 text-error">Нет</td>
               </tr>
               <tr>
@@ -670,76 +527,103 @@ onMounted(() => {
               </tbody>
             </v-table>
 
-            <h2 class="text-h5 font-weight-bold mb-3">Рекомендации по выбору</h2>
+            <!-- Где использовать -->
+            <h2 class="text-h5 font-weight-bold mb-3">Где стоит использовать CSS-in-JS</h2>
             <v-row class="mb-8">
               <v-col cols="12" md="6">
                 <v-card class="pa-4 h-100 border-success">
-                  <h3 class="text-h6 font-weight-bold mb-2 text-success">✅ Выбирайте CSS-in-JS, если:</h3>
+                  <h3 class="text-h6 font-weight-bold mb-2 text-success">✅ Идеально подходит</h3>
                   <ul class="pl-4">
-                    <li>Разрабатываете React/Vue приложение</li>
-                    <li>Нужны динамические стили</li>
-                    <li>Команда владеет JavaScript</li>
-                    <li>Создаете дизайн-систему</li>
-                    <li>Требуется строгая типизация стилей</li>
-                    <li>Используете серверный рендеринг</li>
-                    <li>Нужна изоляция компонентов</li>
+                    <li class="mb-1"><b>React/Vue-приложения</b> с компонентной архитектурой</li>
+                    <li class="mb-1"><b>Дизайн-системы</b> с множеством вариантов компонентов</li>
+                    <li class="mb-1"><b>Приложения с темами</b> — светлая/тёмная, мультибрендовость</li>
+                    <li class="mb-1"><b>Библиотеки компонентов</b> для переиспользования</li>
+                    <li class="mb-1"><b>Динамические стили</b> на основе пользовательских данных</li>
+                    <li class="mb-1"><b>Микрофронтенды</b> — полная изоляция стилей между командами</li>
                   </ul>
                 </v-card>
               </v-col>
               <v-col cols="12" md="6">
-                <v-card class="pa-4 h-100 border-warning">
-                  <h3 class="text-h6 font-weight-bold mb-2 text-warning">🤔 Альтернативы стоит рассмотреть, если:</h3>
+                <v-card class="pa-4 h-100 border-error">
+                  <h3 class="text-h6 font-weight-bold mb-2 text-error">❌ Не рекомендуется</h3>
                   <ul class="pl-4">
-                    <li>Критична производительность</li>
-                    <li>Работаете со статическими стилями</li>
-                    <li>Команда предпочитает обычный CSS</li>
-                    <li>Проект небольшой и простой</li>
-                    <li>Нужна совместимость со старыми браузерами</li>
-                    <li>Есть ограничения CSP</li>
+                    <li class="mb-1"><b>Статические сайты</b> без интерактивности</li>
+                    <li class="mb-1"><b>Email-шаблоны</b> — ограниченная поддержка</li>
+                    <li class="mb-1"><b>Проекты с жёсткими CSP</b> — inline-стили могут быть заблокированы</li>
+                    <li class="mb-1"><b>Небольшие проекты</b> с простой стилизацией</li>
+                    <li class="mb-1"><b>Команды без опыта JS</b> — слишком высокий порог входа</li>
+                    <li class="mb-1"><b>Критичная производительность</b> на слабых устройствах</li>
                   </ul>
                 </v-card>
               </v-col>
             </v-row>
 
-            <h2 class="text-h5 font-weight-bold mb-3">Современные решения и тренды</h2>
-            <v-row class="mb-8">
-              <v-col cols="12" md="4">
+            <!-- Как выбрать библиотеку -->
+            <h2 class="text-h5 font-weight-bold mb-3">Как выбрать конкретную библиотеку</h2>
+            <p class="font-weight-regular mb-4">
+              Нет универсального ответа — выбор зависит от требований проекта, опыта команды
+              и долгосрочных планов. Вот практические рекомендации:
+            </p>
+            <v-row class="mb-6">
+              <v-col cols="12" md="6">
                 <v-card class="pa-4 h-100">
-                  <h3 class="text-h6 font-weight-bold mb-2">Zero-Runtime</h3>
-                  <p class="mb-2"><b>Vanilla Extract</b> - статическая экстракция</p>
-                  <p class="mb-2"><b>Linaria</b> - CSS из JS на build-time</p>
-                  <p class="ma-0"><b>Compiled</b> - компиляция styled-components</p>
+                  <h3 class="text-h6 font-weight-bold mb-2 text-primary">Styled Components</h3>
+                  <p class="mb-2">Выбирайте, если команда привыкла к CSS-синтаксису, нужна максимальная гибкость
+                    и большое сообщество с готовыми решениями. Хорош для React-экосистемы с активной
+                    тематизацией. Избегайте, если критична производительность или нужен строгий TypeScript.</p>
                 </v-card>
               </v-col>
-              <v-col cols="12" md="4">
+              <v-col cols="12" md="6">
                 <v-card class="pa-4 h-100">
-                  <h3 class="text-h6 font-weight-bold mb-2">Hybrid подходы</h3>
-                  <p class="mb-2"><b>Stitches</b> - утилитарный CSS-in-JS</p>
-                  <p class="mb-2"><b>Twin.macro</b> - Tailwind в CSS-in-JS</p>
-                  <p class="ma-0"><b>Goober</b> - легкая альтернатива</p>
+                  <h3 class="text-h6 font-weight-bold mb-2 text-success">Emotion</h3>
+                  <p class="mb-2">Лучший баланс гибкости и производительности среди runtime-решений.
+                    Поддерживает оба синтаксиса, отличная TypeScript-интеграция, используется в MUI.
+                    Хороший выбор для больших приложений, где важен DX.</p>
                 </v-card>
               </v-col>
-              <v-col cols="12" md="4">
+              <v-col cols="12" md="6">
                 <v-card class="pa-4 h-100">
-                  <h3 class="text-h6 font-weight-bold mb-2">Новые стандарты</h3>
-                  <p class="mb-2"><b>CSS Houdini</b> - кастомные свойства</p>
-                  <p class="mb-2"><b>Container Queries</b> - адаптивность</p>
-                  <p class="ma-0"><b>CSS Layers</b> - управление каскадом</p>
+                  <h3 class="text-h6 font-weight-bold mb-2 text-warning">Stitches</h3>
+                  <p class="mb-2">Идеален для дизайн-систем с предсказуемыми вариантами стилей.
+                    Система вариантов + compound variants даёт отличную типизацию и читаемость.
+                    Менее подходит, если много произвольных runtime-вычислений.</p>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2 text-info">Vanilla Extract</h3>
+                  <p class="mb-2">Выбор для проектов, где производительность критична: zero-runtime,
+                    статический CSS, полная TypeScript-типизация включая токены темы. Требует
+                    предопределить все варианты заранее — не подойдёт для сильно динамичных интерфейсов.</p>
                 </v-card>
               </v-col>
             </v-row>
 
-            <h2 class="text-h5 font-weight-bold mb-3">Оптимизация производительности CSS-in-JS</h2>
-            <v-row class="mb-8">
+            <v-alert type="info" class="mb-8">
+              <p class="mb-2"><b>Практическое правило для новых проектов (2024–2025):</b></p>
+              <ul class="pl-4 ma-0">
+                <li>Небольшой проект — Goober или встроенные решения фреймворка</li>
+                <li>Средний проект с динамикой — Emotion или Stitches</li>
+                <li>Большой проект / дизайн-система — Vanilla Extract + TypeScript</li>
+                <li>Начать с CSS Modules и переходить на CSS-in-JS только по мере роста сложности</li>
+              </ul>
+            </v-alert>
+
+            <!-- Оптимизация и практика -->
+            <h2 class="text-h5 font-weight-bold mb-3">Оптимизация производительности</h2>
+            <p class="font-weight-regular mb-4">
+              Если вы выбрали runtime CSS-in-JS и столкнулись с проблемами производительности,
+              есть несколько эффективных техник:
+            </p>
+            <v-row class="mb-6">
               <v-col cols="12" md="6">
                 <v-card class="pa-4 h-100">
                   <h3 class="text-h6 font-weight-bold mb-2">🚀 Техники оптимизации</h3>
                   <ul class="pl-4">
-                    <li><b>Мемоизация стилей</b> - useMemo, React.memo</li>
-                    <li><b>Статическая экстракция</b> - babel плагины</li>
-                    <li><b>Code splitting</b> - динамические импорты</li>
-                    <li><b>CSS переменные</b> - вместо пересчета стилей</li>
-                    <li><b>Server-side рендеринг</b> - критические стили</li>
+                    <li class="mb-1"><b>Мемоизация стилей</b> через useMemo — вычисляйте объект стилей только при изменении зависимостей, а не при каждом рендере</li>
+                    <li class="mb-1"><b>Статическая экстракция</b> через babel-плагины — часть стилей вычисляется при сборке</li>
+                    <li class="mb-1"><b>CSS-переменные</b> вместо динамических интерполяций — сокращают количество генерируемых классов</li>
+                    <li class="mb-1"><b>SSR с критическими стилями</b> — вставляйте только нужные стили в HTML, остальное загружайте асинхронно</li>
                   </ul>
                 </v-card>
               </v-col>
@@ -747,70 +631,175 @@ onMounted(() => {
                 <v-card class="pa-4 h-100">
                   <h3 class="text-h6 font-weight-bold mb-2">⚡ Измерение производительности</h3>
                   <ul class="pl-4">
-                    <li><b>Bundle analyzer</b> - размер CSS-in-JS</li>
-                    <li><b>React DevTools</b> - профилирование</li>
-                    <li><b>Lighthouse</b> - время загрузки стилей</li>
-                    <li><b>Chrome DevTools</b> - paint/layout метрики</li>
-                    <li><b>Web Vitals</b> - CLS от динамических стилей</li>
+                    <li class="mb-1"><b>Bundle Analyzer</b> — оцените реальный размер CSS-in-JS библиотеки в бандле</li>
+                    <li class="mb-1"><b>React DevTools Profiler</b> — найдите компоненты с лишними пересчётами стилей</li>
+                    <li class="mb-1"><b>Chrome DevTools / Rendering</b> — отслеживайте paint и layout, вызванные динамическими стилями</li>
+                    <li class="mb-1"><b>Web Vitals / CLS</b> — динамические стили могут вызывать layout shift при SSR</li>
                   </ul>
                 </v-card>
               </v-col>
             </v-row>
 
-            <h2 class="text-h5 font-weight-bold mb-3">Практические советы для команд</h2>
-            <v-alert type="info" class="mb-6">
-              <p class="mb-2"><strong>Для новых проектов:</strong></p>
-              <p class="ma-0">
-                Начните с CSS Modules или Tailwind. Переходите на CSS-in-JS только при необходимости
-                динамических стилей или сложной тематизации.
-              </p>
-            </v-alert>
+            <!-- Миграция -->
+            <h2 class="text-h5 font-weight-bold mb-3">Миграция на CSS-in-JS и между библиотеками</h2>
+            <p class="font-weight-regular mb-4">
+              Миграция не должна быть всё-или-ничего. Правильная стратегия — постепенный переход,
+              компонент за компонентом. Обе системы могут сосуществовать в одном проекте: старые
+              компоненты на CSS Modules, новые на CSS-in-JS. Так снижается риск и упрощается
+              code review.
+            </p>
+            <v-table density="comfortable" class="mb-8">
+              <thead>
+              <tr>
+                <th class="text-left font-weight-bold">Откуда → Куда</th>
+                <th class="text-left font-weight-bold">Сложность</th>
+                <th class="text-left font-weight-bold">Основные изменения</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td class="pt-2 pb-2">CSS → Styled Components / Emotion</td>
+                <td class="pt-2 pb-2 text-warning">Средняя</td>
+                <td class="pt-2 pb-2">Перенос стилей в компоненты, замена классов на styled</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2">CSS Modules → CSS-in-JS</td>
+                <td class="pt-2 pb-2 text-warning">Средняя</td>
+                <td class="pt-2 pb-2">Упразднение .module.css файлов, логика в компонентах</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2">Styled Components → Emotion</td>
+                <td class="pt-2 pb-2 text-success">Лёгкая</td>
+                <td class="pt-2 pb-2">Замена импортов, небольшие API-отличия</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2">Runtime → Vanilla Extract</td>
+                <td class="pt-2 pb-2 text-error">Сложная</td>
+                <td class="pt-2 pb-2">Новая архитектура, статические варианты вместо динамики</td>
+              </tr>
+              </tbody>
+            </v-table>
 
-            <v-alert type="warning" class="mb-6">
-              <p class="mb-2"><strong>Для миграции:</strong></p>
-              <p class="ma-0">
-                Мигрируйте постепенно, компонент за компонентом. Используйте инструменты автоматизации
-                и не забывайте о тестировании визуальной регрессии.
-              </p>
-            </v-alert>
+            <!-- Тренды -->
+            <h2 class="text-h5 font-weight-bold mb-3">Современные тренды</h2>
+            <v-row class="mb-8">
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">🔄 Zero-runtime</h3>
+                  <p>
+                    Главный тренд последних лет — отказ от runtime-вычислений в пользу compile-time.
+                    Vanilla Extract, Linaria, Compiled от Facebook, Tamagui для React Native —
+                    все они извлекают CSS на этапе сборки.
+                  </p>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">🎯 TypeScript-first</h3>
+                  <p>
+                    Полная типизация CSS-свойств и значений токенов темы становится стандартом.
+                    Vanilla Extract генерирует типы из конфигурации темы, исключая случайные опечатки
+                    в именах переменных и значениях.
+                  </p>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-card class="pa-4 h-100">
+                  <h3 class="text-h6 font-weight-bold mb-2">⚡ Новые CSS-стандарты</h3>
+                  <p>
+                    CSS Houdini, Container Queries, CSS Layers и нативные CSS-переменные постепенно
+                    закрывают задачи, для которых раньше был нужен CSS-in-JS. Это меняет
+                    соотношение сил в пользу более простых решений.
+                  </p>
+                </v-card>
+              </v-col>
+            </v-row>
 
+            <!-- Вопросы -->
+            <h2 class="text-h5 font-weight-bold mb-3">Частые вопросы на собеседовании</h2>
+            <ol class="ol-list mb-8">
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">В чём главное преимущество CSS-in-JS перед обычным CSS?</p>
+                <p class="font-weight-regular ma-0">
+                  Автоматическая изоляция стилей и реактивность. Стили вычисляются на основе состояния
+                  компонента, не конфликтуют с другими компонентами и удаляются вместе с ним.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">В чём разница между runtime и zero-runtime подходами?</p>
+                <p class="font-weight-regular ma-0">
+                  Runtime (Styled Components, Emotion) генерируют CSS в браузере — гибко, но с накладными
+                  расходами. Zero-runtime (Vanilla Extract, Linaria) извлекают CSS при сборке —
+                  быстрее и меньше бандл, но все варианты стилей должны быть известны заранее.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Чем Styled Components отличается от Emotion?</p>
+                <p class="font-weight-regular ma-0">
+                  Оба runtime, но Emotion легче (~20kb против ~40kb), поддерживает объектный синтаксис
+                  наряду со строковым, имеет лучшую TypeScript-интеграцию. Styled Components популярнее,
+                  больше сообщество и экосистема плагинов.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Как работает SSR с CSS-in-JS?</p>
+                <p class="font-weight-regular ma-0">
+                  Стили собираются на сервере (например, ServerStyleSheet в Styled Components),
+                  вставляются в HTML как критические &lt;style&gt;-теги, затем гидратируются на клиенте.
+                  Это предотвращает FOUC и улучшает LCP.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Как оптимизировать производительность runtime CSS-in-JS?</p>
+                <p class="font-weight-regular ma-0">
+                  Мемоизировать объекты стилей через useMemo, использовать CSS-переменные вместо
+                  динамических интерполяций, применять babel-плагины для статической экстракции,
+                  рассмотреть миграцию на zero-runtime если проблемы системные.
+                </p>
+              </li>
+              <li class="mb-4">
+                <p class="font-weight-bold mb-1">Когда не стоит использовать CSS-in-JS?</p>
+                <p class="font-weight-regular ma-0">
+                  Для статических сайтов, email-шаблонов, проектов с жёсткими CSP,
+                  при критичной производительности на слабых устройствах или в командах без
+                  опыта JavaScript. В этих случаях CSS Modules или Tailwind — лучший выбор.
+                </p>
+              </li>
+            </ol>
+
+            <!-- Заключение -->
             <h2 class="text-h5 font-weight-bold mb-3">Заключение</h2>
+            <p class="font-weight-regular mb-4">
+              CSS-in-JS — мощный инструмент, хорошо решающий реальные проблемы больших компонентных
+              приложений: изоляцию стилей, тематизацию, динамичность и коллокацию кода.
+              Но он не является серебряной пулей.
+            </p>
             <p class="font-weight-regular mb-6">
-              CSS-in-JS — мощный инструмент для современной веб-разработки, особенно в экосистеме React.
-              Он отлично решает задачи изоляции стилей, динамической тематизации и создания переиспользуемых
-              компонентов. Однако важно взвешивать преимущества против накладных расходов на производительность
-              и сложность. Для статических сайтов и простых проектов традиционные подходы могут быть предпочтительнее.
+              Ключевое решение — runtime против pre-compile — определяет большинство характеристик
+              проекта. Runtime даёт свободу и скорость разработки, pre-compile — производительность
+              и типизацию. Гибридный подход с CSS-переменными часто оказывается оптимальным компромиссом.
+              Для статических сайтов и простых проектов традиционные подходы по-прежнему предпочтительнее.
             </p>
 
             <div class="d-flex justify-space-between flex-wrap">
-              <v-btn
-                color="primary"
-                size="small"
-                variant="elevated"
-                href="https://styled-components.com/"
-                target="_blank"
-                class="mb-2">
+              <v-btn color="primary" size="small" variant="elevated"
+                     href="https://styled-components.com/" target="_blank" class="mb-2">
                 Styled Components
               </v-btn>
-              <v-btn
-                color="secondary"
-                size="small"
-                variant="elevated"
-                href="https://emotion.sh/"
-                target="_blank"
-                class="mb-2">
-                Emotion Docs
+              <v-btn color="secondary" size="small" variant="elevated"
+                     href="https://emotion.sh/" target="_blank" class="mb-2">
+                Emotion
               </v-btn>
-              <v-btn
-                color="success"
-                size="small"
-                variant="elevated"
-                href="https://vanilla-extract.style/"
-                target="_blank"
-                class="mb-2">
+              <v-btn color="warning" size="small" variant="elevated"
+                     href="https://stitches.dev/" target="_blank" class="mb-2">
+                Stitches
+              </v-btn>
+              <v-btn color="success" size="small" variant="elevated"
+                     href="https://vanilla-extract.style/" target="_blank" class="mb-2">
                 Vanilla Extract
               </v-btn>
             </div>
+
           </v-col>
         </v-row>
       </v-container>

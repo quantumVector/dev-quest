@@ -15,8 +15,6 @@ import FlexboxVsGrid from '@/views/css/FlexboxVsGrid.vue'
 import CSSFlexVsGridTestPage from '@/views/tests/CSSFlexVsGridTestPage.vue'
 import TransformationsTestPage from '@/views/tests/TransformationsTestPage.vue'
 import CSSInJS from '@/views/css/CSSInJS.vue'
-import CSSInJSApproaches from '@/views/css/CSSInJSApproaches.vue'
-import RuntimeVSPreCompile from '@/views/css/RuntimeVSPreCompile.vue'
 import CSSInJsTestPage from '@/views/tests/CSSInJsTestPage.vue'
 import HTMLInterviewPage from '@/views/interview/HTMLInterviewPage.vue'
 import InterviewPage from '@/views/InterviewPage.vue'
@@ -292,14 +290,6 @@ export const routes = [
   {
     path: '/css/css-in-js',
     component: CSSInJS,
-  },
-  {
-    path: '/css/css-in-js-approaches',
-    component: CSSInJSApproaches,
-  },
-  {
-    path: '/css/runtime-vs-pre-compile',
-    component: RuntimeVSPreCompile,
   },
   {
     path: '/css/css-in-js-test',
