@@ -6,13 +6,6 @@ import Accessibility from "@/views/html/Accessibility.vue";
 import ResponsiveImage from "@/views/html/ResponsiveImage.vue";
 import HTMLTestPage from '@/views/tests/HTMLTestPage.vue'
 import Specificity from "@/views/css/Specificity.vue";
-import StyleIsolation from "@/views/css/StyleIsolation.vue";
-import IsolationMethods from "@/views/css/IsolationMethods.vue";
-import ScopedSelectors from "@/views/css/ScopedSelectors.vue";
-import IsolationLibs from '@/views/css/IsolationLibs.vue'
-import StyleIsolationPerfomance from '@/views/css/StyleIsolationPerfomance.vue'
-import ComponentArchitecture from '@/views/css/ComponentArchitecture.vue'
-import StyleIsolationMigration from '@/views/css/StyleIsolationMigration.vue'
 import RelativeUnits from '@/views/css/RelativeUnits.vue'
 import TestsPage from '@/views/TestsPage.vue'
 import CSSSpecificityTestPage from '@/views/tests/CSSSpecificityTestPage.vue'
@@ -213,6 +206,7 @@ import SitemapAndRobots from '@/views/optimization/SitemapAndRobots.vue'
 import MetaTags from '@/views/optimization/MetaTags.vue'
 import LazyLoading from '@/views/optimization/LazyLoading.vue'
 import CanonicalHreflang from '@/views/optimization/CanonicalHreflang.vue'
+import IsolationCSS from '@/views/css/IsolationCSS.vue'
 
 export const routes = [
   {
@@ -268,36 +262,12 @@ export const routes = [
     component: CSSInterviewPage,
   },
   {
-    path: '/css/style-isolation',
-    component: StyleIsolation,
+    path: '/css/isolation-css',
+    component: IsolationCSS,
   },
   {
     path: '/css/isolation-test',
     component: CSSIsolationTestPage,
-  },
-  {
-    path: '/css/isolation-methods',
-    component: IsolationMethods,
-  },
-  {
-    path: '/css/scoped-selectors',
-    component: ScopedSelectors,
-  },
-  {
-    path: '/css/isolation-libs',
-    component: IsolationLibs,
-  },
-  {
-    path: '/css/isolation-perfomance',
-    component: StyleIsolationPerfomance,
-  },
-  {
-    path: '/css/component-architecture',
-    component: ComponentArchitecture,
-  },
-  {
-    path: '/css/isolation-migration',
-    component: StyleIsolationMigration,
   },
   {
     path: '/css/relative-units',
