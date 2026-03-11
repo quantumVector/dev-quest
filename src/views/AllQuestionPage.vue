@@ -474,5 +474,15 @@
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
+
+    <v-expansion-panel title="TanStack Query">
+      <v-expansion-panel-text>
+        <v-list>
+          <v-list-item to="/tanstack-query/custom-tanstack-query">
+            <v-list-item-title>1. Создание собственного React Query</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-expansion-panel-text>
+    </v-expansion-panel>
   </v-expansion-panels>
 </template>

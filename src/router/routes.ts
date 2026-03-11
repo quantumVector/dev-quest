@@ -201,6 +201,7 @@ import LazyLoading from '@/views/optimization/LazyLoading.vue'
 import CanonicalHreflang from '@/views/optimization/CanonicalHreflang.vue'
 import IsolationCSS from '@/views/css/IsolationCSS.vue'
 import Transformations from '@/views/css/Transformations.vue'
+import CustomTanStackQuery from '@/views/tanstack-query/CustomTanStackQuery.vue'
 
 export const routes = [
   {
@@ -1014,5 +1015,9 @@ export const routes = [
   {
     path: '/optimization/canonical-hreflang',
     component: CanonicalHreflang,
+  },
+  {
+    path: '/tanstack-query/custom-tanstack-query',
+    component: CustomTanStackQuery,
   }
 ]

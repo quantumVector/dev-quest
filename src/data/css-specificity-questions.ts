@@ -18,13 +18,13 @@ export const cssSpecificityQuestions: Question[] = [
     id: 2,
     question: "Чему равна специфичность селектора 'div.container #main p.text'?",
     options: [
-      "0,1,2,1",
+      "0,1,2,2",
       "0,1,1,2",
       "0,2,1,1",
       "1,1,2,0"
     ],
     correctAnswer: 0,
-    explanation: "Специфичность рассчитывается как: 0 inline-стилей, 1 ID (#main), 2 класса (.container, .text), 1 элемент (div, p) = 0,1,2,1",
+    explanation: "Специфичность рассчитывается как: 0 inline-стилей, 1 ID (#main), 2 класса (.container, .text), 2 элемента (div, p) = 0,1,2,2",
     topic: "Специфичность селекторов"
   },
   {
@@ -88,8 +88,8 @@ export const cssSpecificityQuestions: Question[] = [
       "#header #nav .item",
       ".header .nav .item"
     ],
-    correctAnswer: 1,
-    explanation: "Селектор '.header #nav .item' имеет: 0 inline, 1 ID (#nav), 2 класса (.header, .item), 0 элементов = 0,1,2,0. Правильный ответ 0,2,1,0 соответствует '#header #nav .item'.",
+    correctAnswer: 2,
+    explanation: "Селектор '#header #nav .item' имеет: 0 inline, 2 ID (#header, #nav), 1 класс (.item), 0 элементов = 0,2,1,0.",
     topic: "Специфичность селекторов"
   },
   {
@@ -166,8 +166,8 @@ export const cssSpecificityQuestions: Question[] = [
       "0,0,2,4",
       "0,0,3,4"
     ],
-    correctAnswer: 0,
-    explanation: "Специфичность: 0 ID, 2 класса/псевдокласса (.container, :first-child), 4 элемента/псевдоэлемента (body, div, p, ::after) = 0,0,2,4. Правильный ответ должен быть 0,0,2,4.",
+    correctAnswer: 2,
+    explanation: "Специфичность: 0 ID, 2 класса/псевдокласса (.container, :first-child), 4 элемента/псевдоэлемента (body, div, p, ::after) = 0,0,2,4.",
     topic: "Специфичность селекторов"
   },
   {
