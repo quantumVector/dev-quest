@@ -282,5 +282,15 @@
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
+
+    <v-expansion-panel title="TanStack Query">
+      <v-expansion-panel-text>
+        <v-list>
+          <v-list-item to="/tanstack-query/ssr-next-test">
+            <v-list-item-title>1. SSR с TanStack Query в Next.js App Router</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-expansion-panel-text>
+    </v-expansion-panel>
   </v-expansion-panels>
 </template>

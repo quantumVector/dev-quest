@@ -481,6 +481,9 @@
           <v-list-item to="/tanstack-query/custom-tanstack-query">
             <v-list-item-title>1. Создание собственного React Query</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/tanstack-query/ssr-next">
+            <v-list-item-title>2. SSR с TanStack Query в Next.js App Router</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>

@@ -202,6 +202,9 @@ import CanonicalHreflang from '@/views/optimization/CanonicalHreflang.vue'
 import IsolationCSS from '@/views/css/IsolationCSS.vue'
 import Transformations from '@/views/css/Transformations.vue'
 import CustomTanStackQuery from '@/views/tanstack-query/CustomTanStackQuery.vue'
+import TanStackSSRNext from '@/views/tanstack-query/TanStackSSRNext.vue'
+import TanStackSSRNextTestPage from '@/views/tests/TanStackSSRNextTestPage.vue'
+import TanStackSSRNextInterviewPage from '@/views/interview/TanStackSSRNextInterviewPage.vue'
 
 export const routes = [
   {
@@ -1019,5 +1022,17 @@ export const routes = [
   {
     path: '/tanstack-query/custom-tanstack-query',
     component: CustomTanStackQuery,
+  },
+  {
+    path: '/tanstack-query/ssr-next',
+    component: TanStackSSRNext,
+  },
+  {
+    path: '/tanstack-query/ssr-next-test',
+    component: TanStackSSRNextTestPage,
+  },
+  {
+    path: '/tanstack-query/ssr-next-interview',
+    component: TanStackSSRNextInterviewPage,
   }
 ]
