@@ -177,6 +177,80 @@ onMounted(() => {
               </tbody>
             </v-table>
 
+            <h2 class="text-h5 font-weight-bold mb-3">Как различать похожие селекторы</h2>
+            <p class="font-weight-regular mb-4">
+              При подсчете важно смотреть не на смысл селектора, а на его синтаксис.
+              Атрибуты и псевдоклассы попадают в группу <code>c</code>, а элементы и псевдоэлементы — в группу <code>d</code>.
+            </p>
+
+            <v-table density="comfortable" class="mb-4">
+              <thead>
+              <tr>
+                <th class="text-left font-weight-bold">Тип</th>
+                <th class="text-left font-weight-bold">Как выглядит</th>
+                <th class="text-left font-weight-bold">Примеры</th>
+                <th class="text-left font-weight-bold">Куда считается</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td class="pt-2 pb-2"><b>Атрибуты</b></td>
+                <td class="pt-2 pb-2">Квадратные скобки <code>[]</code></td>
+                <td class="pt-2 pb-2">
+                  <code>[href]</code>, <code>[type="button"]</code>, <code>[data-state="open"]</code>,
+                  <code>[class~="primary"]</code>, <code>[href^="https"]</code>, <code>[href$=".pdf"]</code>
+                </td>
+                <td class="pt-2 pb-2"><code>c</code> — как класс</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>Псевдоклассы</b></td>
+                <td class="pt-2 pb-2">Одно двоеточие <code>:</code></td>
+                <td class="pt-2 pb-2">
+                  <code>:hover</code>, <code>:focus</code>, <code>:checked</code>, <code>:disabled</code>,
+                  <code>:first-child</code>, <code>:nth-child()</code>, <code>:not()</code>, <code>:is()</code>,
+                  <code>:has()</code>, <code>:where()</code>
+                </td>
+                <td class="pt-2 pb-2"><code>c</code> — как класс</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>Элементы</b></td>
+                <td class="pt-2 pb-2">Имя HTML-тега</td>
+                <td class="pt-2 pb-2">
+                  <code>div</code>, <code>p</code>, <code>a</code>, <code>button</code>, <code>input</code>,
+                  <code>h1</code>, <code>ul</code>, <code>li</code>, <code>section</code>
+                </td>
+                <td class="pt-2 pb-2"><code>d</code> — как элемент</td>
+              </tr>
+              <tr>
+                <td class="pt-2 pb-2"><b>Псевдоэлементы</b></td>
+                <td class="pt-2 pb-2">Два двоеточия <code>::</code></td>
+                <td class="pt-2 pb-2">
+                  <code>::before</code>, <code>::after</code>, <code>::first-line</code>,
+                  <code>::first-letter</code>, <code>::selection</code>, <code>::marker</code>,
+                  <code>::placeholder</code>, <code>::backdrop</code>
+                </td>
+                <td class="pt-2 pb-2"><code>d</code> — как элемент</td>
+              </tr>
+              </tbody>
+            </v-table>
+
+            <ul class="pl-4 mb-8">
+              <li>
+                <code>:hover</code> — псевдокласс: описывает состояние существующего элемента.
+              </li>
+              <li>
+                <code>::before</code> — псевдоэлемент: выбирает создаваемую или отдельную часть элемента.
+              </li>
+              <li>
+                <code>[disabled]</code> — атрибут: выбирает элемент по наличию атрибута, а <code>:disabled</code> —
+                псевдокласс, который выбирает элемент по состоянию.
+              </li>
+              <li>
+                <code>:not()</code>, <code>:is()</code> и <code>:has()</code> сами не добавляют вес как обычный псевдокласс:
+                считается самый специфичный селектор внутри. <code>:where()</code> всегда дает <code>0</code>.
+              </li>
+            </ul>
+
             <h2 class="text-h5 font-weight-bold mb-3">Базовые примеры</h2>
             <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet1"></code></pre>
 
@@ -306,7 +380,7 @@ onMounted(() => {
             <h2 class="text-h5 font-weight-bold mb-3">Итог</h2>
             <p class="font-weight-regular mb-6">
               Специфичность CSS — это система <code>a,b,c,d</code>, где a=!important, b=ID, c=классы/атрибуты/псевдоклассы,
-              d=элементы. Понимание специфичности критично для написания поддерживаемого CSS и решения конфликтов стилей.
+              d=элементы/псевдоэлементы. Понимание специфичности критично для написания поддерживаемого CSS и решения конфликтов стилей.
               Главный принцип: держите специфичность низкой и используйте структурированные подходы.
             </p>
 

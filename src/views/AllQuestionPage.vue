@@ -487,5 +487,18 @@
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
+
+    <v-expansion-panel title="Jotai">
+      <v-expansion-panel-text>
+        <v-list>
+          <v-list-item to="/jotai/practice">
+            <v-list-item-title>1. Jotai на практике: атомы, derived state и async-состояние</v-list-item-title>
+          </v-list-item>
+          <v-list-item to="/jotai/cookbook">
+            <v-list-item-title>2. Jotai: книга рецептов для реального приложения</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-expansion-panel-text>
+    </v-expansion-panel>
   </v-expansion-panels>
 </template>

@@ -332,6 +332,42 @@
                 </v-card>
               </v-col>
 
+              <!-- Jotai блок -->
+              <v-col cols="12" md="6">
+                <v-card variant="outlined" hover class="h-100" to="/jotai/practice-interview">
+                  <v-card-text class="pa-6">
+                    <div class="d-flex align-center mb-4">
+                      <v-avatar color="lime-darken-3" size="large" class="mr-4">
+                        <v-icon size="large">mdi-atom</v-icon>
+                      </v-avatar>
+                      <div>
+                        <h3 class="text-h5 mb-1">Jotai</h3>
+                        <p class="text-body-2 text-medium-emphasis mb-0">
+                          Атомарное состояние React
+                        </p>
+                      </div>
+                    </div>
+
+                    <div class="mb-4">
+                      <v-chip color="success" size="small" class="mr-2 mb-2"> Junior: 9 </v-chip>
+                      <v-chip color="warning" size="small" class="mr-2 mb-2"> Middle: 12 </v-chip>
+                      <v-chip color="error" size="small" class="mr-2 mb-2"> Senior: 4 </v-chip>
+                    </div>
+
+                    <p class="text-body-2 mb-0">
+                      Вопросы по atom, derived state, writable atoms, atomWithStorage,
+                      async atoms и выбору между Jotai, Redux и TanStack Query.
+                    </p>
+                  </v-card-text>
+
+                  <v-card-actions class="pa-6 pt-0">
+                    <v-btn color="lime-darken-3" variant="tonal" append-icon="mdi-arrow-right">
+                      Начать подготовку
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-col>
+
               <!-- блок Web -->
               <v-col cols="12" md="6">
                 <v-card variant="outlined" hover class="h-100" to="/web/web-interview">

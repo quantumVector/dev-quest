@@ -205,6 +205,10 @@ import CustomTanStackQuery from '@/views/tanstack-query/CustomTanStackQuery.vue'
 import TanStackSSRNext from '@/views/tanstack-query/TanStackSSRNext.vue'
 import TanStackSSRNextTestPage from '@/views/tests/TanStackSSRNextTestPage.vue'
 import TanStackSSRNextInterviewPage from '@/views/interview/TanStackSSRNextInterviewPage.vue'
+import JotaiPractice from '@/views/jotai/JotaiPractice.vue'
+import JotaiPracticeTestPage from '@/views/tests/JotaiPracticeTestPage.vue'
+import JotaiPracticeInterviewPage from '@/views/interview/JotaiPracticeInterviewPage.vue'
+import JotaiCookbook from '@/views/jotai/JotaiCookbook.vue'
 
 export const routes = [
   {
@@ -1034,5 +1038,21 @@ export const routes = [
   {
     path: '/tanstack-query/ssr-next-interview',
     component: TanStackSSRNextInterviewPage,
+  },
+  {
+    path: '/jotai/practice',
+    component: JotaiPractice,
+  },
+  {
+    path: '/jotai/cookbook',
+    component: JotaiCookbook,
+  },
+  {
+    path: '/jotai/practice-test',
+    component: JotaiPracticeTestPage,
+  },
+  {
+    path: '/jotai/practice-interview',
+    component: JotaiPracticeInterviewPage,
   }
 ]

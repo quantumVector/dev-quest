@@ -292,5 +292,15 @@
         </v-list>
       </v-expansion-panel-text>
     </v-expansion-panel>
+
+    <v-expansion-panel title="Jotai">
+      <v-expansion-panel-text>
+        <v-list>
+          <v-list-item to="/jotai/practice-test">
+            <v-list-item-title>1. Jotai на практике</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-expansion-panel-text>
+    </v-expansion-panel>
   </v-expansion-panels>
 </template>
