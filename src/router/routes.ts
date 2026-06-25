@@ -8,6 +8,9 @@ import HTMLTestPage from '@/views/tests/HTMLTestPage.vue'
 import Specificity from "@/views/css/Specificity.vue";
 import RelativeUnits from '@/views/css/RelativeUnits.vue'
 import TestsPage from '@/views/TestsPage.vue'
+import AppsPage from '@/views/apps/AppsPage.vue'
+import CssSpecificityAppPage from '@/views/apps/CssSpecificityAppPage.vue'
+import InterviewRandomTrainerPage from '@/views/apps/InterviewRandomTrainerPage.vue'
 import CSSSpecificityTestPage from '@/views/tests/CSSSpecificityTestPage.vue'
 import CSSIsolationTestPage from '@/views/tests/CSSIsolationTestPage.vue'
 import CSSRelativeUnitsTestPage from '@/views/tests/CSSRelativeUnitsTestPage.vue'
@@ -222,6 +225,18 @@ export const routes = [
   {
     path: '/interview',
     component: InterviewPage,
+  },
+  {
+    path: '/apps',
+    component: AppsPage,
+  },
+  {
+    path: '/apps/css-specificity',
+    component: CssSpecificityAppPage,
+  },
+  {
+    path: '/apps/interview-trainer',
+    component: InterviewRandomTrainerPage,
   },
   {
     path: '/html',

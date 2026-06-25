@@ -3,6 +3,7 @@ import {onMounted, ref} from "vue"
 import Prism from 'prismjs'
 import 'prismjs/themes/prism-tomorrow.css'
 import 'prismjs/components/prism-css.js'
+import CssSpecificityTrainer from '@/components/apps/CssSpecificityTrainer.vue'
 
 const snippet1 = `
 /* Специфичность: 0,0,0,1 */
@@ -253,6 +254,9 @@ onMounted(() => {
 
             <h2 class="text-h5 font-weight-bold mb-3">Базовые примеры</h2>
             <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet1"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Практика расчета специфичности</h2>
+            <CssSpecificityTrainer compact class="mb-8" />
 
             <h2 class="text-h5 font-weight-bold mb-3">Комбинированные селекторы</h2>
             <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet2"></code></pre>
