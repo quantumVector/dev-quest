@@ -1,15 +1,18 @@
-import AllQuestionPage from "@/views/AllQuestionPage.vue";
-import HtmlQuestionsPage from "@/views/HtmlQuestionsPage.vue";
-import WhatIsHtml from "@/views/html/WhatIsHtml.vue";
-import SemanticHtml from "@/views/html/SemanticHtml.vue";
-import Accessibility from "@/views/html/Accessibility.vue";
-import ResponsiveImage from "@/views/html/ResponsiveImage.vue";
+import AllQuestionPage from '@/views/AllQuestionPage.vue'
+import { aiArticlePath, aiDevelopmentArticles } from '@/data/ai-development-articles'
+import { aiDevelopmentTestPath } from '@/data/ai-development-questions'
+import HtmlQuestionsPage from '@/views/HtmlQuestionsPage.vue'
+import WhatIsHtml from '@/views/html/WhatIsHtml.vue'
+import SemanticHtml from '@/views/html/SemanticHtml.vue'
+import Accessibility from '@/views/html/Accessibility.vue'
+import ResponsiveImage from '@/views/html/ResponsiveImage.vue'
 import HTMLTestPage from '@/views/tests/HTMLTestPage.vue'
-import Specificity from "@/views/css/Specificity.vue";
+import Specificity from '@/views/css/Specificity.vue'
 import RelativeUnits from '@/views/css/RelativeUnits.vue'
 import TestsPage from '@/views/TestsPage.vue'
 import AppsPage from '@/views/apps/AppsPage.vue'
 import CssSpecificityAppPage from '@/views/apps/CssSpecificityAppPage.vue'
+import CssUnitsAppPage from '@/views/apps/CssUnitsAppPage.vue'
 import InterviewRandomTrainerPage from '@/views/apps/InterviewRandomTrainerPage.vue'
 import CSSSpecificityTestPage from '@/views/tests/CSSSpecificityTestPage.vue'
 import CSSIsolationTestPage from '@/views/tests/CSSIsolationTestPage.vue'
@@ -215,6 +218,21 @@ import JotaiCookbook from '@/views/jotai/JotaiCookbook.vue'
 
 export const routes = [
   {
+    path: aiDevelopmentTestPath,
+    name: 'ai-development-test',
+    component: () => import('@/views/tests/AIDevelopmentTestPage.vue'),
+  },
+  ...['repeatable', 'long-tasks', 'review', 'automation', 'summary'].map((slug) => ({
+    path: `/ai-development/codex-workflows-${slug}-test`,
+    redirect: aiDevelopmentTestPath,
+  })),
+  ...aiDevelopmentArticles.map((article) => ({
+    path: aiArticlePath(article.slug),
+    name: `ai-development-${article.slug}`,
+    component: () => import('@/views/ai-development/AIArticlePage.vue'),
+    props: { slug: article.slug },
+  })),
+  {
     path: '/',
     component: AllQuestionPage,
   },
@@ -227,12 +245,26 @@ export const routes = [
     component: InterviewPage,
   },
   {
+    path: '/frontend-live-coding',
+    name: 'frontend-live-coding',
+    component: () => import('@/views/live-coding/FrontendLiveCodingPage.vue'),
+  },
+  {
+    path: '/frontend-live-coding/:slug',
+    name: 'frontend-live-coding-task',
+    component: () => import('@/views/live-coding/FrontendLiveCodingTaskPage.vue'),
+  },
+  {
     path: '/apps',
     component: AppsPage,
   },
   {
     path: '/apps/css-specificity',
     component: CssSpecificityAppPage,
+  },
+  {
+    path: '/apps/css-units',
+    component: CssUnitsAppPage,
   },
   {
     path: '/apps/interview-trainer',
@@ -1069,5 +1101,5 @@ export const routes = [
   {
     path: '/jotai/practice-interview',
     component: JotaiPracticeInterviewPage,
-  }
+  },
 ]

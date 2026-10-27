@@ -1,5 +1,5 @@
 <script setup lang="ts">
-
+import { aiDevelopmentTestPath } from '@/data/ai-development-questions'
 </script>
 
 <template>
@@ -298,6 +298,15 @@
         <v-list>
           <v-list-item to="/jotai/practice-test">
             <v-list-item-title>1. Jotai на практике</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-expansion-panel-text>
+    </v-expansion-panel>
+    <v-expansion-panel title="AI-ассистированная разработка">
+      <v-expansion-panel-text>
+        <v-list>
+          <v-list-item :to="aiDevelopmentTestPath">
+            <v-list-item-title class="text-wrap">AI-ассистированная разработка: весь раздел</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-expansion-panel-text>

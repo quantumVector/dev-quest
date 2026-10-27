@@ -14,6 +14,13 @@ const apps = [
     icon: 'mdi-target-variant',
     color: 'blue',
   },
+  {
+    title: 'Лаборатория CSS-размеров',
+    description: 'Наглядная демонстрация rem, em, clamp() и ch с живыми вычислениями.',
+    to: '/apps/css-units',
+    icon: 'mdi-ruler-square',
+    color: 'teal',
+  },
 ]
 </script>
 

@@ -31,9 +31,8 @@ const topicScores = computed(() => {
   const topics = [...new Set(props.questions.map(q => q.topic))]
   return topics.map(topic => {
     const topicQuestions = props.questions.filter(q => q.topic === topic)
-    const topicAnswers = topicQuestions.map(q => selectedAnswers.value[q.id - 1])
-    const correct = topicAnswers.reduce((acc, answer, index) => {
-      return acc + (answer === topicQuestions[index].correctAnswer ? 1 : 0)
+    const correct = props.questions.reduce((acc, question, index) => {
+      return acc + (question.topic === topic && selectedAnswers.value[index] === question.correctAnswer ? 1 : 0)
     }, 0)
     return {
       topic,
@@ -44,7 +43,8 @@ const topicScores = computed(() => {
   })
 })
 
-const selectAnswer = (optionIndex: number) => {
+const selectAnswer = (optionIndex: number | null) => {
+  if (optionIndex === null) return
   selectedAnswers.value[currentQuestionIndex.value] = optionIndex
 }
 
@@ -87,7 +87,7 @@ const goToQuestion = (index: number) => {
     <v-row justify="center">
       <v-col cols="12" md="10" lg="8">
         <v-card>
-          <v-card-title class="text-h4 text-center pa-6">
+          <v-card-title class="text-h4 text-center text-wrap pa-6">
             {{ title }}
             <div class="text-subtitle-1 text-medium-emphasis mt-2">
               {{ description }}
@@ -205,6 +205,7 @@ const goToQuestion = (index: number) => {
                       </template>
 
                       <v-list-item-title
+                        class="text-wrap"
                         :class="{
                           'text-success': optionIndex === question.correctAnswer,
                           'text-error': optionIndex === selectedAnswers[index] && selectedAnswers[index] !== question.correctAnswer

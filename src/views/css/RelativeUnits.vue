@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import {onMounted, ref} from "vue"
+import { onMounted, ref } from 'vue'
 import Prism from 'prismjs'
 import 'prismjs/themes/prism-tomorrow.css'
 import 'prismjs/components/prism-css.js'
 import 'prismjs/components/prism-javascript.js'
+import CssUnitsPlayground from '@/components/apps/CssUnitsPlayground.vue'
 
 const snippet1 = `
 /* Проблемы абсолютных единиц */
@@ -71,31 +72,28 @@ const snippet3 = `
 
 const snippet4 = `
 /* rem - относительно корневого font-size */
-:root {
-  font-size: 16px; /* базовый размер для rem */
+html {
+  /* 100% = размер шрифта, выбранный пользователем в браузере.
+     Обычно это 16px, но пользователь может выбрать другое значение. */
+  font-size: 100%;
 }
 
 .header {
-  font-size: 2rem;     /* всегда 32px */
-  margin: 1.5rem;      /* всегда 24px */
+  font-size: 2rem;     /* 32px при корневом размере 16px */
+  margin: 1.5rem;      /* 24px при корневом размере 16px */
 }
 
 .card {
-  padding: 1rem;       /* всегда 16px */
-  border-radius: 0.5rem; /* всегда 8px */
+  padding: 1rem;       /* равен текущему корневому размеру */
+  border-radius: 0.5rem;
 }
 
 .nested-deep {
-  font-size: 1.2rem;   /* всегда 19.2px, независимо от вложенности */
+  font-size: 1.2rem;   /* независимо от вложенности */
 }
 
-/* Адаптация под настройки пользователя */
-@media (prefers-reduced-motion: no-preference) {
-  :root {
-    font-size: 18px; /* Увеличиваем базовый размер */
-    /* Все rem значения автоматически увеличатся */
-  }
-}
+/* Если пользователь выбрал в браузере базовый шрифт 20px:
+   1rem = 20px, 1.5rem = 30px, 2rem = 40px. */
 `
 
 const snippet5 = `
@@ -321,48 +319,36 @@ const snippet10 = `
 const snippet11 = `
 /* Accessibility и пользовательские настройки */
 
-/* Базовая настройка для accessibility */
-:root {
-  font-size: 16px; /* Базовый размер по умолчанию */
-}
-
-/* Уважение к настройкам пользователя */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-/* Адаптация к увеличенному шрифту */
-@media (min-resolution: 2dppx) {
-  :root {
-    font-size: 18px; /* Увеличиваем для Retina дисплеев */
-  }
-}
-
-/* Система предпочтений для крупного текста */
-@media (prefers-contrast: high) {
-  :root {
-    font-size: 18px;
-  }
-
-  .text {
-    font-weight: 600; /* Делаем текст жирнее */
-    line-height: 1.8; /* Увеличиваем межстрочный интервал */
-  }
-}
-
-/* Респект к системным настройкам font-size */
+/* Сохраняем выбранный пользователем размер браузера */
 html {
-  font-size: 100%; /* Наследует от браузера */
+  font-size: 100%;
 }
 
-.scalable-ui {
-  padding: 1rem;      /* Масштабируется с настройками */
-  margin: 0.75rem;
-  border-radius: 0.25rem;
+body {
+  font-size: 1rem;
+}
+
+.card {
+  /* Текст и отступы масштабируются вместе */
+  font-size: 1rem;
+  padding: 1rem;
+  gap: 0.75rem;
+}
+
+.card__title {
+  font-size: 1.5rem;
+}
+
+/* Нежелательный вариант:
+   он заменяет пользовательское базовое значение */
+html.bad-example {
+  font-size: 16px;
+}
+
+/* px не запрещен: он подходит для тонких границ,
+   теней и других деталей, которые не должны масштабироваться */
+.card {
+  border: 1px solid currentColor;
 }
 `
 
@@ -439,7 +425,6 @@ onMounted(() => {
   highlightedSnippet11.value = Prism.highlight(snippet11, Prism.languages.css, 'css')
   highlightedSnippet12.value = Prism.highlight(snippet12, Prism.languages.css, 'css')
 })
-
 </script>
 
 <template>
@@ -453,80 +438,220 @@ onMounted(() => {
             </h1>
 
             <p class="font-weight-regular mb-6">
-              <b>Относительные единицы измерения</b> — это система размеров, которые вычисляются относительно
-              других значений (родительского элемента, размера шрифта, viewport). Они обеспечивают адаптивность,
-              доступность и лучшую масштабируемость интерфейсов по сравнению с абсолютными единицами.
+              <b>Относительные единицы измерения</b> — это система размеров, которые вычисляются
+              относительно других значений (родительского элемента, размера шрифта, viewport). Они
+              обеспечивают адаптивность, доступность и лучшую масштабируемость интерфейсов по
+              сравнению с абсолютными единицами.
             </p>
 
             <h2 class="text-h5 font-weight-bold mb-3">Основные преимущества</h2>
             <v-table density="comfortable" class="mb-8">
               <thead>
-              <tr>
-                <th class="text-left font-weight-bold">Преимущество</th>
-                <th class="text-left font-weight-bold">Описание</th>
-                <th class="text-left font-weight-bold">Пример использования</th>
-              </tr>
+                <tr>
+                  <th class="text-left font-weight-bold">Преимущество</th>
+                  <th class="text-left font-weight-bold">Описание</th>
+                  <th class="text-left font-weight-bold">Пример использования</th>
+                </tr>
               </thead>
               <tbody>
-              <tr>
-                <td class="pt-2 pb-2"><b>Адаптивность</b></td>
-                <td class="pt-2 pb-2">Автоматическое масштабирование под разные экраны</td>
-                <td class="pt-2 pb-2">vw, vh для полноэкранных элементов</td>
-              </tr>
-              <tr>
-                <td class="pt-2 pb-2"><b>Доступность</b></td>
-                <td class="pt-2 pb-2">Уважение к настройкам пользователя</td>
-                <td class="pt-2 pb-2">rem учитывает увеличенный шрифт</td>
-              </tr>
-              <tr>
-                <td class="pt-2 pb-2"><b>Согласованность</b></td>
-                <td class="pt-2 pb-2">Пропорциональные отношения элементов</td>
-                <td class="pt-2 pb-2">em для отступов внутри компонентов</td>
-              </tr>
-              <tr>
-                <td class="pt-2 pb-2"><b>Меньше Media Queries</b></td>
-                <td class="pt-2 pb-2">Естественная адаптация без точек останова</td>
-                <td class="pt-2 pb-2">clamp() для плавных переходов</td>
-              </tr>
-              <tr>
-                <td class="pt-2 pb-2"><b>Типографика</b></td>
-                <td class="pt-2 pb-2">Контроль читаемости и пропорций</td>
-                <td class="pt-2 pb-2">ch для оптимальной длины строки</td>
-              </tr>
+                <tr>
+                  <td class="pt-2 pb-2"><b>Адаптивность</b></td>
+                  <td class="pt-2 pb-2">Автоматическое масштабирование под разные экраны</td>
+                  <td class="pt-2 pb-2">vw, vh для полноэкранных элементов</td>
+                </tr>
+                <tr>
+                  <td class="pt-2 pb-2"><b>Доступность</b></td>
+                  <td class="pt-2 pb-2">Уважение к настройкам пользователя</td>
+                  <td class="pt-2 pb-2">rem учитывает увеличенный шрифт</td>
+                </tr>
+                <tr>
+                  <td class="pt-2 pb-2"><b>Согласованность</b></td>
+                  <td class="pt-2 pb-2">Пропорциональные отношения элементов</td>
+                  <td class="pt-2 pb-2">em для отступов внутри компонентов</td>
+                </tr>
+                <tr>
+                  <td class="pt-2 pb-2"><b>Меньше Media Queries</b></td>
+                  <td class="pt-2 pb-2">Естественная адаптация без точек останова</td>
+                  <td class="pt-2 pb-2">clamp() для плавных переходов</td>
+                </tr>
+                <tr>
+                  <td class="pt-2 pb-2"><b>Типографика</b></td>
+                  <td class="pt-2 pb-2">Контроль читаемости и пропорций</td>
+                  <td class="pt-2 pb-2">ch для оптимальной длины строки</td>
+                </tr>
               </tbody>
             </v-table>
 
             <h2 class="text-h5 font-weight-bold mb-3">Проблемы абсолютных единиц</h2>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet1"></code></pre>
+            <pre
+              class="mb-8 pa-6 rounded-lg custom-code"
+            ><code v-html="highlightedSnippet1"></code></pre>
 
             <h2 class="text-h5 font-weight-bold mb-3">Решение с относительными единицами</h2>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet2"></code></pre>
+            <pre
+              class="mb-8 pa-6 rounded-lg custom-code"
+            ><code v-html="highlightedSnippet2"></code></pre>
 
             <h2 class="text-h5 font-weight-bold mb-3">Основные типы относительных единиц</h2>
 
-            <h3 class="text-h6 font-weight-bold mb-3">1. em - относительно родительского font-size</h3>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet3"></code></pre>
+            <CssUnitsPlayground compact class="mb-8" />
+
+            <div class="d-flex justify-end mb-8">
+              <v-btn
+                color="primary"
+                variant="tonal"
+                append-icon="mdi-arrow-right"
+                to="/apps/css-units"
+              >
+                Открыть лабораторию отдельно
+              </v-btn>
+            </div>
+
+            <h3 class="text-h6 font-weight-bold mb-3">
+              1. em - относительно родительского font-size
+            </h3>
+            <pre
+              class="mb-8 pa-6 rounded-lg custom-code"
+            ><code v-html="highlightedSnippet3"></code></pre>
 
             <h3 class="text-h6 font-weight-bold mb-3">2. rem - относительно корневого font-size</h3>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet4"></code></pre>
+            <pre
+              class="mb-8 pa-6 rounded-lg custom-code"
+            ><code v-html="highlightedSnippet4"></code></pre>
+
+            <v-card variant="outlined" class="pa-5 mb-8">
+              <h4 class="text-h6 font-weight-bold mb-3">
+                Что значит «пользователь увеличил шрифт»?
+              </h4>
+
+              <p class="mb-3">
+                У пользователя есть несколько способов сделать текст крупнее. Самый привычный —
+                изменить масштаб страницы сочетанием <code>Ctrl/Cmd + +</code>. В этом случае
+                браузер увеличивает всю страницу целиком: и текст, и изображения, и размеры в
+                <code>px</code>. Это полезно, но не объясняет главное преимущество <code>rem</code>.
+              </p>
+
+              <p class="mb-3">
+                Второй способ — изменить <b>размер шрифта по умолчанию</b> в настройках браузера.
+                Например, в Chrome это находится в <i>Настройки → Внешний вид → Размер шрифта</i>, а
+                более точное значение задается в разделе <i>Настроить шрифты</i>. Пользователь может
+                выбрать не стандартные <code>16px</code>, а, например, <code>20px</code>. Также на
+                размер интерфейса могут влиять системное масштабирование и специальные настройки
+                доступности ОС.
+              </p>
+
+              <v-alert type="info" variant="tonal" density="comfortable" class="mb-3">
+                Если сайт использует <code>html { font-size: 100%; }</code>, то
+                <code>1rem</code> равен выбранному пользователем базовому размеру. При
+                <code>16px</code> значение <code>1.5rem</code> даст <code>24px</code>, а при
+                <code>20px</code> — уже <code>30px</code>.
+              </v-alert>
+
+              <p class="ma-0">
+                Поэтому не стоит без необходимости задавать
+                <code>html { font-size: 16px; }</code>: такое правило фиксирует корневой размер и
+                может помешать сайту учитывать браузерную настройку пользователя. Значение
+                <code>100%</code> обычно сохраняет ожидаемое поведение.
+              </p>
+            </v-card>
 
             <h3 class="text-h6 font-weight-bold mb-3">3. Viewport единицы (vw, vh, vmin, vmax)</h3>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet5"></code></pre>
+            <pre
+              class="mb-8 pa-6 rounded-lg custom-code"
+            ><code v-html="highlightedSnippet5"></code></pre>
 
-            <h3 class="text-h6 font-weight-bold mb-3">4. Современные viewport единицы (dvh, svh, lvh)</h3>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet6"></code></pre>
+            <h3 class="text-h6 font-weight-bold mb-3">
+              4. Современные viewport единицы (dvh, svh, lvh)
+            </h3>
+            <pre
+              class="mb-8 pa-6 rounded-lg custom-code"
+            ><code v-html="highlightedSnippet6"></code></pre>
 
             <h3 class="text-h6 font-weight-bold mb-3">5. Процентные единицы (%)</h3>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet7"></code></pre>
+            <pre
+              class="mb-8 pa-6 rounded-lg custom-code"
+            ><code v-html="highlightedSnippet7"></code></pre>
 
             <h3 class="text-h6 font-weight-bold mb-3">6. Типографические единицы (ch, ex)</h3>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet8"></code></pre>
+            <pre
+              class="mb-8 pa-6 rounded-lg custom-code"
+            ><code v-html="highlightedSnippet8"></code></pre>
+
+            <h2 class="text-h5 font-weight-bold mb-3">Как работает clamp()</h2>
+            <p class="font-weight-regular mb-4">
+              <code>clamp()</code> — это CSS-функция, которая выбирает значение внутри заданного
+              диапазона. Она принимает три аргумента:
+            </p>
+
+            <v-card variant="outlined" class="pa-5 mb-4">
+              <p class="text-h6 text-center mb-4">
+                <code>clamp(минимум, желаемое значение, максимум)</code>
+              </p>
+
+              <ol class="ol-list mb-0">
+                <li class="mb-2">Браузер сначала вычисляет <b>желаемое значение</b>.</li>
+                <li class="mb-2">Если оно меньше минимума, используется <b>минимум</b>.</li>
+                <li class="mb-2">
+                  Если оно находится между границами, используется само
+                  <b>желаемое значение</b>.
+                </li>
+                <li>Если оно больше максимума, используется <b>максимум</b>.</li>
+              </ol>
+            </v-card>
+
+            <p class="font-weight-regular mb-3">
+              Разберем пример <code>font-size: clamp(1.5rem, 4vw, 3rem)</code>. Если корневой размер
+              равен <code>16px</code>, границы составляют <code>24px</code> и <code>48px</code>.
+              Среднее значение <code>4vw</code> равно четырем процентам ширины окна.
+            </p>
+
+            <v-table density="comfortable" class="mb-4">
+              <thead>
+                <tr>
+                  <th class="text-left font-weight-bold">Ширина окна</th>
+                  <th class="text-left font-weight-bold">Вычисление 4vw</th>
+                  <th class="text-left font-weight-bold">Результат clamp()</th>
+                  <th class="text-left font-weight-bold">Почему</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="pt-2 pb-2">400px</td>
+                  <td class="pt-2 pb-2">16px</td>
+                  <td class="pt-2 pb-2"><b>24px</b></td>
+                  <td class="pt-2 pb-2">16px меньше минимальных 24px</td>
+                </tr>
+                <tr>
+                  <td class="pt-2 pb-2">800px</td>
+                  <td class="pt-2 pb-2">32px</td>
+                  <td class="pt-2 pb-2"><b>32px</b></td>
+                  <td class="pt-2 pb-2">Значение находится между границами</td>
+                </tr>
+                <tr>
+                  <td class="pt-2 pb-2">1600px</td>
+                  <td class="pt-2 pb-2">64px</td>
+                  <td class="pt-2 pb-2"><b>48px</b></td>
+                  <td class="pt-2 pb-2">64px больше максимальных 48px</td>
+                </tr>
+              </tbody>
+            </v-table>
+
+            <v-alert type="success" variant="tonal" class="mb-8">
+              В итоге на узком экране заголовок не станет мельче <code>24px</code>, между
+              контрольными точками будет плавно расти вместе с окном, а на широком экране
+              остановится на <code>48px</code>. Для такого поведения не нужны отдельные media
+              queries.
+            </v-alert>
 
             <h2 class="text-h5 font-weight-bold mb-3">Лучшие практики и комбинирование</h2>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet9"></code></pre>
+            <pre
+              class="mb-8 pa-6 rounded-lg custom-code"
+            ><code v-html="highlightedSnippet9"></code></pre>
 
             <h2 class="text-h5 font-weight-bold mb-3">Частые ошибки и их решения</h2>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet10"></code></pre>
+            <pre
+              class="mb-8 pa-6 rounded-lg custom-code"
+            ><code v-html="highlightedSnippet10"></code></pre>
 
             <h2 class="text-h5 font-weight-bold mb-3">Сравнение относительных единиц</h2>
             <v-row class="mb-8">
@@ -564,47 +689,53 @@ onMounted(() => {
               </v-col>
             </v-row>
 
-            <h2 class="text-h5 font-weight-bold mb-3">Accessibility и пользовательские настройки</h2>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet11"></code></pre>
+            <h2 class="text-h5 font-weight-bold mb-3">
+              Accessibility и пользовательские настройки
+            </h2>
+            <pre
+              class="mb-8 pa-6 rounded-lg custom-code"
+            ><code v-html="highlightedSnippet11"></code></pre>
 
             <h2 class="text-h5 font-weight-bold mb-3">Производительность и оптимизация</h2>
-            <pre class="mb-8 pa-6 rounded-lg custom-code"><code v-html="highlightedSnippet12"></code></pre>
+            <pre
+              class="mb-8 pa-6 rounded-lg custom-code"
+            ><code v-html="highlightedSnippet12"></code></pre>
 
             <h2 class="text-h5 font-weight-bold mb-3">Недостатки относительных единиц</h2>
             <v-table density="comfortable" class="mb-8">
               <thead>
-              <tr>
-                <th class="text-left font-weight-bold">Недостаток</th>
-                <th class="text-left font-weight-bold">Описание</th>
-                <th class="text-left font-weight-bold">Решение</th>
-              </tr>
+                <tr>
+                  <th class="text-left font-weight-bold">Недостаток</th>
+                  <th class="text-left font-weight-bold">Описание</th>
+                  <th class="text-left font-weight-bold">Решение</th>
+                </tr>
               </thead>
               <tbody>
-              <tr>
-                <td class="pt-2 pb-2"><b>Сложность отладки</b></td>
-                <td class="pt-2 pb-2">Вычисляемые значения сложнее отследить</td>
-                <td class="pt-2 pb-2">DevTools Computed tab, документирование</td>
-              </tr>
-              <tr>
-                <td class="pt-2 pb-2"><b>Каскадные эффекты em</b></td>
-                <td class="pt-2 pb-2">Непредсказуемые размеры в глубокой вложенности</td>
-                <td class="pt-2 pb-2">Использовать rem вместо em для размеров</td>
-              </tr>
-              <tr>
-                <td class="pt-2 pb-2"><b>Производительность viewport</b></td>
-                <td class="pt-2 pb-2">Пересчеты при изменении размера окна</td>
-                <td class="pt-2 pb-2">Ограничивать clamp(), избегать в анимациях</td>
-              </tr>
-              <tr>
-                <td class="pt-2 pb-2"><b>Экстремальные значения</b></td>
-                <td class="pt-2 pb-2">Слишком крупные/мелкие размеры на разных экранах</td>
-                <td class="pt-2 pb-2">clamp() с разумными min/max значениями</td>
-              </tr>
-              <tr>
-                <td class="pt-2 pb-2"><b>Браузерная поддержка</b></td>
-                <td class="pt-2 pb-2">Новые единицы (dvh, container queries) не везде</td>
-                <td class="pt-2 pb-2">Fallback'ы и прогрессивные улучшения</td>
-              </tr>
+                <tr>
+                  <td class="pt-2 pb-2"><b>Сложность отладки</b></td>
+                  <td class="pt-2 pb-2">Вычисляемые значения сложнее отследить</td>
+                  <td class="pt-2 pb-2">DevTools Computed tab, документирование</td>
+                </tr>
+                <tr>
+                  <td class="pt-2 pb-2"><b>Каскадные эффекты em</b></td>
+                  <td class="pt-2 pb-2">Непредсказуемые размеры в глубокой вложенности</td>
+                  <td class="pt-2 pb-2">Использовать rem вместо em для размеров</td>
+                </tr>
+                <tr>
+                  <td class="pt-2 pb-2"><b>Производительность viewport</b></td>
+                  <td class="pt-2 pb-2">Пересчеты при изменении размера окна</td>
+                  <td class="pt-2 pb-2">Ограничивать clamp(), избегать в анимациях</td>
+                </tr>
+                <tr>
+                  <td class="pt-2 pb-2"><b>Экстремальные значения</b></td>
+                  <td class="pt-2 pb-2">Слишком крупные/мелкие размеры на разных экранах</td>
+                  <td class="pt-2 pb-2">clamp() с разумными min/max значениями</td>
+                </tr>
+                <tr>
+                  <td class="pt-2 pb-2"><b>Браузерная поддержка</b></td>
+                  <td class="pt-2 pb-2">Новые единицы (dvh, container queries) не везде</td>
+                  <td class="pt-2 pb-2">Fallback'ы и прогрессивные улучшения</td>
+                </tr>
               </tbody>
             </v-table>
 
@@ -639,58 +770,58 @@ onMounted(() => {
             <h2 class="text-h5 font-weight-bold mb-3">Практические примеры для демонстрации</h2>
             <v-table density="comfortable" class="mb-8">
               <thead>
-              <tr>
-                <th class="text-left font-weight-bold">Сценарий</th>
-                <th class="text-left font-weight-bold">Лучший выбор</th>
-                <th class="text-left font-weight-bold">Обоснование</th>
-              </tr>
+                <tr>
+                  <th class="text-left font-weight-bold">Сценарий</th>
+                  <th class="text-left font-weight-bold">Лучший выбор</th>
+                  <th class="text-left font-weight-bold">Обоснование</th>
+                </tr>
               </thead>
               <tbody>
-              <tr>
-                <td class="pt-2 pb-2">Основной текст сайта</td>
-                <td class="pt-2 pb-2">1rem</td>
-                <td class="pt-2 pb-2">Предсказуемость, accessibility</td>
-              </tr>
-              <tr>
-                <td class="pt-2 pb-2">Отступы внутри карточки</td>
-                <td class="pt-2 pb-2">1em</td>
-                <td class="pt-2 pb-2">Пропорциональность размеру шрифта</td>
-              </tr>
-              <tr>
-                <td class="pt-2 pb-2">Hero секция</td>
-                <td class="pt-2 pb-2">100vh или clamp()</td>
-                <td class="pt-2 pb-2">Полноэкранность или адаптивность</td>
-              </tr>
-              <tr>
-                <td class="pt-2 pb-2">Читаемая строка текста</td>
-                <td class="pt-2 pb-2">65ch</td>
-                <td class="pt-2 pb-2">Оптимальная длина для чтения</td>
-              </tr>
-              <tr>
-                <td class="pt-2 pb-2">Адаптивная сетка</td>
-                <td class="pt-2 pb-2">% + rem</td>
-                <td class="pt-2 pb-2">Гибкость + предсказуемые отступы</td>
-              </tr>
+                <tr>
+                  <td class="pt-2 pb-2">Основной текст сайта</td>
+                  <td class="pt-2 pb-2">1rem</td>
+                  <td class="pt-2 pb-2">Предсказуемость, accessibility</td>
+                </tr>
+                <tr>
+                  <td class="pt-2 pb-2">Отступы внутри карточки</td>
+                  <td class="pt-2 pb-2">1em</td>
+                  <td class="pt-2 pb-2">Пропорциональность размеру шрифта</td>
+                </tr>
+                <tr>
+                  <td class="pt-2 pb-2">Hero секция</td>
+                  <td class="pt-2 pb-2">100vh или clamp()</td>
+                  <td class="pt-2 pb-2">Полноэкранность или адаптивность</td>
+                </tr>
+                <tr>
+                  <td class="pt-2 pb-2">Читаемая строка текста</td>
+                  <td class="pt-2 pb-2">65ch</td>
+                  <td class="pt-2 pb-2">Оптимальная длина для чтения</td>
+                </tr>
+                <tr>
+                  <td class="pt-2 pb-2">Адаптивная сетка</td>
+                  <td class="pt-2 pb-2">% + rem</td>
+                  <td class="pt-2 pb-2">Гибкость + предсказуемые отступы</td>
+                </tr>
               </tbody>
             </v-table>
 
             <h2 class="text-h5 font-weight-bold mb-3">Итоговые выводы</h2>
             <p class="font-weight-regular mb-4">
-              Относительные единицы измерения — основа современной адаптивной веб-разработки.
-              Они решают проблемы accessibility, масштабируемости и кроссбраузерности,
-              но требуют понимания контекста применения.
+              Относительные единицы измерения — основа современной адаптивной веб-разработки. Они
+              решают проблемы accessibility, масштабируемости и кроссбраузерности, но требуют
+              понимания контекста применения.
             </p>
 
             <p class="font-weight-regular mb-4">
-              <b>Золотое правило:</b> используйте rem для размеров, которые должны быть предсказуемыми,
-              em для элементов, которые должны масштабироваться пропорционально,
-              и viewport единицы с ограничениями для истинно адаптивных интерфейсов.
+              <b>Золотое правило:</b> используйте rem для размеров, которые должны быть
+              предсказуемыми, em для элементов, которые должны масштабироваться пропорционально, и
+              viewport единицы с ограничениями для истинно адаптивных интерфейсов.
             </p>
 
             <v-alert type="info" class="mb-6">
-              <b>Совет для собеседования:</b> Всегда приводите конкретные примеры использования
-              и объясняйте, почему выбрали именно эту единицу измерения.
-              Показывайте понимание проблем и способов их решения.
+              <b>Совет для собеседования:</b> Всегда приводите конкретные примеры использования и
+              объясняйте, почему выбрали именно эту единицу измерения. Показывайте понимание проблем
+              и способов их решения.
             </v-alert>
 
             <div class="d-flex justify-space-between">
@@ -699,7 +830,8 @@ onMounted(() => {
                 size="small"
                 variant="elevated"
                 href="https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Values_and_units"
-                target="_blank">
+                target="_blank"
+              >
                 MDN: CSS Units
               </v-btn>
               <v-btn
@@ -707,7 +839,8 @@ onMounted(() => {
                 size="small"
                 variant="elevated"
                 href="https://web.dev/css-units/"
-                target="_blank">
+                target="_blank"
+              >
                 Web.dev Guide
               </v-btn>
             </div>

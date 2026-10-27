@@ -1,9 +1,20 @@
 <script setup lang="ts">
+import { ref } from 'vue'
+import { useRoute } from 'vue-router'
+import {
+  aiArticlePath,
+  aiDevelopmentSubsections,
+  aiDevelopmentSectionTitle,
+} from '@/data/ai-development-articles'
 
+const route = useRoute()
+const expandedPanel = ref<string | number | undefined>(
+  route.query.section === 'ai-development' ? 'ai-development' : undefined,
+)
 </script>
 
 <template>
-  <v-expansion-panels variant="accordion">
+  <v-expansion-panels v-model="expandedPanel" variant="accordion">
     <v-expansion-panel title="HTML">
       <v-expansion-panel-text>
         <v-list>
@@ -498,6 +509,33 @@
             <v-list-item-title>2. Jotai: книга рецептов для реального приложения</v-list-item-title>
           </v-list-item>
         </v-list>
+      </v-expansion-panel-text>
+    </v-expansion-panel>
+
+    <v-expansion-panel :title="aiDevelopmentSectionTitle" value="ai-development">
+      <v-expansion-panel-text>
+        <section
+          v-for="subsection in aiDevelopmentSubsections"
+          :key="subsection.id"
+          :aria-labelledby="`ai-${subsection.id}`"
+          class="mb-6"
+        >
+          <h2 :id="`ai-${subsection.id}`" class="text-h6 font-weight-bold mb-2">
+            {{ subsection.title }}
+          </h2>
+          <p class="text-body-2 text-medium-emphasis mb-3">{{ subsection.description }}</p>
+          <v-list>
+            <v-list-item
+              v-for="(article, index) in subsection.articles"
+              :key="article.slug"
+              :to="aiArticlePath(article.slug)"
+            >
+              <v-list-item-title class="text-wrap">
+                {{ index + 1 }}. {{ article.title }}
+              </v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </section>
       </v-expansion-panel-text>
     </v-expansion-panel>
   </v-expansion-panels>

@@ -115,7 +115,7 @@ const allQuestions = topics.flatMap<TrainerQuestion>((topic) =>
   })),
 )
 
-const selectedTopic = ref('all')
+const selectedTopics = ref<string[]>(['all'])
 const selectedDifficulties = ref<Difficulty[]>([])
 const searchQuery = ref('')
 const currentQuestion = ref<TrainerQuestion | null>(null)
@@ -126,7 +126,7 @@ const filteredQuestions = computed(() => {
 
   return allQuestions.filter((question) => {
     const matchesTopic =
-      selectedTopic.value === 'all' || question.topicValue === selectedTopic.value
+      selectedTopics.value.includes('all') || selectedTopics.value.includes(question.topicValue)
     const matchesDifficulty =
       selectedDifficulties.value.length === 0 ||
       (question.difficulty && selectedDifficulties.value.includes(question.difficulty))
@@ -151,10 +151,13 @@ const currentQuestionIndex = computed(() => {
 
 const totalQuestionsCount = computed(() => allQuestions.length)
 
-const selectedTopicTitle = computed(() => {
-  if (selectedTopic.value === 'all') return 'Все темы'
+const selectedTopicsTitle = computed(() => {
+  if (selectedTopics.value.includes('all')) return 'Все темы'
 
-  return topics.find((topic) => topic.value === selectedTopic.value)?.title ?? 'Все темы'
+  return topics
+    .filter((topic) => selectedTopics.value.includes(topic.value))
+    .map((topic) => topic.title)
+    .join(', ')
 })
 
 function getDifficultyColor(difficulty?: Difficulty) {
@@ -182,8 +185,20 @@ function pickRandomQuestion() {
   answerPanels.value = []
 }
 
+function updateSelectedTopics(values: string[]) {
+  const addedTopic = values.find((value) => !selectedTopics.value.includes(value))
+
+  if (addedTopic === 'all') {
+    selectedTopics.value = ['all']
+    return
+  }
+
+  const concreteTopics = values.filter((value) => value !== 'all')
+  selectedTopics.value = concreteTopics.length > 0 ? concreteTopics : ['all']
+}
+
 function resetFilters() {
-  selectedTopic.value = 'all'
+  selectedTopics.value = ['all']
   selectedDifficulties.value = []
   searchQuery.value = ''
 }
@@ -209,11 +224,15 @@ watch(
       <v-row class="mb-2" align="start">
         <v-col cols="12" md="4">
           <v-select
-            v-model="selectedTopic"
+            :model-value="selectedTopics"
             :items="topicItems"
-            label="Тема"
+            label="Темы"
+            multiple
+            chips
+            closable-chips
             density="comfortable"
             hide-details
+            @update:model-value="updateSelectedTopics"
           />
         </v-col>
 
@@ -254,7 +273,7 @@ watch(
 
         <div>
           <div class="text-caption text-medium-emphasis">Тема</div>
-          <div class="text-body-2 font-weight-medium">{{ selectedTopicTitle }}</div>
+          <div class="text-body-2 font-weight-medium">{{ selectedTopicsTitle }}</div>
         </div>
 
         <v-btn
