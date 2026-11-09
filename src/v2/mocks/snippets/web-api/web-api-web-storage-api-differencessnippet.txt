@@ -1,0 +1,77 @@
+
+// =====================================
+// РАЗНИЦА МЕЖДУ localStorage И sessionStorage
+// =====================================
+
+// 1. ВРЕМЯ ЖИЗНИ ДАННЫХ
+
+// localStorage - данные сохраняются навсегда
+localStorage.setItem('permanent', 'Я останусь даже после перезагрузки браузера')
+
+// Закрываем браузер → открываем снова
+console.log(localStorage.getItem('permanent')) // Всё ещё "Я останусь..."
+
+// sessionStorage - данные живут только в рамках сессии вкладки
+sessionStorage.setItem('temporary', 'Я исчезну при закрытии вкладки')
+
+// Закрываем вкладку → открываем новую
+console.log(sessionStorage.getItem('temporary')) // null
+
+// 2. ОБЛАСТЬ ВИДИМОСТИ
+
+// localStorage - общий для всех вкладок одного origin
+// Вкладка 1:
+localStorage.setItem('shared', 'Доступен во всех вкладках')
+
+// Вкладка 2 (тот же домен):
+console.log(localStorage.getItem('shared')) // "Доступен во всех вкладках"
+
+// sessionStorage - изолирован в рамках одной вкладки
+// Вкладка 1:
+sessionStorage.setItem('isolated', 'Только для этой вкладки')
+
+// Вкладка 2 (тот же домен):
+console.log(sessionStorage.getItem('isolated')) // null
+
+// 3. СОБЫТИЯ storage
+
+// localStorage - триггерит события в ДРУГИХ вкладках
+// Вкладка 1:
+window.addEventListener('storage', (e) => {
+  console.log('Изменение в другой вкладке:', e.key, e.newValue)
+})
+
+// Вкладка 2:
+localStorage.setItem('test', 'hello') // Вкладка 1 получит событие!
+
+// sessionStorage - НЕ триггерит события (изолирован)
+
+// 4. ДУБЛИРОВАНИЕ ВКЛАДОК
+
+// При открытии новой вкладки через Ctrl+Click или window.open():
+// localStorage - данные доступны сразу (общие)
+// sessionStorage - данные КОПИРУЮТСЯ в новую вкладку
+
+// Вкладка 1:
+sessionStorage.setItem('original', 'Исходные данные')
+
+// Открываем вкладку 2 через ссылку с этой же страницы:
+console.log(sessionStorage.getItem('original')) // "Исходные данные"
+
+// Изменяем в вкладке 2:
+sessionStorage.setItem('original', 'Изменено во вкладке 2')
+
+// Проверяем в вкладке 1:
+console.log(sessionStorage.getItem('original')) // "Исходные данные" (не изменилось!)
+
+// 5. ИСПОЛЬЗОВАНИЕ В iframe
+
+// localStorage - общий для parent и iframe (если same-origin)
+// Parent:
+localStorage.setItem('parentData', 'Доступно в iframe')
+
+// iframe (same origin):
+console.log(localStorage.getItem('parentData')) // "Доступно в iframe"
+
+// sessionStorage - разделен между parent и iframe
+// Каждый iframe имеет свой sessionStorage!

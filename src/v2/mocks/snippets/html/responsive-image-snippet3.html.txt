@@ -1,0 +1,11 @@
+
+<!-- Поддержка Retina: дескриптор плотности (x) -->
+<img src="photo-1x.jpg"
+     srcset="photo-1x.jpg 1x, photo-2x.jpg 2x, photo-3x.jpg 3x"
+     alt="Фотография">
+
+<!-- Адаптивные размеры: дескриптор ширины (w) + sizes -->
+<img src="photo-400.jpg"
+     srcset="photo-400.jpg 400w, photo-800.jpg 800w, photo-1200.jpg 1200w"
+     sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
+     alt="Фотография">

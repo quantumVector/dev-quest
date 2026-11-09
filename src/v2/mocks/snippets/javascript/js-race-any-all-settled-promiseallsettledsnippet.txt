@@ -1,0 +1,58 @@
+
+// Promise.allSettled - дожидается завершения ВСЕХ promises
+// Возвращает массив с результатами всех promises (fulfilled/rejected)
+
+const promise1 = Promise.resolve('Успех 1');
+const promise2 = Promise.reject('Ошибка 2');
+const promise3 = new Promise(resolve => setTimeout(() => resolve('Успех 3'), 1000));
+const promise4 = new Promise((_, reject) => setTimeout(() => reject('Ошибка 4'), 500));
+
+Promise.allSettled([promise1, promise2, promise3, promise4])
+  .then(results => {
+    results.forEach((result, index) => {
+      if (result.status === 'fulfilled') {
+        console.log(`Promise ${index + 1} успешен:`, result.value);
+      } else {
+        console.log(`Promise ${index + 1} отклонен:`, result.reason);
+      }
+    });
+  });
+
+// Результат:
+// [
+//   { status: 'fulfilled', value: 'Успех 1' },
+//   { status: 'rejected', reason: 'Ошибка 2' },
+//   { status: 'fulfilled', value: 'Успех 3' },
+//   { status: 'rejected', reason: 'Ошибка 4' }
+// ]
+
+// Практический пример: множественные запросы с обработкой ошибок
+const fetchMultipleResources = async (urls) => {
+  const requests = urls.map(url =>
+    fetch(url)
+      .then(response => response.ok ? response.json() : Promise.reject(`HTTP ${response.status}`))
+      .catch(error => ({ error: error.message || error }))
+  );
+
+  const results = await Promise.allSettled(requests);
+
+  const successful = results
+    .filter(result => result.status === 'fulfilled')
+    .map(result => result.value);
+
+  const failed = results
+    .filter(result => result.status === 'rejected')
+    .map((result, index) => ({ url: urls[index], reason: result.reason }));
+
+  return { successful, failed };
+};
+
+// Использование
+fetchMultipleResources([
+  '/api/users',
+  '/api/posts',
+  '/api/comments'
+]).then(({ successful, failed }) => {
+  console.log('Успешные запросы:', successful);
+  console.log('Неудачные запросы:', failed);
+});

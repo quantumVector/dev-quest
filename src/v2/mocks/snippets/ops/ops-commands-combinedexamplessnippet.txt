@@ -1,0 +1,79 @@
+
+# Комбинированное использование команд
+
+# 1. Полный анализ проекта
+echo "=== Project Analysis ===" && \
+pwd && \
+echo "Files:" && ls -1 | wc -l && \
+echo "Size:" && du -sh . && \
+echo "Dependencies:" && cat package.json | grep -c "\"" && \
+echo "Code lines:" && find src -name "*.js" | xargs cat | wc -l
+
+# 2. Умная очистка
+echo "Cleaning temporary files..." && \
+ls -la | grep "tmp" && \
+rm -rf *.tmp *.log && \
+echo "Done. Remaining files:" && \
+ls -l
+
+# 3. Создание структуры проекта
+mkdir -p src/{components,utils,hooks} && \
+echo "export {}" > src/index.js && \
+cat > src/components/App.jsx << EOF && \
+export default function App() {
+  return <div>Hello</div>
+}
+EOF
+ls -R src/
+
+# 4. Deployment checklist
+echo "Pre-deployment checklist:" && \
+echo "1. Tests:" && npm test | tail -n 1 && \
+echo "2. Build:" && npm run build > /dev/null 2>&1 && ls -lh dist/ && \
+echo "3. Env vars:" && cat .env | grep -v "^#" | wc -l && \
+echo "Ready for deployment!"
+
+# 5. Quick debug session
+echo "Debug Info:" && \
+echo "Working Dir: $(pwd)" && \
+echo "Git Branch: $(git branch --show-current)" && \
+echo "Last Commit: $(git log -1 --oneline)" && \
+echo "Modified Files:" && git status --short && \
+echo "Running Processes:" && ps aux | grep node | grep -v grep
+
+# 6. Backup важных файлов
+BACKUP="backup-$(date +%Y%m%d)" && \
+mkdir -p $BACKUP && \
+cat package.json > $BACKUP/package.json && \
+cat .env > $BACKUP/.env 2>/dev/null && \
+ls -la src/*.js | while read file; do
+  cat "$file" > "$BACKUP/$(basename $file)"
+done && \
+echo "Backup created in $BACKUP" && \
+ls -lh $BACKUP/
+
+# 7. Поиск и замена в файлах
+echo "Finding and replacing..." && \
+grep -r "oldAPI" src/ | cut -d: -f1 | sort | uniq | while read file; do
+  echo "Processing $file"
+  # sed -i '' 's/oldAPI/newAPI/g' "$file"  # macOS
+  # sed -i 's/oldAPI/newAPI/g' "$file"     # Linux
+done
+
+# 8. Генерация отчета
+{
+  echo "=== Project Report ==="
+  echo "Date: $(date)"
+  echo "Directory: $(pwd)"
+  echo ""
+  echo "=== Files ==="
+  ls -lh
+  echo ""
+  echo "=== Dependencies ==="
+  cat package.json | grep -A 50 '"dependencies"'
+  echo ""
+  echo "=== Recent Changes ==="
+  git log --oneline -n 5
+} > project-report.txt && \
+cat project-report.txt && \
+echo "Report saved to project-report.txt"

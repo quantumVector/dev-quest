@@ -1,0 +1,15 @@
+// ПРОБЛЕМА: накопление таймеров
+setInterval(() => {
+  if (heavyCondition()) {
+    // Долгая операция может привести к накоплению
+    processHeavyTask();
+  }
+}, 100);
+
+// РЕШЕНИЕ: самовызывающийся setTimeout
+function smartInterval() {
+  if (heavyCondition()) {
+    processHeavyTask();
+  }
+  setTimeout(smartInterval, 100); // Запланируется после завершения
+}

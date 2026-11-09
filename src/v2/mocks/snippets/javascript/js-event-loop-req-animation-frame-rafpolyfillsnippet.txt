@@ -1,0 +1,103 @@
+
+// Полифилл requestAnimationFrame для понимания работы
+(function() {
+  let lastTime = 0;
+  const vendors = ['webkit', 'moz'];
+
+  // Проверяем нативную поддержку
+  for (let x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+    window.requestAnimationFrame = window[vendors[x] + 'RequestAnimationFrame'];
+    window.cancelAnimationFrame = window[vendors[x] + 'CancelAnimationFrame'] ||
+                                  window[vendors[x] + 'CancelRequestAnimationFrame'];
+  }
+
+  // Полифилл если нет нативной поддержки
+  if (!window.requestAnimationFrame) {
+    window.requestAnimationFrame = function(callback) {
+      const currTime = new Date().getTime();
+      const timeToCall = Math.max(0, 16 - (currTime - lastTime)); // ~60fps
+
+      const id = window.setTimeout(() => {
+        callback(currTime + timeToCall);
+      }, timeToCall);
+
+      lastTime = currTime + timeToCall;
+      return id;
+    };
+  }
+
+  if (!window.cancelAnimationFrame) {
+    window.cancelAnimationFrame = function(id) {
+      clearTimeout(id);
+    };
+  }
+})();
+
+// Современная альтернатива - scheduler.postTask API
+if ('scheduler' in window && 'postTask' in scheduler) {
+  // Новый API для более точного контроля задач
+
+  function modernAnimationFrame(callback) {
+    return scheduler.postTask(callback, {
+      priority: 'user-blocking' // Высокий приоритет для анимаций
+    });
+  }
+
+  // Использование
+  modernAnimationFrame(() => {
+    console.log('Modern animation frame with scheduler API');
+  });
+}
+
+// Адаптивный FPS для разных дисплеев
+class AdaptiveAnimation {
+  constructor() {
+    // Определяем refresh rate дисплея
+    this.refreshRate = this.detectRefreshRate();
+    this.targetFPS = Math.min(60, this.refreshRate);
+    this.frameInterval = 1000 / this.targetFPS;
+    this.lastFrameTime = 0;
+  }
+
+  detectRefreshRate() {
+    // Простое определение через requestAnimationFrame
+    return new Promise((resolve) => {
+      let frameCount = 0;
+      const startTime = performance.now();
+
+      const countFrames = () => {
+        frameCount++;
+        if (frameCount < 60) { // считаем 60 кадров
+          requestAnimationFrame(countFrames);
+        } else {
+          const endTime = performance.now();
+          const fps = Math.round(60000 / (endTime - startTime));
+          resolve(fps);
+        }
+      };
+
+      requestAnimationFrame(countFrames);
+    });
+  }
+
+  animate(callback) {
+    const animate = (currentTime) => {
+      // Пропускаем кадры если FPS слишком высокий
+      if (currentTime - this.lastFrameTime >= this.frameInterval) {
+        callback(currentTime);
+        this.lastFrameTime = currentTime;
+      }
+
+      requestAnimationFrame(animate);
+    };
+
+    requestAnimationFrame(animate);
+  }
+}
+
+// Использование адаптивной анимации
+const adaptiveAnim = new AdaptiveAnimation();
+adaptiveAnim.animate((timestamp) => {
+  // Анимация, которая адаптируется к refresh rate дисплея
+  console.log(`Frame at ${timestamp.toFixed(2)}ms`);
+});

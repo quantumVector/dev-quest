@@ -1,0 +1,62 @@
+
+// Замыкания (Closures)
+function createCounter() {
+  let count = 0;
+
+  return function() {
+    count++;
+    return count;
+  };
+}
+
+const counter1 = createCounter();
+const counter2 = createCounter();
+
+console.log(counter1()); // 1
+console.log(counter1()); // 2
+console.log(counter2()); // 1 (независимый счетчик)
+
+// Практический пример: приватные переменные
+function createBankAccount(initialBalance) {
+  let balance = initialBalance;
+
+  return {
+    deposit(amount) {
+      balance += amount;
+      return balance;
+    },
+    withdraw(amount) {
+      if (amount <= balance) {
+        balance -= amount;
+        return balance;
+      }
+      return "Недостаточно средств";
+    },
+    getBalance() {
+      return balance;
+    }
+  };
+}
+
+const account = createBankAccount(1000);
+console.log(account.deposit(500)); // 1500
+console.log(account.withdraw(200)); // 1300
+// console.log(account.balance); // undefined - приватная переменная
+
+// Замыкание с модулем
+const calculator = (function() {
+  let result = 0;
+
+  return {
+    add: (x) => result += x,
+    subtract: (x) => result -= x,
+    multiply: (x) => result *= x,
+    divide: (x) => result /= x,
+    clear: () => result = 0,
+    getResult: () => result
+  };
+})();
+
+calculator.add(10);
+calculator.multiply(2);
+console.log(calculator.getResult()); // 20

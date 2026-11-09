@@ -1,0 +1,31 @@
+
+// Стандартные claims (заявления) в JWT payload
+
+const standardPayload = {
+  // Зарегистрированные claims (рекомендуемые)
+  "iss": "https://api.example.com",    // Issuer - издатель токена
+  "sub": "user123",                     // Subject - субъект (ID пользователя)
+  "aud": "https://app.example.com",    // Audience - аудитория (кому предназначен)
+  "exp": 1735689600,                    // Expiration Time - время истечения (Unix timestamp)
+  "nbf": 1735603200,                    // Not Before - не действителен до этого времени
+  "iat": 1735603200,                    // Issued At - время выдачи
+  "jti": "unique-token-id-123",        // JWT ID - уникальный идентификатор токена
+
+  // Публичные claims (кастомные, но общепринятые)
+  "name": "John Doe",
+  "email": "john@example.com",
+  "email_verified": true,
+  "role": "admin",
+  "permissions": ["read", "write", "delete"],
+
+  // Приватные claims (специфичные для вашего приложения)
+  "user_id": 12345,
+  "organization_id": 67890,
+  "plan": "premium",
+  "features": ["analytics", "export"]
+}
+
+// Важные моменты:
+// 1. exp, nbf, iat - в формате Unix timestamp (секунды с 1 января 1970)
+// 2. Все claims опциональны, но exp настоятельно рекомендуется
+// 3. Не храните чувствительные данные (пароли, номера карт) в payload!

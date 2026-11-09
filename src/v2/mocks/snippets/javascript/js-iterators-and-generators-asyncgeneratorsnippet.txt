@@ -1,0 +1,85 @@
+
+// Асинхронный генератор
+async function* asyncGenerator() {
+  let i = 0
+  while (i < 5) {
+    // Асинхронная операция
+    await new Promise(resolve => setTimeout(resolve, 200))
+    yield `Item ${++i}`
+  }
+  return 'Асинхронный генератор завершен'
+}
+
+// Использование
+async function useAsyncGenerator() {
+  for await (const item of asyncGenerator()) {
+    console.log(item) // Item 1, Item 2, ... с задержками
+  }
+}
+
+// Генератор для чтения файлов по частям
+async function* readFileChunks(file, chunkSize = 1024) {
+  const reader = new FileReader()
+  let offset = 0
+
+  while (offset < file.size) {
+    const chunk = file.slice(offset, offset + chunkSize)
+
+    // Читаем chunk асинхронно
+    const result = await new Promise((resolve, reject) => {
+      reader.onload = () => resolve(reader.result)
+      reader.onerror = reject
+      reader.readAsArrayBuffer(chunk)
+    })
+
+    yield result
+    offset += chunkSize
+  }
+}
+
+// Использование для больших файлов
+async function processLargeFile(file) {
+  for await (const chunk of readFileChunks(file)) {
+    // Обрабатываем каждый chunk
+    console.log('Обработан chunk размером:', chunk.byteLength)
+  }
+}
+
+// Комбинирование асинхронных генераторов
+async function* merge(...asyncIterables) {
+  const iterators = asyncIterables.map(iterable => iterable[Symbol.asyncIterator]())
+  const promises = iterators.map(iterator => iterator.next())
+
+  while (promises.length > 0) {
+    const { value, index } = await Promise.race(
+      promises.map((promise, index) => promise.then(result => ({ ...result, index })))
+    )
+
+    if (!value.done) {
+      yield value.value
+      // Получаем следующее значение из того же итератора
+      promises[index] = iterators[index].next()
+    } else {
+      // Удаляем завершенный итератор
+      promises.splice(index, 1)
+      iterators.splice(index, 1)
+    }
+  }
+}
+
+// Пример использования merge
+async function* source1() {
+  yield 'A1'; await new Promise(r => setTimeout(r, 100))
+  yield 'A2'; await new Promise(r => setTimeout(r, 100))
+}
+
+async function* source2() {
+  yield 'B1'; await new Promise(r => setTimeout(r, 50))
+  yield 'B2'; await new Promise(r => setTimeout(r, 150))
+}
+
+async function demo() {
+  for await (const value of merge(source1(), source2())) {
+    console.log(value) // Порядок зависит от скорости источников
+  }
+}

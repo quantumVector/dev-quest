@@ -1,0 +1,66 @@
+
+// =====================================
+// INTERSECTION OBSERVER - ОСНОВЫ
+// =====================================
+
+// Что такое IntersectionObserver?
+// API для асинхронного отслеживания пересечения элемента с viewport
+// или с другим элементом-предком
+
+// 1. Базовый пример
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      console.log('Элемент виден в viewport!')
+      console.log('Видимость:', entry.intersectionRatio) // 0.0 до 1.0
+    } else {
+      console.log('Элемент вне viewport')
+    }
+  })
+})
+
+// Начать наблюдение
+const target = document.querySelector('.target')
+observer.observe(target)
+
+// Остановить наблюдение конкретного элемента
+observer.unobserve(target)
+
+// Остановить всё наблюдение
+observer.disconnect()
+
+// 2. Настройки (options)
+const options = {
+  // root - элемент-контейнер (по умолчанию viewport)
+  root: null,
+
+  // rootMargin - отступы от границ root (как CSS margin)
+  rootMargin: '0px 0px 100px 0px', // top right bottom left
+
+  // threshold - пороги срабатывания (0.0 до 1.0)
+  threshold: [0, 0.25, 0.5, 0.75, 1.0]
+  // Callback вызовется при каждом пороге
+}
+
+const advancedObserver = new IntersectionObserver(callback, options)
+
+// 3. IntersectionObserverEntry - что приходит в callback
+const callback = (entries) => {
+  entries.forEach(entry => {
+    // Основные свойства
+    console.log(entry.isIntersecting)      // boolean - пересекается ли
+    console.log(entry.intersectionRatio)   // 0.0-1.0 - сколько видно
+    console.log(entry.target)              // сам элемент
+    console.log(entry.time)                // timestamp
+
+    // Геометрия
+    console.log(entry.boundingClientRect)  // размеры элемента
+    console.log(entry.intersectionRect)    // размеры пересечения
+    console.log(entry.rootBounds)          // размеры root
+
+    // Соотношения
+    const visiblePixels = entry.intersectionRect.height
+    const totalPixels = entry.boundingClientRect.height
+    const percentVisible = (visiblePixels / totalPixels) * 100
+  })
+}

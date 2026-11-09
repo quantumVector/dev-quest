@@ -1,0 +1,181 @@
+
+// =====================================
+// СООБЩЕНИЯ ОБ ОШИБКАХ: INTERFACE VS TYPE
+// =====================================
+
+// 1. Interface - понятные ошибки
+
+interface User {
+  id: number
+  name: string
+  email: string
+}
+
+const user1: User = {
+  id: 1,
+  name: 'John'
+  // ❌ Error: Property 'email' is missing in type
+}
+// Сообщение: четкое, указывает на User interface
+
+// 2. Type - развернутые ошибки
+
+type User2 = {
+  id: number
+  name: string
+  email: string
+}
+
+const user2: User2 = {
+  id: 1,
+  name: 'John'
+  // ❌ Error: Property 'email' is missing in type
+  //    '{ id: number; name: string; }'
+}
+// Сообщение: показывает полный развернутый тип
+
+// 3. Сложные Type - нечитаемые ошибки
+
+type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends object
+    ? DeepPartial<T[P]>
+    : T[P]
+}
+
+type UpdateUser = DeepPartial<User2>
+
+const update: UpdateUser = {
+  id: 'wrong'  // ❌ Error
+}
+// Сообщение: показывает весь развернутый тип DeepPartial
+// Очень сложно читать!
+
+// 4. Interface с extends - читаемые ошибки
+
+interface BaseEntity {
+  id: number
+  createdAt: Date
+}
+
+interface User extends BaseEntity {
+  name: string
+  email: string
+}
+
+const user3: User = {
+  id: 1,
+  createdAt: new Date()
+  // ❌ Error: Type is missing properties: name, email
+}
+// Четко указывает на User, не показывает всю структуру
+
+// 5. Type intersection - запутанные ошибки
+
+type BaseEntity2 = {
+  id: number
+  createdAt: Date
+}
+
+type User4 = BaseEntity2 & {
+  name: string
+  email: string
+}
+
+const user4: User4 = {
+  id: 1,
+  createdAt: new Date()
+  // ❌ Error: Type '{ id: number; createdAt: Date; }'
+  //    is not assignable to type 'User4'
+  //    Property 'name' is missing...
+}
+// Показывает весь intersection тип
+
+// 6. Generic Interface - понятные ошибки
+
+interface Result<T, E = Error> {
+  success: boolean
+  data?: T
+  error?: E
+}
+
+const result: Result<User> = {
+  success: true
+  // data или error опциональны - OK
+}
+
+const result2: Result<User> = {
+  success: 'yes'  // ❌ Error
+  // Type 'string' is not assignable to type 'boolean'
+}
+// Четкая ошибка с указанием на Result<User>
+
+// 7. Generic Type - развернутые ошибки
+
+type Result2<T, E = Error> = {
+  success: boolean
+  data?: T
+  error?: E
+}
+
+const result3: Result2<User2> = {
+  success: 'yes'  // ❌ Error
+  // Type 'string' is not assignable to type 'boolean'
+  // in type '{ success: boolean; data?: User2; error?: Error }'
+}
+// Показывает полный развернутый тип
+
+// 8. Рекомендации для лучших сообщений об ошибках
+
+// ✅ Хорошо - именованные типы
+interface ApiResponse<T> {
+  data: T
+  status: number
+}
+
+// ❌ Плохо - inline типы
+const getData = (): {
+  data: User
+  status: number
+} => {
+  // При ошибке покажет весь inline тип
+  return { data: {} as User, status: 200 }
+}
+
+// ✅ Лучше - использовать интерфейс
+const getData2 = (): ApiResponse<User> => {
+  // При ошибке покажет ApiResponse<User>
+  return { data: {} as User, status: 200 }
+}
+
+// 9. Утилита для улучшения ошибок
+
+// Wrapper для лучших сообщений
+type Prettify<T> = {
+  [K in keyof T]: T[K]
+} & {}
+
+type UglyType = { a: string } & { b: number } & { c: boolean }
+// Ошибка показывает: { a: string } & { b: number } & { c: boolean }
+
+type PrettyType = Prettify<UglyType>
+// Ошибка показывает: { a: string; b: number; c: boolean }
+
+// 10. Brand типы для Domain-Driven Design
+
+// Type с брендом
+type UserId = number & { readonly __brand: 'UserId' }
+type OrderId = number & { readonly __brand: 'OrderId' }
+
+const createUserId = (id: number): UserId => id as UserId
+
+const userId = createUserId(1)
+const orderId: OrderId = userId  // ❌ Error
+// Type 'UserId' is not assignable to type 'OrderId'
+// Четкое сообщение о несовместимости брендов
+
+// Interface не может иметь такие бренды
+interface UserIdInterface {
+  readonly value: number
+  readonly __brand: 'UserId'
+}
+// Менее удобно, требует объект

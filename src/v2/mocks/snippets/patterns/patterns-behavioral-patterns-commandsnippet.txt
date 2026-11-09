@@ -1,0 +1,127 @@
+
+// COMMAND PATTERN - Инкапсуляция действий
+
+// Command interface
+class Command {
+  execute() {}
+  undo() {}
+}
+
+// Конкретные команды
+class AddItemCommand extends Command {
+  constructor(store, item) {
+    super()
+    this.store = store
+    this.item = item
+  }
+
+  execute() {
+    this.store.items.push(this.item)
+    this.store.emit('item-added', this.item)
+  }
+
+  undo() {
+    const index = this.store.items.indexOf(this.item)
+    if (index > -1) {
+      this.store.items.splice(index, 1)
+      this.store.emit('item-removed', this.item)
+    }
+  }
+}
+
+class RemoveItemCommand extends Command {
+  constructor(store, itemId) {
+    super()
+    this.store = store
+    this.itemId = itemId
+    this.removedItem = null
+    this.removedIndex = -1
+  }
+
+  execute() {
+    this.removedIndex = this.store.items.findIndex(item => item.id === this.itemId)
+    if (this.removedIndex > -1) {
+      this.removedItem = this.store.items[this.removedIndex]
+      this.store.items.splice(this.removedIndex, 1)
+      this.store.emit('item-removed', this.removedItem)
+    }
+  }
+
+  undo() {
+    if (this.removedItem && this.removedIndex > -1) {
+      this.store.items.splice(this.removedIndex, 0, this.removedItem)
+      this.store.emit('item-added', this.removedItem)
+    }
+  }
+}
+
+// Command Manager (Invoker)
+class CommandManager {
+  constructor() {
+    this.history = []
+    this.currentIndex = -1
+  }
+
+  execute(command) {
+    // Удаляем команды после текущей позиции (при новом действии после undo)
+    this.history = this.history.slice(0, this.currentIndex + 1)
+
+    command.execute()
+    this.history.push(command)
+    this.currentIndex++
+  }
+
+  undo() {
+    if (this.canUndo()) {
+      const command = this.history[this.currentIndex]
+      command.undo()
+      this.currentIndex--
+    }
+  }
+
+  redo() {
+    if (this.canRedo()) {
+      this.currentIndex++
+      const command = this.history[this.currentIndex]
+      command.execute()
+    }
+  }
+
+  canUndo() {
+    return this.currentIndex >= 0
+  }
+
+  canRedo() {
+    return this.currentIndex < this.history.length - 1
+  }
+}
+
+// React: Undo/Redo с Command Pattern
+function useUndoRedo(initialState) {
+  const [state, setState] = useState(initialState)
+  const commandManager = useRef(new CommandManager())
+
+  const execute = (command) => {
+    commandManager.current.execute(command)
+    setState({...state}) // Force re-render
+  }
+
+  const undo = () => {
+    commandManager.current.undo()
+    setState({...state})
+  }
+
+  const redo = () => {
+    commandManager.current.redo()
+    setState({...state})
+  }
+
+  return {
+    state,
+    execute,
+    undo,
+    redo,
+    canUndo: commandManager.current.canUndo(),
+    canRedo: commandManager.current.canRedo()
+  }
+}

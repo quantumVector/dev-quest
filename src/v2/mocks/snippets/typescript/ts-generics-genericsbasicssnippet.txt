@@ -1,0 +1,117 @@
+
+// =====================================
+// GENERICS - ОСНОВЫ
+// =====================================
+
+// 1. Проблема без Generics
+function identityAny(value: any): any {
+  return value
+}
+
+const result1 = identityAny(42)       // тип any - потеряли информацию о типе
+const result2 = identityAny("hello")  // тип any - потеряли информацию о типе
+
+// 2. Решение с Generics - Generic функция
+function identity<T>(value: T): T {
+  return value
+}
+
+const result3 = identity(42)        // тип number - TypeScript вывел тип автоматически
+const result4 = identity("hello")   // тип string - TypeScript вывел тип автоматически
+
+// Явное указание типа
+const result5 = identity<number>(42)
+const result6 = identity<string>("hello")
+
+// 3. Generic с несколькими параметрами типа
+function pair<T, U>(first: T, second: U): [T, U] {
+  return [first, second]
+}
+
+const p1 = pair(1, "one")           // [number, string]
+const p2 = pair<number, string>(2, "two")
+const p3 = pair<boolean, number>(true, 42)
+
+// 4. Generic с значениями по умолчанию
+function createArray<T = string>(length: number, value: T): T[] {
+  return Array(length).fill(value)
+}
+
+const arr1 = createArray(3, 0)        // number[] - тип выведен из значения
+const arr2 = createArray(3, "hello")  // string[] - тип выведен из значения
+const arr3 = createArray<string>(3, "test")  // string[] - явно указан
+const arr4 = createArray(3, "default") // string[] - использует умолчание
+
+// 5. Generic массивов
+function getFirstElement<T>(arr: T[]): T | undefined {
+  return arr[0]
+}
+
+const first1 = getFirstElement([1, 2, 3])      // number | undefined
+const first2 = getFirstElement(["a", "b"])     // string | undefined
+const first3 = getFirstElement<boolean>([])    // boolean | undefined
+
+// 6. Generic для работы с объектами
+function getProperty<T, K extends keyof T>(obj: T, key: K): T[K] {
+  return obj[key]
+}
+
+const person = { name: "John", age: 30, city: "NYC" }
+const name = getProperty(person, "name")    // string
+const age = getProperty(person, "age")      // number
+// const invalid = getProperty(person, "invalid")  // ❌ Error: не существует
+
+// 7. Generic swap функция
+function swap<T, U>(tuple: [T, U]): [U, T] {
+  return [tuple[1], tuple[0]]
+}
+
+const original: [string, number] = ["hello", 42]
+const swapped = swap(original)  // [number, string]
+console.log(swapped)  // [42, "hello"]
+
+// 8. Generic функция с constraints (ограничениями)
+interface Lengthwise {
+  length: number
+}
+
+function logLength<T extends Lengthwise>(item: T): T {
+  console.log(`Length: ${item.length}`)
+  return item
+}
+
+logLength("hello")           // ✅ string имеет length
+logLength([1, 2, 3])         // ✅ array имеет length
+logLength({ length: 10 })    // ✅ объект с length
+// logLength(42)             // ❌ Error: number не имеет length
+
+// 9. Generic для фильтрации
+function filter<T>(array: T[], predicate: (item: T) => boolean): T[] {
+  const result: T[] = []
+  for (const item of array) {
+    if (predicate(item)) {
+      result.push(item)
+    }
+  }
+  return result
+}
+
+const numbers = [1, 2, 3, 4, 5, 6]
+const evens = filter(numbers, n => n % 2 === 0)  // number[]
+
+const words = ["hello", "world", "typescript"]
+const long = filter(words, w => w.length > 5)    // string[]
+
+// 10. Generic для преобразования
+function map<T, U>(array: T[], mapper: (item: T) => U): U[] {
+  const result: U[] = []
+  for (const item of array) {
+    result.push(mapper(item))
+  }
+  return result
+}
+
+const nums = [1, 2, 3, 4, 5]
+const doubled = map(nums, n => n * 2)           // number[]
+const strings = map(nums, n => `Number: ${n}`) // string[]
+const booleans = map(nums, n => n > 3)          // boolean[]

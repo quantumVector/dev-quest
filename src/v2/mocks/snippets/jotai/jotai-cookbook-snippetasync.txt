@@ -1,0 +1,41 @@
+
+import { atom, useAtomValue, useSetAtom } from 'jotai'
+import { loadable } from 'jotai/utils'
+import { api } from '@/shared/api'
+
+const refreshVersionAtom = atom(0)
+
+const todosAtom = atom(async (get) => {
+  get(refreshVersionAtom)
+  return api.getTodos()
+})
+
+const loadableTodosAtom = loadable(todosAtom)
+
+const refreshTodosAtom = atom(null, (get, set) => {
+  set(refreshVersionAtom, get(refreshVersionAtom) + 1)
+})
+
+function Todos() {
+  const todosState = useAtomValue(loadableTodosAtom)
+  const refresh = useSetAtom(refreshTodosAtom)
+
+  if (todosState.state === 'loading') {
+    return <p>Loading...</p>
+  }
+
+  if (todosState.state === 'hasError') {
+    return <button onClick={refresh}>Retry</button>
+  }
+
+  return (
+    <>
+      <button onClick={refresh}>Refresh</button>
+      <ul>
+        {todosState.data.map((todo) => (
+          <li key={todo.id}>{todo.title}</li>
+        ))}
+      </ul>
+    </>
+  )
+}

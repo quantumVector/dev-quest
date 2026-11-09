@@ -1,0 +1,18 @@
+
+// Свойство prototype есть только у функций-конструкторов
+function Person(name) {
+  this.name = name;
+}
+
+// Добавляем метод в prototype
+Person.prototype.greet = function() {
+  return `Hello, I'm ${this.name}`;
+};
+
+// Проверяем наличие prototype
+console.log(Person.prototype); // { greet: function, constructor: Person }
+console.log(typeof Person.prototype); // "object"
+
+// У обычных объектов нет prototype
+const obj = {};
+console.log(obj.prototype); // undefined

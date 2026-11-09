@@ -1,0 +1,14 @@
+
+# Проблема без try_files
+# Структура SPA роутов:
+https://example.com/           ✅ Работает (физический index.html)
+https://example.com/about      ✅ Работает (JS роутинг)
+https://example.com/users/123  ✅ Работает (JS роутинг)
+
+# НО! При прямом обращении или F5:
+https://example.com/about      ❌ 404 Not Found
+https://example.com/users/123  ❌ 404 Not Found
+
+# Почему? Nginx ищет физические файлы:
+# /usr/share/nginx/html/about       <- не существует
+# /usr/share/nginx/html/users/123   <- не существует

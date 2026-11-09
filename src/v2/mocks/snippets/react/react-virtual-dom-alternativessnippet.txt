@@ -1,0 +1,146 @@
+
+// Альтернативы Virtual DOM
+
+// 1. Svelte - без Virtual DOM (компиляция в императивный код)
+
+// Svelte компонент:
+<script>
+  let count = 0;
+
+  function increment() {
+    count += 1;
+  }
+</script>
+
+<button on:click={increment}>
+Count: {count}
+</button>
+
+// Компилируется в:
+function create_fragment(ctx) {
+let button;
+let t0;
+let t1;
+
+return {
+c() {
+button = element("button");
+t0 = text("Count: ");
+t1 = text(ctx[0]); // count
+},
+m(target, anchor) {
+insert(target, button, anchor);
+append(button, t0);
+append(button, t1);
+},
+p(ctx, [dirty]) {
+// Точное обновление только измененного текста
+if (dirty & 1) set_data(t1, ctx[0]);
+// Никакого Virtual DOM diffing!
+}
+};
+}
+
+// Преимущества Svelte:
+// ✅ Меньше кода в runtime
+// ✅ Меньше размер бандла
+// ✅ Быстрее (нет overhead Virtual DOM)
+// ❌ Больше кода на выходе при большом приложении
+// ❌ Меньшая экосистема
+
+// 2. SolidJS - реактивность без Virtual DOM
+
+function Counter() {
+const [count, setCount] = createSignal(0);
+
+return (
+<button onClick={() => setCount(count() + 1)}>
+Count: {count()}
+</button>
+);
+}
+
+// SolidJS создает реальный DOM один раз
+// При изменении count() обновляется только текстовый узел
+// Никакого повторного рендеринга компонента!
+
+// Преимущества SolidJS:
+// ✅ Очень быстрый (fastest in benchmarks)
+// ✅ Синтаксис похож на React (легко учить)
+// ✅ Fine-grained реактивность
+// ❌ Меньшая экосистема
+
+// 3. Vue 3 - гибридный подход
+
+const app = createApp({
+setup() {
+const count = ref(0);
+
+return { count };
+},
+template: `
+<button @click="count++">
+Count: {{ count }}
+</button>
+`
+});
+
+// Vue использует:
+// - Virtual DOM для компонентов
+// - Реактивность для точечных обновлений
+// - Compiler hints для оптимизации
+
+// 4. Vanilla JS с реактивностью
+
+class Observable {
+constructor(value) {
+this.value = value;
+this.subscribers = [];
+}
+
+subscribe(callback) {
+this.subscribers.push(callback);
+}
+
+set(newValue) {
+this.value = newValue;
+this.subscribers.forEach(callback => callback(newValue));
+}
+}
+
+// Использование:
+const count = new Observable(0);
+const element = document.getElementById('count');
+
+count.subscribe(value => {
+element.textContent = value; // Точечное обновление
+});
+
+count.set(1); // Автоматически обновит DOM
+
+// Когда использовать альтернативы:
+
+const useCase = {
+'React/Virtual DOM': [
+'Большие команды',
+'Сложные приложения',
+'Богатая экосистема',
+'Стабильность'
+],
+'Svelte': [
+'Маленькие команды',
+'Критичен размер бандла',
+'Простые приложения',
+'Максимальная производительность'
+],
+'SolidJS': [
+'Нужна максимальная скорость',
+'React-like синтаксис',
+'Сложная реактивная логика'
+],
+'Vanilla JS': [
+'Очень простые интерфейсы',
+'Минимальные зависимости',
+'Встраивание в существующий проект'
+]
+};

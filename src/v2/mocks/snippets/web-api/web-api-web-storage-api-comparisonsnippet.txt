@@ -1,0 +1,163 @@
+
+// =====================================
+// СРАВНЕНИЕ STORAGE РЕШЕНИЙ
+// =====================================
+
+// localStorage vs sessionStorage vs Cookies vs IndexedDB
+
+/*
+┌─────────────────┬──────────────┬────────────────┬──────────────┬──────────────┐
+│   Характеристика │ localStorage │ sessionStorage │   Cookies    │  IndexedDB   │
+├─────────────────┼──────────────┼────────────────┼──────────────┼──────────────┤
+│ Размер          │ ~5-10MB      │ ~5-10MB        │ ~4KB         │ Сотни MB     │
+│ Время жизни     │ Навсегда     │ До закрытия    │ Настраивается│ Навсегда     │
+│ Отправка на     │ Нет          │ Нет            │ Да           │ Нет          │
+│   сервер        │              │                │              │              │
+│ Синхронный API  │ Да           │ Да             │ Да           │ Нет          │
+│ Доступность     │ Все вкладки  │ Одна вкладка   │ Все вкладки  │ Все вкладки  │
+│ События         │ storage      │ Нет            │ Нет          │ Да           │
+│ Типы данных     │ Строки       │ Строки         │ Строки       │ Любые        │
+│ Индексация      │ Нет          │ Нет            │ Нет          │ Да           │
+│ Транзакции      │ Нет          │ Нет            │ Нет          │ Да           │
+│ Поддержка       │ IE8+         │ IE8+           │ Все          │ IE10+        │
+└─────────────────┴──────────────┴────────────────┴──────────────┴──────────────┘
+*/
+
+// КОГДА ИСПОЛЬЗОВАТЬ ЧТО:
+
+// 1. localStorage - долгосрочное хранение на клиенте
+// ✅ Настройки пользователя
+// ✅ Кэш данных
+// ✅ Черновики
+// ✅ История действий
+// ❌ Чувствительные данные (токены, пароли)
+// ❌ Большие объёмы данных (>5MB)
+
+// 2. sessionStorage - временное хранение в рамках сессии
+// ✅ Данные формы (многошаговые формы)
+// ✅ Временные фильтры/сортировки
+// ✅ Состояние UI в рамках одной вкладки
+// ✅ Wizard/step navigation
+// ❌ Данные, которые нужны между вкладками
+// ❌ Долгосрочное хранение
+
+// 3. Cookies - небольшие данные, отправляемые на сервер
+// ✅ Токены аутентификации (httpOnly, secure)
+// ✅ Session ID
+// ✅ Tracking
+// ✅ A/B тесты
+// ❌ Большие данные (лимит 4KB)
+// ❌ Данные, не нужные на сервере
+
+// 4. IndexedDB - большие объёмы структурированных данных
+// ✅ Офлайн-приложения
+// ✅ Большие коллекции данных
+// ✅ Сложные запросы с индексами
+// ✅ Файлы и Blob
+// ❌ Простые key-value данные (localStorage проще)
+// ❌ Синхронная работа (API асинхронный)
+
+// ПРОИЗВОДИТЕЛЬНОСТЬ
+
+// localStorage/sessionStorage - синхронные, блокируют главный поток
+console.time('localStorage write')
+for (let i = 0; i < 1000; i++) {
+  localStorage.setItem(`key${i}`, 'value')
+}
+console.timeEnd('localStorage write') // ~10-50ms
+
+// IndexedDB - асинхронный, не блокирует
+async function indexedDBWrite() {
+  console.time('IndexedDB write')
+  const db = await openDatabase()
+  const tx = db.transaction('store', 'readwrite')
+  const store = tx.objectStore('store')
+
+  for (let i = 0; i < 1000; i++) {
+    store.put({ key: `key${i}`, value: 'value' })
+  }
+
+  await tx.complete
+  console.timeEnd('IndexedDB write') // ~5-20ms (не блокирует UI)
+}
+
+// РЕКОМЕНДАЦИИ
+
+class StorageManager {
+  // Выбор хранилища в зависимости от размера данных
+  static selectStorage(dataSize, persistent = true) {
+    if (dataSize < 4096) {
+      // До 4KB - можно использовать cookies (если нужна отправка на сервер)
+      return 'cookies'
+    } else if (dataSize < 5 * 1024 * 1024) {
+      // До 5MB - localStorage или sessionStorage
+      return persistent ? 'localStorage' : 'sessionStorage'
+    } else {
+      // Больше 5MB - только IndexedDB
+      return 'indexedDB'
+    }
+  }
+
+  // Универсальная установка значения
+  static async set(key, value, options = {}) {
+    const { persistent = true, ttl = null } = options
+    const dataSize = JSON.stringify(value).length
+    const storage = this.selectStorage(dataSize, persistent)
+
+    switch (storage) {
+      case 'localStorage':
+        localStorage.setItem(key, JSON.stringify({
+          value,
+          expiry: ttl ? Date.now() + ttl : null
+        }))
+        break
+
+      case 'sessionStorage':
+        sessionStorage.setItem(key, JSON.stringify(value))
+        break
+
+      case 'indexedDB':
+        await this.setIndexedDB(key, value, ttl)
+        break
+    }
+  }
+
+  // Универсальное получение значения
+  static async get(key) {
+    // Пробуем localStorage
+    let item = localStorage.getItem(key)
+    if (item) {
+      const data = JSON.parse(item)
+      if (data.expiry && Date.now() > data.expiry) {
+        localStorage.removeItem(key)
+        return null
+      }
+      return data.value
+    }
+
+    // Пробуем sessionStorage
+    item = sessionStorage.getItem(key)
+    if (item) {
+      return JSON.parse(item)
+    }
+
+    // Пробуем IndexedDB
+    return await this.getIndexedDB(key)
+  }
+
+  static async setIndexedDB(key, value, ttl) {
+    // Упрощенная реализация
+    // В реальности нужна полноценная работа с IndexedDB
+  }
+
+  static async getIndexedDB(key) {
+    // Упрощенная реализация
+  }
+}
+
+// Использование
+await StorageManager.set('smallData', { x: 1 }, { persistent: true })
+await StorageManager.set('bigData', largeArray, { persistent: true })
+await StorageManager.set('tempData', { x: 2 }, { persistent: false })
+
+const data = await StorageManager.get('smallData')

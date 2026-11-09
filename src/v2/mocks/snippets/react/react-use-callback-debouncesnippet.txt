@@ -1,0 +1,60 @@
+
+// useCallback с debounce/throttle
+
+import { useState, useCallback, useRef } from 'react';
+
+function SearchInput() {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [results, setResults] = useState([]);
+
+  // Debounce функция
+  const debounceTimerRef = useRef(null);
+
+  const performSearch = useCallback((term) => {
+    fetch(`/api/search?q=${term}`)
+      .then(res => res.json())
+      .then(setResults);
+  }, []);
+
+  const handleSearch = useCallback((e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+
+    // Очищаем предыдущий таймер
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    // Запускаем новый таймер
+    debounceTimerRef.current = setTimeout(() => {
+      performSearch(value);
+    }, 300);
+  }, [performSearch]);
+
+  return (
+    <div>
+      <input
+        type="text"
+        value={searchTerm}
+        onChange={handleSearch}
+        placeholder="Search..."
+      />
+      <SearchResults results={results} />
+    </div>
+  );
+}
+
+// Альтернатива: кастомный хук useDebouncedCallback
+function useDebouncedCallback(callback, delay, deps) {
+  const timeoutRef = useRef(null);
+
+  return useCallback((...args) => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    timeoutRef.current = setTimeout(() => {
+      callback(...args);
+    }, delay);
+  }, [callback, delay, ...deps]);
+}

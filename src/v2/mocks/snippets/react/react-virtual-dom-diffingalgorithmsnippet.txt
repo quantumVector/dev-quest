@@ -1,0 +1,78 @@
+
+// Алгоритм Diffing - сердце Virtual DOM
+
+// Шаг 1: React сохраняет текущее Virtual DOM дерево
+const oldVDOM = {
+  type: 'div',
+  props: {
+    children: [
+      { type: 'h1', props: { children: ['Counter: 0'] } },
+      { type: 'p', props: { children: ['Status: active'] } },
+      { type: 'button', props: { children: ['+'] } }
+    ]
+  }
+};
+
+// Шаг 2: Состояние изменилось (count = 1)
+// React создает новое Virtual DOM дерево
+const newVDOM = {
+  type: 'div',
+  props: {
+    children: [
+      { type: 'h1', props: { children: ['Counter: 1'] } }, // ← Изменилось!
+      { type: 'p', props: { children: ['Status: active'] } },
+      { type: 'button', props: { children: ['+'] } }
+    ]
+  }
+};
+
+// Шаг 3: Diffing - сравнение деревьев
+function diff(oldVDOM, newVDOM) {
+  const patches = [];
+
+  // Правило 1: Разные типы элементов - полная замена
+  if (oldVDOM.type !== newVDOM.type) {
+    patches.push({ type: 'REPLACE', node: newVDOM });
+    return patches;
+  }
+
+  // Правило 2: Одинаковый тип - проверка props и children
+  if (oldVDOM.type === newVDOM.type) {
+    // Сравниваем props
+    const propPatches = diffProps(oldVDOM.props, newVDOM.props);
+    if (propPatches.length) {
+      patches.push({ type: 'UPDATE_PROPS', patches: propPatches });
+    }
+
+    // Рекурсивно сравниваем детей
+    const childPatches = diffChildren(
+      oldVDOM.props.children,
+      newVDOM.props.children
+    );
+    patches.push(...childPatches);
+  }
+
+  return patches;
+}
+
+// Результат Diffing:
+const patches = [
+  {
+    type: 'UPDATE_TEXT',
+    path: ['div', 'h1', 'text'],
+    oldValue: 'Counter: 0',
+    newValue: 'Counter: 1'
+  }
+  // Только одно изменение! p и button не трогаем
+];
+
+// Шаг 4: Применяем патчи к реальному DOM (Reconciliation)
+function applyPatches(patches) {
+  patches.forEach(patch => {
+    const domNode = findDOMNode(patch.path);
+    domNode.textContent = patch.newValue; // Одно обновление!
+  });
+}
+
+// ✅ Итог: вместо пересоздания всего UI,
+// обновили только текст в h1 - одна операция DOM

@@ -1,0 +1,90 @@
+
+// COMPOSITE - древовидные структуры
+
+// Общий интерфейс для компонентов
+interface FileSystemComponent {
+  getName(): string;
+  getSize(): number;
+  display(indent: string): void;
+}
+
+// Лист - файл (не имеет детей)
+class File implements FileSystemComponent {
+  constructor(
+    private name: string,
+    private size: number
+  ) {}
+
+  getName() {
+    return this.name;
+  }
+
+  getSize() {
+    return this.size;
+  }
+
+  display(indent = '') {
+    console.log(`${indent}📄 ${this.name} (${this.size}KB)`);
+  }
+}
+
+// Композит - папка (может содержать файлы и другие папки)
+class Folder implements FileSystemComponent {
+  private children: FileSystemComponent[] = [];
+
+  constructor(private name: string) {}
+
+  add(component: FileSystemComponent) {
+    this.children.push(component);
+  }
+
+  remove(component: FileSystemComponent) {
+    const index = this.children.indexOf(component);
+    if (index > -1) {
+      this.children.splice(index, 1);
+    }
+  }
+
+  getName() {
+    return this.name;
+  }
+
+  getSize() {
+    // Рекурсивно суммируем размеры всех детей
+    return this.children.reduce(
+      (total, child) => total + child.getSize(),
+      0
+    );
+  }
+
+  display(indent = '') {
+    console.log(`${indent}📁 ${this.name} (${this.getSize()}KB)`);
+
+    // Рекурсивно отображаем детей
+    this.children.forEach(child => {
+      child.display(indent + '  ');
+    });
+  }
+}
+
+// Построение иерархии
+const root = new Folder('root');
+
+const documents = new Folder('documents');
+documents.add(new File('resume.pdf', 150));
+documents.add(new File('cover-letter.docx', 50));
+
+const photos = new Folder('photos');
+photos.add(new File('vacation.jpg', 2000));
+photos.add(new File('family.jpg', 1500));
+
+const work = new Folder('work');
+work.add(new File('project.pptx', 5000));
+work.add(documents);
+
+root.add(work);
+root.add(photos);
+
+// Одинаковый интерфейс для файлов и папок
+root.display();
+console.log(`Total size: ${root.getSize()}KB`);

@@ -1,0 +1,45 @@
+
+<!-- Оптимизация с placeholder и fade-in эффектом -->
+<style>
+.image-wrapper {
+  position: relative;
+  background: #f0f0f0;
+  overflow: hidden;
+}
+
+.lazy-image {
+  opacity: 0;
+  transition: opacity 0.3s ease-in;
+}
+
+.lazy-image.loaded {
+  opacity: 1;
+}
+
+/* Placeholder с blur эффектом */
+.image-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  filter: blur(20px);
+  transform: scale(1.1);
+}
+</style>
+
+<div class="image-wrapper">
+  <!-- Tiny placeholder (1-2KB) -->
+  <img
+    src="image-tiny.jpg"
+    class="image-placeholder"
+    aria-hidden="true">
+
+  <!-- Реальное изображение -->
+  <img
+    data-src="image-full.jpg"
+    alt="Описание"
+    class="lazy-image"
+    loading="lazy"
+    onload="this.classList.add('loaded')">
+</div>

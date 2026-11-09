@@ -1,0 +1,77 @@
+
+// Практический пример анимации с requestAnimationFrame
+class SmoothAnimation {
+  constructor(element, duration = 1000) {
+    this.element = element;
+    this.duration = duration;
+    this.startTime = null;
+    this.isRunning = false;
+  }
+
+  // Правильное использование requestAnimationFrame
+  animate(startPos = 0, endPos = 300) {
+    if (this.isRunning) return;
+
+    this.isRunning = true;
+    this.startTime = null;
+
+    const step = (timestamp) => {
+      // Первый вызов - запоминаем время старта
+      if (!this.startTime) {
+        this.startTime = timestamp;
+      }
+
+      // Вычисляем прогресс (0 к 1)
+      const elapsed = timestamp - this.startTime;
+      const progress = Math.min(elapsed / this.duration, 1);
+
+      // Easing function (ease-out)
+      const easedProgress = 1 - Math.pow(1 - progress, 3);
+
+      // Вычисляем текущую позицию
+      const currentPos = startPos + (endPos - startPos) * easedProgress;
+
+      // Применяем изменения ВНУТРИ rAF callback
+      // Это гарантирует, что изменения будут применены перед рендерингом
+      this.element.style.transform = `translateX(${currentPos}px)`;
+
+      // Продолжаем анимацию или завершаем
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      } else {
+        this.isRunning = false;
+        console.log('Анимация завершена');
+      }
+    };
+
+    // Запускаем первый кадр
+    requestAnimationFrame(step);
+  }
+
+  // Отмена анимации
+  cancel() {
+    this.isRunning = false;
+    // В реальном коде нужно сохранять ID от requestAnimationFrame
+    // и использовать cancelAnimationFrame(id)
+  }
+}
+
+// Использование
+const element = document.createElement('div');
+element.style.cssText = `
+  width: 50px;
+  height: 50px;
+  background: #4CAF50;
+  position: absolute;
+  top: 50px;
+  left: 0;
+  transition: none; /* Отключаем CSS transitions для плавности */
+`;
+document.body.appendChild(element);
+
+const animation = new SmoothAnimation(element, 2000);
+
+// Запуск анимации по клику
+element.addEventListener('click', () => {
+  animation.animate(0, 300);
+});

@@ -1,0 +1,18 @@
+
+// Проверка дескрипторов свойства
+const obj = { name: "John" };
+
+console.log(Object.getOwnPropertyDescriptor(obj, 'name'));
+// { value: "John", writable: true, enumerable: true, configurable: true }
+
+// Создание свойства с конкретными флагами
+Object.defineProperty(obj, 'age', {
+  value: 30,
+  writable: false,    // нельзя изменить
+  enumerable: false,  // не появляется в циклах
+  configurable: false // нельзя удалить или изменить дескриптор
+});
+
+console.log(obj.age); // 30
+obj.age = 25; // игнорируется (в strict mode - ошибка)
+console.log(obj.age); // всё ещё 30

@@ -1,0 +1,91 @@
+
+// Частые ошибки с useCallback
+
+// ❌ ОШИБКА 1: Забыли зависимости
+function BadDeps() {
+  const [count, setCount] = useState(0);
+
+  const handleClick = useCallback(() => {
+    console.log(count); // Всегда будет 0!
+  }, []); // count должен быть в зависимостях
+
+  return <button onClick={handleClick}>Log count</button>;
+}
+
+// ✅ ПРАВИЛЬНО
+function GoodDeps() {
+  const [count, setCount] = useState(0);
+
+  const handleClick = useCallback(() => {
+    console.log(count);
+  }, [count]); // count в зависимостях
+
+  return <button onClick={handleClick}>Log count</button>;
+}
+
+// ❌ ОШИБКА 2: Избыточное использование
+function Overkill() {
+  const [text, setText] = useState('');
+
+  // НЕ НУЖЕН - нет мемоизированных компонентов
+  const handleChange = useCallback((e) => {
+    setText(e.target.value);
+  }, []);
+
+  return <input value={text} onChange={handleChange} />;
+}
+
+// ❌ ОШИБКА 3: Создание функции в useCallback
+function NestedFunction() {
+  const [items, setItems] = useState([]);
+
+  // ПЛОХО: Каждый раз создается новая функция внутри
+  const handleClick = useCallback((id) => {
+    return () => { // ← Эта функция создается заново!
+      setItems(prev => prev.filter(item => item.id !== id));
+    };
+  }, []);
+
+  return items.map(item => (
+    <button key={item.id} onClick={handleClick(item.id)}>
+      Delete
+    </button>
+  ));
+}
+
+// ✅ ПРАВИЛЬНО: Функция стабильна
+function StableFunction() {
+  const [items, setItems] = useState([]);
+
+  const handleClick = useCallback((id) => {
+    setItems(prev => prev.filter(item => item.id !== id));
+  }, []);
+
+  return items.map(item => (
+    <button key={item.id} onClick={() => handleClick(item.id)}>
+      Delete
+    </button>
+  ));
+}
+
+// ❌ ОШИБКА 4: Неправильная мемоизация с объектами
+function ObjectInDeps() {
+  const config = { timeout: 1000 }; // Новый объект каждый рендер!
+
+  const handleFetch = useCallback(() => {
+    fetchWithConfig(config); // config всегда новый → callback пересоздается
+  }, [config]);
+
+  return <button onClick={handleFetch}>Fetch</button>;
+}
+
+// ✅ ПРАВИЛЬНО: Используем примитивы или useMemo
+function PrimitivesInDeps() {
+  const timeout = 1000;
+
+  const handleFetch = useCallback(() => {
+    fetchWithConfig({ timeout });
+  }, [timeout]); // Примитив стабилен
+
+  return <button onClick={handleFetch}>Fetch</button>;
+}

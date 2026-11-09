@@ -1,0 +1,21 @@
+
+/* Уважаем системные настройки пользователя */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Hover-эффекты только для устройств с точным указателем */
+@media (hover: hover) and (pointer: fine) {
+  .card:hover {
+    transform: translateY(-8px) scale(1.02);
+  }
+}
+
+/* CSS Containment — изолируем влияние анимации на соседние элементы */
+.animation-container {
+  contain: layout style paint;
+}

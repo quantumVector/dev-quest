@@ -1,0 +1,14 @@
+
+// Императивный подход - КАК делать
+const numbers = [1, 2, 3, 4, 5];
+let doubled = [];
+
+for (let i = 0; i < numbers.length; i++) {
+  doubled.push(numbers[i] * 2);
+}
+
+console.log(doubled); // [2, 4, 6, 8, 10]
+
+// Мутация данных
+let user = { name: 'John', age: 30 };
+user.age = 31; // Изменили оригинал

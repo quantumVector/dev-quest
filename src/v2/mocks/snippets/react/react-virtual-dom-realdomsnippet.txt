@@ -1,0 +1,30 @@
+
+// Проблема: манипуляции с реальным DOM медленные
+
+// ❌ Плохой подход - множественные обновления DOM
+function updateList(items) {
+  const list = document.getElementById('list');
+
+  // Каждая операция вызывает reflow/repaint
+  items.forEach(item => {
+    const li = document.createElement('li');
+    li.textContent = item.name;
+    li.style.color = item.active ? 'green' : 'gray';
+    list.appendChild(li); // Reflow!
+  });
+}
+
+// Почему это медленно:
+// 1. Каждый appendChild вызывает reflow
+// 2. Браузер пересчитывает layout для каждого элемента
+// 3. Перерисовка (repaint) происходит многократно
+// 4. Нет оптимизации - все операции синхронные
+
+// Стоимость операций с DOM:
+const div = document.createElement('div');        // ~0.1ms
+document.body.appendChild(div);                   // ~1-5ms (reflow!)
+div.style.color = 'red';                          // ~0.5ms (repaint!)
+div.innerHTML = '<span>Text</span>';              // ~2ms (парсинг + reflow)
+
+// При 1000 элементов:
+// 1000 * (создание + append + стили) = 1000 * 6ms = 6 секунд!

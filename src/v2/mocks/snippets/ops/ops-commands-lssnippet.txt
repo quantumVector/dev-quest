@@ -1,0 +1,80 @@
+
+# ls - list directory contents
+# Просмотр содержимого директорий
+
+# Базовое использование
+ls
+# file1.js  file2.js  package.json
+
+# Подробный вывод (long format)
+ls -l
+# -rw-r--r--  1 user  group  1234 Nov 29 10:30 package.json
+# drwxr-xr-x  5 user  group   160 Nov 29 09:15 src
+
+# Показать скрытые файлы
+ls -a
+# .  ..  .git  .gitignore  .env  package.json
+
+# Комбинация флагов
+ls -la
+# Подробно + скрытые файлы
+
+# Человекочитаемые размеры
+ls -lh
+# -rw-r--r--  1 user  group  1.2K Nov 29 10:30 package.json
+# -rw-r--r--  1 user  group   45M Nov 29 09:20 bundle.js
+
+# Сортировка по времени модификации
+ls -lt
+# Новые файлы сверху
+
+# Обратная сортировка
+ls -ltr
+# Старые файлы сверху
+
+# Рекурсивный просмотр
+ls -R
+# Показывает все вложенные директории
+
+# Только директории
+ls -d */
+# src/  public/  tests/
+
+# С индексными дескрипторами (inodes)
+ls -li
+# 12345678 -rw-r--r--  1 user  group  1234 package.json
+
+# По размеру
+ls -lS
+# Большие файлы сверху
+
+# Цветной вывод
+ls --color=auto
+# Директории - синий, исполняемые - зеленый
+
+# Практические примеры
+
+# Найти все JavaScript файлы
+ls -l *.js
+
+# Найти все тестовые файлы
+ls -l **/*.test.js
+
+# Посмотреть permissions
+ls -l src/
+# -rwxr-xr-x - исполняемый файл
+# -rw-r--r-- - обычный файл
+# drwxr-xr-x - директория
+
+# Проверка наличия файла в скрипте
+if ls package.json 1>/dev/null 2>&1; then
+  echo "package.json exists"
+fi
+
+# Подсчет файлов
+ls -1 | wc -l
+# Количество файлов в директории
+
+# Альтернативы для современных терминалов
+exa -la  # современная замена ls с цветами
+lsd -la  # ls deluxe

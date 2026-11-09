@@ -1,0 +1,110 @@
+
+// =====================================
+// LOCALSTORAGE + STORAGE EVENT
+// =====================================
+
+// 1. Базовая синхронизация через localStorage
+class CartSync {
+  constructor() {
+    this.cart = this.loadCart()
+    this.listeners = new Set()
+
+    // Подписываемся на изменения в других вкладках
+    window.addEventListener('storage', this.handleStorageChange.bind(this))
+  }
+
+  loadCart() {
+    try {
+      const data = localStorage.getItem('cart')
+      return data ? JSON.parse(data) : []
+    } catch (error) {
+      console.error('Error loading cart:', error)
+      return []
+    }
+  }
+
+  saveCart(cart) {
+    try {
+      localStorage.setItem('cart', JSON.stringify(cart))
+      this.cart = cart
+
+      // Уведомляем подписчиков в ТЕКУЩЕЙ вкладке
+      this.notifyListeners(cart)
+    } catch (error) {
+      console.error('Error saving cart:', error)
+    }
+  }
+
+  handleStorageChange(event) {
+    // Storage event срабатывает только в ДРУГИХ вкладках
+    if (event.key === 'cart' && event.newValue !== null) {
+      try {
+        const newCart = JSON.parse(event.newValue)
+        this.cart = newCart
+
+        // Уведомляем подписчиков об изменении из другой вкладки
+        this.notifyListeners(newCart)
+      } catch (error) {
+        console.error('Error parsing cart:', error)
+      }
+    }
+  }
+
+  addItem(item) {
+    const cart = [...this.cart, { ...item, id: Date.now() }]
+    this.saveCart(cart)
+  }
+
+  removeItem(itemId) {
+    const cart = this.cart.filter(item => item.id !== itemId)
+    this.saveCart(cart)
+  }
+
+  updateQuantity(itemId, quantity) {
+    const cart = this.cart.map(item =>
+      item.id === itemId ? { ...item, quantity } : item
+    )
+    this.saveCart(cart)
+  }
+
+  clearCart() {
+    this.saveCart([])
+  }
+
+  subscribe(callback) {
+    this.listeners.add(callback)
+
+    // Возвращаем функцию отписки
+    return () => this.listeners.delete(callback)
+  }
+
+  notifyListeners(cart) {
+    this.listeners.forEach(callback => callback(cart))
+  }
+
+  getCart() {
+    return [...this.cart]
+  }
+}
+
+// Использование
+const cartSync = new CartSync()
+
+// Подписываемся на изменения
+const unsubscribe = cartSync.subscribe((cart) => {
+  console.log('Cart updated:', cart)
+  updateUI(cart)
+})
+
+// Добавляем товар
+cartSync.addItem({
+  name: 'iPhone 15',
+  price: 999,
+  quantity: 1
+})
+
+// Удаляем товар
+cartSync.removeItem(itemId)
+
+// Отписываемся
+unsubscribe()

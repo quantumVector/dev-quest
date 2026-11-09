@@ -1,0 +1,108 @@
+
+// STATE PATTERN - Изменение поведения в зависимости от состояния
+
+// Состояния для аудио плеера
+class PlayerState {
+  play(player) {}
+  pause(player) {}
+  stop(player) {}
+}
+
+class PlayingState extends PlayerState {
+  play(player) {
+    console.log('Already playing')
+  }
+
+  pause(player) {
+    player.audio.pause()
+    player.setState(player.pausedState)
+  }
+
+  stop(player) {
+    player.audio.pause()
+    player.audio.currentTime = 0
+    player.setState(player.stoppedState)
+  }
+}
+
+class PausedState extends PlayerState {
+  play(player) {
+    player.audio.play()
+    player.setState(player.playingState)
+  }
+
+  pause(player) {
+    console.log('Already paused')
+  }
+
+  stop(player) {
+    player.audio.currentTime = 0
+    player.setState(player.stoppedState)
+  }
+}
+
+class StoppedState extends PlayerState {
+  play(player) {
+    player.audio.play()
+    player.setState(player.playingState)
+  }
+
+  pause(player) {
+    console.log('Cannot pause when stopped')
+  }
+
+  stop(player) {
+    console.log('Already stopped')
+  }
+}
+
+// Audio Player с State Pattern
+class AudioPlayer {
+  constructor(audioElement) {
+    this.audio = audioElement
+    this.playingState = new PlayingState()
+    this.pausedState = new PausedState()
+    this.stoppedState = new StoppedState()
+    this.currentState = this.stoppedState
+  }
+
+  setState(state) {
+    this.currentState = state
+  }
+
+  play() {
+    this.currentState.play(this)
+  }
+
+  pause() {
+    this.currentState.pause(this)
+  }
+
+  stop() {
+    this.currentState.stop(this)
+  }
+}
+
+// React: Custom Hook с State Pattern
+function useAudioPlayer(src) {
+  const audioRef = useRef(new Audio(src))
+  const [player] = useState(() => new AudioPlayer(audioRef.current))
+  const [state, setState] = useState('stopped')
+
+  useEffect(() => {
+    const originalSetState = player.setState.bind(player)
+    player.setState = (newState) => {
+      originalSetState(newState)
+      if (newState === player.playingState) setState('playing')
+      else if (newState === player.pausedState) setState('paused')
+      else setState('stopped')
+    }
+  }, [player])
+
+  return {
+    play: () => player.play(),
+    pause: () => player.pause(),
+    stop: () => player.stop(),
+    state
+  }
+}

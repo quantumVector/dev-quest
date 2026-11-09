@@ -1,0 +1,56 @@
+
+// React 18 - улучшенный Suspense
+import { Suspense, lazy } from 'react';
+
+// Ленивая загрузка компонентов
+const LazyComponent = lazy(() => import('./HeavyComponent'));
+
+function App() {
+  return (
+    <Suspense fallback={<Spinner />}>
+      <LazyComponent />
+    </Suspense>
+  );
+}
+
+// Suspense для данных (с библиотеками типа React Query, SWR)
+function UserProfile({ userId }) {
+  // Используем библиотеку с поддержкой Suspense
+  const user = useSuspenseQuery(['user', userId], fetchUser);
+
+  return <div>{user.name}</div>;
+}
+
+function ProfilePage({ userId }) {
+  return (
+    <Suspense fallback={<ProfileSkeleton />}>
+      <UserProfile userId={userId} />
+    </Suspense>
+  );
+}
+
+// Вложенные Suspense границы
+function Dashboard() {
+  return (
+    <div>
+      {/* Быстрая часть загружается сразу */}
+      <Header />
+
+      {/* Медленные части загружаются независимо */}
+      <Suspense fallback={<Skeleton />}>
+        <LeftSidebar />
+      </Suspense>
+
+      <Suspense fallback={<Skeleton />}>
+        <MainContent />
+      </Suspense>
+
+      <Suspense fallback={<Skeleton />}>
+        <RightSidebar />
+      </Suspense>
+    </div>
+  );
+}
+
+// Новое: Suspense на сервере (SSR streaming)
+// Части страницы отправляются по мере готовности

@@ -1,0 +1,24 @@
+
+// Symbol.species - контролирует создание производных объектов
+
+class MyArray extends Array {
+  // Переопределяем Symbol.species
+  static get [Symbol.species]() {
+    return Array // Возвращаем обычный Array вместо MyArray
+  }
+
+  // Кастомный метод
+  multiply(factor) {
+    return this.map(x => x * factor)
+  }
+}
+
+const myArr = new MyArray(1, 2, 3)
+console.log(myArr instanceof MyArray) // true
+
+// map() использует Symbol.species для создания результата
+const mapped = myArr.map(x => x * 2)
+console.log(mapped instanceof MyArray) // false (благодаря Symbol.species)
+console.log(mapped instanceof Array)   // true
+
+// Без Symbol.species mapped был бы экземпляром MyArray

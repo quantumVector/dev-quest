@@ -1,0 +1,17 @@
+
+# try_files объяснение
+try_files $uri $uri/ /index.html;
+
+# $uri - запрошенный URL
+# $uri/ - попробовать как директорию
+# /index.html - fallback если ничего не найдено
+
+# Пример работы:
+# GET /about
+# 1. Ищет файл /about (не находит)
+# 2. Ищет папку /about/ (не находит)
+# 3. Отдает /index.html ✅
+
+# GET /assets/app.js
+# 1. Ищет файл /assets/app.js (находит) ✅
+# 2. Отдает найденный файл

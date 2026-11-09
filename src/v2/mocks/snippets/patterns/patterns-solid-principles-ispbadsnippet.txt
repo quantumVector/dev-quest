@@ -1,0 +1,43 @@
+
+// ❌ ПЛОХО - "Толстый" интерфейс
+interface DataService {
+  // CRUD операции
+  create(data: any): Promise<void>
+  read(id: string): Promise<any>
+  update(id: string, data: any): Promise<void>
+  delete(id: string): Promise<void>
+
+  // Экспорт/импорт
+  exportToCSV(): Promise<string>
+  exportToJSON(): Promise<string>
+  importFromCSV(data: string): Promise<void>
+  importFromJSON(data: string): Promise<void>
+
+  // Кэширование
+  clearCache(): void
+  getCacheStats(): CacheStats
+
+  // Валидация
+  validate(data: any): boolean
+  sanitize(data: any): any
+}
+
+// Компонент, которому нужна только валидация,
+// вынужден зависеть от всего интерфейса
+class FormValidator implements DataService {
+  // Приходится реализовывать ВСЕ методы!
+  create() { throw new Error('Not needed') }
+  read() { throw new Error('Not needed') }
+  update() { throw new Error('Not needed') }
+  delete() { throw new Error('Not needed') }
+  exportToCSV() { throw new Error('Not needed') }
+  exportToJSON() { throw new Error('Not needed') }
+  importFromCSV() { throw new Error('Not needed') }
+  importFromJSON() { throw new Error('Not needed') }
+  clearCache() { throw new Error('Not needed') }
+  getCacheStats() { throw new Error('Not needed') }
+
+  // Нужны только эти два!
+  validate(data: any) { return true }
+  sanitize(data: any) { return data }
+}

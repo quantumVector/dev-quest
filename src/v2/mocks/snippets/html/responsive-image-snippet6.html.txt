@@ -1,0 +1,25 @@
+
+<!-- ПРАВИЛЬНО: медиа-запросы в sizes, файлы в srcset -->
+<img
+  src="photo-800.jpg"
+  srcset="
+    photo-400.jpg 400w,
+    photo-800.jpg 800w,
+    photo-1200.jpg 1200w
+  "
+  sizes="
+    (max-width: 768px) 100vw,
+    (max-width: 1200px) 50vw,
+    33vw
+  "
+  alt="Фотография"
+/>
+
+<!-- НЕПРАВИЛЬНО: медиа-запросы нельзя писать в srcset -->
+<!-- srcset="(max-width: 768px) photo-400.jpg" — это невалидно! -->
+
+<!-- НЕПРАВИЛЬНО: px нельзя писать в srcset -->
+<!-- srcset="photo-400.jpg 400px" — невалидно, нужно 400w -->
+
+<!-- НЕПРАВИЛЬНО: нельзя миксовать w и x -->
+<!-- srcset="photo-400.jpg 400w, photo@2x.jpg 2x" — невалидно! -->

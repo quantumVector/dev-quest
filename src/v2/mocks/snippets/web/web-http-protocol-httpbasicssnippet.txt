@@ -1,0 +1,16 @@
+
+// HTTP - HyperText Transfer Protocol
+// Протокол прикладного уровня для передачи гипертекста
+
+// Простой HTTP запрос (концептуально)
+GET /api/users HTTP/1.1
+Host: example.com
+User-Agent: Mozilla/5.0
+Accept: application/json
+
+// HTTP ответ
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 82
+
+{"users": [{"id": 1, "name": "John"}, {"id": 2, "name": "Jane"}]}

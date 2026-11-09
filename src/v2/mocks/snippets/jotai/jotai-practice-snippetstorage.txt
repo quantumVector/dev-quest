@@ -1,0 +1,17 @@
+
+import { atomWithStorage } from 'jotai/utils'
+import { useAtom } from 'jotai'
+
+const themeAtom = atomWithStorage<'light' | 'dark'>('theme', 'light')
+
+function ThemeToggle() {
+  const [theme, setTheme] = useAtom(themeAtom)
+
+  return (
+    <button
+      onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+    >
+      {theme}
+    </button>
+  )
+}

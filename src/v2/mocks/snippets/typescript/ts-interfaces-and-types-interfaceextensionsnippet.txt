@@ -1,0 +1,92 @@
+
+// =====================================
+// РАСШИРЕНИЕ ИНТЕРФЕЙСОВ
+// =====================================
+
+// 1. Extends - наследование интерфейсов
+interface Animal {
+  name: string
+  age: number
+}
+
+interface Dog extends Animal {
+  breed: string
+  bark(): void
+}
+
+const myDog: Dog = {
+  name: 'Buddy',
+  age: 3,
+  breed: 'Labrador',
+  bark() {
+    console.log('Woof!')
+  }
+}
+
+// 2. Множественное наследование
+interface Flyable {
+  fly(): void
+  maxAltitude: number
+}
+
+interface Swimmable {
+  swim(): void
+  maxDepth: number
+}
+
+interface Duck extends Animal, Flyable, Swimmable {
+  quack(): void
+}
+
+const duck: Duck = {
+  name: 'Donald',
+  age: 2,
+  fly() { console.log('Flying') },
+  maxAltitude: 1000,
+  swim() { console.log('Swimming') },
+  maxDepth: 10,
+  quack() { console.log('Quack!') }
+}
+
+// 3. Declaration Merging - слияние деклараций
+interface Window {
+  title: string
+}
+
+interface Window {
+  width: number
+  height: number
+}
+
+// Результат - слияние обеих деклараций
+const window: Window = {
+  title: 'My App',
+  width: 1920,
+  height: 1080
+}
+
+// 4. Augmentation - расширение существующих интерфейсов
+// Полезно для расширения глобальных типов
+interface Array<T> {
+  myCustomMethod(): T[]
+}
+
+Array.prototype.myCustomMethod = function() {
+  return this
+}
+
+const arr = [1, 2, 3]
+arr.myCustomMethod()  // ✅ TypeScript знает о методе
+
+// 5. Переопределение свойств при наследовании
+interface Vehicle {
+  speed: number | string
+}
+
+interface Car extends Vehicle {
+  speed: number  // Сужение типа (OK)
+}
+
+// interface Bike extends Vehicle {
+//   speed: boolean  // ❌ Error: не совместимый тип
+// }

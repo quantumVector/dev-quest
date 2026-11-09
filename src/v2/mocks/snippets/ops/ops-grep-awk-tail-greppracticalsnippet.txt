@@ -1,0 +1,40 @@
+
+# Практические примеры grep для разработки
+
+# 1. Поиск console.log в проекте
+grep -rn "console.log" src/
+# src/components/App.jsx:15: console.log('Rendering App')
+# src/utils/api.js:42: console.log(response)
+
+# 2. Поиск TODO/FIXME комментариев
+grep -rn "TODO|FIXME" src/ | wc -l
+# Количество задач в коде
+
+# 3. Анализ ошибок в логах
+grep "ERROR" application.log | tail -n 20
+# Последние 20 ошибок
+
+# 4. Поиск импортов конкретной библиотеки
+grep -r "from 'react'" src/ | grep "useState"
+# Файлы, использующие useState
+
+# 5. Фильтрация HTTP статусов
+grep " 500 " access.log | wc -l
+# Количество ошибок 500
+
+# 6. Поиск email адресов
+grep -E "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" users.txt
+
+# 7. Поиск IP адресов
+grep -E "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" access.log
+
+# 8. Исключение файлов из поиска
+grep -r "config" --exclude="*.min.js" --exclude-dir="node_modules" .
+
+# 9. Поиск с подсчетом уникальных
+grep -o "import.*from" src/**/*.js | sort | uniq -c | sort -nr
+# Самые частые импорты
+
+# 10. Комбинация с другими командами
+cat package.json | grep "dependencies" -A 20 | grep "react"
+# Зависимости, связанные с React

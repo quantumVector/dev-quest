@@ -1,0 +1,89 @@
+
+// BRIDGE - разделение абстракции и реализации
+
+// Реализация (платформа)
+interface MessageSender {
+  sendMessage(message: string, recipient: string): void;
+}
+
+class EmailSender implements MessageSender {
+  sendMessage(message: string, recipient: string) {
+    console.log(`Sending email to ${recipient}: ${message}`);
+    // Реальная отправка email
+  }
+}
+
+class SMSSender implements MessageSender {
+  sendMessage(message: string, recipient: string) {
+    console.log(`Sending SMS to ${recipient}: ${message}`);
+    // Реальная отправка SMS
+  }
+
+class PushNotificationSender implements MessageSender {
+  sendMessage(message: string, recipient: string) {
+    console.log(`Sending push to ${recipient}: ${message}`);
+    // Реальная отправка push
+  }
+}
+
+// Абстракция (типы сообщений)
+abstract class Notification {
+  protected sender: MessageSender;
+
+  constructor(sender: MessageSender) {
+    this.sender = sender;
+  }
+
+  abstract send(recipient: string): void;
+}
+
+class AlertNotification extends Notification {
+  private alertMessage: string;
+
+  constructor(sender: MessageSender, message: string) {
+    super(sender);
+    this.alertMessage = message;
+  }
+
+  send(recipient: string) {
+    this.sender.sendMessage(
+      `🚨 ALERT: ${this.alertMessage}`,
+      recipient
+    );
+  }
+}
+
+class WelcomeNotification extends Notification {
+  private userName: string;
+
+  constructor(sender: MessageSender, userName: string) {
+    super(sender);
+    this.userName = userName;
+  }
+
+  send(recipient: string) {
+    this.sender.sendMessage(
+      `Welcome, ${this.userName}! 👋`,
+      recipient
+    );
+  }
+}
+
+// Использование - комбинируем абстракции и реализации
+const emailAlert = new AlertNotification(
+  new EmailSender(),
+  'Server is down'
+);
+emailAlert.send('admin@example.com');
+
+const smsAlert = new AlertNotification(
+  new SMSSender(),
+  'Server is down'
+);
+smsAlert.send('+1234567890');
+
+const pushWelcome = new WelcomeNotification(
+  new PushNotificationSender(),
+  'John'
+);
+pushWelcome.send('user123');

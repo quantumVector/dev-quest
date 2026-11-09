@@ -1,0 +1,96 @@
+
+// Асинхронные функции и промисы
+
+// Callback функции
+function loadData(callback) {
+  setTimeout(() => {
+    const data = { id: 1, name: "Данные" };
+    callback(null, data);
+  }, 1000);
+}
+
+loadData((error, data) => {
+  if (error) {
+    console.error("Ошибка:", error);
+  } else {
+    console.log("Данные:", data);
+  }
+});
+
+// Promise-based функции
+function loadDataPromise() {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const success = Math.random() > 0.3;
+
+      if (success) {
+        resolve({ id: 1, name: "Данные" });
+      } else {
+        reject(new Error("Не удалось загрузить данные"));
+      }
+    }, 1000);
+  });
+}
+
+// Использование с .then()
+loadDataPromise()
+  .then(data => {
+    console.log("Успех:", data);
+    return data.id;
+  })
+  .then(id => {
+    console.log("ID:", id);
+  })
+  .catch(error => {
+    console.error("Ошибка:", error.message);
+  });
+
+// Async/Await функции
+async function loadUserData(userId) {
+  try {
+    const user = await loadDataPromise();
+    console.log("Пользователь загружен:", user);
+
+    // Можно делать последовательные вызовы
+    const profile = await loadDataPromise();
+    console.log("Профиль загружен:", profile);
+
+    return { user, profile };
+  } catch (error) {
+    console.error("Ошибка загрузки:", error.message);
+    throw error;
+  }
+}
+
+// Параллельные асинхронные операции
+async function loadMultipleData() {
+  try {
+    const [user, posts, comments] = await Promise.all([
+      loadDataPromise(),
+      loadDataPromise(),
+      loadDataPromise()
+    ]);
+
+    return { user, posts, comments };
+  } catch (error) {
+    console.error("Одна из операций завершилась ошибкой:", error);
+  }
+}
+
+// Генератор функции для асинхронных итераций
+async function* dataGenerator() {
+  let page = 1;
+
+  while (page <= 3) {
+    const data = await loadDataPromise();
+    yield { page, data };
+    page++;
+  }
+}
+
+// Использование генератора
+async function processData() {
+  for await (const item of dataGenerator()) {
+    console.log(`Страница ${item.page}:`, item.data);
+  }
+}

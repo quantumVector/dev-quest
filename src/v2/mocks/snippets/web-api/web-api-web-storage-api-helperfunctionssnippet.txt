@@ -1,0 +1,174 @@
+
+// =====================================
+// ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+// =====================================
+
+// Универсальная обёртка для работы с типами
+class StorageHelper {
+  constructor(storage = localStorage) {
+    this.storage = storage
+  }
+
+  // Универсальное сохранение с автоматической сериализацией
+  set(key, value) {
+    try {
+      // Определяем тип и сохраняем с метаданными
+      const data = {
+        value: value,
+        type: typeof value,
+        timestamp: Date.now()
+      }
+
+      // Обработка специальных типов
+      if (value instanceof Date) {
+        data.type = 'date'
+        data.value = value.toISOString()
+      } else if (value instanceof Map) {
+        data.type = 'map'
+        data.value = Array.from(value.entries())
+      } else if (value instanceof Set) {
+        data.type = 'set'
+        data.value = Array.from(value)
+      } else if (typeof value === 'object' && value !== null) {
+        data.type = 'object'
+        data.value = value
+      }
+
+      this.storage.setItem(key, JSON.stringify(data))
+      return true
+    } catch (error) {
+      console.error('Storage set error:', error)
+      return false
+    }
+  }
+
+  // Универсальное получение с автоматической десериализацией
+  get(key, defaultValue = null) {
+    try {
+      const item = this.storage.getItem(key)
+      if (item === null) return defaultValue
+
+      const data = JSON.parse(item)
+
+      // Восстановление по типу
+      switch (data.type) {
+        case 'date':
+          return new Date(data.value)
+        case 'map':
+          return new Map(data.value)
+        case 'set':
+          return new Set(data.value)
+        case 'number':
+          return Number(data.value)
+        case 'boolean':
+          return data.value === true || data.value === 'true'
+        case 'object':
+          return data.value
+        case 'string':
+          return String(data.value)
+        default:
+          return data.value
+      }
+    } catch (error) {
+      console.error('Storage get error:', error)
+      return defaultValue
+    }
+  }
+
+  // Удаление
+  remove(key) {
+    this.storage.removeItem(key)
+  }
+
+  // Очистка
+  clear() {
+    this.storage.clear()
+  }
+
+  // Проверка существования
+  has(key) {
+    return this.storage.getItem(key) !== null
+  }
+
+  // Получение всех ключей
+  keys() {
+    return Object.keys(this.storage)
+  }
+
+  // Получение всех значений
+  values() {
+    return this.keys().map(key => this.get(key))
+  }
+
+  // Получение всех пар ключ-значение
+  entries() {
+    return this.keys().map(key => [key, this.get(key)])
+  }
+
+  // Итератор для for...of
+  *[Symbol.iterator]() {
+    for (const key of this.keys()) {
+      yield [key, this.get(key)]
+    }
+  }
+
+  // Размер в байтах (приблизительно)
+  size() {
+    let total = 0
+    for (const key of this.keys()) {
+      const value = this.storage.getItem(key)
+      total += key.length + (value?.length || 0)
+    }
+    return total
+  }
+
+  // Проверка на переполнение
+  canStore(key, value) {
+    const testData = JSON.stringify({ value, type: typeof value })
+    const size = key.length + testData.length
+
+    // Проверяем текущий размер + новые данные
+    const currentSize = this.size()
+    const limit = 5 * 1024 * 1024 // 5MB примерно
+
+    return (currentSize + size) < limit
+  }
+}
+
+// Использование
+const storage = new StorageHelper(localStorage)
+
+// Автоматическая работа с разными типами
+storage.set('user', { name: 'John', age: 30 })
+storage.set('count', 42)
+storage.set('active', true)
+storage.set('created', new Date())
+storage.set('tags', new Set(['js', 'vue', 'react']))
+
+// Получение с правильными типами
+const user = storage.get('user')           // Object
+const count = storage.get('count')         // Number
+const active = storage.get('active')       // Boolean
+const created = storage.get('created')     // Date
+const tags = storage.get('tags')           // Set
+
+console.log(typeof count)     // "number"
+console.log(typeof active)    // "boolean"
+console.log(created instanceof Date)  // true
+console.log(tags instanceof Set)      // true
+
+// Работа с коллекцией
+for (const [key, value] of storage) {
+  console.log(key, value)
+}
+
+// Проверка размера
+console.log(`Storage size: ${storage.size()} bytes`)
+
+// Проверка возможности сохранения
+const bigData = new Array(10000).fill('data')
+if (storage.canStore('bigData', bigData)) {
+  storage.set('bigData', bigData)
+} else {
+  console.warn('Not enough space!')
+}

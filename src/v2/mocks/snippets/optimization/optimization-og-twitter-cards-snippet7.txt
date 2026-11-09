@@ -1,0 +1,78 @@
+
+<!-- Vue.js с vue-meta или @vueuse/head -->
+<script setup lang="ts">
+import { useHead } from '@vueuse/head';
+import { computed } from 'vue';
+
+interface Props {
+  title: string;
+  description: string;
+  image?: string;
+  type?: string;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  image: '/default-og.jpg',
+  type: 'website'
+});
+
+const siteUrl = 'https://example.com';
+const siteName = 'Название сайта';
+
+const absoluteImage = computed(() =>
+  props.image.startsWith('http')
+    ? props.image
+    : `${siteUrl}${props.image}`
+);
+
+useHead({
+  title: `${props.title} - ${siteName}`,
+  meta: [
+    { name: 'description', content: props.description },
+
+    // Open Graph
+    { property: 'og:type', content: props.type },
+    { property: 'og:url', content: window.location.href },
+    { property: 'og:title', content: props.title },
+    { property: 'og:description', content: props.description },
+    { property: 'og:image', content: absoluteImage.value },
+    { property: 'og:image:width', content: '1200' },
+    { property: 'og:image:height', content: '630' },
+    { property: 'og:site_name', content: siteName },
+
+    // Twitter Card
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:site', content: '@username' },
+    { name: 'twitter:title', content: props.title },
+    { name: 'twitter:description', content: props.description },
+    { name: 'twitter:image', content: absoluteImage.value },
+  ]
+});
+</script>
+
+<template>
+  <article>
+    <h1>{{ title }}</h1>
+    <!-- Контент -->
+  </article>
+</template>
+
+<!-- Использование компонента -->
+<script setup>
+import ArticleSEO from './ArticleSEO.vue';
+
+const article = {
+  title: 'Заголовок статьи',
+  description: 'Описание статьи',
+  image: '/images/article.jpg'
+};
+</script>
+
+<template>
+  <ArticleSEO
+    :title="article.title"
+    :description="article.description"
+    :image="article.image"
+    type="article"
+  />
+</template>

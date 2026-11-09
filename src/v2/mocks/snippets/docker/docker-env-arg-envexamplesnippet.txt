@@ -1,0 +1,23 @@
+
+# Dockerfile с ENV - переменные времени выполнения
+FROM node:18-alpine
+
+WORKDIR /app
+
+# ENV доступны и при сборке, и в контейнере
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV DATABASE_URL=postgresql://localhost/myapp
+
+# ENV доступны в RUN командах
+RUN echo "Node environment: $NODE_ENV"
+RUN echo "Server will run on port: $PORT"
+
+COPY package*.json ./
+RUN npm ci --only=production
+
+COPY . .
+RUN npm run build
+
+EXPOSE $PORT
+CMD ["npm", "start"]

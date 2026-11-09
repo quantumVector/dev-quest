@@ -1,0 +1,99 @@
+
+// =====================================
+// ОГРАНИЧЕНИЯ И EDGE CASES
+// =====================================
+
+// 1. Infer не работает вне условных типов
+// ❌ type BadInfer = infer T  // Ошибка!
+
+// ✅ Правильно - только внутри conditional type
+type GoodInfer<T> = T extends infer U ? U : never
+
+// 2. Циклические ссылки
+type Circular<T> = T extends Array<infer U>
+  ? U extends Array<any>
+    ? Circular<U>  // Рекурсия
+    : U
+  : T
+
+type Test1 = Circular<number[][][]>  // number
+type Test2 = Circular<string[]>      // string
+
+// 3. Множественные infer с одинаковым именем
+type MultipleInfer<T> = T extends (a: infer U, b: infer U) => any
+  ? U  // U будет union типов если они разные
+  : never
+
+type Func1 = (a: string, b: string) => void
+type Result1 = MultipleInfer<Func1>  // string
+
+type Func2 = (a: string, b: number) => void
+type Result2 = MultipleInfer<Func2>  // string | number (union!)
+
+// 4. Infer в позиции возврата vs параметров
+// Контравариантность vs ковариантность
+type InParams<T> = T extends (arg: infer U) => any ? U : never
+type InReturn<T> = T extends (...args: any[]) => infer R ? R : never
+
+type FuncType = (arg: string | number) => boolean | null
+
+type Param = InParams<FuncType>   // string | number
+type Return = InReturn<FuncType>  // boolean | null
+
+// 5. Infer с дженериками
+type UnpackGeneric<T> = T extends Box<infer U> ? U : never
+
+interface Box<T> {
+  value: T
+}
+
+type StringBox = Box<string>
+type UnpackedString = UnpackGeneric<StringBox>  // string
+
+type NumberBox = Box<number>
+type UnpackedNumber = UnpackGeneric<NumberBox>  // number
+
+// 6. Infer с mapped types
+type Values<T> = T extends { [K in keyof T]: infer V } ? V : never
+
+interface Person {
+  name: string
+  age: number
+  active: boolean
+}
+
+type PersonValues = Values<Person>  // string | number | boolean
+
+// 7. Глубокая распаковка с ограничениями
+type DeepUnpack<T> = {
+  done: T
+  recur: T extends Promise<infer U>
+    ? DeepUnpack<U>
+    : T extends Array<infer U>
+      ? DeepUnpack<U>
+      : T
+}[T extends Promise<any> | Array<any> ? 'recur' : 'done']
+
+type Deep1 = Promise<Promise<number>>
+type Unpacked1 = DeepUnpack<Deep1>  // number
+
+type Deep2 = Array<Array<string>>
+type Unpacked2 = DeepUnpack<Deep2>  // string
+
+type Deep3 = Promise<Array<number>>
+type Unpacked3 = DeepUnpack<Deep3>  // number
+
+// 8. Невозможные типы с infer
+type Impossible<T> = T extends (infer U & infer V) ? U | V : never
+
+type Test = Impossible<string>  // string (U и V оба string)
+
+// 9. Проблема с any
+type InferFromAny<T> = T extends infer U ? U : never
+
+type FromAny = InferFromAny<any>  // any (теряется информация)
+
+// 10. Infer с never
+type InferFromNever<T> = T extends infer U ? U : string
+
+type FromNever = InferFromNever<never>  // never (не string!)

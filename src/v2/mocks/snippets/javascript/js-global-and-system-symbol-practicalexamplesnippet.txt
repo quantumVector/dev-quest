@@ -1,0 +1,22 @@
+
+// Практический пример: кэш с глобальными символами
+
+// Модуль A
+function moduleA() {
+  const cacheKey = Symbol.for('app.cache.user')
+  const obj = {}
+  obj[cacheKey] = { id: 1, name: 'John' }
+  return obj
+}
+
+// Модуль B (в другом файле)
+function moduleB(obj) {
+  const cacheKey = Symbol.for('app.cache.user') // Тот же символ!
+  return obj[cacheKey] // Получаем данные
+}
+
+// Использование
+const data = moduleA()
+console.log(moduleB(data)) // { id: 1, name: 'John' }
+
+// Без глобального реестра это было бы невозможно

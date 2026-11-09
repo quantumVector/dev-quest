@@ -1,0 +1,178 @@
+
+// =====================================
+// ИСПОЛЬЗОВАНИЕ В СОБЫТИЯХ UNLOAD/BEFOREUNLOAD
+// =====================================
+
+// ❌ ПРОБЛЕМА: Fetch может не успеть выполниться
+window.addEventListener('beforeunload', (e) => {
+  // Fetch запрос может быть прерван браузером
+  fetch('/analytics', {
+    method: 'POST',
+    body: JSON.stringify({
+      event: 'page_close',
+      timestamp: Date.now()
+    })
+  })
+  // ⚠️ НЕ ГАРАНТИРОВАНО, что запрос дойдет до сервера
+})
+
+// ✅ РЕШЕНИЕ 1: navigator.sendBeacon (ЛУЧШИЙ СПОСОБ)
+window.addEventListener('beforeunload', () => {
+  const data = JSON.stringify({
+    event: 'page_close',
+    timestamp: Date.now(),
+    url: window.location.href
+  })
+
+  // sendBeacon гарантирует отправку данных
+  navigator.sendBeacon('/analytics', data)
+
+  // Альтернатива с Blob для JSON
+  const blob = new Blob([data], { type: 'application/json' })
+  navigator.sendBeacon('/analytics', blob)
+})
+
+// ✅ РЕШЕНИЕ 2: XMLHttpRequest синхронный (НЕ РЕКОМЕНДУЕТСЯ)
+window.addEventListener('beforeunload', () => {
+  const xhr = new XMLHttpRequest()
+
+  // ВАЖНО: третий параметр false = синхронный запрос
+  xhr.open('POST', '/analytics', false)
+  xhr.setRequestHeader('Content-Type', 'application/json')
+
+  xhr.send(JSON.stringify({
+    event: 'page_close',
+    timestamp: Date.now()
+  }))
+
+  // ⚠️ БЛОКИРУЕТ закрытие страницы до завершения запроса
+  // ⚠️ Deprecated в большинстве браузеров
+  // ⚠️ Ухудшает UX
+})
+
+// ✅ РЕШЕНИЕ 3: Fetch с keepalive (современное решение)
+window.addEventListener('beforeunload', () => {
+  fetch('/analytics', {
+    method: 'POST',
+    body: JSON.stringify({
+      event: 'page_close',
+      timestamp: Date.now()
+    }),
+    // keepalive гарантирует завершение запроса
+    keepalive: true
+  })
+})
+
+// Сравнение методов для beforeunload/unload
+const analyticsStrategies = {
+  // 1. sendBeacon - лучший выбор
+  sendBeacon: () => {
+    window.addEventListener('beforeunload', () => {
+      const data = collectAnalytics()
+      navigator.sendBeacon('/analytics', JSON.stringify(data))
+    })
+  },
+
+  // 2. Fetch с keepalive - хорошая альтернатива
+  fetchKeepAlive: () => {
+    window.addEventListener('beforeunload', () => {
+      fetch('/analytics', {
+        method: 'POST',
+        body: JSON.stringify(collectAnalytics()),
+        keepalive: true
+      })
+    })
+  },
+
+  // 3. XHR синхронный - устарело, но работает везде
+  xhrSync: () => {
+    window.addEventListener('beforeunload', () => {
+      const xhr = new XMLHttpRequest()
+      xhr.open('POST', '/analytics', false)
+      xhr.setRequestHeader('Content-Type', 'application/json')
+      xhr.send(JSON.stringify(collectAnalytics()))
+    })
+  }
+}
+
+function collectAnalytics() {
+  return {
+    url: window.location.href,
+    timeOnPage: Date.now() - window.performance.timing.navigationStart,
+    scrollDepth: window.scrollY / document.body.scrollHeight,
+    interactions: getInteractions(),
+    timestamp: Date.now()
+  }
+}
+
+// Практический пример: отслеживание времени на странице
+class PageTimeTracker {
+  constructor() {
+    this.startTime = Date.now()
+    this.setupUnloadHandler()
+  }
+
+  setupUnloadHandler() {
+    // Используем visibilitychange + beforeunload
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        this.sendTimeData()
+      }
+    })
+
+    window.addEventListener('beforeunload', () => {
+      this.sendTimeData()
+    })
+  }
+
+  sendTimeData() {
+    const timeOnPage = Date.now() - this.startTime
+
+    const data = {
+      url: window.location.href,
+      timeOnPage,
+      timestamp: Date.now()
+    }
+
+    // Используем sendBeacon для надежности
+    navigator.sendBeacon(
+      '/analytics/time',
+      JSON.stringify(data)
+    )
+  }
+}
+
+// Использование
+const tracker = new PageTimeTracker()
+
+// Универсальная функция для отправки данных при закрытии
+function sendOnUnload(url, data) {
+  // Проверяем поддержку методов
+  if (navigator.sendBeacon) {
+    // Лучший способ
+    return navigator.sendBeacon(url, JSON.stringify(data))
+  } else if ('keepalive' in Request.prototype) {
+    // Fetch с keepalive
+    return fetch(url, {
+      method: 'POST',
+      body: JSON.stringify(data),
+      keepalive: true
+    })
+  } else {
+    // Fallback на синхронный XHR
+    const xhr = new XMLHttpRequest()
+    xhr.open('POST', url, false)
+    xhr.setRequestHeader('Content-Type', 'application/json')
+    xhr.send(JSON.stringify(data))
+    return xhr.status >= 200 && xhr.status < 300
+  }
+}
+
+// Использование в beforeunload
+window.addEventListener('beforeunload', () => {
+  sendOnUnload('/analytics', {
+    event: 'page_close',
+    data: collectAnalytics()
+  })
+})

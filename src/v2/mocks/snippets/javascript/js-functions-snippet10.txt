@@ -1,0 +1,117 @@
+
+// Распространенные ошибки и антипаттерны
+
+// ❌ ПЛОХО: Изменение глобальной области видимости
+var globalVar = "Я глобальная";
+
+function badFunction() {
+  // Создает глобальную переменную
+  implicitGlobal = "Тоже глобальная!";
+
+  // Изменяет глобальную переменную
+  globalVar = "Изменена!";
+}
+
+// ✅ ХОРОШО: Использование модульности
+const myModule = (function() {
+  let privateVar = "Приватная";
+
+  return {
+    getPrivateVar() {
+      return privateVar;
+    },
+    setPrivateVar(value) {
+      privateVar = value;
+    }
+  };
+})();
+
+// ❌ ПЛОХО: Слишком много параметров
+function createUser(name, age, email, phone, address, city, country, zipCode) {
+  // Трудно запомнить порядок параметров
+}
+
+// ✅ ХОРОШО: Использование объекта параметров
+function createUser({name, age, email, phone, address, city, country, zipCode}) {
+  return { name, age, email, phone, address, city, country, zipCode };
+}
+
+// ❌ ПЛОХО: Функция делает слишком много
+function processUserData(userData) {
+  // Валидация
+  if (!userData.email) throw new Error("Email required");
+
+  // Форматирование
+  userData.email = userData.email.toLowerCase();
+
+  // Сохранение в базу
+  database.save(userData);
+
+  // Отправка email
+  emailService.send(userData.email, "Welcome!");
+
+  // Логирование
+  console.log("User created:", userData.name);
+
+  return userData;
+}
+
+// ✅ ХОРОШО: Разделение ответственности
+function validateUserData(userData) {
+  if (!userData.email) throw new Error("Email required");
+  return userData;
+}
+
+function formatUserData(userData) {
+  return {
+    ...userData,
+    email: userData.email.toLowerCase()
+  };
+}
+
+function saveUser(userData) {
+  return database.save(userData);
+}
+
+function sendWelcomeEmail(email) {
+  return emailService.send(email, "Welcome!");
+}
+
+function processUser(userData) {
+  const validated = validateUserData(userData);
+  const formatted = formatUserData(validated);
+  const saved = saveUser(formatted);
+
+  sendWelcomeEmail(saved.email);
+  console.log("User created:", saved.name);
+
+  return saved;
+}
+
+// ❌ ПЛОХО: Побочные эффекты в функциях
+let counter = 0;
+
+function incrementAndLog(value) {
+  counter++; // Побочный эффект!
+  console.log(value); // Побочный эффект!
+  return value + counter;
+}
+
+// ✅ ХОРОШО: Чистые функции
+function increment(value, currentCounter) {
+  return {
+    result: value + currentCounter + 1,
+    newCounter: currentCounter + 1
+  };
+}
+
+function logValue(value) {
+  console.log(value);
+  return value; // Возвращаем для цепочки
+}
+
+// Использование
+let state = { counter: 0 };
+const { result, newCounter } = increment(5, state.counter);
+state = { counter: newCounter };
+logValue(result);

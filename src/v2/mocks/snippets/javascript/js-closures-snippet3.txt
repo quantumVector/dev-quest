@@ -1,0 +1,31 @@
+
+// Замыкания в циклах - частая ошибка
+console.log("=== Проблема ===");
+for (var i = 0; i < 3; i++) {
+  setTimeout(function() {
+    console.log("var i:", i); // Выведет 3, 3, 3 (не то что ожидалось!)
+  }, 100);
+}
+
+console.log("=== Решение с let ===");
+for (let j = 0; j < 3; j++) {
+  setTimeout(function() {
+    console.log("let j:", j); // Выведет 0, 1, 2 (как ожидалось)
+  }, 200);
+}
+
+console.log("=== Решение с замыканием ===");
+for (var k = 0; k < 3; k++) {
+  (function(index) {
+    setTimeout(function() {
+      console.log("closure index:", index); // Выведет 0, 1, 2
+    }, 300);
+  })(k);
+}
+
+console.log("=== Решение с bind ===");
+for (var m = 0; m < 3; m++) {
+  setTimeout(function(index) {
+    console.log("bind index:", index); // Выведет 0, 1, 2
+  }.bind(null, m), 400);
+}

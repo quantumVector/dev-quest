@@ -1,0 +1,106 @@
+
+// Паттерны композиции для избежания ререндеров
+
+// 1. Children prop (composition)
+// ❌ ПЛОХО
+function Wrapper() {
+  const [count, setCount] = useState(0)
+
+  return (
+    <div>
+      <button onClick={() => setCount(count + 1)}>Count: {count}</button>
+      {/* ExpensiveComponent ререндерится при каждом клике */}
+      <ExpensiveComponent />
+    </div>
+  )
+}
+
+// ✅ ХОРОШО - children передаются извне
+function Wrapper({ children }) {
+  const [count, setCount] = useState(0)
+
+  return (
+    <div>
+      <button onClick={() => setCount(count + 1)}>Count: {count}</button>
+      {/* children НЕ ререндерятся */}
+      {children}
+    </div>
+  )
+}
+
+function App() {
+  return (
+    <Wrapper>
+      <ExpensiveComponent />
+    </Wrapper>
+  )
+}
+
+// 2. Компонент как проп
+function Layout({ header, sidebar, content }) {
+  const [collapsed, setCollapsed] = useState(false)
+
+  return (
+    <div>
+      {header}
+      <div className={collapsed ? 'collapsed' : ''}>
+        {sidebar}
+      </div>
+      {content}
+    </div>
+  )
+}
+
+// Использование
+<Layout
+  header={<Header />}
+  sidebar={<Sidebar />}
+  content={<Content />}
+/>
+
+// 3. Разделение состояния и UI
+// ❌ ПЛОХО - все в одном компоненте
+function Form() {
+  const [formData, setFormData] = useState({ name: '', email: '', message: '' })
+
+  return (
+    <div>
+      <input
+        value={formData.name}
+        onChange={e => setFormData({ ...formData, name: e.target.value })}
+      />
+      <input
+        value={formData.email}
+        onChange={e => setFormData({ ...formData, email: e.target.value })}
+      />
+      <textarea
+        value={formData.message}
+        onChange={e => setFormData({ ...formData, message: e.target.value })}
+      />
+      <ExpensivePreview data={formData} />
+    </div>
+  )
+}
+
+// ✅ ХОРОШО - разделение на подкомпоненты
+function FormField({ value, onChange, ...props }) {
+  return <input value={value} onChange={onChange} {...props} />
+}
+
+function Form() {
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [message, setMessage] = useState('')
+
+  const formData = useMemo(() => ({ name, email, message }), [name, email, message])
+
+  return (
+    <div>
+      {/* Каждое поле независимо */}
+      <FormField value={name} onChange={e => setName(e.target.value)} />
+      <FormField value={email} onChange={e => setEmail(e.target.value)} />
+      <FormField value={message} onChange={e => setMessage(e.target.value)} />
+      <ExpensivePreview data={formData} />
+    </div>
+  )
+}

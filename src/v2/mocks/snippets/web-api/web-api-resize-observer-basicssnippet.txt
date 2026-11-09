@@ -1,0 +1,46 @@
+
+// =====================================
+// RESIZEOBSERVER - Основы
+// =====================================
+
+// ResizeObserver отслеживает изменения размеров элементов
+// В отличие от window.resize, работает с конкретными элементами
+
+// 1. Создание базового observer
+const resizeObserver = new ResizeObserver((entries) => {
+  // entries - массив наблюдаемых элементов
+  for (const entry of entries) {
+    console.log('Element:', entry.target)
+    console.log('New size:', entry.contentRect.width, 'x', entry.contentRect.height)
+  }
+})
+
+// 2. Начало наблюдения за элементом
+const box = document.querySelector('.box')
+resizeObserver.observe(box)
+
+// 3. Прекращение наблюдения
+resizeObserver.unobserve(box)
+
+// 4. Прекращение наблюдения за всеми элементами
+resizeObserver.disconnect()
+
+// 5. ResizeObserverEntry содержит подробную информацию
+const resizeObserver2 = new ResizeObserver((entries) => {
+  for (const entry of entries) {
+    // target - сам элемент
+    console.log('Target:', entry.target)
+
+    // contentRect - размеры контента (без padding/border)
+    console.log('Content:', entry.contentRect)
+
+    // contentBoxSize - размеры content-box
+    console.log('Content Box:', entry.contentBoxSize)
+
+    // borderBoxSize - размеры border-box
+    console.log('Border Box:', entry.borderBoxSize)
+
+    // devicePixelContentBoxSize - размеры в device pixels
+    console.log('Device Pixels:', entry.devicePixelContentBoxSize)
+  }
+})

@@ -1,0 +1,51 @@
+
+// ❌ АНТИПАТТЕРНЫ - когда НЕ нужен useMemo
+
+// 1. Простые вычисления
+function Component({ a, b }) {
+  // ❌ Избыточно для простого сложения
+  const sum = useMemo(() => a + b, [a, b]);
+
+  // ✅ Просто вычислите
+  const sum = a + b;
+
+  return <div>{sum}</div>;
+}
+
+// 2. Примитивные значения
+function Component({ value }) {
+  // ❌ Примитивы и так сравниваются по значению
+  const doubled = useMemo(() => value * 2, [value]);
+
+  // ✅ Не нужна мемоизация
+  const doubled = value * 2;
+
+  return <div>{doubled}</div>;
+}
+
+// 3. Вычисления вне рендера
+function Component({ items }) {
+  // ❌ Это антипаттерн
+  const expensiveValue = useMemo(() => {
+    // Сложные вычисления
+    return complexCalculation(items);
+  }, [items]);
+
+  // ✅ Если результат нужен один раз, используйте useState
+  const [value] = useState(() => complexCalculation(items));
+
+  return <div>{value}</div>;
+}
+
+// 4. Мемоизация всего подряд
+function Component({ data }) {
+  // ❌ Избыточная мемоизация - оверхед больше пользы
+  const a = useMemo(() => data.a, [data]);
+  const b = useMemo(() => data.b, [data]);
+  const c = useMemo(() => data.c, [data]);
+
+  // ✅ Деструктуризация проще
+  const { a, b, c } = data;
+
+  return <div>{a} {b} {c}</div>;
+}

@@ -1,0 +1,25 @@
+
+/* Intersection Observer — анимируем только видимые элементы */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const el = entry.target;
+      el.style.willChange = 'transform, opacity';
+      el.style.transform = 'translateY(0)';
+      el.style.opacity = '1';
+
+      el.addEventListener('transitionend', () => {
+        el.style.willChange = 'auto'; /* освобождаем GPU память */
+      }, { once: true });
+
+      observer.unobserve(el);
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.lazy-animate').forEach(el => {
+  el.style.transform = 'translateY(40px)';
+  el.style.opacity = '0';
+  el.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
+  observer.observe(el);
+});

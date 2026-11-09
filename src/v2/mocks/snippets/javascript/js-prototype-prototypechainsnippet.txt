@@ -1,0 +1,33 @@
+
+// Цепочка прототипов (Prototype Chain)
+
+function Animal(name) {
+  this.name = name;
+}
+
+Animal.prototype.eat = function() {
+  return `${this.name} ест`;
+};
+
+function Dog(name, breed) {
+  Animal.call(this, name); // Вызываем родительский конструктор
+  this.breed = breed;
+}
+
+// Наследование: связываем прототипы
+Dog.prototype = Object.create(Animal.prototype);
+Dog.prototype.constructor = Dog;
+
+// Добавляем уникальный метод для Dog
+Dog.prototype.bark = function() {
+  return `${this.name} лает`;
+};
+
+const dog = new Dog('Бобик', 'Овчарка');
+
+console.log(dog.eat());  // "Бобик ест" (из Animal.prototype)
+console.log(dog.bark()); // "Бобик лает" (из Dog.prototype)
+console.log(dog.name);   // "Бобик" (собственное свойство)
+
+// Цепочка поиска:
+// dog -> Dog.prototype -> Animal.prototype -> Object.prototype -> null

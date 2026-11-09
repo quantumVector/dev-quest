@@ -1,0 +1,89 @@
+
+// =====================================
+// ОБЗОР МЕТОДОВ ПОДДЕРЖАНИЯ СОЕДИНЕНИЯ
+// =====================================
+
+// 1. Short Polling (опрос) - устаревший метод
+// Клиент регулярно отправляет запросы на сервер
+setInterval(() => {
+  fetch('/api/messages')
+    .then(res => res.json())
+    .then(data => console.log('New data:', data))
+}, 5000) // Каждые 5 секунд
+
+// ❌ Недостатки:
+// - Много лишних запросов
+// - Задержка получения данных (до интервала опроса)
+// - Нагрузка на сервер
+// - Неэффективное использование ресурсов
+
+// 2. Long Polling - улучшенный опрос
+async function longPoll() {
+  try {
+    const response = await fetch('/api/messages/long-poll')
+    const data = await response.json()
+
+    console.log('New data:', data)
+
+    // Сразу делаем следующий запрос
+    longPoll()
+  } catch (error) {
+    console.error('Error:', error)
+    // Повтор через задержку при ошибке
+    setTimeout(longPoll, 5000)
+  }
+}
+
+longPoll()
+
+// ✅ Преимущества:
+// - Меньше лишних запросов
+// - Данные приходят сразу
+// ❌ Недостатки:
+// - Все еще HTTP overhead
+// - Сложнее масштабировать на сервере
+
+// 3. Server-Sent Events (EventSource) - однонаправленная связь
+const eventSource = new EventSource('/api/events')
+
+eventSource.onmessage = (event) => {
+  console.log('New message:', event.data)
+}
+
+eventSource.onerror = (error) => {
+  console.error('EventSource error:', error)
+}
+
+// ✅ Преимущества:
+// - Автоматическое переподключение
+// - Простой API
+// - Работает поверх HTTP
+// ❌ Недостатки:
+// - Только от сервера к клиенту
+// - Ограничения на количество соединений
+
+// 4. WebSockets - двусторонняя связь
+const ws = new WebSocket('ws://localhost:3000')
+
+ws.onopen = () => {
+  console.log('Connected')
+  ws.send('Hello Server!')
+}
+
+ws.onmessage = (event) => {
+  console.log('Message from server:', event.data)
+}
+
+ws.onclose = () => {
+  console.log('Disconnected')
+}
+
+// ✅ Преимущества:
+// - Двусторонняя связь
+// - Минимальный overhead
+// - Реальное время
+// - Лучшая производительность
+// ❌ Недостатки:
+// - Требует WebSocket сервер
+// - Сложнее с proxy/firewall
+// - Нужно управлять переподключением

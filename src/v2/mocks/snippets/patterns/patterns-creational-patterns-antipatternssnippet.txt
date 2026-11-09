@@ -1,0 +1,86 @@
+
+// АНТИПАТТЕРНЫ И РАСПРОСТРАНЕННЫЕ ОШИБКИ
+
+// ❌ Плохо: Множество Singleton через глобальные переменные
+window.userService = new UserService();
+window.apiClient = new ApiClient();
+window.logger = new Logger();
+
+// ✅ Хорошо: ES модули или DI контейнер
+// services.ts
+export const userService = new UserService();
+export const apiClient = new ApiClient();
+export const logger = new Logger();
+
+// ❌ Плохо: Фабрика с большим switch/if-else
+class ComponentFactory {
+  create(type: string) {
+    if (type === 'button') return new Button();
+    else if (type === 'input') return new Input();
+    else if (type === 'modal') return new Modal();
+    else if (type === 'dropdown') return new Dropdown();
+    // ... еще 50 условий
+  }
+}
+
+// ✅ Хорошо: Map с регистрацией
+class ComponentFactory {
+  private creators = new Map();
+
+  register(type: string, creator: () => Component) {
+    this.creators.set(type, creator);
+  }
+
+  create(type: string) {
+    const creator = this.creators.get(type);
+    if (!creator) throw new Error(`Unknown type: ${type}`);
+    return creator();
+  }
+}
+
+// ❌ Плохо: Builder без валидации
+class RequestBuilder {
+  build() {
+    return new Request(this.url, this.method);
+    // Что если url не установлен?
+  }
+}
+
+// ✅ Хорошо: Валидация перед build
+class RequestBuilder {
+  build() {
+    if (!this.url) throw new Error('URL is required');
+    if (!this.method) this.method = 'GET';
+    return new Request(this.url, this.method);
+  }
+}
+
+// ❌ Плохо: Поверхностное клонирование вложенных объектов
+const clone = { ...original };
+clone.user.name = 'Jane'; // Изменит original.user.name!
+
+// ✅ Хорошо: Глубокое клонирование
+const clone = structuredClone(original);
+// или
+const clone = JSON.parse(JSON.stringify(original)); // не работает с функциями
+// или
+import { cloneDeep } from 'lodash';
+const clone = cloneDeep(original);
+
+// ❌ Плохо: Abstract Factory с жесткой привязкой
+class UIFactory {
+  createButton() {
+    return new MaterialButton(); // Захардкожено!
+  }
+}
+
+// ✅ Хорошо: Конфигурируемая фабрика
+class UIFactory {
+  constructor(private theme: Theme) {}
+
+  createButton() {
+    return this.theme.buttonClass
+      ? new this.theme.buttonClass()
+      : new DefaultButton();
+  }
+}

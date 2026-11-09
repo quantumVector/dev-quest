@@ -1,0 +1,190 @@
+
+// MEMENTO PATTERN - Сохранение и восстановление состояния
+
+// Memento - снимок состояния
+class EditorMemento {
+  constructor(content, cursorPosition, selection) {
+    this.content = content
+    this.cursorPosition = cursorPosition
+    this.selection = selection
+    this.timestamp = Date.now()
+  }
+}
+
+// Originator - объект, состояние которого сохраняется
+class TextEditor {
+  constructor() {
+    this.content = ''
+    this.cursorPosition = 0
+    this.selection = null
+  }
+
+  type(text) {
+    const before = this.content.substring(0, this.cursorPosition)
+    const after = this.content.substring(this.cursorPosition)
+    this.content = before + text + after
+    this.cursorPosition += text.length
+  }
+
+  delete(count) {
+    const before = this.content.substring(0, this.cursorPosition)
+    const after = this.content.substring(this.cursorPosition + count)
+    this.content = before + after
+  }
+
+  moveCursor(position) {
+    this.cursorPosition = Math.max(0, Math.min(position, this.content.length))
+  }
+
+  select(start, end) {
+    this.selection = { start, end }
+  }
+
+  // Создание снимка
+  createMemento() {
+    return new EditorMemento(
+      this.content,
+      this.cursorPosition,
+      this.selection ? { ...this.selection } : null
+    )
+  }
+
+  // Восстановление из снимка
+  restore(memento) {
+    this.content = memento.content
+    this.cursorPosition = memento.cursorPosition
+    this.selection = memento.selection ? { ...memento.selection } : null
+  }
+}
+
+// Caretaker - управляет снимками
+class EditorHistory {
+  constructor(editor, maxSize = 50) {
+    this.editor = editor
+    this.history = []
+    this.currentIndex = -1
+    this.maxSize = maxSize
+  }
+
+  save() {
+    // Удаляем историю после текущей позиции
+    this.history = this.history.slice(0, this.currentIndex + 1)
+
+    // Добавляем новый снимок
+    const memento = this.editor.createMemento()
+    this.history.push(memento)
+
+    // Ограничиваем размер истории
+    if (this.history.length > this.maxSize) {
+      this.history.shift()
+    } else {
+      this.currentIndex++
+    }
+  }
+
+  undo() {
+    if (this.currentIndex > 0) {
+      this.currentIndex--
+      const memento = this.history[this.currentIndex]
+      this.editor.restore(memento)
+      return true
+    }
+    return false
+  }
+
+  redo() {
+    if (this.currentIndex < this.history.length - 1) {
+      this.currentIndex++
+      const memento = this.history[this.currentIndex]
+      this.editor.restore(memento)
+      return true
+    }
+    return false
+  }
+
+  canUndo() {
+    return this.currentIndex > 0
+  }
+
+  canRedo() {
+    return this.currentIndex < this.history.length - 1
+  }
+
+  clear() {
+    this.history = []
+    this.currentIndex = -1
+  }
+}
+
+// React: Редактор с Undo/Redo через Memento
+function useTextEditor() {
+  const editorRef = useRef(new TextEditor())
+  const historyRef = useRef(new EditorHistory(editorRef.current))
+  const [content, setContent] = useState('')
+  const [canUndo, setCanUndo] = useState(false)
+  const [canRedo, setCanRedo] = useState(false)
+
+  const updateState = () => {
+    setContent(editorRef.current.content)
+    setCanUndo(historyRef.current.canUndo())
+    setCanRedo(historyRef.current.canRedo())
+  }
+
+  const type = (text) => {
+    editorRef.current.type(text)
+    historyRef.current.save()
+    updateState()
+  }
+
+  const deleteText = (count) => {
+    editorRef.current.delete(count)
+    historyRef.current.save()
+    updateState()
+  }
+
+  const undo = () => {
+    if (historyRef.current.undo()) {
+      updateState()
+    }
+  }
+
+  const redo = () => {
+    if (historyRef.current.redo()) {
+      updateState()
+    }
+  }
+
+  // Сохраняем начальное состояние
+  useEffect(() => {
+    historyRef.current.save()
+    updateState()
+  }, [])
+
+  return {
+    content,
+    type,
+    deleteText,
+    undo,
+    redo,
+    canUndo,
+    canRedo
+  }
+}
+
+// Использование
+function TextEditorComponent() {
+  const { content, type, undo, redo, canUndo, canRedo } = useTextEditor()
+
+  return (
+    <div>
+      <div>
+        <button onClick={undo} disabled={!canUndo}>Undo</button>
+        <button onClick={redo} disabled={!canRedo}>Redo</button>
+      </div>
+      <textarea
+        value={content}
+        onChange={(e) => type(e.target.value.slice(content.length))}
+      />
+    </div>
+  )
+}

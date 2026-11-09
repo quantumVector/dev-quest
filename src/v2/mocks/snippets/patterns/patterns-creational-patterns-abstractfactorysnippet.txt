@@ -1,0 +1,134 @@
+
+// ABSTRACT FACTORY - семейства связанных объектов
+
+// Пример: создание UI компонентов для разных тем
+interface Button {
+  render(): string;
+  onClick(): void;
+}
+
+interface Input {
+  render(): string;
+  getValue(): string;
+}
+
+interface Modal {
+  render(): string;
+  show(): void;
+  hide(): void;
+}
+
+// Абстрактная фабрика
+interface UIFactory {
+  createButton(): Button;
+  createInput(): Input;
+  createModal(): Modal;
+}
+
+// Светлая тема
+class LightButton implements Button {
+  render(): string {
+    return '<button class="btn-light">Light Button</button>';
+  }
+  onClick(): void {
+    console.log('Light button clicked');
+  }
+}
+
+class LightInput implements Input {
+  private value: string = '';
+
+  render(): string {
+    return '<input class="input-light" />';
+  }
+  getValue(): string {
+    return this.value;
+  }
+}
+
+class LightModal implements Modal {
+  render(): string {
+    return '<div class="modal-light">Light Modal</div>';
+  }
+  show(): void {
+    console.log('Showing light modal');
+  }
+  hide(): void {
+    console.log('Hiding light modal');
+  }
+}
+
+class LightThemeFactory implements UIFactory {
+  createButton(): Button {
+    return new LightButton();
+  }
+  createInput(): Input {
+    return new LightInput();
+  }
+  createModal(): Modal {
+    return new LightModal();
+  }
+}
+
+// Темная тема
+class DarkButton implements Button {
+  render(): string {
+    return '<button class="btn-dark">Dark Button</button>';
+  }
+  onClick(): void {
+    console.log('Dark button clicked');
+  }
+}
+
+class DarkInput implements Input {
+  private value: string = '';
+
+  render(): string {
+    return '<input class="input-dark" />';
+  }
+  getValue(): string {
+    return this.value;
+  }
+}
+
+class DarkModal implements Modal {
+  render(): string {
+    return '<div class="modal-dark">Dark Modal</div>';
+  }
+  show(): void {
+    console.log('Showing dark modal');
+  }
+  hide(): void {
+    console.log('Hiding dark modal');
+  }
+}
+
+class DarkThemeFactory implements UIFactory {
+  createButton(): Button {
+    return new DarkButton();
+  }
+  createInput(): Input {
+    return new DarkInput();
+  }
+  createModal(): Modal {
+    return new DarkModal();
+  }
+}
+
+// Использование
+function createUI(factory: UIFactory) {
+  const button = factory.createButton();
+  const input = factory.createInput();
+  const modal = factory.createModal();
+
+  return { button, input, modal };
+}
+
+// Переключение тем
+const theme = 'dark';
+const factory = theme === 'dark'
+  ? new DarkThemeFactory()
+  : new LightThemeFactory();
+
+const ui = createUI(factory);
+console.log(ui.button.render()); // Кнопка в стиле темной темы

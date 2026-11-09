@@ -1,0 +1,25 @@
+
+// Создание регулярных выражений
+const regex1 = /pattern/flags;           // Литеральная запись
+const regex2 = new RegExp('pattern', 'flags'); // Конструктор
+
+// Основные флаги
+const global = /abc/g;      // g - глобальный поиск (все совпадения)
+const ignoreCase = /abc/i;  // i - игнорировать регистр
+const multiline = /abc/m;   // m - многострочный режим
+const dotAll = /abc/s;      // s - . включает \n
+const unicode = /abc/u;     // u - Unicode режим
+const sticky = /abc/y;      // y - поиск с текущей позиции
+
+// Комбинирование флагов
+const combined = /pattern/gim;
+
+// Методы для работы с RegExp
+const text = "Hello World 123";
+const pattern = /\d+/;
+
+console.log(pattern.test(text));        // true - есть ли совпадение
+console.log(pattern.exec(text));        // ["123"] - детали совпадения
+console.log(text.match(pattern));       // ["123"] - поиск в строке
+console.log(text.search(pattern));      // 12 - позиция первого совпадения
+console.log(text.replace(pattern, "456")); // "Hello World 456"

@@ -1,0 +1,5 @@
+
+<style scoped>
+.button { background: #007bff; }
+</style>
+/* Компилируется в: .button[data-v-f3f3eg9] { background: #007bff; } */

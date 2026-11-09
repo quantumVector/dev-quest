@@ -1,0 +1,13 @@
+
+// Глобальный реестр символов
+const sym1 = Symbol.for("app.id");
+const sym2 = Symbol.for("app.id");
+
+console.log(sym1 === sym2); // true - один и тот же символ
+
+// Получение ключа из глобального реестра
+console.log(Symbol.keyFor(sym1)); // "app.id"
+
+// Локальные символы не в глобальном реестре
+const localSym = Symbol("local");
+console.log(Symbol.keyFor(localSym)); // undefined

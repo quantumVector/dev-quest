@@ -1,0 +1,31 @@
+
+// =====================================
+// WEB STORAGE API - ОСНОВЫ
+// =====================================
+
+// localStorage - данные сохраняются навсегда (пока не удалены)
+localStorage.setItem('username', 'John')
+const username = localStorage.getItem('username')
+console.log(username) // "John"
+
+// sessionStorage - данные живут до закрытия вкладки
+sessionStorage.setItem('tempToken', 'abc123')
+const token = sessionStorage.getItem('tempToken')
+console.log(token) // "abc123"
+
+// Удаление конкретного ключа
+localStorage.removeItem('username')
+sessionStorage.removeItem('tempToken')
+
+// Очистка всего хранилища
+localStorage.clear()
+sessionStorage.clear()
+
+// Получение количества ключей
+console.log(localStorage.length) // 0
+console.log(sessionStorage.length) // 0
+
+// Получение ключа по индексу
+localStorage.setItem('key1', 'value1')
+localStorage.setItem('key2', 'value2')
+console.log(localStorage.key(0)) // "key1" или "key2" (порядок не гарантирован)

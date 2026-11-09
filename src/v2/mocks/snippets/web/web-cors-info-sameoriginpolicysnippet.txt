@@ -1,0 +1,24 @@
+
+// Same-Origin Policy (SOP) - базовая политика безопасности браузера
+
+// Origin состоит из трех частей:
+// 1. Протокол (scheme)
+// 2. Домен (host)
+// 3. Порт (port)
+
+// Примеры ОДИНАКОВОГО origin:
+const origin1 = 'https://example.com:443'
+const origin2 = 'https://example.com/path'
+const origin3 = 'https://example.com/another/path'
+// Все три - ОДИНАКОВЫЙ origin (протокол + домен + порт)
+
+// Примеры РАЗНЫХ origins (Cross-Origin):
+const different1 = 'http://example.com'     // ❌ Другой протокол
+const different2 = 'https://api.example.com' // ❌ Другой поддомен
+const different3 = 'https://example.com:8080' // ❌ Другой порт
+const different4 = 'https://example.org'     // ❌ Другой домен
+
+// SOP блокирует:
+// - Чтение данных из другого origin
+// - Доступ к DOM другого origin
+// - Отправку cookies другому origin (по умолчанию)

@@ -1,0 +1,88 @@
+
+// =====================================
+// INTERFACE - основы
+// =====================================
+
+// 1. Простой интерфейс
+interface User {
+  id: number
+  name: string
+  email: string
+}
+
+const user: User = {
+  id: 1,
+  name: 'John',
+  email: 'john@example.com'
+}
+
+// 2. Необязательные свойства
+interface Product {
+  id: number
+  name: string
+  description?: string  // Необязательное свойство
+  price?: number
+}
+
+const product1: Product = { id: 1, name: 'Laptop' }  // ✅ OK
+const product2: Product = {
+  id: 2,
+  name: 'Phone',
+  description: 'Smartphone',
+  price: 999
+}  // ✅ OK
+
+// 3. Readonly свойства
+interface Config {
+  readonly apiUrl: string
+  readonly timeout: number
+}
+
+const config: Config = {
+  apiUrl: 'https://api.example.com',
+  timeout: 5000
+}
+
+// config.apiUrl = 'https://new-url.com'  // ❌ Error: Cannot assign to 'apiUrl'
+
+// 4. Индексная сигнатура
+interface Dictionary {
+  [key: string]: string
+}
+
+const dict: Dictionary = {
+  hello: 'привет',
+  world: 'мир',
+  typescript: 'тайпскрипт'
+}
+
+console.log(dict['hello'])  // 'привет'
+console.log(dict.world)     // 'мир'
+
+// 5. Методы в интерфейсах
+interface Calculator {
+  add(a: number, b: number): number
+  subtract(a: number, b: number): number
+}
+
+const calc: Calculator = {
+  add: (a, b) => a + b,
+  subtract: (a, b) => a - b
+}
+
+// Альтернативный синтаксис для методов
+interface Calculator2 {
+  add: (a: number, b: number) => number
+  subtract: (a: number, b: number) => number
+}
+
+// 6. Интерфейс функции
+interface SearchFunc {
+  (source: string, substring: string): boolean
+}
+
+const mySearch: SearchFunc = (source, substring) => {
+  return source.includes(substring)
+}
+
+console.log(mySearch('hello world', 'world'))  // true

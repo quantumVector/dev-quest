@@ -1,0 +1,82 @@
+
+// Частые ошибки при оптимизации
+
+// ❌ ОШИБКА 1: Новый объект в пропсах
+function Parent() {
+  const [count, setCount] = useState(0)
+
+  return (
+    <Child
+      user={{ name: 'John' }}  // Новый объект каждый раз!
+      style={{ color: 'red' }}  // Новый объект каждый раз!
+    />
+  )
+}
+
+// ✅ ПРАВИЛЬНО: Стабильные ссылки
+function ParentFixed() {
+  const [count, setCount] = useState(0)
+
+  const user = useMemo(() => ({ name: 'John' }), [])
+  const style = useMemo(() => ({ color: 'red' }), [])
+
+  return <Child user={user} style={style} />
+}
+
+// ❌ ОШИБКА 2: Новая функция в пропсах
+function Parent() {
+  const [count, setCount] = useState(0)
+
+  return (
+    <Child
+      onClick={() => console.log('clicked')}  // Новая функция!
+    />
+  )
+}
+
+// ✅ ПРАВИЛЬНО: useCallback
+function ParentFixed() {
+  const [count, setCount] = useState(0)
+
+  const handleClick = useCallback(() => {
+    console.log('clicked')
+  }, [])
+
+  return <Child onClick={handleClick} />
+}
+
+// ❌ ОШИБКА 3: Забыли зависимости
+function Component({ items }) {
+  const total = useMemo(() => {
+    return items.reduce((sum, item) => sum + item.price, 0)
+  }, []) // Пустой массив - total никогда не обновится!
+
+  // ✅ ПРАВИЛЬНО:
+  const totalFixed = useMemo(() => {
+    return items.reduce((sum, item) => sum + item.price, 0)
+  }, [items])
+}
+
+// ❌ ОШИБКА 4: Преждевременная оптимизация
+function SimpleComponent({ name }) {
+  // Не нужно! Простое вычисление
+  const uppercaseName = useMemo(() => name.toUpperCase(), [name])
+
+  // Лучше просто:
+  const uppercaseNameSimple = name.toUpperCase()
+}
+
+// ❌ ОШИБКА 5: memo без стабильных пропсов
+const Child = memo(function Child({ user, onClick }) {
+  return <div onClick={onClick}>{user.name}</div>
+})
+
+function Parent() {
+  return (
+    <Child
+      user={{ name: 'John' }}         // Новый объект!
+      onClick={() => alert('hi')}     // Новая функция!
+    />
+  )
+  // memo бесполезен - пропсы всегда разные!
+}

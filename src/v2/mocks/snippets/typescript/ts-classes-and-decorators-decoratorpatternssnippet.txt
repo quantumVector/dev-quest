@@ -1,0 +1,109 @@
+
+// Продвинутые паттерны использования декораторов
+
+// 1. Декоратор с конфигурацией через класс
+class LogConfig {
+  constructor(
+    public level: 'info' | 'warn' | 'error' = 'info',
+    public prefix: string = ''
+  ) {}
+}
+
+function configuredLog(config: LogConfig) {
+  return function (
+    target: any,
+    propertyKey: string,
+    descriptor: PropertyDescriptor
+  ) {
+    const originalMethod = descriptor.value
+
+    descriptor.value = function (...args: any[]) {
+      const message = `${config.prefix}${propertyKey}(${args.join(', ')})`
+      console[config.level](message)
+      return originalMethod.apply(this, args)
+    }
+  }
+}
+
+class ApiClient {
+  @configuredLog(new LogConfig('info', '[API] '))
+  fetchData(id: number) {
+    return `Data for ${id}`
+  }
+}
+
+// 2. Декоратор для внедрения зависимостей
+const DEPENDENCIES = new Map<string, any>()
+
+function Injectable(name: string) {
+  return function (constructor: Function) {
+    DEPENDENCIES.set(name, new (constructor as any)())
+  }
+}
+
+function Inject(dependencyName: string) {
+  return function (target: any, propertyKey: string) {
+    Object.defineProperty(target, propertyKey, {
+      get: () => DEPENDENCIES.get(dependencyName),
+      enumerable: true,
+      configurable: true
+    })
+  }
+}
+
+@Injectable('logger')
+class Logger {
+  log(message: string) {
+    console.log(`[LOG] ${message}`)
+  }
+}
+
+class UserService {
+  @Inject('logger')
+  private logger!: Logger
+
+  createUser(name: string) {
+    this.logger.log(`Creating user: ${name}`)
+  }
+}
+
+// 3. Декоратор для кэширования с TTL
+function cachedWithTTL(ttlSeconds: number) {
+  const cache = new Map<string, { value: any; expiry: number }>()
+
+  return function (
+    target: any,
+    propertyKey: string,
+    descriptor: PropertyDescriptor
+  ) {
+    const originalMethod = descriptor.value
+
+    descriptor.value = function (...args: any[]) {
+      const key = JSON.stringify(args)
+      const now = Date.now()
+      const cached = cache.get(key)
+
+      if (cached && now < cached.expiry) {
+        console.log('Returning cached value')
+        return cached.value
+      }
+
+      const result = originalMethod.apply(this, args)
+      cache.set(key, {
+        value: result,
+        expiry: now + ttlSeconds * 1000
+      })
+
+      return result
+    }
+  }
+}
+
+class DataFetcher {
+  @cachedWithTTL(60) // Кэш на 60 секунд
+  async fetchUserData(userId: number) {
+    console.log(`Fetching data for user ${userId}`)
+    // Имитация API запроса
+    return { id: userId, name: 'John' }
+  }
+}

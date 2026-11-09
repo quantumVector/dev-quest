@@ -1,0 +1,10 @@
+
+// Vanilla Extract — стили компилируются в статический CSS
+import { style, styleVariants } from '@vanilla-extract/css';
+
+const base = style({ padding: '12px 24px', border: 'none' });
+
+export const variants = styleVariants({
+  primary:   [base, { background: '#007bff', color: 'white' }],
+  secondary: [base, { background: '#6c757d', color: 'white' }],
+});

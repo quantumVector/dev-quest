@@ -1,0 +1,65 @@
+
+// Проблема: два компонента монтируются одновременно
+// и оба вызывают useCustomQuery с одним ключом.
+// Без защиты — два параллельных HTTP-запроса.
+
+// Решение: глобальный Map "в полёте"
+// Ключ → Promise (один и тот же для всех подписчиков)
+
+// QueryClient.js — минимальная реализация
+export class QueryClient {
+  constructor() {
+    this._cache    = {};          // { key: CacheEntry }
+    this._promises = {};          // { key: Promise }   — дедупликация
+    this._subs     = {};          // { key: Set<fn> }    — подписчики
+  }
+
+  async fetchQuery(key, queryFn, staleTime = 0) {
+    const existing = this._cache[key];
+    const isStale  = !existing?.updatedAt
+      || Date.now() - existing.updatedAt > staleTime;
+
+    if (existing?.status === 'success' && !isStale) {
+      return existing.data;  // Свежий кэш — возвращаем сразу
+    }
+
+    // Если запрос уже идёт — возвращаем тот же Promise
+    if (this._promises[key]) {
+      return this._promises[key];
+    }
+
+    this._notify(key, { ...existing, status: 'loading' });
+
+    this._promises[key] = queryFn()
+      .then(data => {
+        this._cache[key] = { data, status: 'success', error: null, updatedAt: Date.now() };
+        this._notify(key, this._cache[key]);
+        return data;
+      })
+      .catch(error => {
+        this._cache[key] = { ...existing, status: 'error', error };
+        this._notify(key, this._cache[key]);
+        throw error;
+      })
+      .finally(() => {
+        delete this._promises[key]; // Запрос завершён — чистим
+      });
+
+    return this._promises[key];
+  }
+
+  _notify(key, entry) {
+    this._cache[key] = entry;
+    this._subs[key]?.forEach(fn => fn(entry));
+  }
+
+  subscribe(key, fn) {
+    if (!this._subs[key]) this._subs[key] = new Set();
+    this._subs[key].add(fn);
+    return () => this._subs[key].delete(fn);
+  }
+
+  getEntry(key) {
+    return this._cache[key] ?? null;
+  }
+}

@@ -1,0 +1,15 @@
+
+class MyCard extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+    this.shadowRoot.innerHTML = `
+      <style>
+        /* Полностью изолировано от внешних стилей */
+        .button { background: #28a745; color: white; }
+      </style>
+      <button class="button"><slot></slot></button>
+    `;
+  }
+}
+customElements.define('my-card', MyCard);

@@ -1,0 +1,139 @@
+
+// ============================================
+// ТИПЫ ГРАНТОВ (GRANT TYPES) В OAUTH 2.0
+// ============================================
+
+/**
+ * 1. AUTHORIZATION CODE FLOW
+ * Самый безопасный, для веб-приложений с backend
+ */
+const authorizationCodeFlow = {
+  useCase: 'Web приложения с серверной частью',
+  security: '⭐⭐⭐⭐⭐ Высокая',
+  clientType: 'Confidential Client',
+
+  flow: {
+    step1: 'Redirect на /authorize',
+    step2: 'Получить code в callback',
+    step3: 'Обменять code на tokens (на backend)',
+    step4: 'Использовать access_token'
+  },
+
+  example: `
+    // Frontend
+    window.location.href = '/oauth/authorize?client_id=...&response_type=code'
+
+    // Backend получает code и обменивает
+    const tokens = await exchangeCodeForTokens(code)
+  `
+}
+
+/**
+ * 2. AUTHORIZATION CODE + PKCE
+ * Для SPA и мобильных приложений (без client_secret)
+ */
+const pkceFlow = {
+  useCase: 'SPA, React/Vue приложения, мобильные приложения',
+  security: '⭐⭐⭐⭐ Хорошая',
+  clientType: 'Public Client',
+
+  pkce: {
+    codeVerifier: 'Случайная строка 43-128 символов',
+    codeChallenge: 'SHA256(codeVerifier) в base64url',
+    method: 'S256'
+  },
+
+  example: `
+    // Генерируем PKCE пару
+    const codeVerifier = generateRandomString(128)
+    const codeChallenge = await sha256(codeVerifier)
+
+    // Redirect с code_challenge
+    const authUrl = '/authorize?' +
+      'client_id=...' +
+      '&code_challenge=' + codeChallenge +
+      '&code_challenge_method=S256'
+
+    // Обмен code на токены с code_verifier
+    const tokens = await fetch('/token', {
+      body: JSON.stringify({
+        code,
+        code_verifier: codeVerifier
+      })
+    })
+  `
+}
+
+/**
+ * 3. IMPLICIT FLOW (УСТАРЕЛ - НЕ ИСПОЛЬЗОВАТЬ)
+ * Возвращает токен сразу в URL
+ */
+const implicitFlow = {
+  useCase: '❌ НЕ ИСПОЛЬЗОВАТЬ (небезопасно)',
+  security: '⭐ Низкая',
+  deprecated: true,
+  reason: 'Токен в URL, нет refresh_token',
+  replacement: 'Используйте Authorization Code + PKCE'
+}
+
+/**
+ * 4. CLIENT CREDENTIALS FLOW
+ * Для server-to-server взаимодействия
+ */
+const clientCredentialsFlow = {
+  useCase: 'Backend сервисы, микросервисы, cron задачи',
+  security: '⭐⭐⭐⭐ Хорошая',
+  noUser: true, // Нет пользователя
+
+  example: `
+    // Запрос токена напрямую
+    const tokens = await fetch('/token', {
+      method: 'POST',
+      body: new URLSearchParams({
+        grant_type: 'client_credentials',
+        client_id: 'SERVICE_ID',
+        client_secret: 'SERVICE_SECRET',
+        scope: 'api:read api:write'
+      })
+    })
+  `
+}
+
+/**
+ * 5. RESOURCE OWNER PASSWORD CREDENTIALS (НЕ РЕКОМЕНДУЕТСЯ)
+ * Отправка username/password напрямую
+ */
+const passwordFlow = {
+  useCase: '⚠️ Только для доверенных first-party приложений',
+  security: '⭐⭐ Низкая',
+  notRecommended: true,
+  reason: 'Приложение видит пароль пользователя',
+
+  onlyWhen: [
+    'Миграция legacy систем',
+    'First-party мобильное приложение',
+    'Нет возможности использовать другие методы'
+  ]
+}
+
+/**
+ * 6. REFRESH TOKEN FLOW
+ * Обновление истекшего access_token
+ */
+const refreshTokenFlow = {
+  useCase: 'Получение нового access_token без повторного входа',
+
+  example: `
+    // Когда access_token истек
+    const newTokens = await fetch('/token', {
+      method: 'POST',
+      body: new URLSearchParams({
+        grant_type: 'refresh_token',
+        refresh_token: 'EXISTING_REFRESH_TOKEN',
+        client_id: 'YOUR_CLIENT_ID'
+      })
+    })
+
+    // Получаем новый access_token (и возможно новый refresh_token)
+  `
+}

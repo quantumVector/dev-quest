@@ -1,0 +1,192 @@
+
+// =====================================
+// ОГРАНИЧЕНИЯ И ОСОБЕННОСТИ WEB WORKERS
+// =====================================
+
+// ❌ ЧТО НЕДОСТУПНО В WEB WORKERS:
+
+// 1. DOM и Window объект
+// self.document  // ❌ undefined
+// self.window    // ❌ undefined
+// self.alert()   // ❌ не существует
+
+// 2. Родительские объекты
+// self.parent    // ❌ undefined
+// self.frameElement  // ❌ undefined
+
+// 3. Некоторые Web APIs
+// localStorage   // ❌ недоступен
+// sessionStorage // ❌ недоступен
+// document.cookie // ❌ недоступен
+
+// ✅ ЧТО ДОСТУПНО В WEB WORKERS:
+
+// 1. Базовые объекты JavaScript
+console.log('Logging from worker')
+const obj = { a: 1 }
+const arr = [1, 2, 3]
+const date = new Date()
+const regex = /test/
+
+// 2. Таймеры
+setTimeout(() => {
+  console.log('Delayed')
+}, 1000)
+
+setInterval(() => {
+  console.log('Periodic')
+}, 5000)
+
+// 3. Fetch API
+fetch('https://api.example.com/data')
+  .then(r => r.json())
+  .then(data => {
+    self.postMessage({ data })
+  })
+
+// 4. WebSocket
+const ws = new WebSocket('wss://example.com/socket')
+
+ws.onmessage = (event) => {
+  self.postMessage({ type: 'ws-message', data: event.data })
+}
+
+// 5. IndexedDB
+const request = indexedDB.open('MyDatabase', 1)
+
+request.onsuccess = (event) => {
+  const db = event.target.result
+  // Работа с БД...
+}
+
+// 6. Cache API
+caches.open('my-cache').then(cache => {
+  cache.add('/api/data')
+})
+
+// 7. Crypto API
+crypto.subtle.digest('SHA-256', data)
+  .then(hash => {
+    self.postMessage({ hash })
+  })
+
+// 8. XMLHttpRequest
+const xhr = new XMLHttpRequest()
+xhr.open('GET', '/api/data')
+xhr.send()
+
+// 9. importScripts - загрузка скриптов
+importScripts('lib1.js', 'lib2.js')
+// Скрипты выполняются синхронно
+
+// 10. Broadcast Channel - общение между Workers
+const channel = new BroadcastChannel('worker-channel')
+
+channel.onmessage = (event) => {
+  console.log('Message from another worker:', event.data)
+}
+
+channel.postMessage('Hello from worker!')
+
+// 11. Performance API
+const startTime = performance.now()
+// ... операции
+const endTime = performance.now()
+console.log('Время выполнения:', endTime - startTime, 'ms')
+
+// ВАЖНЫЕ ОСОБЕННОСТИ:
+
+// 1. Same-Origin Policy
+// Worker должен быть с того же origin
+// ❌ new Worker('https://other-domain.com/worker.js')
+// ✅ new Worker('/worker.js')
+// ✅ new Worker('worker.js')
+
+// Обход: Blob URL
+const code = `
+  self.onmessage = (e) => {
+    self.postMessage('Hello from blob worker!')
+  }
+`
+const blob = new Blob([code], { type: 'application/javascript' })
+const url = URL.createObjectURL(blob)
+const worker = new Worker(url)
+
+// 2. Module Workers (type: 'module')
+const worker = new Worker('worker.js', { type: 'module' })
+
+// В worker.js можно использовать import
+// import { helper } from './helper.js'
+
+// 3. Credentials для fetch в Worker
+// По умолчанию credentials не включаются
+fetch('/api/data', {
+  credentials: 'include'  // Включаем cookies
+})
+
+// 4. Ошибки и debugging
+// Используйте Chrome DevTools -> Sources -> Threads
+// Или добавьте логирование
+self.onerror = (error) => {
+  console.error('Worker error:', error)
+
+  // Отправляем ошибку в main thread
+  self.postMessage({
+    type: 'error',
+    error: {
+      message: error.message,
+      filename: error.filename,
+      lineno: error.lineno
+    }
+  })
+}
+
+// 5. Memory management
+// Workers не освобождаются автоматически
+// Всегда вызывайте terminate()
+
+// ❌ Плохо - утечка памяти
+function createWorker() {
+  const worker = new Worker('worker.js')
+  // Worker не удаляется после выхода из функции
+}
+
+// ✅ Хорошо
+function createWorker() {
+  const worker = new Worker('worker.js')
+
+  // Работа с worker...
+
+  // Очистка
+  worker.terminate()
+}
+
+// 6. Максимальное количество Workers
+// Браузеры ограничивают количество одновременных Workers
+// Chrome/Firefox: ~20 Workers на origin
+console.log('Hardware concurrency:', navigator.hardwareConcurrency)
+// Используйте это значение для определения оптимального количества
+
+// 7. Размер передаваемых данных
+// Большие объекты могут замедлить постMessage
+// Используйте Transferable Objects для больших данных
+
+// ❌ Медленно - копирование 100MB
+const largeArray = new Uint8Array(100 * 1024 * 1024)
+worker.postMessage({ data: largeArray })
+
+// ✅ Быстро - transfer (zero-copy)
+const largeArray = new Uint8Array(100 * 1024 * 1024)
+worker.postMessage({ data: largeArray.buffer }, [largeArray.buffer])
+
+// 8. SharedArrayBuffer требования
+// Для использования SharedArrayBuffer нужны HTTP заголовки:
+// Cross-Origin-Opener-Policy: same-origin
+// Cross-Origin-Embedder-Policy: require-corp
+
+// Проверка поддержки
+if (typeof SharedArrayBuffer !== 'undefined') {
+  console.log('SharedArrayBuffer supported')
+} else {
+  console.log('SharedArrayBuffer not available - check COOP/COEP headers')
+}

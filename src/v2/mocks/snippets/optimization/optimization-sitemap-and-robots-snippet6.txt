@@ -1,0 +1,23 @@
+
+# robots.txt для разных окружений
+
+# === PRODUCTION ===
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/internal/
+Sitemap: https://example.com/sitemap.xml
+
+# === STAGING ===
+User-agent: *
+Disallow: /
+
+# === DEVELOPMENT ===
+User-agent: *
+Disallow: /
+
+# === ТЕСТИРОВАНИЕ КОНКРЕТНЫХ РАЗДЕЛОВ ===
+# Разрешить только новый раздел на staging
+User-agent: Googlebot
+Allow: /new-section/
+Disallow: /

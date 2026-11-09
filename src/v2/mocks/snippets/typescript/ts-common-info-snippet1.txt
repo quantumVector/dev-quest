@@ -1,0 +1,56 @@
+
+// =====================================
+// ТИПИЗАЦИЯ - ГЛАВНЫЙ ПЛЮС
+// =====================================
+
+// ❌ JavaScript - ошибки только в runtime
+function calculatePrice(price, discount) {
+  return price - discount;
+}
+
+calculatePrice(100, "50%"); // NaN - ошибка найдена только при выполнении
+calculatePrice(100); // NaN - забыли передать discount
+
+// ✅ TypeScript - ошибки на этапе компиляции
+function calculatePrice(price: number, discount: number): number {
+  return price - discount;
+}
+
+// calculatePrice(100, "50%"); // ❌ Ошибка компиляции: тип string не подходит
+// calculatePrice(100); // ❌ Ошибка компиляции: не хватает аргумента
+
+// Типы помогают избежать типичных ошибок
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  age?: number; // Опциональное поле
+}
+
+function sendEmail(user: User) {
+  // IDE знает все поля user и предлагает автодополнение
+  console.log(`Отправка письма на ${user.email}`);
+  // console.log(user.phone); // ❌ Ошибка: поля phone не существует
+}
+
+// Union types - несколько возможных типов
+type Status = "pending" | "approved" | "rejected";
+
+function updateStatus(orderId: number, status: Status) {
+  // status может быть только одним из трех значений
+  console.log(`Заказ #${orderId} теперь ${status}`);
+}
+
+updateStatus(123, "approved"); // ✅ OK
+// updateStatus(123, "cancelled"); // ❌ Ошибка: "cancelled" не входит в тип Status
+
+// Generics - типобезопасные универсальные функции
+function getFirstElement<T>(array: T[]): T | undefined {
+  return array[0];
+}
+
+const numbers = [1, 2, 3];
+const firstNumber = getFirstElement(numbers); // тип: number | undefined
+
+const users = [{ name: "Анна" }, { name: "Иван" }];
+const firstUser = getFirstElement(users); // тип: {name: string} | undefined

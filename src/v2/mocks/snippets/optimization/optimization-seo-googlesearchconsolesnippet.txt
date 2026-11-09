@@ -1,0 +1,68 @@
+
+<!-- Интеграция с Google Search Console -->
+
+<!-- 1. Верификация сайта через meta-тег -->
+<head>
+<meta name="google-site-verification" content="YOUR_VERIFICATION_CODE">
+</head>
+
+<!-- 2. Верификация через HTML файл -->
+<!-- Загрузить файл google1234567890abcdef.html в корень сайта -->
+
+<!-- 3. Отправка sitemap в Search Console -->
+/*
+Через интерфейс:
+1. Войти в Google Search Console
+2. Выбрать свойство (сайт)
+3. Sitemaps → Добавить карту сайта
+4. Ввести URL: https://example.com/sitemap.xml
+*/
+
+<!-- 4. Мониторинг индексации -->
+/*
+Проверить индексацию страницы:
+site:example.com/your-page
+
+Проверить все проиндексированные страницы:
+site:example.com
+*/
+
+<!-- 5. Запрос на переиндексацию -->
+/*
+1. Search Console → URL Inspection
+2. Ввести URL страницы
+3. Request Indexing
+*/
+
+// JavaScript для динамической отправки sitemap
+// Генерация sitemap.xml для SPA (Next.js пример)
+// pages/sitemap.xml.js
+export async function getServerSideProps({ res }) {
+const baseUrl = 'https://example.com';
+
+// Получить все страницы
+const pages = await getAllPages();
+
+const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${pages.map(page => `
+<url>
+  <loc>${baseUrl}${page.url}</loc>
+  <lastmod>${page.lastModified}</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.8</priority>
+</url>
+`).join('')}
+</urlset>
+`;
+
+res.setHeader('Content-Type', 'text/xml');
+res.write(sitemap);
+res.end();
+
+return { props: {} };
+}
+
+export default function Sitemap() {
+return null;
+}

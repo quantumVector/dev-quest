@@ -1,0 +1,147 @@
+
+// =====================================
+// ОТМЕНА НЕСКОЛЬКИХ ЗАПРОСОВ
+// =====================================
+
+// 1. Один контроллер для нескольких запросов
+async function fetchMultipleWithAbort() {
+  const controller = new AbortController()
+  const signal = controller.signal
+
+  try {
+    // Все запросы используют один signal
+    const [users, posts, comments] = await Promise.all([
+      fetch('https://api.example.com/users', { signal }),
+      fetch('https://api.example.com/posts', { signal }),
+      fetch('https://api.example.com/comments', { signal })
+    ])
+
+    return {
+      users: await users.json(),
+      posts: await posts.json(),
+      comments: await comments.json()
+    }
+
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      console.log('Все запросы отменены')
+    }
+    throw error
+  }
+}
+
+// Отменяем все запросы одновременно
+const controller = new AbortController()
+const dataPromise = fetchMultipleWithAbort()
+
+// Отменяем все через 3 секунды
+setTimeout(() => {
+  controller.abort()
+}, 3000)
+
+// 2. Отдельные контроллеры для каждого запроса
+class RequestManager {
+  constructor() {
+    this.controllers = new Map()
+  }
+
+  async fetch(id, url, options = {}) {
+    // Создаем новый контроллер для каждого запроса
+    const controller = new AbortController()
+    this.controllers.set(id, controller)
+
+    try {
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal
+      })
+
+      this.controllers.delete(id)
+      return await response.json()
+
+    } catch (error) {
+      this.controllers.delete(id)
+      throw error
+    }
+  }
+
+  // Отмена конкретного запроса
+  abort(id) {
+    const controller = this.controllers.get(id)
+    if (controller) {
+      controller.abort()
+      this.controllers.delete(id)
+    }
+  }
+
+  // Отмена всех активных запросов
+  abortAll() {
+    this.controllers.forEach(controller => controller.abort())
+    this.controllers.clear()
+  }
+
+  // Получение количества активных запросов
+  getActiveCount() {
+    return this.controllers.size
+  }
+}
+
+// Использование
+const manager = new RequestManager()
+
+// Запускаем несколько запросов
+manager.fetch('users', 'https://api.example.com/users')
+manager.fetch('posts', 'https://api.example.com/posts')
+manager.fetch('comments', 'https://api.example.com/comments')
+
+console.log('Активных запросов:', manager.getActiveCount())  // 3
+
+// Отменяем конкретный запрос
+manager.abort('posts')
+
+console.log('Активных запросов:', manager.getActiveCount())  // 2
+
+// Отменяем все
+manager.abortAll()
+
+console.log('Активных запросов:', manager.getActiveCount())  // 0
+
+// 3. Promise.race с отменой
+async function fetchWithRace(urls) {
+  const controllers = urls.map(() => new AbortController())
+
+  try {
+    // Создаем промисы для всех URL
+    const promises = urls.map((url, index) =>
+      fetch(url, { signal: controllers[index].signal })
+        .then(response => ({ index, response }))
+    )
+
+    // Ждем первый успешный ответ
+    const { index, response } = await Promise.race(promises)
+
+    // Отменяем все остальные запросы
+    controllers.forEach((controller, i) => {
+      if (i !== index) {
+        controller.abort()
+      }
+    })
+
+    return await response.json()
+
+  } catch (error) {
+    // Отменяем все при ошибке
+    controllers.forEach(controller => controller.abort())
+    throw error
+  }
+}
+
+// Использование - берем ответ от самого быстрого сервера
+const mirrors = [
+  'https://api1.example.com/data',
+  'https://api2.example.com/data',
+  'https://api3.example.com/data'
+]
+
+const data = await fetchWithRace(mirrors)
+console.log('Получены данные от первого ответившего сервера:', data)

@@ -1,0 +1,186 @@
+
+// =====================================
+// ТИПЫ PERFORMANCE ENTRIES
+// =====================================
+
+// 1. Navigation - загрузка страницы
+const navObserver = new PerformanceObserver((list) => {
+  list.getEntries().forEach(entry => {
+    console.log('=== NAVIGATION ===')
+    console.log('DNS:', entry.domainLookupEnd - entry.domainLookupStart)
+    console.log('TCP:', entry.connectEnd - entry.connectStart)
+    console.log('Request:', entry.responseStart - entry.requestStart)
+    console.log('Response:', entry.responseEnd - entry.responseStart)
+    console.log('DOM Interactive:', entry.domInteractive)
+    console.log('DOM Complete:', entry.domComplete)
+    console.log('Load Event:', entry.loadEventEnd - entry.loadEventStart)
+
+    // Типы навигации
+    const navType = entry.type
+    // 'navigate' - обычная загрузка
+    // 'reload' - перезагрузка
+    // 'back_forward' - навигация вперед/назад
+    // 'prerender' - предварительный рендеринг
+    console.log('Navigation type:', navType)
+  })
+})
+
+navObserver.observe({ type: 'navigation', buffered: true })
+
+// 2. Resource - загрузка ресурсов (JS, CSS, images, fonts)
+const resourceObserver = new PerformanceObserver((list) => {
+  list.getEntries().forEach(entry => {
+    console.log('=== RESOURCE ===')
+    console.log('URL:', entry.name)
+    console.log('Тип:', entry.initiatorType) // script, css, img, fetch, etc
+    console.log('Размер:', entry.transferSize, 'bytes')
+    console.log('Размер закодированный:', entry.encodedBodySize)
+    console.log('Размер декодированный:', entry.decodedBodySize)
+    console.log('Длительность:', entry.duration, 'ms')
+
+    // Проверка кэширования
+    if (entry.transferSize === 0) {
+      console.log('Загружено из кэша')
+    }
+
+    // Детальный тайминг
+    console.log('DNS Lookup:', entry.domainLookupEnd - entry.domainLookupStart)
+    console.log('TCP Connect:', entry.connectEnd - entry.connectStart)
+    console.log('Request + Response:', entry.duration)
+  })
+})
+
+resourceObserver.observe({ type: 'resource', buffered: true })
+
+// 3. Paint - метрики рендеринга
+const paintObserver = new PerformanceObserver((list) => {
+  list.getEntries().forEach(entry => {
+    console.log('=== PAINT ===')
+    console.log('Метрика:', entry.name)
+    console.log('Время:', entry.startTime, 'ms')
+
+    if (entry.name === 'first-paint') {
+      console.log('First Paint (FP):', entry.startTime)
+    }
+
+    if (entry.name === 'first-contentful-paint') {
+      console.log('First Contentful Paint (FCP):', entry.startTime)
+    }
+  })
+})
+
+paintObserver.observe({ type: 'paint', buffered: true })
+
+// 4. Largest Contentful Paint (LCP) - Core Web Vital
+const lcpObserver = new PerformanceObserver((list) => {
+  const entries = list.getEntries()
+  const lastEntry = entries[entries.length - 1]
+
+  console.log('=== LCP ===')
+  console.log('Время:', lastEntry.startTime)
+  console.log('Размер:', lastEntry.size)
+  console.log('Элемент:', lastEntry.element)
+  console.log('URL:', lastEntry.url)
+
+  // LCP может обновляться несколько раз
+  // Берем последнее значение
+  if (lastEntry.startTime < 2500) {
+    console.log('✅ Отличный LCP!')
+  } else if (lastEntry.startTime < 4000) {
+    console.log('⚠️ Требует улучшения')
+  } else {
+    console.log('❌ Плохой LCP')
+  }
+})
+
+lcpObserver.observe({ type: 'largest-contentful-paint', buffered: true })
+
+// 5. First Input Delay (FID) - Core Web Vital
+const fidObserver = new PerformanceObserver((list) => {
+  list.getEntries().forEach(entry => {
+    console.log('=== FID ===')
+    console.log('Задержка:', entry.processingStart - entry.startTime, 'ms')
+    console.log('Длительность обработки:', entry.duration, 'ms')
+    console.log('Тип события:', entry.name)
+
+    const fid = entry.processingStart - entry.startTime
+
+    if (fid < 100) {
+      console.log('✅ Отличный FID!')
+    } else if (fid < 300) {
+      console.log('⚠️ Требует улучшения')
+    } else {
+      console.log('❌ Плохой FID')
+    }
+  })
+})
+
+fidObserver.observe({ type: 'first-input', buffered: true })
+
+// 6. Layout Shift - CLS (Cumulative Layout Shift)
+const clsObserver = new PerformanceObserver((list) => {
+  let clsScore = 0
+
+  list.getEntries().forEach(entry => {
+    // Только неожиданные сдвиги (без пользовательского взаимодействия)
+    if (!entry.hadRecentInput) {
+      clsScore += entry.value
+      console.log('=== LAYOUT SHIFT ===')
+      console.log('Значение:', entry.value)
+      console.log('Накопленный CLS:', clsScore)
+      console.log('Источники:', entry.sources)
+    }
+  })
+
+  if (clsScore < 0.1) {
+    console.log('✅ Отличный CLS!')
+  } else if (clsScore < 0.25) {
+    console.log('⚠️ Требует улучшения')
+  } else {
+    console.log('❌ Плохой CLS')
+  }
+})
+
+clsObserver.observe({ type: 'layout-shift', buffered: true })
+
+// 7. Long Tasks - долгие задачи (>50ms)
+const longTaskObserver = new PerformanceObserver((list) => {
+  list.getEntries().forEach(entry => {
+    console.log('=== LONG TASK ===')
+    console.log('Длительность:', entry.duration, 'ms')
+    console.log('Время начала:', entry.startTime)
+    console.log('Attribution:', entry.attribution)
+
+    if (entry.duration > 50) {
+      console.warn('⚠️ Задача блокирует главный поток!')
+    }
+  })
+})
+
+longTaskObserver.observe({ type: 'longtask', buffered: true })
+
+// 8. User Timing - кастомные метрики (mark/measure)
+const userTimingObserver = new PerformanceObserver((list) => {
+  list.getEntries().forEach(entry => {
+    if (entry.entryType === 'mark') {
+      console.log('=== MARK ===')
+      console.log('Имя:', entry.name)
+      console.log('Время:', entry.startTime)
+    }
+
+    if (entry.entryType === 'measure') {
+      console.log('=== MEASURE ===')
+      console.log('Имя:', entry.name)
+      console.log('Длительность:', entry.duration)
+      console.log('От:', entry.startTime)
+    }
+  })
+})
+
+userTimingObserver.observe({ entryTypes: ['mark', 'measure'] })
+
+// Создаем метки и измерения
+performance.mark('start-fetch')
+await fetch('https://api.example.com/data')
+performance.mark('end-fetch')
+performance.measure('fetch-duration', 'start-fetch', 'end-fetch')

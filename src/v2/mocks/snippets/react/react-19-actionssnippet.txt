@@ -1,0 +1,74 @@
+
+// React 19: Actions - автоматическое управление состоянием отправки
+import { useState, useTransition } from 'react'
+
+function SearchForm() {
+  const [results, setResults] = useState([])
+  const [isPending, startTransition] = useTransition()
+
+  // Action - функция, которая автоматически управляет pending состоянием
+  async function searchAction(formData) {
+    const query = formData.get('query')
+
+    // React автоматически устанавливает isPending
+    const response = await fetch(`/api/search?q=${query}`)
+    const data = await response.json()
+
+    startTransition(() => {
+      setResults(data)
+    })
+  }
+
+  return (
+    <>
+      <form action={searchAction}>
+        <input name="query" />
+        <button type="submit">Искать</button>
+      </form>
+
+      {isPending && <div>Поиск...</div>}
+
+      <ul>
+        {results.map(item => (
+          <li key={item.id}>{item.title}</li>
+        ))}
+      </ul>
+    </>
+  )
+}
+
+// Пример с useActionState для более сложной логики
+function CommentForm({ postId }) {
+  const [state, submitAction, isPending] = useActionState(
+    async (prevState, formData) => {
+      const comment = formData.get('comment')
+
+      if (!comment.trim()) {
+        return { error: 'Комментарий не может быть пустым' }
+      }
+
+      try {
+        await fetch(`/api/posts/${postId}/comments`, {
+          method: 'POST',
+          body: JSON.stringify({ comment })
+        })
+
+        return { success: true, error: null }
+      } catch (error) {
+        return { error: 'Не удалось отправить комментарий' }
+      }
+    },
+    { error: null, success: false }
+  )
+
+  return (
+    <form action={submitAction}>
+      <textarea name="comment" />
+      <button disabled={isPending}>
+        {isPending ? 'Отправка...' : 'Отправить'}
+      </button>
+      {state.error && <p className="error">{state.error}</p>}
+      {state.success && <p className="success">Комментарий добавлен!</p>}
+    </form>
+  )
+}

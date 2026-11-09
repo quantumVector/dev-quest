@@ -1,0 +1,150 @@
+
+// ✅ ЗАЩИТА ОТ CSRF
+
+// 1. CSRF Token (Synchronizer Token Pattern)
+const csrf = require('csurf');
+const cookieParser = require('cookie-parser');
+
+// Middleware для генерации CSRF токенов
+app.use(cookieParser());
+app.use(csrf({ cookie: true }));
+
+// Отправка токена клиенту
+app.get('/form', (req, res) => {
+res.render('form', { csrfToken: req.csrfToken() });
+});
+
+// HTML форма с токеном
+`
+<form method="POST" action="/transfer-money">
+  <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+  <input type="text" name="to" placeholder="Recipient">
+  <input type="number" name="amount" placeholder="Amount">
+  <button type="submit">Transfer</button>
+</form>
+`
+
+// Проверка токена на сервере
+app.post('/transfer-money', (req, res) => {
+// Middleware автоматически проверяет _csrf
+const { to, amount } = req.body;
+const userId = req.session.userId;
+
+transferMoney(userId, to, amount);
+res.json({ success: true });
+});
+
+// 2. SameSite Cookie атрибут
+app.use(session({
+secret: 'your-secret-key',
+cookie: {
+httpOnly: true,
+secure: true, // Только HTTPS
+sameSite: 'strict' // или 'lax'
+}
+}));
+
+// 3. Double Submit Cookie Pattern
+function generateCSRFToken() {
+return crypto.randomBytes(32).toString('hex');
+}
+
+app.use((req, res, next) => {
+if (!req.cookies.csrfToken) {
+const token = generateCSRFToken();
+res.cookie('csrfToken', token, {
+httpOnly: false, // Доступно для JS
+secure: true,
+sameSite: 'strict'
+});
+req.csrfToken = token;
+} else {
+req.csrfToken = req.cookies.csrfToken;
+}
+next();
+});
+
+// Клиентская сторона - добавление токена в запросы
+function getCookie(name) {
+const value = `; ${document.cookie}`;
+const parts = value.split(`; ${name}=`);
+if (parts.length === 2) return parts.pop().split(';').shift();
+}
+
+fetch('/api/transfer', {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json',
+'X-CSRF-Token': getCookie('csrfToken')
+},
+body: JSON.stringify({ to: 'recipient', amount: 100 })
+});
+
+// 4. Origin и Referer проверка
+app.use((req, res, next) => {
+const allowedOrigins = ['https://yourdomain.com'];
+const origin = req.get('origin') || req.get('referer');
+
+if (req.method === 'POST' || req.method === 'PUT' || req.method === 'DELETE') {
+if (!origin || !allowedOrigins.some(allowed => origin.startsWith(allowed))) {
+return res.status(403).json({ error: 'Forbidden: Invalid origin' });
+}
+}
+
+next();
+});
+
+// 5. Custom Request Headers
+// Клиент
+fetch('/api/transfer', {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json',
+'X-Requested-With': 'XMLHttpRequest' // Custom header
+},
+body: JSON.stringify({ to: 'recipient', amount: 100 })
+});
+
+// Сервер
+app.use((req, res, next) => {
+if (req.method !== 'GET' && !req.get('X-Requested-With')) {
+return res.status(403).json({ error: 'Forbidden: Missing custom header' });
+}
+next();
+});
+
+// 6. React + CSRF Token
+function TransferForm() {
+const [csrfToken, setCsrfToken] = useState('');
+
+useEffect(() => {
+// Получение токена
+fetch('/api/csrf-token')
+.then(r => r.json())
+.then(data => setCsrfToken(data.token));
+}, []);
+
+const handleSubmit = async (e) => {
+e.preventDefault();
+
+await fetch('/api/transfer', {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json',
+'X-CSRF-Token': csrfToken
+},
+body: JSON.stringify({
+to: e.target.to.value,
+amount: e.target.amount.value
+})
+});
+};
+
+return (
+<form onSubmit={handleSubmit}>
+  <input type="text" name="to" />
+  <input type="number" name="amount" />
+  <button type="submit">Transfer</button>
+</form>
+);
+}

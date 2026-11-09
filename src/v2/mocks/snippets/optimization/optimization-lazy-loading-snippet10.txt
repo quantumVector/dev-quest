@@ -1,0 +1,49 @@
+
+<!-- Измерение эффективности lazy loading -->
+<script>
+// Performance Observer для отслеживания загрузки
+const imageObserver = new PerformanceObserver((list) => {
+  list.getEntries().forEach((entry) => {
+    console.log('Изображение загружено:', {
+      name: entry.name,
+      duration: entry.duration,
+      transferSize: entry.transferSize,
+      decodedBodySize: entry.decodedBodySize
+    });
+  });
+});
+
+imageObserver.observe({ entryTypes: ['resource'] });
+
+// Отслеживание lazy-loaded изображений
+const lazyImages = document.querySelectorAll('img[loading="lazy"]');
+const imageLoadTimes = new Map();
+
+lazyImages.forEach(img => {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const startTime = performance.now();
+
+        img.addEventListener('load', () => {
+          const loadTime = performance.now() - startTime;
+          imageLoadTimes.set(img.src, loadTime);
+          console.log(`Lazy image loaded in ${loadTime}ms`);
+        });
+
+        observer.unobserve(img);
+      }
+    });
+  });
+
+  observer.observe(img);
+});
+
+// Метрики экономии трафика
+window.addEventListener('load', () => {
+  const resources = performance.getEntriesByType('resource');
+  const totalSize = resources.reduce((sum, r) => sum + (r.transferSize || 0), 0);
+
+  console.log('Общий размер загруженных ресурсов:', (totalSize / 1024 / 1024).toFixed(2), 'MB');
+});
+</script>

@@ -1,0 +1,35 @@
+
+// =====================================
+// МЕТОДЫ BLOB
+// =====================================
+
+const textBlob = new Blob(['Hello World!'], { type: 'text/plain' })
+
+// 1. slice() - создание части Blob
+const partialBlob = textBlob.slice(0, 5)  // "Hello"
+const partialBlob2 = textBlob.slice(6)     // "World!"
+const partialWithType = textBlob.slice(0, 5, 'text/plain')
+
+// 2. text() - чтение как текст (Promise)
+textBlob.text().then(text => {
+  console.log(text)  // "Hello World!"
+})
+
+// async/await версия
+const text = await textBlob.text()
+console.log(text)
+
+// 3. arrayBuffer() - чтение как бинарные данные
+textBlob.arrayBuffer().then(buffer => {
+  console.log(new Uint8Array(buffer))  // [72, 101, 108, 108, 111, ...]
+})
+
+// 4. stream() - чтение через потоки
+const stream = textBlob.stream()
+const reader = stream.getReader()
+
+while (true) {
+  const { done, value } = await reader.read()
+  if (done) break
+  console.log('Chunk:', new TextDecoder().decode(value))
+}

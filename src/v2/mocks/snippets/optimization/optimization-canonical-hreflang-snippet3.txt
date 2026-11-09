@@ -1,0 +1,56 @@
+
+<!-- Полный пример для мультиязычного сайта -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Продукты | Наш Магазин</title>
+
+  <!-- Canonical - основная версия этой страницы -->
+  <link rel="canonical" href="https://example.com/ru/products">
+
+  <!-- hreflang - все языковые версии -->
+  <!-- Английский (США) -->
+  <link rel="alternate" hreflang="en-US"
+        href="https://example.com/en-us/products">
+
+  <!-- Английский (UK) -->
+  <link rel="alternate" hreflang="en-GB"
+        href="https://example.com/en-gb/products">
+
+  <!-- Русский -->
+  <link rel="alternate" hreflang="ru"
+        href="https://example.com/ru/products">
+
+  <!-- Немецкий -->
+  <link rel="alternate" hreflang="de"
+        href="https://example.com/de/products">
+
+  <!-- Французский -->
+  <link rel="alternate" hreflang="fr"
+        href="https://example.com/fr/products">
+
+  <!-- Испанский (Испания) -->
+  <link rel="alternate" hreflang="es-ES"
+        href="https://example.com/es-es/products">
+
+  <!-- Испанский (Латинская Америка) -->
+  <link rel="alternate" hreflang="es-419"
+        href="https://example.com/es-latam/products">
+
+  <!-- Китайский упрощенный -->
+  <link rel="alternate" hreflang="zh-Hans"
+        href="https://example.com/zh-cn/products">
+
+  <!-- Китайский традиционный -->
+  <link rel="alternate" hreflang="zh-Hant"
+        href="https://example.com/zh-tw/products">
+
+  <!-- Версия по умолчанию -->
+  <link rel="alternate" hreflang="x-default"
+        href="https://example.com/en/products">
+</head>
+<body>
+  <!-- Контент страницы -->
+</body>
+</html>

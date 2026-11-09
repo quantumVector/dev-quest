@@ -1,0 +1,11 @@
+// Idle callback - выполняется в свободное время
+requestIdleCallback((deadline) => {
+  while (deadline.timeRemaining() > 0 && tasks.length > 0) {
+    processBackgroundTask();
+  }
+});
+
+// Macrotask - следующая итерация Event Loop
+setTimeout(() => {
+  console.log('Next iteration starts');
+}, 0);

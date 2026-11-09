@@ -1,0 +1,62 @@
+
+// 1. Function Declaration (Объявление функции)
+function greet(name) {
+  return "Привет, " + name + "!";
+}
+
+// Особенности:
+// - Поднимается (hoisting)
+// - Можно вызвать до объявления
+console.log(sayHello("Мир")); // Работает!
+
+function sayHello(name) {
+  return "Hello, " + name;
+}
+
+// 2. Function Expression (Функциональное выражение)
+const greetExpression = function(name) {
+  return "Привет, " + name + "!";
+};
+
+// Особенности:
+// - НЕ поднимается
+// - Можно вызвать только после объявления
+// console.log(laterFunction("test")); // ReferenceError!
+const laterFunction = function(x) {
+  return x * 2;
+};
+
+// 3. Arrow Functions (Стрелочные функции)
+const greetArrow = (name) => {
+  return "Привет, " + name + "!";
+};
+
+// Краткая запись для одного выражения
+const greetShort = name => "Привет, " + name + "!";
+const multiply = (a, b) => a * b;
+const square = x => x * x;
+
+// 4. Anonymous Functions (Анонимные функции)
+setTimeout(function() {
+  console.log("Анонимная функция");
+}, 1000);
+
+// Стрелочная анонимная
+setTimeout(() => {
+  console.log("Анонимная стрелочная");
+}, 1000);
+
+// 5. IIFE (Immediately Invoked Function Expression)
+(function() {
+  console.log("IIFE выполнилась сразу");
+})();
+
+// Со стрелочной функцией
+(() => {
+  console.log("Стрелочная IIFE");
+})();
+
+// 6. Named Function Expression
+const factorial = function fact(n) {
+  return n <= 1 ? 1 : n * fact(n - 1);
+};

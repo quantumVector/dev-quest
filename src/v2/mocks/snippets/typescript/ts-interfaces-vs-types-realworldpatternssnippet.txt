@@ -1,0 +1,297 @@
+
+// =====================================
+// РЕАЛЬНЫЕ ПАТТЕРНЫ: КОГДА ЧТО ИСПОЛЬЗОВАТЬ
+// =====================================
+
+// Паттерн 1: Domain Models - Interface
+interface User {
+  id: number
+  name: string
+  email: string
+  createdAt: Date
+}
+
+interface Product {
+  id: number
+  title: string
+  price: number
+  inStock: boolean
+}
+
+// Domain logic с четкими контрактами
+class UserService {
+  constructor(private repository: UserRepository) {}
+
+  async findUser(id: number): Promise<User | null> {
+    return this.repository.findById(id)
+  }
+}
+
+// Паттерн 2: API Responses - Type Union
+type ApiResult<T> =
+  | { success: true; data: T }
+  | { success: false; error: string }
+
+const fetchUser = async (id: number): Promise<ApiResult<User>> => {
+  try {
+    const user = await fetch(`/api/users/${id}`).then(r => r.json())
+    return { success: true, data: user }
+  } catch (error) {
+    return { success: false, error: 'Failed to fetch' }
+  }
+}
+
+// Паттерн 3: State Management - Discriminated Union
+type LoadingState = { status: 'loading' }
+type SuccessState<T> = { status: 'success'; data: T }
+type ErrorState = { status: 'error'; error: string }
+
+type AsyncState<T> = LoadingState | SuccessState<T> | ErrorState
+
+const UserComponent = () => {
+  const [state, setState] = useState<AsyncState<User>>({
+    status: 'loading'
+  })
+
+  // Type narrowing работает идеально
+  if (state.status === 'success') {
+    console.log(state.data)  // TypeScript знает о data
+  }
+}
+
+// Паттерн 4: Builder Pattern - Interface
+interface QueryBuilder {
+  select(...fields: string[]): this
+  from(table: string): this
+  where(condition: string): this
+  build(): string
+}
+
+class SQLQueryBuilder implements QueryBuilder {
+  private query = ''
+
+  select(...fields: string[]): this {
+    this.query += `SELECT ${fields.join(', ')} `
+    return this
+  }
+
+  from(table: string): this {
+    this.query += `FROM ${table} `
+    return this
+  }
+
+  where(condition: string): this {
+    this.query += `WHERE ${condition}`
+    return this
+  }
+
+  build(): string {
+    return this.query
+  }
+}
+
+// Паттерн 5: Utility Types - Type
+type DeepReadonly<T> = {
+  readonly [P in keyof T]: T[P] extends object
+    ? DeepReadonly<T[P]>
+    : T[P]
+}
+
+type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends object
+    ? DeepPartial<T[P]>
+    : T[P]
+}
+
+// Используем для создания производных типов
+type ReadonlyUser = DeepReadonly<User>
+type UpdateUser = DeepPartial<User>
+
+// Паттерн 6: Repository Pattern - Interface
+interface Repository<T> {
+  findAll(): Promise<T[]>
+  findById(id: number): Promise<T | null>
+  save(entity: T): Promise<T>
+  delete(id: number): Promise<void>
+}
+
+// Конкретная реализация
+class UserRepository implements Repository<User> {
+  // Реализация всех методов обязательна
+  async findAll(): Promise<User[]> {
+    return []
+  }
+
+  async findById(id: number): Promise<User | null> {
+    return null
+  }
+
+  async save(entity: User): Promise<User> {
+    return entity
+  }
+
+  async delete(id: number): Promise<void> {}
+}
+
+// Паттерн 7: Event System - Type Union
+type UserEvent =
+  | { type: 'USER_CREATED'; payload: User }
+  | { type: 'USER_UPDATED'; payload: Partial<User> }
+  | { type: 'USER_DELETED'; payload: { id: number } }
+
+const handleUserEvent = (event: UserEvent) => {
+  switch (event.type) {
+    case 'USER_CREATED':
+      console.log('New user:', event.payload)
+      break
+    case 'USER_UPDATED':
+      console.log('Updated:', event.payload)
+      break
+    case 'USER_DELETED':
+      console.log('Deleted user:', event.payload.id)
+      break
+  }
+}
+
+// Паттерн 8: Strategy Pattern - Interface
+interface SortStrategy<T> {
+  sort(items: T[]): T[]
+}
+
+class AlphabeticalSort implements SortStrategy<User> {
+  sort(users: User[]): User[] {
+    return users.sort((a, b) => a.name.localeCompare(b.name))
+  }
+}
+
+class DateSort implements SortStrategy<User> {
+  sort(users: User[]): User[] {
+    return users.sort((a, b) =>
+      a.createdAt.getTime() - b.createdAt.getTime()
+    )
+  }
+}
+
+class UserList {
+  constructor(private sortStrategy: SortStrategy<User>) {}
+
+  displayUsers(users: User[]): User[] {
+    return this.sortStrategy.sort(users)
+  }
+}
+
+// Паттерн 9: Type Guards - Type Predicates
+type Admin = User & { role: 'admin'; permissions: string[] }
+type Guest = User & { role: 'guest' }
+
+type UserRole = Admin | Guest
+
+const isAdmin = (user: UserRole): user is Admin => {
+  return user.role === 'admin'
+}
+
+const processUser = (user: UserRole) => {
+  if (isAdmin(user)) {
+    console.log(user.permissions)  // TypeScript знает о permissions
+  }
+}
+
+// Паттерн 10: Branded Types - Type
+type Email = string & { readonly __brand: 'Email' }
+type PhoneNumber = string & { readonly __brand: 'PhoneNumber' }
+
+const createEmail = (value: string): Email => {
+  if (!value.includes('@')) {
+    throw new Error('Invalid email')
+  }
+  return value as Email
+}
+
+const sendEmail = (to: Email, message: string) => {
+  // Гарантированно валидный email
+}
+
+const email = createEmail('test@example.com')
+sendEmail(email, 'Hello')
+
+// const phone: PhoneNumber = "+123"
+// sendEmail(phone, 'Hello')  // ❌ Type error
+
+// Паттерн 11: Facade Pattern - Interface
+interface PaymentGateway {
+  charge(amount: number, token: string): Promise<boolean>
+  refund(transactionId: string): Promise<void>
+}
+
+class StripeGateway implements PaymentGateway {
+  async charge(amount: number, token: string): Promise<boolean> {
+    // Stripe specific implementation
+    return true
+  }
+
+  async refund(transactionId: string): Promise<void> {
+    // Stripe refund
+  }
+}
+
+class PayPalGateway implements PaymentGateway {
+  async charge(amount: number, token: string): Promise<boolean> {
+    // PayPal specific implementation
+    return true
+  }
+
+  async refund(transactionId: string): Promise<void> {
+    // PayPal refund
+  }
+}
+
+// Единый интерфейс для работы с разными платежными системами
+class PaymentService {
+  constructor(private gateway: PaymentGateway) {}
+
+  async processPayment(amount: number, token: string) {
+    return this.gateway.charge(amount, token)
+  }
+}
+
+// Паттерн 12: DTO (Data Transfer Object) - Interface
+interface CreateUserDTO {
+  name: string
+  email: string
+  password: string
+}
+
+interface UpdateUserDTO {
+  name?: string
+  email?: string
+}
+
+interface UserDTO {
+  id: number
+  name: string
+  email: string
+  createdAt: string  // Сериализованная дата
+}
+
+// Разделение между domain model и API contract
+class UserController {
+  async createUser(dto: CreateUserDTO): Promise<UserDTO> {
+    // Преобразование DTO -> Domain Model
+    const user: User = {
+      id: 1,
+      name: dto.name,
+      email: dto.email,
+      createdAt: new Date()
+    }
+
+    // Сохранение...
+
+    // Преобразование Domain Model -> DTO
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      createdAt: user.createdAt.toISOString()
+    }
+  }
+}

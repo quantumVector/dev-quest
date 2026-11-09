@@ -1,0 +1,183 @@
+
+// =====================================
+// ПРАКТИЧЕСКИЕ ПРИМЕРЫ
+// =====================================
+
+// 1. Типизация Redux Actions
+type Action<T extends string, P = void> = P extends void
+  ? { type: T }
+  : { type: T; payload: P }
+
+type IncrementAction = Action<'INCREMENT'>
+// { type: 'INCREMENT' }
+
+type SetUserAction = Action<'SET_USER', { id: number; name: string }>
+// { type: 'SET_USER'; payload: { id: number; name: string } }
+
+// 2. Типизация API Response
+type ApiResult<T> = { success: true; data: T } | { success: false; error: string }
+
+type ExtractSuccess<T> = T extends { success: true; data: infer D } ? D : never
+type ExtractError<T> = T extends { success: false; error: infer E } ? E : never
+
+type UserResult = ApiResult<{ id: number; name: string }>
+type UserData = ExtractSuccess<UserResult>  // { id: number; name: string }
+type UserError = ExtractError<UserResult>   // string
+
+// 3. Проверка наличия метода в типе
+type HasMethod<T, M extends string> =
+  T extends Record<M, (...args: any[]) => any> ? true : false
+
+type A = HasMethod<{ save(): void }, 'save'>    // true
+type B = HasMethod<{ save(): void }, 'delete'>  // false
+
+// 4. Async Function Return Type
+type AsyncReturnType<T> =
+  T extends (...args: any[]) => Promise<infer R> ? R : never
+
+async function fetchUser() {
+  return { id: 1, name: 'John' }
+}
+
+type User = AsyncReturnType<typeof fetchUser>
+// { id: number; name: string }
+
+// 5. Curry Type Helper
+type Curry<F> =
+  F extends (x: infer A, ...rest: infer R) => infer Return
+    ? (x: A) => Curry<(...args: R) => Return>
+    : F
+
+type OriginalFunc = (a: string, b: number, c: boolean) => void
+type CurriedFunc = Curry<OriginalFunc>
+// (x: string) => (x: number) => (x: boolean) => void
+
+// 6. Flatten Object Keys
+type FlattenKeys<T, Prefix extends string = ''> = T extends object
+  ? {
+      [K in keyof T & string]: T[K] extends object
+        ? FlattenKeys<T[K], `${Prefix}${K}.`>
+        : `${Prefix}${K}`
+    }[keyof T & string]
+  : never
+
+type NestedObj = {
+  user: {
+    profile: {
+      name: string
+      age: number
+    }
+    settings: {
+      theme: string
+    }
+  }
+}
+
+type Keys = FlattenKeys<NestedObj>
+// "user.profile.name" | "user.profile.age" | "user.settings.theme"
+
+// 7. Required Keys
+type RequiredKeys<T> = {
+  [K in keyof T]-?: {} extends Pick<T, K> ? never : K
+}[keyof T]
+
+type OptionalUser = {
+  id: number
+  name: string
+  email?: string
+  phone?: string
+}
+
+type Required = RequiredKeys<OptionalUser>  // "id" | "name"
+
+// 8. Optional Keys
+type OptionalKeys<T> = {
+  [K in keyof T]-?: {} extends Pick<T, K> ? K : never
+}[keyof T]
+
+type Optional = OptionalKeys<OptionalUser>  // "email" | "phone"
+
+// 9. Типизация формы с валидацией
+type ValidationResult<T> = T extends string
+  ? { valid: boolean; value?: T; error?: string }
+  : T extends number
+    ? { valid: boolean; value?: T; min?: number; max?: number }
+    : { valid: boolean; value?: T }
+
+type StringValidation = ValidationResult<string>
+// { valid: boolean; value?: string; error?: string }
+
+type NumberValidation = ValidationResult<number>
+// { valid: boolean; value?: number; min?: number; max?: number }
+
+// 10. Deep Partial
+type DeepPartial<T> = T extends object
+  ? {
+      [P in keyof T]?: DeepPartial<T[P]>
+    }
+  : T
+
+type Config = {
+  server: {
+    host: string
+    port: number
+    ssl: {
+      enabled: boolean
+      cert: string
+    }
+  }
+}
+
+type PartialConfig = DeepPartial<Config>
+// {
+//   server?: {
+//     host?: string
+//     port?: number
+//     ssl?: {
+//       enabled?: boolean
+//       cert?: string
+//     }
+//   }
+// }
+
+// 11. Объединение типов по ключу
+type MergeByKey<T, K extends keyof T> = T extends infer O
+  ? { [P in K]: O[P] } & Omit<O, K>
+  : never
+
+type Original = { id: number; name: string; age: number }
+type Merged = MergeByKey<Original, 'id'>
+// { id: number } & { name: string; age: number }
+
+// 12. Проверка на пустой объект
+type IsEmptyObject<T> = T extends Record<string, never> ? true : false
+
+type C = IsEmptyObject<{}>          // true
+type D = IsEmptyObject<{ a: 1 }>    // false
+
+// 13. Получение всех путей в объекте
+type Paths<T> = T extends object
+  ? {
+      [K in keyof T]: K extends string
+        ? T[K] extends object
+          ? K | `${K}.${Paths<T[K]>}`
+          : K
+        : never
+    }[keyof T]
+  : never
+
+type NestedPaths = Paths<NestedObj>
+// "user" | "user.profile" | "user.profile.name" | "user.profile.age" | "user.settings" | "user.settings.theme"
+
+// 14. Safe Get - безопасное получение вложенных свойств
+type Get<T, Path extends string> =
+  Path extends `${infer K}.${infer Rest}`
+    ? K extends keyof T
+      ? Get<T[K], Rest>
+      : never
+    : Path extends keyof T
+      ? T[Path]
+      : never
+
+type ProfileName = Get<NestedObj, 'user.profile.name'>  // string
+type Invalid = Get<NestedObj, 'user.invalid'>           // never

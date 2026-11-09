@@ -1,0 +1,83 @@
+
+// Практический пример: замыкания и лексическое окружение
+console.log("=== Замыкания и лексическое окружение ===");
+
+function createCounter(initialValue = 0) {
+  // Лексическое окружение createCounter:
+  // { initialValue: параметр, count: будет создана }
+
+  let count = initialValue;
+
+  // Каждая возвращаемая функция создает замыкание
+  // и сохраняет ссылку на лексическое окружение createCounter
+  return {
+    increment: function() {
+      // Лексическое окружение increment:
+      // { Parent: createCounter Lexical Environment }
+      count++;
+      return count;
+    },
+
+    decrement: function() {
+      // Лексическое окружение decrement:
+      // { Parent: createCounter Lexical Environment }
+      count--;
+      return count;
+    },
+
+    getValue: function() {
+      // Лексическое окружение getValue:
+      // { Parent: createCounter Lexical Environment }
+      return count;
+    }
+  };
+}
+
+const counter1 = createCounter(5);
+const counter2 = createCounter(10);
+
+console.log("counter1.getValue():", counter1.getValue()); // 5
+console.log("counter1.increment():", counter1.increment()); // 6
+console.log("counter1.increment():", counter1.increment()); // 7
+
+console.log("counter2.getValue():", counter2.getValue()); // 10
+console.log("counter2.decrement():", counter2.decrement()); // 9
+
+// Каждый счетчик имеет свое независимое лексическое окружение!
+console.log("counter1 финальное значение:", counter1.getValue()); // 7
+console.log("counter2 финальное значение:", counter2.getValue()); // 9
+
+// Демонстрация цепочки областей видимости
+function demonstrateScopeChain() {
+  console.log("\n=== Цепочка областей видимости ===");
+
+  var level1 = "Уровень 1";
+
+  function level2Function() {
+    var level2 = "Уровень 2";
+    console.log("level2Function видит:", level1, level2); // ✅ Оба доступны
+
+    function level3Function() {
+      var level3 = "Уровень 3";
+      console.log("level3Function видит:", level1, level2, level3); // ✅ Все доступны
+
+      // Поиск переменной идет по цепочке:
+      // 1. level3Function Lexical Environment
+      // 2. level2Function Lexical Environment
+      // 3. Global Lexical Environment
+
+      return function level4Function() {
+        var level4 = "Уровень 4";
+        console.log("level4Function видит:", level1, level2, level3, level4);
+        // ✅ Все переменные доступны благодаря замыканию!
+      };
+    }
+
+    return level3Function();
+  }
+
+  const level4Func = level2Function();
+  level4Func();
+}
+
+demonstrateScopeChain();

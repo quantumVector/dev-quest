@@ -1,0 +1,96 @@
+
+// Множественные Store с зависимостями
+
+class TodoStore {
+  constructor(dispatcher) {
+    this.state = {
+      todos: [],
+      loading: false
+    }
+
+    this.dispatchToken = dispatcher.register(
+      this.handleAction.bind(this)
+    )
+  }
+
+  handleAction(action) {
+    switch (action.type) {
+      case 'TODO_ADD':
+        this.state.todos.push(action.payload)
+        this.emitChange()
+        break
+
+      case 'TODO_TOGGLE':
+        const todo = this.state.todos.find(t => t.id === action.payload.id)
+        if (todo) {
+          todo.completed = !todo.completed
+          this.emitChange()
+        }
+        break
+    }
+  }
+
+  getTodos() {
+    return this.state.todos
+  }
+
+  getCompletedCount() {
+    return this.state.todos.filter(t => t.completed).length
+  }
+}
+
+class StatisticsStore {
+  constructor(dispatcher, todoStore) {
+    this.todoStore = todoStore
+    this.state = {
+      total: 0,
+      completed: 0,
+      percentage: 0
+    }
+
+    this.dispatchToken = dispatcher.register(
+      this.handleAction.bind(this)
+    )
+  }
+
+  handleAction(action) {
+    switch (action.type) {
+      case 'TODO_ADD':
+      case 'TODO_TOGGLE':
+      case 'TODO_DELETE':
+        // Ждем, пока TodoStore обработает действие
+        dispatcher.waitFor([this.todoStore.dispatchToken])
+
+        // Теперь можем получить актуальные данные
+        const todos = this.todoStore.getTodos()
+        this.state.total = todos.length
+        this.state.completed = this.todoStore.getCompletedCount()
+        this.state.percentage = this.state.total > 0
+          ? (this.state.completed / this.state.total) * 100
+          : 0
+
+        this.emitChange()
+        break
+    }
+  }
+
+  getStatistics() {
+    return this.state
+  }
+}
+
+// Использование waitFor для зависимостей между Store
+dispatcher.register((action) => {
+  // TodoStore обрабатывает первым
+  if (action.type === 'TODO_ADD') {
+    todoStore.handleAction(action)
+  }
+})
+
+dispatcher.register((action) => {
+  // StatisticsStore ждет TodoStore
+  if (action.type === 'TODO_ADD') {
+    dispatcher.waitFor([todoStore.dispatchToken])
+    statisticsStore.handleAction(action)
+  }
+})

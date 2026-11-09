@@ -1,0 +1,28 @@
+
+// =====================================
+// ABORTCONTROLLER - основы
+// =====================================
+
+// 1. Создание AbortController
+const controller = new AbortController()
+
+// 2. Получение signal для передачи в запрос
+const signal = controller.signal
+
+console.log(signal.aborted)  // false - не отменен
+
+// 3. Отмена запроса
+controller.abort()
+
+console.log(signal.aborted)  // true - отменен
+console.log(signal.reason)   // undefined (по умолчанию)
+
+// 4. Отмена с причиной
+const controller2 = new AbortController()
+controller2.abort('Пользователь отменил запрос')
+console.log(controller2.signal.reason)  // "Пользователь отменил запрос"
+
+// 5. Отмена с объектом ошибки
+const controller3 = new AbortController()
+controller3.abort(new Error('Timeout exceeded'))
+console.log(controller3.signal.reason)  // Error: Timeout exceeded

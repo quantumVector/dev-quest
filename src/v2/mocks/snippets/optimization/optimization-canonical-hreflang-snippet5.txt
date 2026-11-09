@@ -1,0 +1,34 @@
+
+<!-- Правильное использование языковых кодов -->
+
+<!-- ISO 639-1: двухбуквенные коды языков -->
+<link rel="alternate" hreflang="en" href="..."> <!-- Английский -->
+<link rel="alternate" hreflang="ru" href="..."> <!-- Русский -->
+<link rel="alternate" hreflang="de" href="..."> <!-- Немецкий -->
+<link rel="alternate" hreflang="fr" href="..."> <!-- Французский -->
+<link rel="alternate" hreflang="es" href="..."> <!-- Испанский -->
+<link rel="alternate" hreflang="ja" href="..."> <!-- Японский -->
+<link rel="alternate" hreflang="ko" href="..."> <!-- Корейский -->
+
+<!-- ISO 639-1 + ISO 3166-1: язык + регион -->
+<link rel="alternate" hreflang="en-US" href="..."> <!-- Английский США -->
+<link rel="alternate" hreflang="en-GB" href="..."> <!-- Английский UK -->
+<link rel="alternate" hreflang="en-CA" href="..."> <!-- Английский Канада -->
+<link rel="alternate" hreflang="en-AU" href="..."> <!-- Английский Австралия -->
+
+<link rel="alternate" hreflang="es-ES" href="..."> <!-- Испанский Испания -->
+<link rel="alternate" hreflang="es-MX" href="..."> <!-- Испанский Мексика -->
+<link rel="alternate" hreflang="es-AR" href="..."> <!-- Испанский Аргентина -->
+<link rel="alternate" hreflang="es-419" href="..."> <!-- Испанский Лат. Америка -->
+
+<link rel="alternate" hreflang="pt-BR" href="..."> <!-- Португальский Бразилия -->
+<link rel="alternate" hreflang="pt-PT" href="..."> <!-- Португальский Португалия -->
+
+<link rel="alternate" hreflang="zh-Hans" href="..."> <!-- Китайский упрощенный -->
+<link rel="alternate" hreflang="zh-Hant" href="..."> <!-- Китайский традиционный -->
+<link rel="alternate" hreflang="zh-CN" href="..."> <!-- Китайский КНР -->
+<link rel="alternate" hreflang="zh-TW" href="..."> <!-- Китайский Тайвань -->
+
+<!-- Специальное значение x-default -->
+<link rel="alternate" hreflang="x-default" href="https://example.com">
+<!-- Используется как fallback для неопределенных регионов/языков -->

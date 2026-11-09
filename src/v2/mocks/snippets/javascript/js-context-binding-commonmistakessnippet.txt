@@ -1,0 +1,83 @@
+
+// Частые ошибки и их решения
+
+// 1. Потеря контекста при передаче методов
+class Component {
+  constructor(name) {
+    this.name = name
+  }
+
+  render() {
+    return `Rendering ${this.name}`
+  }
+}
+
+const comp = new Component('MyComponent')
+
+// ❌ Неправильно - потеря контекста
+const renderer = comp.render
+console.log(renderer()) // TypeError: Cannot read property 'name' of undefined
+
+// ✅ Правильно - привязка контекста
+const boundRenderer = comp.render.bind(comp)
+console.log(boundRenderer()) // "Rendering MyComponent"
+
+// 2. Неправильное использование в циклах
+const buttons = ['Save', 'Cancel', 'Delete']
+const handlers = []
+
+// ❌ Неправильно - все функции будут иметь одинаковый контекст
+for (let i = 0; i < buttons.length; i++) {
+  handlers.push(function() {
+    console.log(`Clicked ${buttons[i]}`) // i будет undefined
+  })
+}
+
+// ✅ Правильно - привязка с помощью bind
+for (let i = 0; i < buttons.length; i++) {
+  handlers.push(function(index) {
+    console.log(`Clicked ${buttons[index]}`)
+  }.bind(null, i))
+}
+
+// 3. Проблемы с async/await и контекстом
+class ApiClient {
+  constructor() {
+    this.baseUrl = 'https://api.example.com'
+  }
+
+  async fetchData(endpoint) {
+    const response = await fetch(`${this.baseUrl}/${endpoint}`)
+    return response.json()
+  }
+
+  async processData() {
+    // ❌ Потеря контекста при передаче метода
+    const promises = ['users', 'posts'].map(this.fetchData)
+    // TypeError: Cannot read property 'baseUrl' of undefined
+
+    // ✅ Правильно - привязка контекста
+    const promises2 = ['users', 'posts'].map(this.fetchData.bind(this))
+
+    // ✅ Альтернатива - стрелочная функция
+    const promises3 = ['users', 'posts'].map(endpoint => this.fetchData(endpoint))
+
+    return Promise.all(promises3)
+  }
+}
+
+// 4. Неправильное понимание работы call/apply с примитивами
+function showType() {
+  console.log(typeof this)
+  console.log(this)
+}
+
+// В строгом режиме
+showType.call(5)        // "number", Number {5}
+showType.call("hello")  // "string", String {"hello"}
+showType.call(true)     // "boolean", Boolean {true}
+showType.call(null)     // "object", null
+showType.call(undefined) // "undefined", undefined
+
+// В нестрогом режие примитивы оборачиваются в объекты
+// null и undefined заменяются на глобальный объект (window)

@@ -1,0 +1,94 @@
+
+// =======================================
+// UMD (Universal Module Definition)
+// =======================================
+
+// Полный UMD шаблон
+(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD
+    define(['jquery', 'underscore'], factory);
+  } else if (typeof module === 'object' && module.exports) {
+    // CommonJS
+    module.exports = factory(require('jquery'), require('underscore'));
+  } else {
+    // Браузер (глобальные переменные)
+    root.MyLibrary = factory(root.jQuery, root._);
+  }
+}(typeof self !== 'undefined' ? self : this, function ($, _) {
+
+  // Код библиотеки
+  function MyLibrary(options) {
+    this.options = _.defaults(options || {}, {
+      selector: '.my-element',
+      animation: true
+    });
+    this.init();
+  }
+
+  MyLibrary.prototype = {
+    init: function() {
+      this.$elements = $(this.options.selector);
+      this.bindEvents();
+    },
+
+    bindEvents: function() {
+      this.$elements.on('click', this.onClick.bind(this));
+    },
+
+    onClick: function(event) {
+      if (this.options.animation) {
+        $(event.target).fadeToggle();
+      }
+    },
+
+    destroy: function() {
+      this.$elements.off('click', this.onClick);
+    }
+  };
+
+  // Статические методы
+  MyLibrary.version = '1.0.0';
+
+  MyLibrary.noConflict = (function(originalValue) {
+    return function() {
+      root.MyLibrary = originalValue;
+      return MyLibrary;
+    };
+  })(root.MyLibrary);
+
+  return MyLibrary;
+}));
+
+// Упрощенный UMD для простых случаев
+(function(root, factory) {
+  if (typeof exports === 'object') {
+    // CommonJS
+    module.exports = factory();
+  } else if (typeof define === 'function' && define.amd) {
+    // AMD
+    define(factory);
+  } else {
+    // Браузер
+    root.utils = factory();
+  }
+}(this, function() {
+
+  return {
+    formatDate: function(date) {
+      return date.toLocaleDateString();
+    },
+
+    debounce: function(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
+  };
+}));

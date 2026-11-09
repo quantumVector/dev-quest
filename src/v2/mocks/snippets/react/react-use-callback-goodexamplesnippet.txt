@@ -1,0 +1,51 @@
+
+// ✅ РЕШЕНИЕ: useCallback сохраняет ссылку на функцию
+
+import { useState, useCallback } from 'react';
+
+function TodoList() {
+  const [todos, setTodos] = useState([]);
+  const [count, setCount] = useState(0);
+
+  // Функция создается ОДИН РАЗ и сохраняется между рендерами
+  const handleAddTodo = useCallback((text) => {
+    setTodos(prev => [...prev, { id: Date.now(), text }]);
+  }, []); // Пустой массив зависимостей = функция никогда не пересоздается
+
+  return (
+    <div>
+      <button onClick={() => setCount(count + 1)}>
+        Count: {count}
+      </button>
+
+      {/* Теперь AddTodoForm НЕ перерендеривается при изменении count */}
+      <AddTodoForm onAdd={handleAddTodo} />
+
+      <ul>
+        {todos.map(todo => (
+          <li key={todo.id}>{todo.text}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+const AddTodoForm = React.memo(({ onAdd }) => {
+  console.log('AddTodoForm render'); // Только при первом рендере!
+  const [text, setText] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onAdd(text);
+    setText('');
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input value={text} onChange={e => setText(e.target.value)} />
+      <button type="submit">Add</button>
+    </form>
+  );
+});
+
+// РЕШЕНО: onAdd стабильная ссылка → React.memo предотвращает рендер!

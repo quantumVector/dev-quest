@@ -1,0 +1,296 @@
+
+// =====================================
+// ПРОДВИНУТЫЕ ТЕХНИКИ
+// =====================================
+
+// 1. Mixins с Interfaces
+interface Timestamped {
+  createdAt: Date
+  updatedAt: Date
+}
+
+interface Versioned {
+  version: number
+}
+
+// Mixin функция
+function applyTimestamps<T extends new (...args: any[]) => {}>(Base: T) {
+  return class extends Base implements Timestamped {
+    createdAt = new Date()
+    updatedAt = new Date()
+
+    touch() {
+      this.updatedAt = new Date()
+    }
+  }
+}
+
+class User {
+  constructor(public name: string) {}
+}
+
+const TimestampedUser = applyTimestamps(User)
+const user = new TimestampedUser('John')
+console.log(user.createdAt)  // Работает!
+
+// 2. Conditional Interface Extension
+interface BaseEntity {
+  id: number
+}
+
+// Условное расширение через Type
+type EntityWithTimestamps<T, WithTime extends boolean> =
+  T & (WithTime extends true ? Timestamped : {})
+
+interface User extends BaseEntity {
+  name: string
+}
+
+type UserWithTime = EntityWithTimestamps<User, true>
+type UserWithoutTime = EntityWithTimestamps<User, false>
+
+// 3. Interface Merging для библиотек
+// lib.d.ts
+interface Window {
+  myLibrary: MyLibrary
+}
+
+interface MyLibrary {
+  version: string
+  init(): void
+}
+
+// Пользователи могут расширять
+declare global {
+  interface Window {
+    customProperty: string
+  }
+}
+
+// В коде
+window.myLibrary.init()
+window.customProperty = 'value'
+
+// 4. Recursive Interfaces
+interface TreeNode<T> {
+  value: T
+  children: TreeNode<T>[]
+}
+
+const tree: TreeNode<number> = {
+  value: 1,
+  children: [
+    {
+      value: 2,
+      children: [
+        { value: 3, children: [] }
+      ]
+    }
+  ]
+}
+
+// 5. Phantom Types для безопасности
+type Opaque<K, T> = T & { readonly __TYPE__: K }
+
+type USD = Opaque<'USD', number>
+type EUR = Opaque<'EUR', number>
+
+const usd = (amount: number): USD => amount as USD
+const eur = (amount: number): EUR => amount as EUR
+
+const price1: USD = usd(100)
+const price2: EUR = eur(100)
+
+// const mixed: USD = price2  // ❌ Error - нельзя смешивать валюты
+
+// 6. Builder Pattern с Fluent Interface
+interface QueryBuilder {
+  select(...fields: string[]): this
+  from(table: string): this
+  where(condition: string): this
+  orderBy(field: string, direction?: 'ASC' | 'DESC'): this
+  limit(count: number): this
+  build(): string
+}
+
+// Цепочка вызовов типизирована
+const query = new SQLQueryBuilder()
+  .select('id', 'name')
+  .from('users')
+  .where('age > 18')
+  .orderBy('name', 'ASC')
+  .limit(10)
+  .build()
+
+// 7. Const Assertions с Type
+const STATUSES = ['pending', 'approved', 'rejected'] as const
+type Status = typeof STATUSES[number]  // 'pending' | 'approved' | 'rejected'
+
+const CONFIG = {
+  apiUrl: 'https://api.example.com',
+  timeout: 5000,
+  retries: 3
+} as const
+
+type Config = typeof CONFIG
+// Config = {
+//   readonly apiUrl: "https://api.example.com"
+//   readonly timeout: 5000
+//   readonly retries: 3
+// }
+
+// 8. Discriminated Unions для State Machines
+type State =
+  | { status: 'idle' }
+  | { status: 'loading'; startTime: number }
+  | { status: 'success'; data: string; loadTime: number }
+  | { status: 'error'; error: Error; retryCount: number }
+
+const transition = (state: State, action: Action): State => {
+  switch (state.status) {
+    case 'idle':
+      if (action.type === 'START_LOADING') {
+        return { status: 'loading', startTime: Date.now() }
+      }
+      return state
+
+    case 'loading':
+      if (action.type === 'LOAD_SUCCESS') {
+        return {
+          status: 'success',
+          data: action.payload,
+          loadTime: Date.now() - state.startTime
+        }
+      }
+      return state
+
+    // ...
+  }
+}
+
+// 9. Variance Annotations (TS 4.7+)
+interface Producer<out T> {
+  produce(): T
+}
+
+interface Consumer<in T> {
+  consume(item: T): void
+}
+
+interface Transformer<in T, out U> {
+  transform(input: T): U
+}
+
+// out = covariant (только возвращает)
+// in = contravariant (только принимает)
+
+// 10. Template Literal Types для API Routes
+type HTTPMethod = 'GET' | 'POST' | 'PUT' | 'DELETE'
+type APIVersion = 'v1' | 'v2'
+type Resource = 'users' | 'posts' | 'comments'
+
+type APIRoute = `/api/${APIVersion}/${Resource}`
+// "/api/v1/users" | "/api/v1/posts" | ... (12 комбинаций)
+
+type APIEndpoint = `${HTTPMethod} ${APIRoute}`
+// "GET /api/v1/users" | "POST /api/v1/users" | ... (48 комбинаций)
+
+// 11. Excess Property Checks обход
+interface Config {
+  apiUrl: string
+  timeout?: number
+}
+
+// ❌ Error - excess property
+const config1: Config = {
+  apiUrl: 'https://api.example.com',
+  debug: true  // Error!
+}
+
+// ✅ OK - через переменную
+const configData = {
+  apiUrl: 'https://api.example.com',
+  debug: true
+}
+const config2: Config = configData  // OK
+
+// ✅ OK - через type assertion
+const config3: Config = {
+  apiUrl: 'https://api.example.com',
+  debug: true
+} as Config
+
+// 12. Index Signatures с Interfaces
+interface Dictionary {
+  [key: string]: string
+}
+
+interface StrictDictionary {
+  name: string  // Известные свойства
+  [key: string]: string | number  // Index signature
+}
+
+const dict: StrictDictionary = {
+  name: 'John',
+  age: 30,  // OK - number разрешен
+  city: 'NYC'  // OK - string разрешен
+}
+
+// 13. Namespace Augmentation
+// my-library.d.ts
+declare namespace MyLibrary {
+  interface Options {
+    debug: boolean
+  }
+
+  function init(options: Options): void
+}
+
+// Расширение в другом файле
+declare namespace MyLibrary {
+  interface Options {
+    verbose?: boolean  // Добавили новую опцию
+  }
+}
+
+MyLibrary.init({ debug: true, verbose: true })  // Работает!
+
+// 14. Readonly Tuples с Type
+type Point = readonly [number, number]
+
+const point: Point = [10, 20]
+// point[0] = 30  // ❌ Error - readonly
+
+type RGB = readonly [red: number, green: number, blue: number]
+
+const color: RGB = [255, 128, 0]
+console.log(color[0])  // OK - чтение
+// color[0] = 100  // ❌ Error - readonly
+
+// 15. Higher-Order Types
+type Constructor<T = {}> = new (...args: any[]) => T
+
+type Mixin<T extends Constructor> = (Base: T) => T
+
+const TimestampMixin: Mixin<Constructor> = (Base) => {
+  return class extends Base {
+    timestamp = Date.now()
+  }
+}
+
+const LoggableMixin: Mixin<Constructor> = (Base) => {
+  return class extends Base {
+    log(message: string) {
+      console.log(`[${this.constructor.name}] ${message}`)
+    }
+  }
+}
+
+class BaseClass {
+  name = 'Base'
+}
+
+const EnhancedClass = LoggableMixin(TimestampMixin(BaseClass))
+const instance = new EnhancedClass()
+instance.log('Hello')  // "[EnhancedClass] Hello"
+console.log(instance.timestamp)  // 1234567890

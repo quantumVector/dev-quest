@@ -1,0 +1,34 @@
+
+// Массив зависимостей контролирует когда эффект перезапускается
+
+// 1. БЕЗ ЗАВИСИМОСТЕЙ - эффект на каждый рендер
+useEffect(() => {
+  console.log('Runs on every render')
+  // ⚠️ Обычно это ошибка!
+})
+
+// 2. ПУСТОЙ МАССИВ - эффект только при монтировании
+useEffect(() => {
+  console.log('Runs once on mount')
+  return () => console.log('Cleanup on unmount')
+}, []) // ✅ Эквивалент componentDidMount + componentWillUnmount
+
+// 3. С ЗАВИСИМОСТЯМИ - эффект когда зависимости меняются
+useEffect(() => {
+  console.log('Runs when userId or filter changes')
+  fetchData(userId, filter)
+}, [userId, filter]) // ✅ Перезапуск при изменении userId или filter
+
+// 4. НЕСКОЛЬКО ЭФФЕКТОВ - разделяем логику
+useEffect(() => {
+  // Эффект для userId
+  fetchUser(userId)
+}, [userId])
+
+useEffect(() => {
+  // Отдельный эффект для подписки
+  const subscription = subscribeToNotifications()
+  return () => subscription.unsubscribe()
+}, []) // Независимая логика
+
+// ПРАВИЛО: Все используемые значения должны быть в зависимостях!

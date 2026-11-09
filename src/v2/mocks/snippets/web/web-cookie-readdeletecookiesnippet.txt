@@ -1,0 +1,42 @@
+
+// ==========================================
+// ЧТЕНИЕ И УДАЛЕНИЕ COOKIES
+// ==========================================
+
+// Чтение всех cookies
+console.log(document.cookie)
+// "username=John Doe; theme=dark; sessionId=abc123"
+
+// Парсинг cookies в объект
+function getCookies() {
+  return document.cookie.split('; ').reduce((acc, cookie) => {
+    const [name, value] = cookie.split('=')
+    acc[decodeURIComponent(name)] = decodeURIComponent(value)
+    return acc
+  }, {})
+}
+
+const cookies = getCookies()
+console.log(cookies.username) // "John Doe"
+
+// Получение конкретной cookie
+function getCookie(name) {
+  const matches = document.cookie.match(
+    new RegExp('(?:^|; )' + name.replace(/([.$?*|{}()[]\/+^])/g, '\$1') + '=([^;]*)')
+  )
+  return matches ? decodeURIComponent(matches[1]) : undefined
+}
+
+console.log(getCookie('username')) // "John Doe"
+
+// Удаление cookie
+function deleteCookie(name, options = {}) {
+  setCookie(name, '', -1, options) // Устанавливаем срок в прошлом
+}
+
+deleteCookie('username', { path: '/' })
+
+// Более надежное удаление
+function removeCookie(name, path = '/', domain = '') {
+  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=${path}${domain ? `; domain=${domain}` : ''}`
+}

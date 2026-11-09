@@ -1,0 +1,86 @@
+
+// Тестирование и валидация Open Graph
+
+// 1. Facebook Sharing Debugger
+// https://developers.facebook.com/tools/debug/
+// Проверяет OG теги, показывает предпросмотр, очищает кеш
+
+// 2. Twitter Card Validator
+// https://cards-dev.twitter.com/validator
+// Проверяет Twitter Card теги, показывает превью
+
+// 3. LinkedIn Post Inspector
+// https://www.linkedin.com/post-inspector/
+// Валидирует для LinkedIn
+
+// 4. Автоматическое тестирование
+import { JSDOM } from 'jsdom';
+
+async function validateOpenGraph(url: string) {
+const response = await fetch(url);
+const html = await response.text();
+const dom = new JSDOM(html);
+const document = dom.window.document;
+
+const errors: string[] = [];
+const warnings: string[] = [];
+
+// Проверка обязательных OG тегов
+const requiredOGTags = ['og:title', 'og:type', 'og:image', 'og:url'];
+
+requiredOGTags.forEach(tag => {
+const element = document.querySelector(`meta[property="${tag}"]`);
+if (!element || !element.getAttribute('content')) {
+errors.push(`Отсутствует обязательный тег: ${tag}`);
+}
+});
+
+// Проверка изображения
+const ogImage = document.querySelector('meta[property="og:image"]');
+if (ogImage) {
+const imageUrl = ogImage.getAttribute('content');
+if (imageUrl && !imageUrl.startsWith('http')) {
+warnings.push('og:image должен быть абсолютным URL');
+}
+
+const width = document.querySelector('meta[property="og:image:width"]');
+const height = document.querySelector('meta[property="og:image:height"]');
+
+if (!width || !height) {
+warnings.push('Рекомендуется указать og:image:width и og:image:height');
+}
+}
+
+// Проверка Twitter Card
+const twitterCard = document.querySelector('meta[name="twitter:card"]');
+if (!twitterCard) {
+warnings.push('Отсутствует twitter:card');
+}
+
+// Проверка длины текста
+const ogTitle = document.querySelector('meta[property="og:title"]');
+if (ogTitle) {
+const titleLength = ogTitle.getAttribute('content')?.length || 0;
+if (titleLength > 60) {
+warnings.push('og:title превышает рекомендуемые 60 символов');
+}
+}
+
+const ogDescription = document.querySelector('meta[property="og:description"]');
+if (ogDescription) {
+const descLength = ogDescription.getAttribute('content')?.length || 0;
+if (descLength > 200) {
+warnings.push('og:description превышает рекомендуемые 200 символов');
+}
+if (descLength < 50) {
+warnings.push('og:description слишком короткое (минимум 50 символов)');
+}
+}
+
+return { errors, warnings };
+}
+
+// Использование
+const result = await validateOpenGraph('https://example.com/article');
+console.log('Errors:', result.errors);
+console.log('Warnings:', result.warnings);

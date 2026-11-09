@@ -1,0 +1,56 @@
+
+# ===================================================================
+# ПРОИЗВОДИТЕЛЬНОСТЬ И ОПТИМИЗАЦИЯ
+# ===================================================================
+
+# 1. grep быстрее чем awk для простого поиска
+time grep "pattern" large_file.txt
+time awk '/pattern/' large_file.txt
+# grep оптимизирован для поиска паттернов
+
+# 2. fgrep (grep -F) быстрее для фиксированных строк
+grep -F "exact_string" file.txt
+# Не использует regex, работает быстрее
+
+# 3. Ограничение вывода
+grep "pattern" file.txt | head -n 100
+# Останавливается после 100 совпадений
+
+# 4. Использование --line-buffered для pipes
+tail -f app.log | grep --line-buffered "ERROR" | head -n 10
+# Без буферизации для реального времени
+
+# 5. Параллельная обработка больших файлов
+cat huge_file.txt | parallel --pipe grep "pattern"
+# Использует все ядра CPU
+
+# 6. Оптимизация awk
+# Плохо:
+awk '{
+  for (i=1; i<=NF; i++) {
+    if ($i == "target") print $0
+  }
+}' file.txt
+
+# Хорошо:
+awk '$0 ~ /target/' file.txt
+
+# 7. Использование встроенных команд вместо pipes
+# Медленно:
+cat file.txt | grep "pattern" | wc -l
+
+# Быстрее:
+grep -c "pattern" file.txt
+
+# 8. Избегайте лишних процессов
+# Плохо:
+cat file.txt | awk '{print $1}'
+
+# Хорошо:
+awk '{print $1}' file.txt
+
+# 9. Использование mmap для больших файлов
+grep --mmap "pattern" huge_file.txt
+
+# 10. Ограничение глубины рекурсии
+grep -r --max-depth=2 "pattern" /path

@@ -1,0 +1,4 @@
+function id(x: any): any {
+  return x
+}
+// Теряем информацию о типе

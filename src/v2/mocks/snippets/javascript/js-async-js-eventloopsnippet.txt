@@ -1,0 +1,25 @@
+
+// Демонстрация работы Event Loop
+
+console.log("1 - Синхронный код") // Call Stack
+
+setTimeout(() => {
+  console.log("4 - Макрозадача (Timer)")
+}, 0) // Web APIs → Task Queue
+
+Promise.resolve().then(() => {
+  console.log("3 - Микрозадача (Promise)")
+}) // Microtask Queue
+
+console.log("2 - Синхронный код") // Call Stack
+
+// Порядок выполнения:
+// 1. Call Stack: "1 - Синхронный код"
+// 2. Call Stack: "2 - Синхронный код"
+// 3. Microtask Queue: "3 - Микрозадача (Promise)"
+// 4. Task Queue: "4 - Макрозадача (Timer)"
+
+// Event Loop проверяет очереди в порядке приоритета:
+// 1. Call Stack (должен быть пустым)
+// 2. Microtask Queue (Promise, queueMicrotask)
+// 3. Task Queue (setTimeout, setInterval, DOM события)

@@ -1,0 +1,121 @@
+
+// =====================================
+// INTERFACE VS TYPE - РАЗЛИЧИЯ
+// =====================================
+
+// 1. Declaration Merging - только Interface
+interface User {
+  name: string
+}
+
+interface User {
+  age: number
+}
+
+// Результат: User имеет оба свойства
+const user: User = {
+  name: 'John',
+  age: 30
+}
+
+// Type не поддерживает слияние
+// type Person = { name: string }
+// type Person = { age: number }  // ❌ Error: Duplicate identifier
+
+// 2. Extends vs Intersection
+
+// Interface extends
+interface Animal {
+  name: string
+}
+
+interface Dog extends Animal {
+  breed: string
+}
+
+// Type intersection
+type Animal2 = {
+  name: string
+}
+
+type Dog2 = Animal2 & {
+  breed: string
+}
+
+// Оба подхода работают похоже
+
+// 3. Union Types - только Type
+type Status = 'active' | 'inactive' | 'pending'
+
+// Interface не может представлять union напрямую
+// interface Status = 'active' | 'inactive'  // ❌ Error
+
+// 4. Primitive Types - только Type
+type ID = number | string
+type Name = string
+
+// Interface работает только с объектами
+// interface ID = number | string  // ❌ Error
+
+// 5. Computed Properties
+
+// Interface с computed property (ограниченно)
+const PROP_NAME = 'dynamicProp'
+
+interface WithComputed {
+  [PROP_NAME]: string  // ✅ OK, но ограничено
+}
+
+// Type с computed property
+type WithComputedType = {
+  [PROP_NAME]: string  // ✅ OK
+}
+
+// 6. Tuple Types - удобнее в Type
+type Point = [number, number]
+
+// Interface для tuple (менее удобно)
+interface PointInterface {
+  0: number
+  1: number
+  length: 2
+}
+
+// 7. Conditional Types - только Type
+type NonNullable<T> = T extends null | undefined ? never : T
+
+// Interface не поддерживает условную логику
+// interface NonNullable<T> = ...  // ❌ Error
+
+// 8. Mapped Types - только Type
+type Readonly<T> = {
+  readonly [P in keyof T]: T[P]
+}
+
+// Interface не поддерживает mapped types напрямую
+// interface Readonly<T> = ...  // ❌ Error
+
+// 9. Производительность компиляции
+// Interface обычно быстрее компилируются
+// Type может быть медленнее при сложных операциях
+
+// 10. Сообщения об ошибках
+// Interface часто дает более понятные сообщения об ошибках
+// Type может показывать развернутый тип, что иногда сложнее читать
+
+interface UserInterface {
+  id: number
+  name: string
+}
+
+type UserType = {
+  id: number
+  name: string
+}
+
+// const user1: UserInterface = { id: 1 }
+// ❌ Error: Property 'name' is missing in type
+
+// const user2: UserType = { id: 1 }
+// ❌ Error: Property 'name' is missing in type
+// (может показать весь развернутый тип)

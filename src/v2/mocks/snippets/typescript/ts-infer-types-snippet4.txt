@@ -1,0 +1,112 @@
+
+// =====================================
+// МНОЖЕСТВЕННЫЕ INFER
+// =====================================
+
+// 1. Извлечение нескольких типов из функции
+type FunctionParts<T> = T extends (
+  ...args: infer P
+) => infer R
+  ? { params: P; return: R }
+  : never
+
+function calculate(a: number, b: number, operation: string): number {
+  return a + b
+}
+
+type CalculateParts = FunctionParts<typeof calculate>
+// {
+//   params: [a: number, b: number, operation: string]
+//   return: number
+// }
+
+// 2. Извлечение типов из Promise в цепочке then
+type PromiseChain<T> = T extends Promise<infer U>
+  ? U extends Promise<infer V>
+    ? PromiseChain<V>
+    : U
+  : T
+
+type Chain1 = Promise<Promise<Promise<number>>>
+type Unwrapped1 = PromiseChain<Chain1>  // number
+
+type Chain2 = Promise<string>
+type Unwrapped2 = PromiseChain<Chain2>  // string
+
+// 3. Разделение кортежа на голову и хвост
+type Head<T> = T extends [infer H, ...any[]] ? H : never
+type Tail<T> = T extends [any, ...infer T] ? T : never
+
+type MyTuple = [string, number, boolean, object]
+type TupleHead = Head<MyTuple>  // string
+type TupleTail = Tail<MyTuple>  // [number, boolean, object]
+
+// 4. Извлечение первого и последнего элемента
+type First<T> = T extends [infer F, ...any[]] ? F : never
+type Last<T> = T extends [...any[], infer L] ? L : never
+
+type FirstElement = First<MyTuple>  // string
+type LastElement = Last<MyTuple>    // object
+
+// 5. Разбор строкового литерала
+type ParseURL<T> = T extends `${infer Protocol}://${infer Domain}/${infer Path}`
+  ? { protocol: Protocol; domain: Domain; path: Path }
+  : never
+
+type URL = "https://example.com/users"
+type ParsedURL = ParseURL<URL>
+// { protocol: "https"; domain: "example.com"; path: "users" }
+
+// 6. Извлечение версии из строки
+type ParseVersion<T> = T extends `v${infer Major}.${infer Minor}.${infer Patch}`
+  ? { major: Major; minor: Minor; patch: Patch }
+  : never
+
+type Version = "v1.2.3"
+type ParsedVersion = ParseVersion<Version>
+// { major: "1"; minor: "2"; patch: "3" }
+
+// 7. Парсинг пути роута
+type ParseRoute<T> = T extends `/${infer Segment}/${infer Rest}`
+  ? [Segment, ...ParseRoute<`/${Rest}`>]
+  : T extends `/${infer Segment}`
+    ? [Segment]
+    : []
+
+type Route = "/users/123/posts"
+type ParsedRoute = ParseRoute<Route>  // ["users", "123", "posts"]
+
+// 8. Извлечение параметров из пути
+type ExtractParams<T> = T extends `${infer Start}:${infer Param}/${infer Rest}`
+  ? { [K in Param]: string } & ExtractParams<`${Start}${Rest}`>
+  : T extends `${infer Start}:${infer Param}`
+    ? { [K in Param]: string }
+    : {}
+
+type RouteWithParams = "/users/:userId/posts/:postId"
+type RouteParams = ExtractParams<RouteWithParams>
+// { userId: string; postId: string }
+
+// 9. Комбинирование условий
+type ComplexInfer<T> = T extends Promise<infer U>
+  ? U extends Array<infer V>
+    ? V extends { id: infer ID }
+      ? ID
+      : never
+    : never
+  : never
+
+type AsyncUserArray = Promise<Array<{ id: number; name: string }>>
+type UserId = ComplexInfer<AsyncUserArray>  // number
+
+// 10. Извлечение всех возможных ключей из union
+type UnionToIntersection<U> = (
+  U extends any ? (arg: U) => void : never
+) extends (arg: infer I) => void
+  ? I
+  : never
+
+type AllKeys<T> = T extends any ? keyof T : never
+
+type Union = { a: string } | { b: number } | { c: boolean }
+type Keys = AllKeys<Union>  // "a" | "b" | "c"

@@ -1,0 +1,164 @@
+
+// Практические примеры из реальных проектов
+
+// 1. Загрузка данных для дашборда
+class DashboardLoader {
+  constructor() {
+    this.endpoints = {
+      users: '/api/users/stats',
+      sales: '/api/sales/today',
+      analytics: '/api/analytics/summary',
+      notifications: '/api/notifications/unread',
+      performance: '/api/system/performance'
+    }
+  }
+
+  async loadDashboard() {
+    const startTime = Date.now()
+
+    // Создаем промисы для всех эндпоинтов
+    const promises = Object.entries(this.endpoints).map(async ([key, url]) => {
+      try {
+        const response = await fetch(url)
+        if (!response.ok) {
+          throw new Error(`${key}: HTTP ${response.status}`)
+        }
+        const data = await response.json()
+        return { [key]: data, error: null }
+      } catch (error) {
+        console.error(`Ошибка загрузки ${key}:, error.message`)
+        return { [key]: null, error: error.message }
+      }
+    })
+
+    // Ждем все запросы (даже с ошибками)
+    const results = await Promise.all(promises)
+    const dashboardData = results.reduce((acc, curr) => ({ ...acc, ...curr }), {})
+
+    const loadTime = Date.now() - startTime
+    console.log(`Дашборд загружен за ${loadTime}ms`)
+
+    return {
+      data: dashboardData,
+      loadTime,
+      hasErrors: results.some(r => r.error !== null)
+    }
+  }
+}
+
+// Использование
+const dashboard = new DashboardLoader()
+dashboard.loadDashboard()
+  .then(result => {
+    console.log('Дашборд готов:', result)
+
+    if (result.hasErrors) {
+      console.warn('Некоторые данные загружены с ошибками')
+    }
+  })
+
+// 2. Массовая обработка файлов
+const processFiles = async (files) => {
+  const processes = files.map(async (file, index) => {
+    try {
+      // Симуляция обработки файла
+      console.log(`Начинаем обработку файла ${index + 1}: ${file.name}`)
+
+      const result = await new Promise((resolve, reject) => {
+        const reader = new FileReader()
+
+        reader.onload = (e) => {
+          // Симуляция обработки
+          setTimeout(() => {
+            resolve({
+              name: file.name,
+              size: file.size,
+              processed: true,
+              data: e.target.result
+            })
+          }, Math.random() * 2000)
+        }
+
+        reader.onerror = () => reject(new Error(`Ошибка чтения файла ${file.name}`))
+
+        reader.readAsText(file)
+      })
+
+      console.log(`Файл ${file.name} обработан успешно`)
+      return result
+
+    } catch (error) {
+      console.error(`Ошибка обработки файла ${file.name}:, error.message`)
+      return {
+        name: file.name,
+        processed: false,
+        error: error.message
+      }
+    }
+  })
+
+  return Promise.all(processes)
+}
+
+// 3. Валидация данных с множественными проверками
+const validateUserData = async (userData) => {
+  const validations = [
+    // Проверка email
+    async () => {
+      const response = await fetch(`/api/validate/email/${userData.email}`)
+      const result = await response.json()
+      return { field: 'email', valid: result.valid, message: result.message }
+    },
+
+    // Проверка username
+    async () => {
+      const response = await fetch(`/api/validate/username/${userData.username}`)
+      const result = await response.json()
+      return { field: 'username', valid: result.valid, message: result.message }
+    },
+
+    // Проверка пароля
+    async () => {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          const valid = userData.password.length >= 8
+          resolve({
+            field: 'password',
+            valid,
+            message: valid ? 'OK' : 'Пароль слишком короткий'
+          })
+        }, 500)
+      })
+    }
+  ]
+
+  // Выполняем все проверки параллельно
+  const results = await Promise.all(validations.map(v => v()))
+
+  const isValid = results.every(r => r.valid)
+  const errors = results.filter(r => !r.valid)
+
+  return {
+    valid: isValid,
+    errors: errors.reduce((acc, curr) => ({
+      ...acc,
+      [curr.field]: curr.message
+    }), {})
+  }
+}
+
+// Использование валидации
+const userData = {
+  email: 'user@example.com',
+  username: 'newuser',
+  password: '12345'  // Короткий пароль
+}
+
+validateUserData(userData)
+  .then(validation => {
+    if (validation.valid) {
+      console.log('Все данные валидны')
+    } else {
+      console.log('Ошибки валидации:', validation.errors)
+    }
+  })

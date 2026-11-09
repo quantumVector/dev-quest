@@ -1,0 +1,2 @@
+// Объединяем в объект
+function fn<T extends Config>(...) // ✅ Понятно

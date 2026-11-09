@@ -1,0 +1,52 @@
+
+// Next.js: встроенная поддержка JSON-LD
+import { Article } from 'schema-dts';
+import { jsonLdScriptProps } from 'next/dist/lib/json-ld-script';
+
+export default function ArticlePage() {
+const jsonLd: Article = {
+'@context': 'https://schema.org',
+'@type': 'Article',
+headline: 'Введение в Next.js',
+image: 'https://example.com/nextjs-intro.jpg',
+datePublished: '2025-02-04T08:00:00+00:00',
+author: {
+'@type': 'Person',
+name: 'Иван Петров'
+}
+};
+
+return (
+<>
+<script
+  {...jsonLdScriptProps(jsonLd)}
+/>
+<article>
+<h1>Введение в Next.js</h1>
+{/* Контент */}
+</article>
+</>
+);
+}
+
+// Или с помощью next-seo
+import { ArticleJsonLd } from 'next-seo';
+
+export default function ArticlePage() {
+return (
+<>
+<ArticleJsonLd
+  url="https://example.com/articles/nextjs-intro"
+  title="Введение в Next.js"
+  images={['https://example.com/nextjs-intro.jpg']}
+  datePublished="2025-02-04T08:00:00+00:00"
+  dateModified="2025-02-04T12:00:00+00:00"
+  authorName="Иван Петров"
+  description="Полное руководство по Next.js"
+/>
+<article>
+{/* Контент */}
+</article>
+</>
+);
+}

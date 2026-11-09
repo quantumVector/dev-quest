@@ -1,0 +1,39 @@
+
+// Мемоизация с замыканием
+function memoize(fn) {
+  const cache = new Map();
+
+  return function(...args) {
+    const key = JSON.stringify(args);
+
+    if (cache.has(key)) {
+      console.log('Из кеша:', key);
+      return cache.get(key);
+    }
+
+    console.log('Вычисляем:', key);
+    const result = fn.apply(this, args);
+    cache.set(key, result);
+
+    return result;
+  };
+}
+
+// Дорогая функция для вычисления факториала
+function factorial(n) {
+  if (n <= 1) return 1;
+  return n * factorial(n - 1);
+}
+
+const memoizedFactorial = memoize(factorial);
+
+console.log(memoizedFactorial(5)); // Вычисляем: [5], результат: 120
+console.log(memoizedFactorial(5)); // Из кеша: [5], результат: 120
+
+// Мемоизация Fibonacci
+const memoizedFib = memoize(function fib(n) {
+  if (n <= 1) return n;
+  return memoizedFib(n - 1) + memoizedFib(n - 2);
+});
+
+console.log(memoizedFib(10)); // Эффективное вычисление

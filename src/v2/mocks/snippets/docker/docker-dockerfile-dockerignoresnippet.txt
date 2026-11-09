@@ -1,0 +1,39 @@
+
+# .dockerignore - исключаем из контекста сборки
+
+# Зависимости (устанавливаем в образе)
+node_modules/
+npm-debug.log*
+
+# Git и версионирование
+.git/
+.gitignore
+.gitattributes
+
+# IDE и редакторы
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Тесты и документация
+tests/
+docs/
+*.md
+README*
+
+# Временные файлы
+*.tmp
+*.log
+.DS_Store
+Thumbs.db
+
+# CI/CD файлы
+.github/
+.gitlab-ci.yml
+Jenkinsfile
+
+# Файлы разработки
+.env.local
+.env.development
+docker-compose.yml

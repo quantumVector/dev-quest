@@ -1,0 +1,86 @@
+
+// Реальный пример: API запросы
+
+// До промисов (XMLHttpRequest + callbacks)
+function fetchDataOldWay(url, callback) {
+  const xhr = new XMLHttpRequest()
+
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4) {
+      if (xhr.status === 200) {
+        try {
+          const data = JSON.parse(xhr.responseText)
+          callback(null, data)
+        } catch (error) {
+          callback(error, null)
+        }
+      } else {
+        callback(new Error('HTTP Error: ' + xhr.status), null)
+      }
+    }
+  }
+
+  xhr.onerror = function() {
+    callback(new Error('Network Error'), null)
+  }
+
+  xhr.open('GET', url, true)
+  xhr.send()
+}
+
+// Использование старого подхода
+fetchDataOldWay('/api/users', (error, users) => {
+  if (error) {
+    console.error('Ошибка:', error)
+    return
+  }
+
+  fetchDataOldWay('/api/posts', (error, posts) => {
+    if (error) {
+      console.error('Ошибка:', error)
+      return
+    }
+
+    // И так далее... Callback Hell
+    console.log('Данные получены:', users, posts)
+  })
+})
+
+// С промисами (fetch API)
+function fetchData(url) {
+  return fetch(url)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('HTTP Error: ' + response.status)
+      }
+      return response.json()
+    })
+}
+
+// Использование с промисами
+Promise.all([
+  fetchData('/api/users'),
+  fetchData('/api/posts')
+])
+  .then(([users, posts]) => {
+    console.log('Данные получены:', users, posts)
+  })
+  .catch(error => {
+    console.error('Ошибка:', error)
+  })
+
+// С async/await
+async function loadData() {
+  try {
+    const [users, posts] = await Promise.all([
+      fetchData('/api/users'),
+      fetchData('/api/posts')
+    ])
+
+    console.log('Данные получены:', users, posts)
+    return { users, posts }
+  } catch (error) {
+    console.error('Ошибка:', error)
+    throw error
+  }
+}

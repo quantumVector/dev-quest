@@ -1,0 +1,21 @@
+
+// Базовый пример bind с контекстом
+const person = {
+  name: 'Alice',
+  greet: function(greeting, punctuation) {
+    return `${greeting}, ${this.name}${punctuation}`;
+  }
+};
+
+// Привязка контекста
+const greetAlice = person.greet.bind(person);
+console.log(greetAlice('Hello', '!')); // "Hello, Alice!"
+
+// Частичное применение - задаем первый аргумент
+const sayHelloToAlice = person.greet.bind(person, 'Hello');
+console.log(sayHelloToAlice('!')); // "Hello, Alice!"
+console.log(sayHelloToAlice('?')); // "Hello, Alice?"
+
+// Частичное применение - задаем оба аргумента
+const defaultGreeting = person.greet.bind(person, 'Hi', '.');
+console.log(defaultGreeting()); // "Hi, Alice."

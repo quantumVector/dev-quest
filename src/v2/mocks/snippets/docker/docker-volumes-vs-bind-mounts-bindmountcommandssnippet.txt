@@ -1,0 +1,30 @@
+
+# =====================================
+# BIND MOUNTS - ПРИВЯЗКА К ХОСТ-СИСТЕМЕ
+# =====================================
+
+# Абсолютный путь (обязательно!)
+docker run -d \
+  --name dev-app \
+  -v /home/user/my-app:/app \
+  -v /home/user/my-app/node_modules:/app/node_modules \
+  node:18
+
+# Текущая директория
+docker run -d \
+  --name dev-app \
+  -v $(pwd):/app \
+  -v /app/node_modules \
+  node:18
+
+# Windows PowerShell
+docker run -d \
+  --name dev-app \
+  -v ${PWD}:/app \
+  node:18
+
+# Только для чтения
+docker run -d \
+  --name app \
+  -v $(pwd)/config:/app/config:ro \
+  my-app:latest

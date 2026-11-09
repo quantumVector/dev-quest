@@ -1,0 +1,48 @@
+
+// React 19: Preloading ресурсов
+import { preload, preinit } from 'react-dom'
+
+function App() {
+// Preload - загружает ресурс, но не выполняет
+preload('/fonts/main.woff2', { as: 'font', type: 'font/woff2' })
+
+// Preinit - загружает И выполняет (для скриптов/стилей)
+preinit('/critical.css', { as: 'style' })
+preinit('/analytics.js', { as: 'script' })
+
+return <div>Content</div>
+}
+
+// Условная предзагрузка при hover
+function ProductCard({ product }) {
+const handleMouseEnter = () => {
+// Предзагружаем данные при наведении
+preload(`/api/products/${product.id}`, { as: 'fetch' })
+}
+
+return (
+<div onMouseEnter={handleMouseEnter}>
+<h3>{product.name}</h3>
+<Link to={`/products/${product.id}`}>Подробнее</Link>
+</div>
+)
+}
+
+// Предзагрузка маршрутов
+function Navigation() {
+return (
+<nav>
+<Link
+  to="/dashboard"
+  onMouseEnter={() => {
+// Предзагружаем компонент маршрута
+preload('/dashboard-bundle.js', { as: 'script' })
+// И его данные
+preload('/api/dashboard', { as: 'fetch' })
+}}
+>
+Dashboard
+</Link>
+</nav>
+)
+}

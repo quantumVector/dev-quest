@@ -1,0 +1,8 @@
+const user = {
+  name: 'Carol',
+  greet() {
+    console.log(this.name); // 'Carol'
+  }
+};
+
+user.greet(); // this = user (объект перед точкой)

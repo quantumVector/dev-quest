@@ -1,0 +1,81 @@
+
+// Продвинутые техники JSX
+
+// 1. Динамические компоненты
+const components = {
+  photo: PhotoComponent,
+  video: VideoComponent,
+  text: TextComponent
+};
+
+function MediaRenderer({ type }) {
+  const SpecificComponent = components[type];
+  return <SpecificComponent />;
+}
+
+// 2. Dot notation для компонентов
+const Form = {
+  Input: ({ ...props }) => <input {...props} />,
+  Button: ({ children, ...props }) => <button {...props}>{children}</button>,
+  Label: ({ children }) => <label>{children}</label>
+};
+
+// Использование
+<Form.Label>
+  Имя:
+  <Form.Input type="text" />
+</Form.Label>
+
+// 3. Boolean атрибуты
+<input disabled />  // disabled={true}
+<input disabled={false} />  // атрибут не будет добавлен
+
+// 4. Пропуск falsy значений
+<div>
+  {false}      {/* ничего */}
+  {null}       {/* ничего */}
+  {undefined}  {/* ничего */}
+  {true}       {/* ничего */}
+  {0}          {/* "0" - будет отображено! */}
+  {''}         {/* ничего */}
+</div>
+
+// 5. Комментарии в JSX
+<div>
+  {/* Это комментарий в JSX */}
+  <h1>Заголовок</h1>
+  {/*
+    Многострочный
+    комментарий
+  */}
+</div>
+
+// 6. Экранирование HTML
+const rawHTML = '<script>alert("XSS")</script>';
+
+// Безопасно - React экранирует:
+<div>{rawHTML}</div>  // Покажет текст, не выполнит скрипт
+
+// Небезопасно - вставка как HTML (используйте осторожно!):
+<div dangerouslySetInnerHTML={{ __html: rawHTML }} />
+
+// 7. Props как spread с условием
+const isAdmin = true;
+const button = (
+<button
+  className="btn"
+  {...(isAdmin && { onClick: handleAdminClick })}
+>
+Кнопка
+</button>
+);
+
+// 8. Render props паттерн
+<DataProvider
+  render={(data) => (
+<div>
+<h1>{data.title}</h1>
+<p>{data.content}</p>
+</div>
+)}
+/>

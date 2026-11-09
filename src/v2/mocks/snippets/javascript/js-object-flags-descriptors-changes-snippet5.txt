@@ -1,0 +1,37 @@
+
+// Метод для создания "приватных" свойств
+function createUser(name, age) {
+  const user = {}
+
+  Object.defineProperty(user, 'name', {
+    value: name,
+    writable: false,
+    enumerable: true,
+    configurable: false
+  })
+
+  Object.defineProperty(user, 'age', {
+    get() { return age },
+    set(value) {
+      if (typeof value === 'number' && value > 0) {
+        age = value
+      } else {
+        throw new Error('Age must be a positive number')
+      }
+    },
+    enumerable: true,
+    configurable: false
+  })
+
+  return user
+}
+
+const user = createUser('John', 25)
+console.log(user.name) // 'John'
+user.name = 'Jane' // Не изменится
+console.log(user.name) // 'John'
+
+user.age = 30 // Сработает
+console.log(user.age) // 30
+
+user.age = -5 // Ошибка: Age must be a positive number

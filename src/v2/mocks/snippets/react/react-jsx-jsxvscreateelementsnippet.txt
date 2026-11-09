@@ -1,0 +1,43 @@
+
+// Сравнение JSX и React.createElement
+
+// ===== JSX =====
+const element = (
+  <div className="container">
+    <h1 id="title">Заголовок</h1>
+    <p style={{ color: 'blue' }}>
+      Текст параграфа
+    </p>
+    <button onClick={handleClick}>
+      Нажми меня
+    </button>
+  </div>
+);
+
+// ===== React.createElement (результат компиляции) =====
+const element = React.createElement(
+  'div',
+  { className: 'container' },
+  React.createElement(
+    'h1',
+    { id: 'title' },
+    'Заголовок'
+  ),
+  React.createElement(
+    'p',
+    { style: { color: 'blue' } },
+    'Текст параграфа'
+  ),
+  React.createElement(
+    'button',
+    { onClick: handleClick },
+    'Нажми меня'
+  )
+);
+
+// Структура вызова React.createElement:
+// React.createElement(
+//   type,        // Тип элемента: 'div', 'h1' или компонент
+//   props,       // Объект с пропсами (или null)
+//   ...children  // Дочерние элементы
+// )

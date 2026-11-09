@@ -1,0 +1,5 @@
+requestIdleCallback((deadline) => {
+  while (deadline.timeRemaining() > 0) {
+    doWork();
+  }
+});

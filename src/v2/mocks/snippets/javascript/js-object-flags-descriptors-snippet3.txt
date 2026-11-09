@@ -1,0 +1,23 @@
+
+const product = {
+  id: 1,
+  name: "Laptop"
+};
+
+// enumerable: false - свойство скрыто от перечисления
+Object.defineProperty(product, 'secret', {
+  value: "classified",
+  writable: true,
+  enumerable: false, // не видно в циклах
+  configurable: true
+});
+
+console.log(product.secret); // "classified" - можно получить напрямую
+
+// Но не видно в перечислении
+for (let key in product) {
+  console.log(key); // только "id" и "name"
+}
+
+console.log(Object.keys(product)); // ["id", "name"]
+console.log(JSON.stringify(product)); // {"id":1,"name":"Laptop"}

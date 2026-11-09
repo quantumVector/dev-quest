@@ -1,0 +1,23 @@
+
+# pwd - Print Working Directory
+# Показывает текущую рабочую директорию
+
+# Базовое использование
+pwd
+# /home/user/projects/my-app
+
+# С полным путем (абсолютный путь)
+pwd -P
+# Разрешает символические ссылки
+
+# В скриптах часто используется для определения местоположения
+SCRIPT_DIR=$(pwd)
+echo "Script is running from: $SCRIPT_DIR"
+
+# Пример в Docker
+docker run -v $(pwd):/app node:18
+# Монтирует текущую директорию в контейнер
+
+# Пример в Node.js скриптах
+cd /path/to/project && npm install
+# pwd здесь вернет /path/to/project

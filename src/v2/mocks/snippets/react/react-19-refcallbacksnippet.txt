@@ -1,0 +1,64 @@
+
+// React 19: ref как cleanup функция
+import { useRef, useEffect } from 'react'
+
+// До React 19: useEffect для очистки
+function OldVideoPlayer({ src }) {
+  const videoRef = useRef(null)
+
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+
+    video.play()
+
+    return () => {
+      video.pause()
+    }
+  }, [src])
+
+  return <video ref={videoRef} src={src} />
+}
+
+// React 19: ref callback с cleanup
+function NewVideoPlayer({ src }) {
+  return (
+    <video
+      ref={(node) => {
+        if (node) {
+          node.play()
+
+          // Возвращаем cleanup функцию!
+          return () => {
+            node.pause()
+          }
+        }
+      }}
+      src={src}
+    />
+  )
+}
+
+// Практический пример: IntersectionObserver
+function LazyImage({ src, alt }) {
+  const [isVisible, setIsVisible] = useState(false)
+
+  return (
+    <img
+      ref={(node) => {
+        if (!node) return
+
+        const observer = new IntersectionObserver(([entry]) => {
+          setIsVisible(entry.isIntersecting)
+        })
+
+        observer.observe(node)
+
+        // Cleanup вызовется автоматически при размонтировании
+        return () => observer.disconnect()
+      }}
+      src={isVisible ? src : 'placeholder.jpg'}
+      alt={alt}
+    />
+  )
+}

@@ -1,0 +1,22 @@
+
+<!-- Next.js: <Image> генерирует srcset автоматически -->
+import Image from "next/image";
+
+<Image
+  src="/photo.jpg"
+  width={800}
+  height={600}
+  quality={75}
+  alt="Пример"
+/>
+<!-- Next.js создаёт URL: /_next/image?url=/photo.jpg&w=800&q=75 -->
+<!-- Браузер отправляет: Accept: image/webp -->
+<!-- Next.js проверяет заголовок и отдаёт WebP если поддерживается -->
+
+<!-- При fill: sizes обязателен -->
+<Image
+  src="/photo.jpg"
+  fill
+  sizes="(max-width: 768px) 100vw, 50vw"
+  alt="Пример"
+/>

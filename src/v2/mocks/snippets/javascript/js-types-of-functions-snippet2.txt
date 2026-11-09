@@ -1,0 +1,96 @@
+
+// =====================================
+// 3. ПОЛЬЗОВАТЕЛЬСКИЕ ФУНКЦИИ
+// =====================================
+
+// Function Declaration (Объявление функции)
+function greet(name) {
+  return "Привет, " + name + "!";
+}
+
+// Function Expression (Функциональное выражение)
+const greetExpression = function(name) {
+  return "Привет, " + name + "!";
+};
+
+// Arrow Function (Стрелочная функция)
+const greetArrow = (name) => {
+  return "Привет, " + name + "!";
+};
+
+// Краткая стрелочная функция
+const greetShort = name => `Привет, ${name}!`;
+
+// Named Function Expression (Именованное функциональное выражение)
+const factorial = function fact(n) {
+  return n <= 1 ? 1 : n * fact(n - 1);
+};
+
+// Anonymous Function (Анонимная функция)
+setTimeout(function() {
+  console.log("Анонимная функция");
+}, 1000);
+
+// IIFE (Immediately Invoked Function Expression)
+(function(name) {
+  console.log(`IIFE: Привет, ${name}!`);
+})("Мир");
+
+// Generator Function (Функция-генератор)
+function* numberGenerator() {
+  let i = 0;
+  while (true) {
+    yield i++;
+  }
+}
+
+const gen = numberGenerator();
+console.log(gen.next().value); // 0
+console.log(gen.next().value); // 1
+
+// Async Function (Асинхронная функция)
+async function fetchData() {
+  try {
+    const response = await fetch('/api/data');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Ошибка:', error);
+  }
+}
+
+// Async Generator Function
+async function* asyncGenerator() {
+  let i = 0;
+  while (i < 3) {
+    yield new Promise(resolve =>
+      setTimeout(() => resolve(i++), 1000)
+    );
+  }
+}
+
+// Constructor Function (Функция-конструктор)
+function Person(name, age) {
+  this.name = name;
+  this.age = age;
+  this.greet = function() {
+    return `Меня зовут ${this.name}, мне ${this.age} лет`;
+  };
+}
+
+const person1 = new Person("Анна", 25);
+
+// Method (Метод объекта)
+const calculator = {
+  add: function(a, b) {
+    return a + b;
+  },
+
+  // Краткий синтаксис метода (ES6)
+  subtract(a, b) {
+    return a - b;
+  },
+
+  // Стрелочная функция как метод (осторожно с this!)
+  multiply: (a, b) => a * b
+};

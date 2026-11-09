@@ -1,0 +1,93 @@
+
+// =====================================
+// 1. ВСТРОЕННЫЕ ФУНКЦИИ JAVASCRIPT
+// =====================================
+
+// Глобальные функции
+console.log(parseInt("123"));        // 123
+console.log(parseFloat("123.45"));   // 123.45
+console.log(isNaN("abc"));           // true
+console.log(isFinite(100));          // true
+console.log(encodeURI("привет мир")); // "%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82%20%D0%BC%D0%B8%D1%80"
+console.log(decodeURI("%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82%20%D0%BC%D0%B8%D1%80")); // "привет мир"
+
+// eval (использовать осторожно!)
+console.log(eval("2 + 3")); // 5
+
+// setTimeout и setInterval
+const timerId = setTimeout(() => {
+  console.log("Выполнено через 1 секунду");
+}, 1000);
+
+const intervalId = setInterval(() => {
+  console.log("Каждые 2 секунды");
+}, 2000);
+
+// clearTimeout и clearInterval
+clearTimeout(timerId);
+clearInterval(intervalId);
+
+// =====================================
+// 2. ФУНКЦИИ ОБЪЕКТОВ
+// =====================================
+
+// Функции Object
+const obj = { name: "Иван", age: 30 };
+
+console.log(Object.keys(obj));           // ["name", "age"]
+console.log(Object.values(obj));         // ["Иван", 30]
+console.log(Object.entries(obj));        // [["name", "Иван"], ["age", 30]]
+console.log(Object.hasOwnProperty.call(obj, 'name')); // true
+
+const cloned = Object.assign({}, obj);
+const frozen = Object.freeze({ x: 1 });
+const sealed = Object.seal({ y: 2 });
+
+// Функции Array
+const numbers = [1, 2, 3, 4, 5];
+
+console.log(numbers.map(x => x * 2));     // [2, 4, 6, 8, 10]
+console.log(numbers.filter(x => x > 3));  // [4, 5]
+console.log(numbers.reduce((acc, x) => acc + x, 0)); // 15
+console.log(numbers.find(x => x > 3));    // 4
+console.log(numbers.includes(3));         // true
+console.log(numbers.indexOf(3));          // 2
+
+numbers.forEach(x => console.log(x));
+numbers.push(6);
+const last = numbers.pop();
+
+// Функции String
+const text = "Hello World";
+
+console.log(text.charAt(0));              // "H"
+console.log(text.substring(0, 5));        // "Hello"
+console.log(text.toLowerCase());          // "hello world"
+console.log(text.split(" "));             // ["Hello", "World"]
+console.log(text.replace("World", "JS")); // "Hello JS"
+console.log(text.indexOf("o"));           // 4
+console.log(text.match(/l/g));            // ["l", "l", "l"]
+
+// Функции Number
+console.log(Number.isInteger(42));        // true
+console.log(Number.parseFloat("3.14"));   // 3.14
+console.log((3.14159).toFixed(2));        // "3.14"
+console.log((1234.5).toExponential());    // "1.2345e+3"
+
+// Функции Math
+console.log(Math.max(1, 2, 3));           // 3
+console.log(Math.min(1, 2, 3));           // 1
+console.log(Math.round(3.7));             // 4
+console.log(Math.floor(3.7));             // 3
+console.log(Math.ceil(3.2));              // 4
+console.log(Math.random());               // случайное число от 0 до 1
+console.log(Math.pow(2, 3));              // 8
+console.log(Math.sqrt(16));               // 4
+
+// Функции Date
+const now = new Date();
+console.log(now.getFullYear());           // текущий год
+console.log(now.getMonth());              // месяц (0-11)
+console.log(now.getDate());               // день месяца
+console.log(now.getTime());               // timestamp
+console.log(Date.now());                  // текущий timestamp

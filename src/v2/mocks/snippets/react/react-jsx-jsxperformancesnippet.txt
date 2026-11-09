@@ -1,0 +1,64 @@
+
+// JSX и производительность
+
+// 1. Избегайте создания объектов в рендере
+// ❌ Плохо - создается новый объект при каждом рендере
+function Component() {
+return <div style={{ color: 'red' }}>Текст</div>;
+}
+
+// ✅ Хорошо - объект создается один раз
+const styles = { color: 'red' };
+function Component() {
+return <div style={styles}>Текст</div>;
+}
+
+// 2. Избегайте создания функций в рендере
+// ❌ Плохо - новая функция каждый рендер
+function Parent() {
+return <Child onClick={() => console.log('click')} />;
+}
+
+// ✅ Хорошо - useCallback
+function Parent() {
+const handleClick = useCallback(() => {
+console.log('click');
+}, []);
+
+return <Child onClick={handleClick} />;
+}
+
+// 3. Используйте key для списков
+// ❌ Плохо - index как key
+{items.map((item, index) => (
+<Item key={index} data={item} />
+))}
+
+// ✅ Хорошо - уникальный ID
+{items.map(item => (
+<Item key={item.id} data={item} />
+))}
+
+// 4. Условный рендеринг - ленивая оценка
+// ❌ Плохо - оба компонента создаются
+{condition ? <Heavy /> : <Light />}
+
+// ✅ Хорошо - создается только нужный
+{condition && <Heavy />}
+{!condition && <Light />}
+
+// 5. Мемоизация компонентов
+const MemoizedComponent = React.memo(({ data }) => {
+return <div>{data.name}</div>;
+});
+
+// 6. Деструктуризация props в JSX
+// ❌ Медленнее
+<Component
+  firstName={user.firstName}
+  lastName={user.lastName}
+  age={user.age}
+/>
+
+// ✅ Быстрее (но менее явно)
+<Component {...user} />

@@ -1,0 +1,19 @@
+
+# Практический пример: веб-сервер
+FROM nginx:alpine
+
+# RUN - настройка во время сборки
+RUN rm -rf /usr/share/nginx/html/*
+RUN mkdir -p /var/log/nginx
+
+# Копируем файлы
+COPY ./html /usr/share/nginx/html
+COPY ./nginx.conf /etc/nginx/nginx.conf
+
+# ENTRYPOINT - главный процесс
+ENTRYPOINT ["nginx"]
+
+# CMD - параметры по умолчанию
+CMD ["-g", "daemon off;"]
+
+# Результат: nginx -g "daemon off;"

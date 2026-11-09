@@ -1,0 +1,40 @@
+
+// Демонстрация состояний промисов
+
+// 1. PENDING (ожидание) - начальное состояние
+const pendingPromise = new Promise((resolve, reject) => {
+  // Промис создан, но еще не разрешен или отклонен
+  console.log('Состояние: pending')
+})
+console.log(pendingPromise) // Promise { <pending> }
+
+// 2. FULFILLED (выполнен успешно)
+const fulfilledPromise = new Promise((resolve, reject) => {
+  setTimeout(() => {
+    resolve('Данные получены!')
+  }, 1000)
+})
+
+fulfilledPromise.then(result => {
+  console.log('Результат:', result)
+  console.log(fulfilledPromise) // Promise { 'Данные получены!' }
+})
+
+// 3. REJECTED (отклонен)
+const rejectedPromise = new Promise((resolve, reject) => {
+  setTimeout(() => {
+    reject(new Error('Что-то пошло не так'))
+  }, 1000)
+})
+
+rejectedPromise.catch(error => {
+  console.error('Ошибка:', error.message)
+  console.log(rejectedPromise) // Promise { <rejected> Error: Что-то пошло не так }
+})
+
+// Создание уже разрешенных промисов
+const immediateResolve = Promise.resolve('Мгновенный успех')
+const immediateReject = Promise.reject(new Error('Мгновенная ошибка'))
+
+console.log(immediateResolve) // Promise { 'Мгновенный успех' }
+console.log(immediateReject)  // Promise { <rejected> Error: Мгновенная ошибка }

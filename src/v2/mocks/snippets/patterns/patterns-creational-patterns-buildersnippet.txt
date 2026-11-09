@@ -1,0 +1,104 @@
+
+// BUILDER - пошаговое создание сложных объектов
+
+// Пример: построение HTTP запроса
+class HttpRequest {
+  private url: string = '';
+  private method: string = 'GET';
+  private headers: Record<string, string> = {};
+  private body?: any;
+  private timeout: number = 5000;
+
+  setUrl(url: string): this {
+    this.url = url;
+    return this;
+  }
+
+  setMethod(method: string): this {
+    this.method = method;
+    return this;
+  }
+
+  addHeader(key: string, value: string): this {
+    this.headers[key] = value;
+    return this;
+  }
+
+  setBody(body: any): this {
+    this.body = body;
+    return this;
+  }
+
+  setTimeout(timeout: number): this {
+    this.timeout = timeout;
+    return this;
+  }
+
+  async build(): Promise<Response> {
+    const options: RequestInit = {
+      method: this.method,
+      headers: this.headers,
+    };
+
+    if (this.body) {
+      options.body = JSON.stringify(this.body);
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+
+    try {
+      const response = await fetch(this.url, {
+        ...options,
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+      return response;
+    } catch (error) {
+      clearTimeout(timeoutId);
+      throw error;
+    }
+  }
+}
+
+// Использование - цепочка вызовов
+const response = await new HttpRequest()
+  .setUrl('https://api.example.com/users')
+  .setMethod('POST')
+  .addHeader('Content-Type', 'application/json')
+  .addHeader('Authorization', 'Bearer token123')
+  .setBody({ name: 'John', email: 'john@example.com' })
+  .setTimeout(10000)
+  .build();
+
+// React: построение формы
+class FormBuilder {
+  private fields: FormField[] = [];
+  private validations: Validation[] = [];
+
+  addField(name: string, type: string, label: string): this {
+    this.fields.push({ name, type, label });
+    return this;
+  }
+
+  addValidation(fieldName: string, rule: ValidationRule): this {
+    this.validations.push({ fieldName, rule });
+    return this;
+  }
+
+  build() {
+    return {
+      fields: this.fields,
+      validations: this.validations,
+    };
+  }
+}
+
+const userForm = new FormBuilder()
+  .addField('username', 'text', 'Username')
+  .addValidation('username', { required: true, minLength: 3 })
+  .addField('email', 'email', 'Email')
+  .addValidation('email', { required: true, pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ })
+  .addField('password', 'password', 'Password')
+  .addValidation('password', { required: true, minLength: 8 })
+  .build();

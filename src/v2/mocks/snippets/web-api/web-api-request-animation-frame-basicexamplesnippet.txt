@@ -1,0 +1,88 @@
+
+// =====================================
+// REQUESTANIMATIONFRAME - ОСНОВЫ
+// =====================================
+
+// 1. Простая анимация через setTimeout (ПЛОХО)
+function animateWithSetTimeout() {
+  let position = 0
+
+  function animate() {
+    position += 2
+    element.style.left = position + 'px'
+
+    if (position < 500) {
+      setTimeout(animate, 16) // ~60fps, но неточно!
+    }
+  }
+
+  animate()
+}
+
+// Проблемы setTimeout:
+// - Не синхронизирован с частотой обновления монитора
+// - Может выполняться когда вкладка неактивна
+// - Тратит CPU/батарею впустую
+// - Нет автоматической оптимизации
+
+// 2. Правильная анимация через requestAnimationFrame (ХОРОШО)
+function animateWithRAF() {
+  let position = 0
+
+  function animate() {
+    position += 2
+    element.style.left = position + 'px'
+
+    if (position < 500) {
+      requestAnimationFrame(animate) // Синхронизировано с браузером!
+    }
+  }
+
+  requestAnimationFrame(animate)
+}
+
+// Преимущества requestAnimationFrame:
+// ✅ Синхронизирован с частотой обновления экрана (60Hz/120Hz/144Hz)
+// ✅ Автоматически останавливается при неактивной вкладке
+// ✅ Оптимизирован браузером для плавных анимаций
+// ✅ Батчинг: все RAF коллбэки выполняются в одном фрейме
+// ✅ Экономит батарею и CPU
+
+// 3. Отмена requestAnimationFrame
+let animationId
+
+function startAnimation() {
+  let position = 0
+
+  function animate() {
+    position += 2
+    element.style.left = position + 'px'
+
+    if (position < 500) {
+      animationId = requestAnimationFrame(animate)
+    }
+  }
+
+  animationId = requestAnimationFrame(animate)
+}
+
+function stopAnimation() {
+  cancelAnimationFrame(animationId) // Отменяем анимацию
+}
+
+// Использование
+startAnimation()
+
+// Остановка через 2 секунды
+setTimeout(stopAnimation, 2000)
+
+// 4. Получение timestamp
+function animate(timestamp) {
+  // timestamp - время в миллисекундах с момента navigation start
+  console.log('Current timestamp:', timestamp)
+
+  // Можно использовать для расчета delta time
+  requestAnimationFrame(animate)
+}
+
+requestAnimationFrame(animate)

@@ -1,0 +1,82 @@
+
+// =====================================
+// FLATTEN TYPE - разбор примера
+// =====================================
+
+// Задача: создать тип, который "разворачивает" массивы, но оставляет примитивы как есть
+
+type Flatten<T> = T extends any[] ? T[number] : T
+
+// Как это работает:
+
+// 1. Если T - массив (T extends any[])
+type Test1 = Flatten<string[]>  // string
+// string[] extends any[] → true
+// T[number] для string[] = string
+
+type Test2 = Flatten<number[]>  // number
+// number[] extends any[] → true
+// T[number] для number[] = number
+
+// 2. Если T - не массив
+type Test3 = Flatten<string>   // string
+// string extends any[] → false
+// Возвращаем T как есть
+
+type Test4 = Flatten<boolean>  // boolean
+// boolean extends any[] → false
+// Возвращаем T
+
+// 3. Сложные примеры
+type Test5 = Flatten<Array<{ id: number; name: string }>>
+// { id: number; name: string }
+
+type Test6 = Flatten<[string, number, boolean]>
+// string | number | boolean (все элементы tuple)
+
+// 4. Расширенная версия с вложенными массивами
+type DeepFlatten<T> = T extends Array<infer U>
+  ? DeepFlatten<U>
+  : T
+
+type Nested = number[][][]
+type Flat = DeepFlatten<Nested>  // number
+
+// 5. Flatten с сохранением readonly
+type FlattenReadonly<T> = T extends ReadonlyArray<infer U> ? U : T
+
+type Test7 = FlattenReadonly<readonly string[]>  // string
+type Test8 = FlattenReadonly<readonly [1, 2, 3]> // 1 | 2 | 3
+
+// 6. Универсальный Flatten для массивов и Promise
+type UnwrapArray<T> = T extends Array<infer U> ? U : T
+type UnwrapPromise<T> = T extends Promise<infer U> ? U : T
+
+type Unwrap<T> = UnwrapPromise<UnwrapArray<T>>
+
+type Test9 = Unwrap<Promise<string[]>>  // string
+type Test10 = Unwrap<string[]>          // string
+type Test11 = Unwrap<Promise<number>>   // number
+type Test12 = Unwrap<boolean>           // boolean
+
+// 7. Практическое применение - API Response
+type ApiResponse<T> = {
+  data: T
+  status: number
+}
+
+type ExtractData<T> = T extends ApiResponse<infer U> ? U : never
+
+type UserResponse = ApiResponse<{ id: number; name: string }>
+type UserData = ExtractData<UserResponse>
+// { id: number; name: string }
+
+// 8. Flatten для вложенных объектов
+type FlattenObject<T> = T extends object
+  ? T extends Array<infer U>
+    ? U
+    : T
+  : T
+
+type Obj = { users: { id: number }[] }
+type FlatUsers = FlattenObject<Obj['users']>  // { id: number }

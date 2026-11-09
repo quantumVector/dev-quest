@@ -1,0 +1,250 @@
+
+// =====================================
+// ПРОДВИНУТЫЕ ТЕХНИКИ GENERICS
+// =====================================
+
+// 1. Mapped Types с Generics
+type Nullable<T> = {
+  [P in keyof T]: T[P] | null
+}
+
+interface User {
+  id: number
+  name: string
+  email: string
+}
+
+type NullableUser = Nullable<User>
+// { id: number | null; name: string | null; email: string | null }
+
+// 2. Conditional Types с Generics
+type Flatten<T> = T extends Array<infer U> ? U : T
+
+type Num = Flatten<number[]>      // number
+type Str = Flatten<string>        // string
+type Bool = Flatten<boolean[][]>  // boolean[]
+
+// 3. Generic для извлечения типа Promise
+type Awaited<T> = T extends Promise<infer U> ? U : T
+
+type NumPromise = Awaited<Promise<number>>      // number
+type StrPromise = Awaited<Promise<string>>      // string
+type NotPromise = Awaited<number>               // number
+
+// 4. Рекурсивный Generic Type
+type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | Json[]
+  | { [key: string]: Json }
+
+const validJson: Json = {
+  name: "John",
+  age: 30,
+  active: true,
+  tags: ["typescript", "generics"],
+  meta: {
+    created: "2024-01-01",
+    updated: null
+  }
+}
+
+// 5. Generic для построения путей объекта
+type PathsToStringProps<T> = T extends string
+  ? []
+  : {
+      [K in Extract<keyof T, string>]: [K, ...PathsToStringProps<T[K]>]
+    }[Extract<keyof T, string>]
+
+type NestedObj = {
+  user: {
+    profile: {
+      name: string
+      age: number
+    }
+  }
+}
+
+type Paths = PathsToStringProps<NestedObj>
+// ["user"] | ["user", "profile"] | ["user", "profile", "name"] | ["user", "profile", "age"]
+
+// 6. Generic для глубокого Partial
+type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends object
+    ? DeepPartial<T[P]>
+    : T[P]
+}
+
+interface ComplexUser {
+  id: number
+  profile: {
+    name: string
+    settings: {
+      theme: string
+      notifications: boolean
+    }
+  }
+}
+
+type PartialComplexUser = DeepPartial<ComplexUser>
+// Все вложенные свойства необязательны
+
+const update: PartialComplexUser = {
+  profile: {
+    settings: {
+      theme: "dark"
+      // notifications необязателен
+    }
+  }
+}
+
+// 7. Generic для создания Union из объекта
+type ValuesOf<T> = T[keyof T]
+
+type Status = {
+  pending: "pending"
+  approved: "approved"
+  rejected: "rejected"
+}
+
+type StatusValue = ValuesOf<Status>  // "pending" | "approved" | "rejected"
+
+// 8. Generic для Readonly глубоких объектов
+type DeepReadonly<T> = {
+  readonly [P in keyof T]: T[P] extends object
+    ? DeepReadonly<T[P]>
+    : T[P]
+}
+
+type ReadonlyComplexUser = DeepReadonly<ComplexUser>
+// Все вложенные свойства readonly
+
+// 9. Generic для Required глубоких объектов
+type DeepRequired<T> = {
+  [P in keyof T]-?: T[P] extends object
+    ? DeepRequired<T[P]>
+    : T[P]
+}
+
+interface OptionalUser {
+  id?: number
+  profile?: {
+    name?: string
+    age?: number
+  }
+}
+
+type RequiredUser = DeepRequired<OptionalUser>
+// Все вложенные свойства обязательны
+
+// 10. Generic для создания типа из функции
+type ReturnTypeOf<T> = T extends (...args: any[]) => infer R ? R : never
+type ParametersOf<T> = T extends (...args: infer P) => any ? P : never
+
+function fetchUser(id: number): Promise<User> {
+  return Promise.resolve({ id, name: "John", email: "john@example.com" })
+}
+
+type FetchUserReturn = ReturnTypeOf<typeof fetchUser>  // Promise<User>
+type FetchUserParams = ParametersOf<typeof fetchUser>  // [number]
+
+// 11. Generic для преобразования Union в Intersection
+type UnionToIntersection<U> = (
+  U extends any ? (k: U) => void : never
+) extends (k: infer I) => void
+  ? I
+  : never
+
+type Union = { a: string } | { b: number }
+type Intersection = UnionToIntersection<Union>
+// { a: string } & { b: number }
+
+// 12. Generic для создания типа Record с вычисляемыми ключами
+type RecordFromUnion<K extends string | number | symbol, T> = {
+  [P in K]: T
+}
+
+type RGB = "r" | "g" | "b"
+type ColorValues = RecordFromUnion<RGB, number>
+// { r: number; g: number; b: number }
+
+// 13. Generic для Pick вложенных свойств
+type PickNested<T, K extends string> = K extends `${infer First}.${infer Rest}`
+  ? First extends keyof T
+    ? { [P in First]: PickNested<T[First], Rest> }
+    : never
+  : K extends keyof T
+  ? { [P in K]: T[P] }
+  : never
+
+type UserProfile = {
+  id: number
+  details: {
+    name: string
+    age: number
+    address: {
+      city: string
+      zip: number
+    }
+  }
+}
+
+type CityOnly = PickNested<UserProfile, "details.address.city">
+// { details: { address: { city: string } } }
+
+// 14. Generic для типобезопасного event emitter
+type EventMap = {
+  [key: string]: any
+}
+
+class TypedEventEmitter<Events extends EventMap> {
+  private listeners: {
+    [K in keyof Events]?: Array<(data: Events[K]) => void>
+  } = {}
+
+  on<K extends keyof Events>(event: K, listener: (data: Events[K]) => void): void {
+    if (!this.listeners[event]) {
+      this.listeners[event] = []
+    }
+    this.listeners[event]!.push(listener)
+  }
+
+  emit<K extends keyof Events>(event: K, data: Events[K]): void {
+    const listeners = this.listeners[event]
+    if (listeners) {
+      listeners.forEach(listener => listener(data))
+    }
+  }
+
+  off<K extends keyof Events>(event: K, listener: (data: Events[K]) => void): void {
+    const listeners = this.listeners[event]
+    if (listeners) {
+      const index = listeners.indexOf(listener)
+      if (index > -1) {
+        listeners.splice(index, 1)
+      }
+    }
+  }
+}
+
+// Использование
+interface AppEvents {
+  userLogin: { userId: number; timestamp: Date }
+  userLogout: { userId: number }
+  dataUpdate: { type: string; payload: any }
+}
+
+const emitter = new TypedEventEmitter<AppEvents>()
+
+emitter.on('userLogin', (data) => {
+  console.log(`User ${data.userId} logged in at ${data.timestamp}`)
+})
+
+emitter.emit('userLogin', {
+  userId: 123,
+  timestamp: new Date()
+})
+
+// emitter.emit('userLogin', { userId: "123" })  // ❌ Error: тип не совпадает

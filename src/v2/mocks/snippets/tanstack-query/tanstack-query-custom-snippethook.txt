@@ -1,0 +1,81 @@
+
+// useCustomQuery.js
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useCache } from './CacheContext';
+
+const DEFAULT_STALE_TIME = 0; // 0 = данные сразу считаются устаревшими
+
+export function useCustomQuery({ queryKey, queryFn, staleTime = DEFAULT_STALE_TIME }) {
+  // Стабильный строковый ключ: ['users', 1] → 'users|1'
+  const cacheKey = queryKey.join('|');
+
+  const { getEntry, setEntry, subscribe } = useCache();
+
+  // Локальный стейт — просто для того, чтобы форсировать ре-рендер
+  // при изменении кэша. Само состояние живёт в CacheContext.
+  const [, forceUpdate] = useState(0);
+
+  // Ref нужен, чтобы функция fetch не пересоздавалась при каждом рендере
+  // но при этом всегда имела актуальный cacheKey
+  const cacheKeyRef = useRef(cacheKey);
+  cacheKeyRef.current = cacheKey;
+
+  const fetchData = useCallback(async () => {
+    const key = cacheKeyRef.current;
+    const existing = getEntry(key);
+
+    // Пропускаем запрос, если данные свежие (в пределах staleTime)
+    const isStale = !existing?.updatedAt
+      || Date.now() - existing.updatedAt > staleTime;
+
+    if (existing?.status === 'success' && !isStale) {
+      return; // Отдаём кэш как есть
+    }
+
+    // Не дублируем запрос, если он уже выполняется
+    if (existing?.status === 'loading') {
+      return;
+    }
+
+    setEntry(key, { ...existing, status: 'loading', error: null });
+
+    try {
+      const data = await queryFn();
+      setEntry(key, {
+        data,
+        status: 'success',
+        error: null,
+        updatedAt: Date.now(),
+      });
+    } catch (error) {
+      setEntry(key, {
+        data: existing?.data ?? null,
+        status: 'error',
+        error,
+        updatedAt: existing?.updatedAt ?? null,
+      });
+    }
+  }, [cacheKey, queryFn, staleTime, getEntry, setEntry]);
+
+  useEffect(() => {
+    // Подписываемся на обновления кэша для этого ключа
+    const unsubscribe = subscribe(cacheKey, () => {
+      forceUpdate(n => n + 1);
+    });
+
+    // Запускаем запрос при монтировании / смене ключа
+    fetchData();
+
+    return unsubscribe;
+  }, [cacheKey, fetchData, subscribe]);
+
+  const entry = getEntry(cacheKey);
+
+  return {
+    data:      entry?.data    ?? null,
+    isLoading: entry?.status === 'loading',
+    isError:   entry?.status === 'error',
+    error:     entry?.error   ?? null,
+    refetch:   fetchData,
+  };
+}

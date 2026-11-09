@@ -1,0 +1,167 @@
+
+// Инструменты для обнаружения XSS/CSRF
+
+// 1. ESLint плагины для React
+// .eslintrc.js
+module.exports = {
+plugins: ['react', 'security'],
+rules: {
+'react/no-danger': 'error', // Запретить dangerouslySetInnerHTML
+'security/detect-unsafe-regex': 'error',
+'security/detect-non-literal-regexp': 'warn',
+'security/detect-object-injection': 'warn'
+}
+};
+
+// 2. Автоматическое тестирование с OWASP ZAP
+// zap-scan.js
+const ZapClient = require('zaproxy');
+
+async function scanForVulnerabilities(targetUrl) {
+const zaproxy = new ZapClient({
+apiKey: process.env.ZAP_API_KEY,
+proxy: {
+host: 'localhost',
+port: 8080
+}
+});
+
+// Запуск spider для обнаружения страниц
+await zaproxy.spider.scan(targetUrl);
+
+// Активное сканирование на XSS и CSRF
+const scanId = await zaproxy.ascan.scan(targetUrl);
+
+// Получение результатов
+const alerts = await zaproxy.core.alerts(targetUrl);
+
+return alerts.filter(alert =>
+alert.risk === 'High' || alert.risk === 'Medium'
+);
+}
+
+// 3. Тестирование CSP с помощью CSP Evaluator
+`
+<!-- Добавление CSP репортинга -->
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'self'; report-uri /csp-report">
+`
+
+// Обработка CSP отчетов
+app.post('/csp-report', express.json({ type: 'application/csp-report' }), (req, res) => {
+const report = req.body['csp-report'];
+
+console.error('CSP Violation:', {
+documentURI: report['document-uri'],
+violatedDirective: report['violated-directive'],
+blockedURI: report['blocked-uri'],
+sourceFile: report['source-file']
+});
+
+// Отправка в систему мониторинга
+sendToMonitoring(report);
+
+res.status(204).send();
+});
+
+// 4. Sanitization библиотеки
+// Сравнение популярных библиотек
+
+// DOMPurify
+import DOMPurify from 'dompurify';
+
+const clean = DOMPurify.sanitize(dirtyHtml, {
+ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a'],
+ALLOWED_ATTR: ['href']
+});
+
+// js-xss
+import xss from 'xss';
+
+const clean = xss(dirtyHtml, {
+whiteList: {
+a: ['href', 'title', 'target'],
+img: ['src', 'alt']
+}
+});
+
+// sanitize-html
+import sanitizeHtml from 'sanitize-html';
+
+const clean = sanitizeHtml(dirtyHtml, {
+allowedTags: ['b', 'i', 'em', 'strong', 'a'],
+allowedAttributes: {
+'a': ['href']
+}
+});
+
+// 5. Playwright тесты для XSS
+import { test, expect } from '@playwright/test';
+
+test('XSS protection in comment form', async ({ page }) => {
+await page.goto('http://localhost:3000/comments');
+
+const xssPayload = '<script>alert("XSS")</script>';
+
+await page.fill('#comment-input', xssPayload);
+await page.click('#submit-button');
+
+// Проверяем, что скрипт не выполнился
+const alertDialogPromise = page.waitForEvent('dialog', { timeout: 1000 })
+.catch(() => null);
+
+const dialog = await alertDialogPromise;
+expect(dialog).toBeNull(); // Alert не должен появиться
+
+// Проверяем, что HTML экранирован
+const commentText = await page.textContent('.comment:last-child');
+expect(commentText).toContain('<script>');
+expect(commentText).not.toContain('XSS');
+});
+
+// 6. Jest тесты для CSRF защиты
+import request from 'supertest';
+import app from './app';
+
+describe('CSRF Protection', () => {
+  test('POST without CSRF token should fail', async () => {
+    const response = await request(app)
+      .post('/api/transfer')
+      .send({ to: 'attacker', amount: 1000 });
+
+    expect(response.status).toBe(403);
+  });
+
+  test('POST with valid CSRF token should succeed', async () => {
+    // Получение токена
+    const tokenResponse = await request(app).get('/api/csrf-token');
+    const token = tokenResponse.body.token;
+
+    // Запрос с токеном
+    const response = await request(app)
+      .post('/api/transfer')
+      .set('X-CSRF-Token', token)
+      .send({ to: 'recipient', amount: 100 });
+
+    expect(response.status).toBe(200);
+  });
+});
+
+// 7. Burp Suite скрипт для автоматизации
+`
+# Burp Suite Intruder payload для XSS
+<script>alert(1)</script>
+<img src=x onerror=alert(1)>
+<svg onload=alert(1)>
+  javascript:alert(1)
+  <iframe src=javascript:alert(1)>
+    `
+
+    // 8. CSRF тест с curl
+    `bash
+    # Попытка CSRF атаки
+    curl -X POST https://example.com/transfer     -H "Content-Type: application/json"     -d '{"to":"attacker","amount":1000}'     --cookie "session=valid_session_cookie"
+
+    # Должно вернуть 403 Forbidden без CSRF токена
+    `
+    

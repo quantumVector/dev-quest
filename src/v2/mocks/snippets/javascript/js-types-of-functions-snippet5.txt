@@ -1,0 +1,136 @@
+
+// =====================================
+// 8. ФУНКЦИИ В МОДУЛЯХ (ES6 MODULES)
+// =====================================
+
+// Экспорт функций
+export function namedExport() {
+  return "Named export";
+}
+
+export default function defaultExport() {
+  return "Default export";
+}
+
+// Экспорт всех функций сразу
+export {
+  namedExport,
+  defaultExport as default
+};
+
+// =====================================
+// 9. ФУНКЦИИ В КЛАССАХ
+// =====================================
+
+class Calculator {
+  constructor() {
+    this.result = 0;
+  }
+
+  // Обычный метод
+  add(value) {
+    this.result += value;
+    return this;
+  }
+
+  // Статический метод
+  static createCalculator() {
+    return new Calculator();
+  }
+
+  // Getter
+  get value() {
+    return this.result;
+  }
+
+  // Setter
+  set value(newValue) {
+    this.result = newValue;
+  }
+
+  // Приватный метод (ES2022)
+  #privateMethod() {
+    return "Приватный метод";
+  }
+
+  // Стрелочная функция как метод (связанный this)
+  reset = () => {
+    this.result = 0;
+    return this;
+  }
+}
+
+const calc = Calculator.createCalculator();
+calc.add(5).add(3);
+console.log(calc.value); // 8
+
+// =====================================
+// 10. СПЕЦИАЛИЗИРОВАННЫЕ ФУНКЦИИ
+// =====================================
+
+// Throttle функция
+function throttle(func, limit) {
+  let inThrottle;
+  return function(...args) {
+    if (!inThrottle) {
+      func.apply(this, args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
+  };
+}
+
+// Debounce функция
+function debounce(func, delay) {
+  let timeoutId;
+  return function(...args) {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func.apply(this, args), delay);
+  };
+}
+
+// Once функция (выполняется только один раз)
+function once(func) {
+  let called = false;
+  let result;
+
+  return function(...args) {
+    if (!called) {
+      called = true;
+      result = func.apply(this, args);
+    }
+    return result;
+  };
+}
+
+const initialize = once(() => {
+  console.log("Инициализация выполнена!");
+  return "initialized";
+});
+
+initialize(); // "Инициализация выполнена!"
+initialize(); // ничего не выводит
+
+// Compose функция
+function compose(...functions) {
+  return function(value) {
+    return functions.reduceRight((acc, fn) => fn(acc), value);
+  };
+}
+
+const addOne = x => x + 1;
+const double = x => x * 2;
+const square = x => x * x;
+
+const transform = compose(square, double, addOne);
+console.log(transform(3)); // ((3 + 1) * 2)² = 64
+
+// Pipe функция
+function pipe(...functions) {
+  return function(value) {
+    return functions.reduce((acc, fn) => fn(acc), value);
+  };
+}
+
+const transform2 = pipe(addOne, double, square);
+console.log(transform2(3)); // ((3 + 1) * 2)² = 64

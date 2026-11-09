@@ -1,0 +1,4 @@
+console.log('Выполняется сразу');
+let x = 5 + 3;
+function calc() { return x * 2; }
+calc(); // Все выполняется последовательно

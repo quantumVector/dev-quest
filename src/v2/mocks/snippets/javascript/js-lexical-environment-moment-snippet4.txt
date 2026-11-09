@@ -1,0 +1,84 @@
+
+// Важные нюансы и подводные камни
+console.log("=== Важные нюансы создания лексического окружения ===");
+
+// 1. Рекурсивные функции
+function recursiveExample(n, depth = 0) {
+  console.log(`  ${"  ".repeat(depth)}Вызов ${depth + 1}, n = ${n}`);
+
+  // Каждый рекурсивный вызов создает НОВОЕ лексическое окружение
+  // со своими копиями параметров n и depth
+
+  if (n <= 1) {
+    console.log(`  ${"  ".repeat(depth)}Базовый случай достигнут`);
+    return n;
+  }
+
+  // Два новых лексических окружения будут созданы для рекурсивных вызовов
+  return recursiveExample(n - 1, depth + 1) + recursiveExample(n - 2, depth + 1);
+}
+
+console.log("\n1. Рекурсивный пример:");
+console.log("   Каждый вызов создает новое лексическое окружение");
+const result = recursiveExample(4);
+console.log("   Результат:", result);
+
+// 2. Функции как значения
+console.log("\n2. Функции как значения:");
+const functionCreator = function(prefix) {
+  console.log(`Создаем функцию с prefix "${prefix}"`);
+
+  // Лексическое окружение этого вызова сохраняется в замыкании
+  return function(message) {
+    // Новое лексическое окружение создается при каждом вызове возвращенной функции
+    console.log(`${prefix}: ${message}`);
+  };
+};
+
+const logger1 = functionCreator("LOG");    // Создается лексическое окружение #1
+const logger2 = functionCreator("DEBUG");  // Создается лексическое окружение #2
+
+logger1("Сообщение 1"); // Создается лексическое окружение для вызова logger1
+logger2("Сообщение 2"); // Создается лексическое окружение для вызова logger2
+
+// 3. Методы объектов
+console.log("\n3. Методы объектов:");
+const obj = {
+  name: "TestObject",
+
+  // Метод определен, но лексическое окружение создается при вызове
+  regularMethod: function() {
+    console.log("  regularMethod вызван, this.name =", this.name);
+    // Лексическое окружение создается ЗДЕСЬ при вызове
+  },
+
+  // Стрелочная функция - лексическое окружение тоже создается при вызове
+  arrowMethod: () => {
+    console.log("  arrowMethod вызван, this =", this === globalThis ? "globalThis" : this);
+    // Лексическое окружение создается ЗДЕСЬ при вызове
+  }
+};
+
+console.log("   Методы определены, лексические окружения НЕ созданы");
+obj.regularMethod(); // ЗДЕСЬ создается лексическое окружение regularMethod
+obj.arrowMethod();   // ЗДЕСЬ создается лексическое окружение arrowMethod
+
+// 4. Конструкторы
+console.log("\n4. Конструкторы:");
+function Constructor(value) {
+  console.log("  Конструктор вызван с value =", value);
+  // Лексическое окружение Constructor создается при каждом вызове new Constructor()
+
+  this.value = value;
+
+  this.getValue = function() {
+    // Лексическое окружение getValue создается при каждом вызове метода
+    return this.value;
+  };
+}
+
+const instance1 = new Constructor("Test1"); // Лексическое окружение Constructor #1
+const instance2 = new Constructor("Test2"); // Лексическое окружение Constructor #2
+
+console.log("  instance1.getValue():", instance1.getValue()); // Лексическое окружение getValue #1
+console.log("  instance2.getValue():", instance2.getValue()); // Лексическое окружение getValue #2

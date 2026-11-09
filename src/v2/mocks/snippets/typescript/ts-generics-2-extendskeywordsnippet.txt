@@ -1,0 +1,136 @@
+
+// =====================================
+// EXTENDS - ограничения и условные типы
+// =====================================
+
+// 1. Базовое ограничение типа
+function merge<T extends object, U extends object>(obj1: T, obj2: U): T & U {
+  return { ...obj1, ...obj2 }
+}
+
+const merged = merge({ name: 'John' }, { age: 30 })
+console.log(merged.name, merged.age)  // ✅ OK
+
+// merge('string', { age: 30 })  // ❌ Error - string не extends object
+
+// 2. Extends с примитивами
+function convertToString<T extends string | number>(value: T): string {
+  return String(value)
+}
+
+convertToString(123)      // ✅ OK
+convertToString('hello')  // ✅ OK
+// convertToString(true)  // ❌ Error - boolean не подходит
+
+// 3. Extends для массивов
+function getLastItem<T extends any[]>(arr: T): T[number] {
+  return arr[arr.length - 1]
+}
+
+const lastNumber = getLastItem([1, 2, 3])  // тип: number
+const lastString = getLastItem(['a', 'b'])  // тип: string
+
+// 4. Conditional Types - условные типы с extends
+type IsString<T> = T extends string ? true : false
+
+type A = IsString<string>   // true
+type B = IsString<number>   // false
+type C = IsString<'hello'>  // true
+
+// 5. Практический пример - Extract возвращаемого типа
+type ReturnType<T> = T extends (...args: any[]) => infer R ? R : never
+
+type FuncReturn = ReturnType<() => string>     // string
+type FuncReturn2 = ReturnType<() => number>    // number
+type NotFunc = ReturnType<string>              // never
+
+// 6. Extends для проверки наличия свойства
+type HasProperty<T, K extends string> = T extends { [key in K]: any }
+  ? true
+  : false
+
+type UserHasName = HasProperty<{ name: string; age: number }, 'name'>  // true
+type UserHasEmail = HasProperty<{ name: string; age: number }, 'email'>  // false
+
+// 7. Рекурсивные conditional types
+type Flatten<T> = T extends Array<infer U> ? Flatten<U> : T
+
+type Nested = string[][]
+type Flat = Flatten<Nested>  // string
+
+type DeepNested = number[][][]
+type DeepFlat = Flatten<DeepNested>  // number
+
+// 8. Extends с union types
+type Filter<T, U> = T extends U ? T : never
+
+type Numbers = Filter<string | number | boolean, number>  // number
+type Strings = Filter<string | number | boolean, string>  // string
+
+// 9. Distributive Conditional Types
+type ToArray<T> = T extends any ? T[] : never
+
+type StringOrNumber = string | number
+type Result = ToArray<StringOrNumber>  // string[] | number[]
+
+// 10. Extends для создания подтипов
+function processValue<T extends string | number>(value: T): T extends string ? string : number {
+  if (typeof value === 'string') {
+    return value.toUpperCase() as any
+  }
+  return (value * 2) as any
+}
+
+const strResult = processValue('hello')  // тип: string
+const numResult = processValue(10)       // тип: number
+
+// 11. Extends для проверки совместимости типов
+type IsAssignable<T, U> = T extends U ? true : false
+
+type CanAssignNumberToAny = IsAssignable<number, any>        // true
+type CanAssignNumberToString = IsAssignable<number, string>  // false
+
+// 12. Extends для извлечения типов
+type UnwrapPromise<T> = T extends Promise<infer U> ? U : T
+
+type StringPromise = UnwrapPromise<Promise<string>>  // string
+type NumberType = UnwrapPromise<number>              // number
+
+// 13. Extends с несколькими условиями
+type TypeName<T> =
+  T extends string ? 'string' :
+  T extends number ? 'number' :
+  T extends boolean ? 'boolean' :
+  T extends undefined ? 'undefined' :
+  T extends Function ? 'function' :
+  'object'
+
+type T1 = TypeName<string>    // 'string'
+type T2 = TypeName<123>       // 'number'
+type T3 = TypeName<() => void>  // 'function'
+
+// 14. Extends для создания утилитных типов
+type NonNullable<T> = T extends null | undefined ? never : T
+
+type MaybeString = string | null | undefined
+type DefiniteString = NonNullable<MaybeString>  // string
+
+// 15. Extends в mapped types
+type ReadonlyDeep<T> = {
+  readonly [P in keyof T]: T[P] extends object
+    ? ReadonlyDeep<T[P]>
+    : T[P]
+}
+
+interface User {
+  name: string
+  profile: {
+    age: number
+    settings: {
+      theme: string
+    }
+  }
+}
+
+type ReadonlyUser = ReadonlyDeep<User>
+// Все вложенные свойства readonly

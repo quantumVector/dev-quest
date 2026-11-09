@@ -1,0 +1,64 @@
+
+// Создание и инициализация лексического окружения
+console.log("=== Фазы создания переменных ===");
+
+// Фаза 1: Creation Phase (Hoisting)
+console.log("До объявления:", typeof hoistedVar);     // "undefined"
+console.log("До объявления:", typeof hoistedFunc);    // "function"
+// console.log("До объявления:", hoistedLet);          // ❌ ReferenceError (TDZ)
+// console.log("До объявления:", hoistedConst);        // ❌ ReferenceError (TDZ)
+
+var hoistedVar = "Я была поднята";
+let hoistedLet = "Я в TDZ до этой строки";
+const hoistedConst = "И я тоже в TDZ";
+
+function hoistedFunc() {
+  return "Я полностью поднята";
+}
+
+// Фаза 2: Execution Phase
+console.log("После объявления:", hoistedVar);         // "Я была поднята"
+console.log("После объявления:", hoistedLet);         // "Я в TDZ до этой строки"
+console.log("После объявления:", hoistedConst);       // "И я тоже в TDZ"
+console.log("После объявления:", hoistedFunc());      // "Я полностью поднята"
+
+// Демонстрация Temporal Dead Zone (TDZ)
+function demonstrateTDZ() {
+  console.log("\n=== Temporal Dead Zone ===");
+
+  // console.log(x); // ❌ ReferenceError: x is not defined
+  // console.log(y); // ❌ ReferenceError: Cannot access 'y' before initialization
+
+  var x = 1;    // undefined -> 1
+  let y = 2;    // TDZ -> 2
+  const z = 3;  // TDZ -> 3
+
+  console.log("x после инициализации:", x);
+  console.log("y после инициализации:", y);
+  console.log("z после инициализации:", z);
+}
+
+demonstrateTDZ();
+
+// Различия в поведении var, let, const
+function variableDeclarations() {
+  console.log("\n=== Различия var, let, const ===");
+
+  // var: функциональная область видимости
+  if (true) {
+    var varInBlock = "var видна за пределами блока";
+  }
+  console.log("varInBlock:", varInBlock); // ✅ Доступна
+
+  // let/const: блочная область видимости
+  if (true) {
+    let letInBlock = "let видна только в блоке";
+    const constInBlock = "const тоже только в блоке";
+    console.log("Внутри блока - letInBlock:", letInBlock);
+    console.log("Внутри блока - constInBlock:", constInBlock);
+  }
+  // console.log(letInBlock);   // ❌ ReferenceError
+  // console.log(constInBlock); // ❌ ReferenceError
+}
+
+variableDeclarations();

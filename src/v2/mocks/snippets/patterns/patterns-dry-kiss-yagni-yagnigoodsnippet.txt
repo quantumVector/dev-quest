@@ -1,0 +1,11 @@
+
+// ✅ СЛЕДОВАНИЕ YAGNI - минимально необходимая функциональность
+class UserService {
+  async getUser(id) {
+    const response = await fetch(`/api/users/${id}`);
+    return response.json();
+  }
+}
+
+// Просто и достаточно для текущих потребностей
+// Добавим кэширование, когда это действительно понадобится

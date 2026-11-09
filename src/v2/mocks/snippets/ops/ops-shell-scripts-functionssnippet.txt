@@ -1,0 +1,164 @@
+
+#!/bin/bash
+
+# =====================================
+# ОБЪЯВЛЕНИЕ ФУНКЦИЙ
+# =====================================
+
+# Синтаксис 1
+function greet() {
+    echo "Hello, $1!"
+}
+
+# Синтаксис 2 (предпочтительный)
+greet() {
+    echo "Hello, $1!"
+}
+
+# Вызов функции
+greet "World"
+
+# =====================================
+# АРГУМЕНТЫ ФУНКЦИЙ
+# =====================================
+
+print_info() {
+    local name=$1
+    local age=$2
+
+    echo "Name: $name"
+    echo "Age: $age"
+    echo "All args: $@"
+    echo "Number of args: $#"
+}
+
+print_info "John" 25 "extra" "params"
+
+# =====================================
+# ВОЗВРАТ ЗНАЧЕНИЙ
+# =====================================
+
+# Return code (0-255)
+is_valid_email() {
+    if [[ "$1" =~ ^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z]+$ ]]; then
+        return 0  # success
+    else
+        return 1  # failure
+    fi
+}
+
+if is_valid_email "test@example.com"; then
+    echo "Valid email"
+else
+    echo "Invalid email"
+fi
+
+# Вывод через echo (захват в переменную)
+get_date() {
+    echo $(date +%Y-%m-%d)
+}
+
+TODAY=$(get_date)
+echo "Today: $TODAY"
+
+# =====================================
+# ЛОКАЛЬНЫЕ VS ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ
+# =====================================
+
+GLOBAL_VAR="global"
+
+test_scope() {
+    local LOCAL_VAR="local"
+    GLOBAL_VAR="modified"
+
+    echo "Inside function:"
+    echo "  Local: $LOCAL_VAR"
+    echo "  Global: $GLOBAL_VAR"
+}
+
+test_scope
+
+echo "Outside function:"
+# echo "  Local: $LOCAL_VAR"  # пустая строка
+echo "  Global: $GLOBAL_VAR"  # modified
+
+# =====================================
+# ПРАКТИЧЕСКИЕ ФУНКЦИИ
+# =====================================
+
+# Логирование
+log() {
+    local level=$1
+    shift
+    local message="$@"
+    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+
+    echo "[$timestamp] [$level] $message"
+}
+
+log "INFO" "Application started"
+log "ERROR" "Connection failed"
+
+# Проверка команды
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
+
+if command_exists "node"; then
+    echo "Node.js is installed"
+    node --version
+else
+    echo "Node.js is not installed"
+fi
+
+# Создание директории
+ensure_dir() {
+    local dir=$1
+
+    if [ ! -d "$dir" ]; then
+        mkdir -p "$dir"
+        echo "Created directory: $dir"
+    fi
+}
+
+ensure_dir "dist/assets"
+
+# Обработка ошибок
+handle_error() {
+    local exit_code=$?
+    local line_number=$1
+
+    if [ $exit_code -ne 0 ]; then
+        echo "Error on line $line_number: command failed with code $exit_code"
+        exit $exit_code
+    fi
+}
+
+# Использование
+npm install || handle_error $LINENO
+
+# Цветной вывод
+print_color() {
+    local color=$1
+    shift
+    local message="$@"
+
+    case $color in
+        red)
+            echo -e "\033[0;31m$message\033[0m"
+            ;;
+        green)
+            echo -e "\033[0;32m$message\033[0m"
+            ;;
+        yellow)
+            echo -e "\033[0;33m$message\033[0m"
+            ;;
+        *)
+            echo "$message"
+            ;;
+    esac
+}
+
+print_color green "Success!"
+print_color red "Error!"
+print_color yellow "Warning!"

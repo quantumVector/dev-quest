@@ -1,0 +1,31 @@
+
+// СПОСОБ 1: Использование bind для дефолтных аргументов
+function calculatePrice(basePrice, tax = 0.1, discount = 0) {
+  return basePrice * (1 + tax) * (1 - discount);
+}
+
+// Создаем функцию с дефолтным налогом 20%
+const calculateWithHighTax = calculatePrice.bind(null, undefined, 0.2);
+
+// ❌ ПРОБЛЕМА: первый аргумент undefined
+console.log(calculateWithHighTax(100)); // NaN, так как basePrice = undefined
+
+// ✅ ПРАВИЛЬНЫЙ СПОСОБ: используем обертку
+function createPriceCalculator(defaultTax = 0.1, defaultDiscount = 0) {
+  return function(basePrice, tax = defaultTax, discount = defaultDiscount) {
+    return basePrice * (1 + tax) * (1 - discount);
+  };
+}
+
+const highTaxCalculator = createPriceCalculator(0.2, 0.05);
+console.log(highTaxCalculator(100)); // 100 * 1.2 * 0.95 = 114
+
+// СПОСОБ 2: Комбинирование bind с wrapper-функцией
+function createCalculatorWithDefaults(tax, discount) {
+  return function(basePrice) {
+    return calculatePrice(basePrice, tax, discount);
+  };
+}
+
+const standardCalculator = createCalculatorWithDefaults(0.15, 0.1);
+console.log(standardCalculator(100)); // 100 * 1.15 * 0.9 = 103.5

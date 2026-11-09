@@ -1,0 +1,26 @@
+
+// Проблема 4: Безопасность и непредсказуемость
+Object.prototype.admin = true;
+
+const user = JSON.parse('{"name": "John"}'); // Из API
+
+// Неожиданное поведение!
+if (user.admin) {
+  console.log("User is admin!"); // Выполнится! Хотя в JSON нет admin
+}
+
+// Проблема 5: Влияние на hasOwnProperty
+Object.prototype.hasOwnProperty = function() {
+  return false; // Сломали проверку собственных свойств!
+}
+
+const test = {a: 1};
+console.log(test.hasOwnProperty('a')); // false вместо true!
+
+// Проблема 6: JSON.stringify ломается
+Object.prototype.toJSON = function() {
+  return "hacked!";
+}
+
+const data = {name: "John"};
+console.log(JSON.stringify(data)); // "hacked!" вместо {"name":"John"}

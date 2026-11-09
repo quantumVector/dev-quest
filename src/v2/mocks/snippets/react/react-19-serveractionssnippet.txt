@@ -1,0 +1,49 @@
+
+// React 19: Server Actions
+'use server'
+
+// Серверная функция - выполняется на сервере
+export async function createTodo(formData) {
+const title = formData.get('title')
+
+// Валидация на сервере
+if (!title || title.length < 3) {
+return { error: 'Заголовок слишком короткий' }
+}
+
+// Прямая работа с базой данных
+await db.todos.create({
+title,
+completed: false,
+userId: auth.getCurrentUser().id
+})
+
+revalidatePath('/todos') // Обновить кэш
+
+return { success: true }
+}
+
+// Client Component использует Server Action
+'use client'
+
+function TodoForm() {
+const [state, formAction] = useActionState(createTodo, null)
+
+return (
+<form action={formAction}>
+<input name="title" required />
+<button type="submit">Добавить</button>
+{state?.error && <p className="error">{state.error}</p>}
+</form>
+)
+}
+
+// Прогрессивное улучшение - работает БЕЗ JavaScript!
+export default function TodoPage() {
+return (
+<div>
+<h1>Todo List</h1>
+<TodoForm />
+</div>
+)
+}

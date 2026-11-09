@@ -1,0 +1,124 @@
+
+// =====================================
+// GENERICS - основы
+// =====================================
+
+// 1. Функция без Generics - повторение кода
+function getFirstString(arr: string[]): string {
+  return arr[0]
+}
+
+function getFirstNumber(arr: number[]): number {
+  return arr[0]
+}
+
+// 2. Функция с Generic - универсальное решение
+function getFirst<T>(arr: T[]): T {
+  return arr[0]
+}
+
+// Использование - TypeScript автоматически выводит тип
+const firstString = getFirst(['a', 'b', 'c'])  // тип: string
+const firstNumber = getFirst([1, 2, 3])        // тип: number
+const firstBool = getFirst([true, false])      // тип: boolean
+
+// Явное указание типа
+const firstExplicit = getFirst<string>(['hello'])
+
+// 3. Множественные типовые параметры
+function pair<K, V>(key: K, value: V): [K, V] {
+  return [key, value]
+}
+
+const numberPair = pair(1, 'one')      // [number, string]
+const stringPair = pair('id', 123)     // [string, number]
+
+// 4. Generic тип для объекта
+function getProperty<T, K extends keyof T>(obj: T, key: K): T[K] {
+  return obj[key]
+}
+
+const user = { id: 1, name: 'John', age: 30 }
+const userName = getProperty(user, 'name')  // тип: string
+const userAge = getProperty(user, 'age')    // тип: number
+// const invalid = getProperty(user, 'invalid')  // ❌ Error
+
+// 5. Generic интерфейс
+interface Box<T> {
+  value: T
+}
+
+const numberBox: Box<number> = { value: 123 }
+const stringBox: Box<string> = { value: 'hello' }
+
+// 6. Generic класс
+class Container<T> {
+  private value: T
+
+  constructor(value: T) {
+    this.value = value
+  }
+
+  getValue(): T {
+    return this.value
+  }
+
+  setValue(value: T): void {
+    this.value = value
+  }
+}
+
+const numberContainer = new Container(42)
+console.log(numberContainer.getValue())  // 42
+numberContainer.setValue(100)
+
+const stringContainer = new Container('hello')
+console.log(stringContainer.getValue())  // 'hello'
+
+// 7. Generic с дефолтным типом
+interface Response<T = any> {
+  data: T
+  status: number
+  message: string
+}
+
+const userResponse: Response<User> = {
+  data: { id: 1, name: 'John' },
+  status: 200,
+  message: 'OK'
+}
+
+const defaultResponse: Response = {
+  data: { anything: 'goes' },
+  status: 200,
+  message: 'OK'
+}
+
+// 8. Generic constraints - ограничения
+interface HasLength {
+  length: number
+}
+
+function logLength<T extends HasLength>(item: T): void {
+  console.log(item.length)
+}
+
+logLength('hello')      // ✅ OK - string имеет length
+logLength([1, 2, 3])    // ✅ OK - array имеет length
+// logLength(123)       // ❌ Error - number не имеет length
+
+// 9. Generic с несколькими ограничениями
+interface Named {
+  name: string
+}
+
+interface Aged {
+  age: number
+}
+
+function printInfo<T extends Named & Aged>(person: T): void {
+  console.log(`${person.name} is ${person.age} years old`)
+}
+
+printInfo({ name: 'John', age: 30 })  // ✅ OK
+// printInfo({ name: 'John' })        // ❌ Error - отсутствует age

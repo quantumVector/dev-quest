@@ -1,0 +1,95 @@
+
+// Частые ошибки при работе с useEffect
+
+// ❌ ОШИБКА 1: Забыли cleanup
+useEffect(() => {
+  const interval = setInterval(() => {
+    console.log('Tick')
+  }, 1000)
+  // Нет return - интервал продолжает работать после размонтирования!
+}, [])
+
+// ✅ ПРАВИЛЬНО
+useEffect(() => {
+  const interval = setInterval(() => {
+    console.log('Tick')
+  }, 1000)
+  return () => clearInterval(interval)
+}, [])
+
+// ❌ ОШИБКА 2: Неправильные зависимости
+useEffect(() => {
+  fetchUser(userId) // Используется userId
+}, []) // Но нет в зависимостях! ESLint предупредит
+
+// ✅ ПРАВИЛЬНО
+useEffect(() => {
+  fetchUser(userId)
+}, [userId])
+
+// ❌ ОШИБКА 3: Объект в зависимостях
+useEffect(() => {
+  console.log(user)
+}, [user]) // Объект всегда новая ссылка - бесконечный цикл!
+
+// ✅ ПРАВИЛЬНО: Деструктуризация
+useEffect(() => {
+  console.log(user.id, user.name)
+}, [user.id, user.name])
+
+// ❌ ОШИБКА 4: Асинхронная функция напрямую
+useEffect(async () => {  // ❌ async нельзя!
+  const data = await fetchData()
+  setData(data)
+}, [])
+
+// ✅ ПРАВИЛЬНО: Async функция внутри
+useEffect(() => {
+  async function loadData() {
+    const data = await fetchData()
+    setData(data)
+  }
+  loadData()
+}, [])
+
+// ИЛИ с IIFE
+useEffect(() => {
+  (async () => {
+    const data = await fetchData()
+    setData(data)
+  })()
+}, [])
+
+// ❌ ОШИБКА 5: Условный эффект
+if (condition) {
+  useEffect(() => {  // ❌ Хуки нельзя вызывать условно!
+    // ...
+  }, [])
+}
+
+// ✅ ПРАВИЛЬНО: Условие внутри эффекта
+useEffect(() => {
+  if (condition) {
+    // ...
+  }
+}, [condition])
+
+// ❌ ОШИБКА 6: Изменение state в рендере
+function BadComponent() {
+  const [count, setCount] = useState(0)
+
+  setCount(count + 1) // ❌ Бесконечный цикл!
+
+  return <div>{count}</div>
+}
+
+// ✅ ПРАВИЛЬНО: В эффекте или обработчике
+function GoodComponent() {
+  const [count, setCount] = useState(0)
+
+  useEffect(() => {
+    setCount(count + 1) // ✅ В эффекте
+  }, [])
+
+  return <div onClick={() => setCount(c => c + 1)}>{count}</div>
+}

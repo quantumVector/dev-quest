@@ -1,0 +1,64 @@
+
+// Инструменты для работы с JSX
+
+// 1. Babel - основной транспилятор JSX
+// package.json
+{
+  "devDependencies": {
+    "@babel/core": "^7.23.0",
+    "@babel/preset-react": "^7.23.0"
+  }
+}
+
+// .babelrc или babel.config.js
+{
+  "presets": [
+    ["@babel/preset-react", {
+      "runtime": "automatic"  // Новый JSX transform (React 17+)
+    }]
+  ]
+}
+
+// 2. TypeScript - нативная поддержка JSX
+// tsconfig.json
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",  // или "react" для старого transform
+    "jsxImportSource": "react"
+  }
+}
+
+// 3. SWC - быстрая альтернатива Babel
+// .swcrc
+{
+  "jsc": {
+    "parser": {
+      "syntax": "ecmascript",
+      "jsx": true
+    },
+    "transform": {
+      "react": {
+        "runtime": "automatic"
+      }
+    }
+  }
+}
+
+// 4. esbuild - очень быстрый сборщик с JSX поддержкой
+// esbuild.config.js
+require('esbuild').build({
+  entryPoints: ['src/index.jsx'],
+  bundle: true,
+  loader: { '.jsx': 'jsx' },
+  jsxFactory: 'React.createElement',
+  jsxFragment: 'React.Fragment'
+});
+
+// 5. Vite - современный инструмент сборки
+// vite.config.js
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+})

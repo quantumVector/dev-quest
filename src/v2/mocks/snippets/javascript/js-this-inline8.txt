@@ -1,0 +1,10 @@
+function greet() {
+  return `Привет, ${this.name}!`;
+}
+
+const person = { name: 'Bob' };
+
+greet.call(person);  // "Привет, Bob!"
+greet.apply(person); // "Привет, Bob!"
+const boundGreet = greet.bind(person);
+boundGreet();        // "Привет, Bob!"

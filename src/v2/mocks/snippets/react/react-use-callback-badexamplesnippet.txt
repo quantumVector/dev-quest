@@ -1,0 +1,53 @@
+
+// ❌ ПРОБЛЕМА: Функция пересоздается при каждом рендере
+
+import { useState } from 'react';
+
+function TodoList() {
+  const [todos, setTodos] = useState([]);
+  const [count, setCount] = useState(0);
+
+  // Каждый рендер создается НОВАЯ функция!
+  const handleAddTodo = (text) => {
+    setTodos(prev => [...prev, { id: Date.now(), text }]);
+  };
+
+  return (
+    <div>
+      <button onClick={() => setCount(count + 1)}>
+        Count: {count}
+      </button>
+
+      {/* При изменении count AddTodoForm ПЕРЕРЕНДЕРИВАЕТСЯ,
+          хотя todos не изменились! */}
+      <AddTodoForm onAdd={handleAddTodo} />
+
+      <ul>
+        {todos.map(todo => (
+          <li key={todo.id}>{todo.text}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+// Мемоизированный компонент
+const AddTodoForm = React.memo(({ onAdd }) => {
+  console.log('AddTodoForm render'); // Будет логироваться каждый раз!
+  const [text, setText] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onAdd(text);
+    setText('');
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input value={text} onChange={e => setText(e.target.value)} />
+      <button type="submit">Add</button>
+    </form>
+  );
+});
+
+// ПРОБЛЕМА: onAdd каждый раз новая функция → React.memo не работает!

@@ -1,0 +1,90 @@
+
+// Оптимизация управления состоянием
+
+// 1. Колокация состояния (State Colocation)
+// ❌ ПЛОХО - состояние слишком высоко
+function App() {
+  const [modalOpen, setModalOpen] = useState(false)
+  const [formData, setFormData] = useState({})
+
+  return (
+    <div>
+      <Header />
+      <Main />
+      {/* Все ререндерится при изменении modalOpen */}
+      <Modal open={modalOpen} data={formData} />
+      <Footer />
+    </div>
+  )
+}
+
+// ✅ ХОРОШО - состояние рядом с использованием
+function ModalSection() {
+  const [modalOpen, setModalOpen] = useState(false)
+  const [formData, setFormData] = useState({})
+
+  return <Modal open={modalOpen} data={formData} />
+}
+
+function App() {
+  return (
+    <div>
+      <Header />
+      <Main />
+      <ModalSection />
+      <Footer />
+    </div>
+  )
+}
+
+// 2. Ленивая инициализация состояния
+// ❌ ПЛОХО - функция выполняется при каждом рендере
+function Component() {
+  const [data, setData] = useState(expensiveCalculation())
+  // ...
+}
+
+// ✅ ХОРОШО - функция выполняется только один раз
+function Component() {
+  const [data, setData] = useState(() => expensiveCalculation())
+  // ...
+}
+
+// 3. Функциональные обновления
+// ❌ ПЛОХО - зависимость от текущего значения
+function Counter() {
+  const [count, setCount] = useState(0)
+
+  const increment = useCallback(() => {
+    setCount(count + 1) // зависит от count
+  }, [count]) // нужно обновлять при изменении count
+
+  return <button onClick={increment}>Count: {count}</button>
+}
+
+// ✅ ХОРОШО - функциональное обновление
+function Counter() {
+  const [count, setCount] = useState(0)
+
+  const increment = useCallback(() => {
+    setCount(prev => prev + 1) // не зависит от count
+  }, []) // стабильная функция!
+
+  return <button onClick={increment}>Count: {count}</button>
+}
+
+// 4. useReducer для сложного состояния
+function Form() {
+  const [state, dispatch] = useReducer(formReducer, initialState)
+
+  // Стабильная функция dispatch
+  const handleNameChange = useCallback((e) => {
+    dispatch({ type: 'SET_NAME', payload: e.target.value })
+  }, [])
+
+  return (
+    <div>
+      <input value={state.name} onChange={handleNameChange} />
+    </div>
+  )
+}

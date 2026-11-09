@@ -1,0 +1,27 @@
+
+# =====================================
+# DOCKER LOGS - ПРОСМОТР ЛОГОВ
+# =====================================
+
+# Основные команды просмотра логов
+docker logs container_name              # Все логи контейнера
+docker logs container_id                # По ID контейнера
+docker logs -f container_name           # Следить за логами в реальном времени (-f = follow)
+docker logs --tail 50 container_name    # Последние 50 строк
+docker logs --since 2h container_name   # Логи за последние 2 часа
+docker logs --until 2023-01-01 container_name  # До определенной даты
+
+# Комбинирование параметров
+docker logs -f --tail 100 --since 10m my-app    # Последние 100 строк за 10 минут + follow
+
+# Логи с временными метками
+docker logs -t container_name           # Показать timestamps
+docker logs -t -f --since 1h my-app     # Логи за час с временем
+
+# Поиск в логах
+docker logs container_name | grep "ERROR"       # Поиск ошибок
+docker logs container_name | grep -i "warning"  # Поиск предупреждений (без учета регистра)
+
+# Экспорт логов в файл
+docker logs container_name > app.log 2>&1       # Все логи в файл
+docker logs --since 1h container_name > recent.log  # Логи за час

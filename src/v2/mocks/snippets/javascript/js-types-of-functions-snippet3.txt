@@ -1,0 +1,102 @@
+
+// =====================================
+// 4. СПЕЦИАЛЬНЫЕ ТИПЫ ФУНКЦИЙ
+// =====================================
+
+// Higher-Order Function (Функция высшего порядка)
+function withLogging(fn) {
+  return function(...args) {
+    console.log(`Вызов функции с аргументами: ${args}`);
+    const result = fn.apply(this, args);
+    console.log(`Результат: ${result}`);
+    return result;
+  };
+}
+
+const loggedAdd = withLogging((a, b) => a + b);
+console.log(loggedAdd(2, 3)); // Логи + 5
+
+// Callback Function (Функция обратного вызова)
+function processData(data, callback) {
+  const processed = data.map(x => x * 2);
+  callback(processed);
+}
+
+processData([1, 2, 3], result => {
+  console.log("Обработанные данные:", result);
+});
+
+// Closure Function (Функция-замыкание)
+function createCounter() {
+  let count = 0;
+
+  return {
+    increment: () => ++count,
+    decrement: () => --count,
+    getValue: () => count
+  };
+}
+
+const counter = createCounter();
+console.log(counter.increment()); // 1
+console.log(counter.getValue());  // 1
+
+// Curried Function (Каррированная функция)
+function curry(fn) {
+  return function curried(...args) {
+    if (args.length >= fn.length) {
+      return fn.apply(this, args);
+    }
+    return (...nextArgs) => curried(...args, ...nextArgs);
+  };
+}
+
+const multiply = curry((a, b, c) => a * b * c);
+console.log(multiply(2)(3)(4)); // 24
+console.log(multiply(2, 3)(4)); // 24
+
+// Memoized Function (Мемоизированная функция)
+function memoize(fn) {
+  const cache = new Map();
+
+  return function(...args) {
+    const key = JSON.stringify(args);
+
+    if (cache.has(key)) {
+      return cache.get(key);
+    }
+
+    const result = fn.apply(this, args);
+    cache.set(key, result);
+    return result;
+  };
+}
+
+const memoizedFib = memoize(function fibonacci(n) {
+  if (n <= 1) return n;
+  return fibonacci(n - 1) + fibonacci(n - 2);
+});
+
+// Pure Function (Чистая функция)
+function pureAdd(a, b) {
+  return a + b; // Нет побочных эффектов, детерминированная
+}
+
+// Impure Function (Нечистая функция)
+let globalCounter = 0;
+function impureIncrement() {
+  globalCounter++; // Побочный эффект
+  return globalCounter;
+}
+
+// Recursive Function (Рекурсивная функция)
+function factorial(n) {
+  if (n <= 1) return 1;
+  return n * factorial(n - 1);
+}
+
+// Tail Recursive Function (Хвостовая рекурсия)
+function tailFactorial(n, acc = 1) {
+  if (n <= 1) return acc;
+  return tailFactorial(n - 1, n * acc);
+}

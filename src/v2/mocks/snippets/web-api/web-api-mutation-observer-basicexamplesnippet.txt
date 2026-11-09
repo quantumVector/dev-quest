@@ -1,0 +1,52 @@
+
+// =====================================
+// БАЗОВЫЙ ПРИМЕР MUTATIONOBSERVER
+// =====================================
+
+// 1. Целевой элемент для наблюдения
+const targetNode = document.getElementById('app')
+
+// 2. Конфигурация - что отслеживать
+const config = {
+  attributes: true,        // Изменения атрибутов
+  childList: true,         // Добавление/удаление дочерних элементов
+  subtree: true,           // Наблюдать за всем поддеревом
+  characterData: true,     // Изменения текстового содержимого
+  attributeOldValue: true, // Сохранять старые значения атрибутов
+  characterDataOldValue: true // Сохранять старые текстовые данные
+}
+
+// 3. Callback функция - что делать при изменениях
+const callback = (mutationsList, observer) => {
+  for (const mutation of mutationsList) {
+    console.log('Тип изменения:', mutation.type)
+    console.log('Целевой элемент:', mutation.target)
+
+    if (mutation.type === 'childList') {
+      console.log('Добавленные узлы:', mutation.addedNodes)
+      console.log('Удаленные узлы:', mutation.removedNodes)
+    }
+
+    if (mutation.type === 'attributes') {
+      console.log('Измененный атрибут:', mutation.attributeName)
+      console.log('Старое значение:', mutation.oldValue)
+    }
+
+    if (mutation.type === 'characterData') {
+      console.log('Новый текст:', mutation.target.data)
+      console.log('Старый текст:', mutation.oldValue)
+    }
+  }
+}
+
+// 4. Создание наблюдателя
+const observer = new MutationObserver(callback)
+
+// 5. Запуск наблюдения
+observer.observe(targetNode, config)
+
+// 6. Остановка наблюдения (когда нужно)
+// observer.disconnect()
+
+// 7. Получение накопленных мутаций (до вызова callback)
+// const mutations = observer.takeRecords()

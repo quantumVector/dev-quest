@@ -1,0 +1,50 @@
+
+const obj = {
+  name: 'Frank',
+
+  // Обычный метод
+  regularMethod() {
+    console.log('Regular:', this.name); // "Regular: Frank"
+
+    // Внутренняя обычная функция - теряет контекст
+    function innerRegular() {
+      console.log('Inner regular:', this.name); // undefined или ошибка
+    }
+
+    // Внутренняя стрелочная функция - наследует контекст
+    const innerArrow = () => {
+      console.log('Inner arrow:', this.name); // "Inner arrow: Frank"
+    };
+
+    innerRegular();
+    innerArrow();
+  },
+
+  // Стрелочная функция как метод - НЕ привязывается к объекту
+  arrowMethod: () => {
+    console.log('Arrow method:', this.name); // undefined - this = глобальный
+  }
+};
+
+obj.regularMethod();
+obj.arrowMethod();
+
+// Практический пример с таймером
+const counter = {
+  count: 0,
+
+  start() {
+    // ❌ Неправильно - потеря контекста
+    // setTimeout(function() {
+    //   this.count++; // this = Window, не counter
+    // }, 1000);
+
+    // ✅ Правильно - стрелочная функция наследует this
+    setTimeout(() => {
+      this.count++; // this = counter
+      console.log('Count:', this.count);
+    }, 1000);
+  }
+};
+
+counter.start(); // Через секунду: "Count: 1"

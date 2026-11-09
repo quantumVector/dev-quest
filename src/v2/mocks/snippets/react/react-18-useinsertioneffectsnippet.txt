@@ -1,0 +1,38 @@
+
+// useInsertionEffect - для CSS-in-JS библиотек
+import { useInsertionEffect } from 'react';
+
+// Обычно используется внутри библиотек, не в пользовательском коде
+function useCSS(styles) {
+  useInsertionEffect(() => {
+    // Вставка стилей ДО мутаций DOM
+    const styleElement = document.createElement('style');
+    styleElement.textContent = styles;
+    document.head.appendChild(styleElement);
+
+    return () => {
+      document.head.removeChild(styleElement);
+    };
+  }, [styles]);
+}
+
+// Порядок выполнения эффектов:
+// 1. useInsertionEffect - вставка CSS перед отрисовкой
+// 2. useLayoutEffect - чтение layout, синхронные мутации DOM
+// 3. useEffect - асинхронные side effects
+
+// Пример использования в CSS-in-JS библиотеке
+function Button({ children }) {
+  const className = useCSS(`
+    .button {
+      background: blue;
+      color: white;
+      padding: 10px 20px;
+    }
+  `);
+
+  return <button className={className}>{children}</button>;
+}
+
+// ⚠️ Не используйте для обычного кода!
+// useInsertionEffect только для авторов библиотек CSS-in-JS

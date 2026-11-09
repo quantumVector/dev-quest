@@ -1,0 +1,62 @@
+
+// useDeferredValue - отложенное значение для дорогих вычислений
+import { useState, useDeferredValue, useMemo } from 'react';
+
+function FilteredList({ items }) {
+  const [filter, setFilter] = useState('');
+
+  // Отложенное значение - обновляется с низким приоритетом
+  const deferredFilter = useDeferredValue(filter);
+
+  // Дорогое вычисление с отложенным значением
+  const filteredItems = useMemo(() => {
+    console.log('Фильтрация...'); // Вызывается реже
+    return items.filter(item =>
+      item.name.toLowerCase().includes(deferredFilter.toLowerCase())
+    );
+  }, [items, deferredFilter]);
+
+  return (
+    <div>
+      {/* Input обновляется мгновенно */}
+      <input
+        value={filter}
+        onChange={(e) => setFilter(e.target.value)}
+        placeholder="Поиск..."
+      />
+
+      {/* Показываем индикатор, если значения не совпадают */}
+      {filter !== deferredFilter && <div>Обновление...</div>}
+
+      {/* Список обновляется с задержкой */}
+      <ul>
+        {filteredItems.map(item => (
+          <li key={item.id}>{item.name}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+// useTransition vs useDeferredValue
+function ComparisonExample({ data }) {
+  // useTransition - когда контролируете setState
+  const [isPending, startTransition] = useTransition();
+  const [filteredData, setFilteredData] = useState(data);
+
+  const handleFilter = (value) => {
+    startTransition(() => {
+      setFilteredData(expensiveFilter(data, value));
+    });
+  };
+
+  // useDeferredValue - когда не контролируете setState
+  // (например, значение приходит как props)
+  const [filter, setFilter] = useState('');
+  const deferredFilter = useDeferredValue(filter);
+
+  const filteredData2 = useMemo(() =>
+    expensiveFilter(data, deferredFilter),
+    [data, deferredFilter]
+  );
+}

@@ -1,0 +1,85 @@
+
+// Ограничения и особенности JSX
+
+// 1. Один корневой элемент (решение - Fragment)
+// ❌ Неправильно:
+function Component() {
+return (
+<h1>Заголовок</h1>
+<p>Параграф</p>
+);
+}
+
+// ✅ Правильно:
+function Component() {
+return (
+<>
+<h1>Заголовок</h1>
+<p>Параграф</p>
+</>
+);
+}
+
+// 2. class → className (class зарезервирован в JS)
+// ❌ Неправильно:
+<div class="container"></div>
+
+// ✅ Правильно:
+<div className="container"></div>
+
+// 3. for → htmlFor (for зарезервирован в JS)
+// ❌ Неправильно:
+<label for="username">Имя:</label>
+
+// ✅ Правильно:
+<label htmlFor="username">Имя:</label>
+
+// 4. Стили как объекты, не строки
+// ❌ Неправильно:
+<div style="color: red; font-size: 16px"></div>
+
+// ✅ Правильно:
+<div style={{ color: 'red', fontSize: '16px' }}></div>
+
+// 5. Обработчики событий - camelCase
+// ❌ Неправильно:
+<button onclick={handler}></button>
+
+// ✅ Правильно:
+<button onClick={handler}></button>
+
+// 6. Самозакрывающиеся теги обязательны
+// ❌ Неправильно:
+<img src="photo.jpg">
+<input type="text">
+
+// ✅ Правильно:
+<img src="photo.jpg" />
+<input type="text" />
+
+// 7. Встроенные обработчики с параметрами
+// ❌ Неправильно (вызовется сразу):
+<button onClick={handleClick(id)}>Нажми</button>
+
+// ✅ Правильно:
+<button onClick={() => handleClick(id)}>Нажми</button>
+
+// Или:
+<button onClick={handleClick.bind(null, id)}>Нажми</button>
+
+// 8. Boolean props
+// Эти варианты эквивалентны:
+<input disabled />
+<input disabled={true} />
+
+// Для false нужно явно указать:
+<input disabled={false} />
+
+// 9. Зарезервированные слова
+// tabindex → tabIndex
+// readonly → readOnly
+// maxlength → maxLength
+// cellspacing → cellSpacing
+// rowspan → rowSpan
+// colspan → colSpan
+// autocomplete → autoComplete

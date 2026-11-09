@@ -1,0 +1,89 @@
+
+// Unit тесты - основание пирамиды (60%)
+
+// Преимущества:
+// ✅ Выполняются за миллисекунды
+// ✅ Изолированы и предсказуемы
+// ✅ Легко писать и поддерживать
+// ✅ Точно указывают на проблему
+
+// Пример 1: Тестирование чистой функции
+function calculateDiscount(price, discountPercent) {
+  if (price < 0 || discountPercent < 0 || discountPercent > 100) {
+    throw new Error('Invalid input')
+  }
+  return price * (1 - discountPercent / 100)
+}
+
+describe('calculateDiscount', () => {
+  test('applies 10% discount correctly', () => {
+    expect(calculateDiscount(100, 10)).toBe(90)
+  })
+
+  test('applies 50% discount correctly', () => {
+    expect(calculateDiscount(200, 50)).toBe(100)
+  })
+
+  test('throws error for negative price', () => {
+    expect(() => calculateDiscount(-100, 10)).toThrow('Invalid input')
+  })
+
+  test('throws error for discount over 100%', () => {
+    expect(() => calculateDiscount(100, 150)).toThrow('Invalid input')
+  })
+
+  test('handles zero discount', () => {
+    expect(calculateDiscount(100, 0)).toBe(100)
+  })
+})
+
+// Пример 2: Тестирование класса
+class ShoppingCart {
+  constructor() {
+    this.items = []
+  }
+
+  addItem(item) {
+    this.items.push(item)
+  }
+
+  getTotal() {
+    return this.items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  }
+
+  clear() {
+    this.items = []
+  }
+}
+
+describe('ShoppingCart', () => {
+  let cart
+
+  beforeEach(() => {
+    cart = new ShoppingCart()
+  })
+
+  test('starts empty', () => {
+    expect(cart.items).toHaveLength(0)
+    expect(cart.getTotal()).toBe(0)
+  })
+
+  test('adds items correctly', () => {
+    cart.addItem({ price: 100, quantity: 2 })
+    expect(cart.items).toHaveLength(1)
+  })
+
+  test('calculates total correctly', () => {
+    cart.addItem({ price: 100, quantity: 2 })
+    cart.addItem({ price: 50, quantity: 3 })
+    expect(cart.getTotal()).toBe(350)
+  })
+
+  test('clears cart', () => {
+    cart.addItem({ price: 100, quantity: 1 })
+    cart.clear()
+    expect(cart.items).toHaveLength(0)
+  })
+})
+
+// Время выполнения: ~50ms для всех тестов

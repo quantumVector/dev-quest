@@ -1,0 +1,85 @@
+
+// ==========================================
+// ПОЛЕЗНЫЙ КЛАСС ДЛЯ РАБОТЫ С COOKIES
+// ==========================================
+
+class CookieManager {
+  // Установка cookie
+  static set(name, value, options = {}) {
+    const {
+      days = 7,
+      path = '/',
+      domain,
+      secure = true,
+      sameSite = 'Lax'
+    } = options
+
+    let cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)}`
+
+    if (days) {
+      const expires = new Date()
+      expires.setDate(expires.getDate() + days)
+      cookie += `; expires=${expires.toUTCString()}`
+    }
+
+    cookie += `; path=${path}`
+    if (domain) cookie += `; domain=${domain}`
+    if (secure) cookie += '; secure'
+    if (sameSite) cookie += `; SameSite=${sameSite}`
+
+    document.cookie = cookie
+    return true
+  }
+
+  // Получение cookie
+  static get(name) {
+    const matches = document.cookie.match(
+      new RegExp('(?:^|; )' + name.replace(/([.$?*|{}()[]\/+^])/g, '\$1') + '=([^;]*)')
+    )
+    return matches ? decodeURIComponent(matches[1]) : null
+  }
+
+  // Получение всех cookies
+  static getAll() {
+    return document.cookie.split('; ').reduce((acc, cookie) => {
+      const [name, value] = cookie.split('=')
+      if (name) acc[decodeURIComponent(name)] = decodeURIComponent(value || '')
+      return acc
+    }, {})
+  }
+
+  // Удаление cookie
+  static remove(name, options = {}) {
+    return this.set(name, '', { ...options, days: -1 })
+  }
+
+  // Проверка существования
+  static has(name) {
+    return this.get(name) !== null
+  }
+
+  // Очистка всех cookies
+  static clear() {
+    const cookies = this.getAll()
+    Object.keys(cookies).forEach(name => this.remove(name))
+  }
+}
+
+// Использование
+CookieManager.set('username', 'John Doe', {
+  days: 30,
+  secure: true,
+  sameSite: 'Strict'
+})
+
+const username = CookieManager.get('username')
+console.log(username) // "John Doe"
+
+const allCookies = CookieManager.getAll()
+console.log(allCookies) // { username: "John Doe", theme: "dark", ... }
+
+CookieManager.remove('username')
+
+if (CookieManager.has('sessionId')) {
+  console.log('User is logged in')
+}

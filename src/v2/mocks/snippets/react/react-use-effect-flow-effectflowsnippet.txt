@@ -1,0 +1,42 @@
+
+// Полный Flow выполнения useEffect
+function Component({ prop }) {
+  const [state, setState] = useState(0)
+
+  useEffect(() => {
+    console.log('1. Effect body executing')
+
+    // Подписка, таймер, запрос и т.д.
+    const timer = setInterval(() => {
+      console.log('Timer tick')
+    }, 1000)
+
+    // Cleanup function
+    return () => {
+      console.log('2. Cleanup executing')
+      clearInterval(timer)
+    }
+  }, [prop, state]) // Dependencies
+
+  return <div onClick={() => setState(s => s + 1)}>Click me</div>
+}
+
+/*
+ПОРЯДОК ВЫПОЛНЕНИЯ:
+
+1. Первый рендер (монтирование):
+   - Render
+   - DOM update
+   - Browser paint
+   - Effect body executing ✅
+
+2. Обновление (prop или state изменились):
+   - Render
+   - DOM update
+   - Browser paint
+   - Cleanup executing ✅ (от предыдущего эффекта!)
+   - Effect body executing ✅ (новый эффект)
+
+3. Размонтирование:
+   - Cleanup executing ✅ (финальная очистка)
+*/

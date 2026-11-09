@@ -1,0 +1,117 @@
+
+// РЕАЛЬНЫЕ ПРИМЕРЫ ВО ФРОНТЕНДЕ
+
+// 1. Singleton: Store (Redux, Zustand)
+import { create } from 'zustand';
+
+// Создаем один store на всё приложение
+export const useStore = create((set) => ({
+  user: null,
+  theme: 'light',
+  setUser: (user) => set({ user }),
+  setTheme: (theme) => set({ theme }),
+}));
+
+// В любом компоненте - один и тот же store
+function Header() {
+  const theme = useStore((state) => state.theme);
+  return <header className={theme}>...</header>;
+}
+
+// 2. Factory: React.createElement
+// React использует фабрику для создания элементов
+const element = React.createElement(
+  'button',
+  { className: 'btn-primary', onClick: handleClick },
+  'Click me'
+);
+
+// JSX - синтаксический сахар над фабрикой
+const element = <button className="btn-primary" onClick={handleClick}>
+  Click me
+</button>;
+
+// 3. Builder: Axios запросы
+import axios from 'axios';
+
+const api = axios.create({
+  baseURL: 'https://api.example.com',
+  timeout: 5000,
+});
+
+api.interceptors.request.use((config) => {
+  config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
+const response = await api
+  .get('/users')
+  .then((res) => res.data)
+  .catch((err) => console.error(err));
+
+// 4. Prototype: Object.create() и React.cloneElement
+// Клонирование React элементов с модификацией
+function EnhancedComponent({ children }) {
+  return React.Children.map(children, (child) => {
+    return React.cloneElement(child, {
+      className: `${child.props.className} enhanced`,
+      onClick: handleEnhancedClick,
+    });
+  });
+}
+
+// 5. Abstract Factory: UI библиотеки (MUI, Ant Design)
+import { ThemeProvider, createTheme } from '@mui/material';
+
+// Фабрика создает семейство компонентов в едином стиле
+const lightTheme = createTheme({
+  palette: { mode: 'light' },
+});
+
+const darkTheme = createTheme({
+  palette: { mode: 'dark' },
+});
+
+function App() {
+  const [mode, setMode] = useState('light');
+  const theme = mode === 'light' ? lightTheme : darkTheme;
+
+  return (
+    <ThemeProvider theme={theme}>
+      {/* Все компоненты автоматически в стиле темы */}
+      <Button>Click</Button>
+      <TextField />
+      <Card>...</Card>
+    </ThemeProvider>
+  );
+}
+
+// 6. Factory Method: Роутинг (React Router)
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+
+// Фабричный метод создает роутер с конфигурацией
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <Home />,
+    children: [
+      { path: 'about', element: <About /> },
+      { path: 'contact', element: <Contact /> },
+    ],
+  },
+]);
+
+function App() {
+  return <RouterProvider router={router} />;
+}
+
+// 7. Builder: Query строители (React Query, TanStack Query)
+import { useQuery } from '@tanstack/react-query';
+
+const { data, isLoading } = useQuery({
+  queryKey: ['users', page, filters],
+  queryFn: fetchUsers,
+  staleTime: 5000,
+  refetchOnWindowFocus: false,
+  retry: 3,
+});

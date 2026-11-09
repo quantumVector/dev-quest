@@ -1,0 +1,19 @@
+
+const user = {
+  name: 'John',
+  age: 30
+}
+
+// Получаем дескриптор свойства
+const descriptor = Object.getOwnPropertyDescriptor(user, 'name')
+console.log(descriptor)
+// {
+//   value: 'John',
+//   writable: true,
+//   enumerable: true,
+//   configurable: true
+// }
+
+// Получаем все дескрипторы
+const allDescriptors = Object.getOwnPropertyDescriptors(user)
+console.log(allDescriptors)

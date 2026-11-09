@@ -1,0 +1,149 @@
+
+// Измерение Web Vitals в приложении
+
+// 1. Используя библиотеку web-vitals от Google
+npm install web-vitals
+
+import { onCLS, onFID, onLCP, onINP, onFCP, onTTFB } from 'web-vitals';
+
+// Простая отправка метрик
+function sendToAnalytics(metric) {
+const body = JSON.stringify(metric);
+
+// Используем sendBeacon для надежной отправки
+if (navigator.sendBeacon) {
+navigator.sendBeacon('/analytics', body);
+} else {
+fetch('/analytics', {
+body,
+method: 'POST',
+keepalive: true
+});
+}
+}
+
+// Подписываемся на все метрики
+onLCP(sendToAnalytics);
+onINP(sendToAnalytics);
+onCLS(sendToAnalytics);
+onFCP(sendToAnalytics);
+onTTFB(sendToAnalytics);
+
+// 2. Расширенная аналитика с контекстом
+function sendToAnalytics(metric) {
+const data = {
+...metric,
+// Добавляем контекст
+url: window.location.href,
+userAgent: navigator.userAgent,
+connectionType: navigator.connection?.effectiveType,
+deviceMemory: navigator.deviceMemory,
+timestamp: Date.now(),
+
+// Для отладки в разработке
+debug: process.env.NODE_ENV === 'development'
+};
+
+console.log('Web Vital:', data);
+
+// Отправка в аналитику
+if (window.gtag) {
+window.gtag('event', metric.name, {
+value: Math.round(metric.value),
+metric_id: metric.id,
+metric_rating: metric.rating
+});
+}
+}
+
+// 3. React Hook для мониторинга
+import { useEffect } from 'react';
+import { onCLS, onINP, onLCP } from 'web-vitals';
+
+function useWebVitals(callback) {
+useEffect(() => {
+onCLS(callback);
+onINP(callback);
+onLCP(callback);
+}, [callback]);
+}
+
+// Использование
+function App() {
+useWebVitals((metric) => {
+console.log(metric.name, metric.value);
+
+// Отправка в аналитику
+if (metric.rating === 'poor') {
+reportPoorPerformance(metric);
+}
+});
+
+return <div>App</div>;
+}
+
+// 4. Attribution для детальной диагностики
+import { onLCP } from 'web-vitals/attribution';
+
+onLCP((metric) => {
+console.log('LCP:', metric.value);
+console.log('Element:', metric.attribution.element);
+console.log('URL:', metric.attribution.url);
+console.log('Time to first byte:', metric.attribution.timeToFirstByte);
+console.log('Resource load delay:', metric.attribution.resourceLoadDelay);
+console.log('Resource load time:', metric.attribution.resourceLoadTime);
+console.log('Element render delay:', metric.attribution.elementRenderDelay);
+});
+
+// 5. Performance Observer API (низкоуровневый подход)
+const observer = new PerformanceObserver((list) => {
+for (const entry of list.getEntries()) {
+// LCP
+if (entry.entryType === 'largest-contentful-paint') {
+console.log('LCP:', entry.startTime, entry.element);
+}
+
+// FID/INP
+if (entry.entryType === 'first-input') {
+console.log('FID:', entry.processingStart - entry.startTime);
+}
+
+// CLS
+if (entry.entryType === 'layout-shift' && !entry.hadRecentInput) {
+console.log('Layout shift:', entry.value);
+}
+}
+});
+
+observer.observe({
+entryTypes: [
+'largest-contentful-paint',
+'first-input',
+'layout-shift'
+]
+});
+
+// 6. Мониторинг в Next.js
+// pages/_app.js
+export function reportWebVitals(metric) {
+switch (metric.name) {
+case 'LCP':
+console.log('LCP:', metric.value);
+break;
+case 'INP':
+console.log('INP:', metric.value);
+break;
+case 'CLS':
+console.log('CLS:', metric.value);
+break;
+}
+
+// Отправка в аналитику
+if (window.gtag) {
+window.gtag('event', metric.name, {
+value: Math.round(metric.value),
+event_category: 'Web Vitals',
+non_interaction: true
+});
+}
+}

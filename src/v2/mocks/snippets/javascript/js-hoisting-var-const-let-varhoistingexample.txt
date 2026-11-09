@@ -1,0 +1,30 @@
+
+// ========================================
+// VAR HOISTING - Поднятие переменных
+// ========================================
+
+// Что видим мы:
+console.log(myVar); // undefined (не ошибка!)
+var myVar = 'Hello World';
+console.log(myVar); // 'Hello World'
+
+// Как это работает для движка JS:
+var myVar; // undefined
+console.log(myVar); // undefined
+myVar = 'Hello World';
+console.log(myVar); // 'Hello World'
+
+// Пример с функцией
+function example() {
+    console.log(x); // undefined
+    var x = 5;
+    console.log(x); // 5
+}
+
+// Интерпретируется как:
+function example() {
+    var x; // undefined
+    console.log(x); // undefined
+    x = 5;
+    console.log(x); // 5
+}

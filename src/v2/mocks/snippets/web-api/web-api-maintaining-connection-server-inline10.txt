@@ -1,0 +1,28 @@
+const express = require('express')
+const app = express()
+
+app.get('/events', (req, res) => {
+  res.setHeader('Content-Type', 'text/event-stream')
+  res.setHeader('Cache-Control', 'no-cache')
+  res.setHeader('Connection', 'keep-alive')
+
+  // Отправка события
+  const sendEvent = (data) => {
+    res.write(\`data: \${JSON.stringify(data)}\\n\\n\`)
+  }
+
+  // Heartbeat
+  const heartbeat = setInterval(() => {
+    res.write(':heartbeat\\n\\n')
+  }, 15000)
+
+  // Отправка данных
+  sendEvent({ message: 'Connected' })
+
+  // Очистка при закрытии
+  req.on('close', () => {
+    clearInterval(heartbeat)
+  })
+})
+
+app.listen(3000)

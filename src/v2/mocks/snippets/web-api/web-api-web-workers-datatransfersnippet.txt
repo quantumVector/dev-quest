@@ -1,0 +1,232 @@
+
+// =====================================
+// ПЕРЕДАЧА ДАННЫХ МЕЖДУ ПОТОКАМИ
+// =====================================
+
+// 1. СТРУКТУРИРОВАННОЕ КЛОНИРОВАНИЕ (по умолчанию)
+// Данные копируются - создается клон
+
+// Основной поток
+const data = {
+  id: 1,
+  name: 'John',
+  scores: [90, 85, 92],
+  date: new Date()
+}
+
+worker.postMessage(data)  // Создается копия
+
+// После отправки можно изменять оригинал
+data.name = 'Jane'  // Не влияет на данные в Worker
+
+// Worker получает независимую копию
+self.onmessage = (event) => {
+  const receivedData = event.data
+  console.log(receivedData.name)  // 'John' - оригинальное значение
+}
+
+// 2. TRANSFERABLE OBJECTS - передача владения
+// Данные перемещаются, не копируются (zero-copy)
+
+// Типы Transferable объектов:
+// - ArrayBuffer
+// - MessagePort
+// - ImageBitmap
+// - OffscreenCanvas
+// - ReadableStream
+// - WritableStream
+// - TransformStream
+
+// Пример с ArrayBuffer
+const buffer = new ArrayBuffer(1024 * 1024)  // 1MB
+const view = new Uint8Array(buffer)
+
+// Заполняем данными
+for (let i = 0; i < view.length; i++) {
+  view[i] = i % 256
+}
+
+console.log(buffer.byteLength)  // 1048576
+
+// Передаем владение Worker (transfer)
+worker.postMessage({
+  type: 'process',
+  buffer: buffer
+}, [buffer])  // Второй параметр - массив Transferable объектов
+
+console.log(buffer.byteLength)  // 0 - буфер "опустел"
+// buffer теперь detached, недоступен в основном потоке
+
+// Worker получает владение
+self.onmessage = (event) => {
+  const { buffer } = event.data
+  console.log(buffer.byteLength)  // 1048576 - полный размер
+
+  const view = new Uint8Array(buffer)
+  // Обрабатываем данные...
+
+  // Возвращаем владение обратно
+  self.postMessage({
+    type: 'result',
+    buffer: buffer
+  }, [buffer])  // Transfer обратно
+}
+
+// 3. SHARED MEMORY - SharedArrayBuffer
+// Разделяемая память между потоками (требует специальных заголовков)
+
+// ВАЖНО: Требуются HTTP заголовки для безопасности
+// Cross-Origin-Opener-Policy: same-origin
+// Cross-Origin-Embedder-Policy: require-corp
+
+// Создаем разделяемую память
+const sharedBuffer = new SharedArrayBuffer(1024)
+const sharedArray = new Int32Array(sharedBuffer)
+
+// Инициализируем данные
+sharedArray[0] = 42
+
+// Отправляем в Worker (не transfer, а share)
+worker.postMessage({
+  type: 'shared',
+  buffer: sharedBuffer
+})
+
+// SharedBuffer НЕ становится detached
+console.log(sharedBuffer.byteLength)  // 1024 - доступен
+
+// Оба потока могут читать и писать одновременно!
+sharedArray[0] = 100  // Изменяем в основном потоке
+
+// Worker видит те же изменения
+self.onmessage = (event) => {
+  const { buffer } = event.data
+  const array = new Int32Array(buffer)
+
+  console.log(array[0])  // Может быть 100 (race condition!)
+
+  // Изменяем из Worker
+  array[0] = 200
+
+  // Основной поток увидит изменение
+  self.postMessage({ type: 'done' })
+}
+
+// В основном потоке
+worker.onmessage = () => {
+  console.log(sharedArray[0])  // 200 - видим изменения от Worker
+}
+
+// 4. ATOMICS - атомарные операции для SharedArrayBuffer
+// Безопасная работа с разделяемой памятью
+
+const sharedBuffer = new SharedArrayBuffer(4)
+const sharedArray = new Int32Array(sharedBuffer)
+
+// Атомарные операции
+Atomics.store(sharedArray, 0, 10)  // Атомарная запись
+const value = Atomics.load(sharedArray, 0)  // Атомарное чтение
+
+// Атомарное добавление
+Atomics.add(sharedArray, 0, 5)  // sharedArray[0] += 5
+
+// Compare-and-swap
+const oldValue = 15
+const newValue = 20
+Atomics.compareExchange(sharedArray, 0, oldValue, newValue)
+// Если значение == oldValue, устанавливает newValue
+
+// Ожидание изменения (блокирующая операция в Worker!)
+// В Worker потоке:
+self.onmessage = (event) => {
+  const { buffer } = event.data
+  const array = new Int32Array(buffer)
+
+  console.log('Worker ждет изменения...')
+
+  // Ждет пока значение не станет !== 0
+  const result = Atomics.wait(array, 0, 0)
+  // 'ok' - проснулись по notify
+  // 'not-equal' - значение уже изменилось
+  // 'timed-out' - таймаут (если указан)
+
+  console.log('Значение изменилось!', array[0])
+}
+
+// В основном потоке
+sharedArray[0] = 100
+Atomics.notify(sharedArray, 0, 1)  // Будит 1 ожидающий поток
+
+// 5. СЛОЖНЫЕ ОБЪЕКТЫ - что можно/нельзя передавать
+
+// ✅ МОЖНО передавать (структурированное клонирование):
+worker.postMessage({
+  // Примитивы
+  number: 42,
+  string: 'hello',
+  boolean: true,
+  null: null,
+  undefined: undefined,
+
+  // Объекты и массивы
+  object: { a: 1, b: 2 },
+  array: [1, 2, 3],
+
+  // Типизированные массивы
+  uint8: new Uint8Array([1, 2, 3]),
+
+  // Даты
+  date: new Date(),
+
+  // RegExp
+  regex: /test/gi,
+
+  // Map и Set
+  map: new Map([['key', 'value']]),
+  set: new Set([1, 2, 3]),
+
+  // Blob и File
+  blob: new Blob(['data'], { type: 'text/plain' }),
+
+  // ImageData, ImageBitmap
+})
+
+// ❌ НЕЛЬЗЯ передавать:
+worker.postMessage({
+  // Функции
+  // func: () => {},  // ❌ DataCloneError
+
+  // DOM элементы
+  // element: document.body,  // ❌
+
+  // Объекты с символами
+  // [Symbol('key')]: 'value',  // ❌
+
+  // Объекты с геттерами/сеттерами
+  // get value() { return 42 },  // ❌
+
+  // Error объекты (но можно передать свойства)
+  // error: new Error('test')  // ❌
+})
+
+// Обходное решение для функций - передача как строки
+worker.postMessage({
+  type: 'execute',
+  funcString: `
+    function calculate(data) {
+      return data.reduce((a, b) => a + b, 0)
+    }
+  `,
+  data: [1, 2, 3]
+})
+
+// Worker выполняет
+self.onmessage = (event) => {
+  const { funcString, data } = event.data
+
+  // Создаем функцию из строки
+  const func = new Function('data', funcString + '; return calculate(data)')
+  const result = func(data)
+
+  self.postMessage({ result })
+}

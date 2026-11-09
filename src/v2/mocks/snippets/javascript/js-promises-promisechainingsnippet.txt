@@ -1,0 +1,45 @@
+
+// Цепочки промисов - решение проблемы Callback Hell
+function getUserData(userId) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log('Получили пользователя')
+      resolve({ id: userId, name: 'John' })
+    }, 1000)
+  })
+}
+
+function getUserPosts(userId) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log('Получили посты')
+      resolve([{ id: 1, title: 'Post 1' }])
+    }, 1000)
+  })
+}
+
+function getPostComments(postId) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log('Получили комментарии')
+      resolve([{ id: 1, text: 'Comment 1' }])
+    }, 1000)
+  })
+}
+
+// Линейная цепочка без вложенности
+getUserData(1)
+  .then(user => {
+    console.log('Пользователь:', user)
+    return getUserPosts(user.id)
+  })
+  .then(posts => {
+    console.log('Посты:', posts)
+    return getPostComments(posts[0].id)
+  })
+  .then(comments => {
+    console.log('Комментарии:', comments)
+  })
+  .catch(error => {
+    console.error('Ошибка в цепочке:', error)
+  })

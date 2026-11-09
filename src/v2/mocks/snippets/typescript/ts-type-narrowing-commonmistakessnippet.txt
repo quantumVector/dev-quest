@@ -1,0 +1,228 @@
+
+// =====================================
+// ЧАСТЫЕ ОШИБКИ И КАК ИХ ИЗБЕЖАТЬ
+// =====================================
+
+// ❌ ОШИБКА 1: Использование any вместо unknown
+function badExample(value: any) {
+  // TypeScript не проверяет типы с any
+  return value.toUpperCase()  // Компилируется, но может упасть
+}
+
+// ✅ ПРАВИЛЬНО: Использовать unknown с type guard
+function goodExample(value: unknown) {
+  if (typeof value === 'string') {
+    return value.toUpperCase()  // Безопасно
+  }
+  throw new Error('Value must be a string')
+}
+
+// ❌ ОШИБКА 2: Забывать про null/undefined
+interface User {
+  name: string
+  email?: string
+}
+
+function badGetEmail(user: User) {
+  return user.email.toLowerCase()  // ❌ Error: Object is possibly 'undefined'
+}
+
+// ✅ ПРАВИЛЬНО: Проверять на undefined
+function goodGetEmail(user: User): string {
+  if (user.email !== undefined) {
+    return user.email.toLowerCase()
+  }
+  return 'no-email@example.com'
+}
+
+// Или использовать optional chaining
+function betterGetEmail(user: User): string {
+  return user.email?.toLowerCase() ?? 'no-email@example.com'
+}
+
+// ❌ ОШИБКА 3: Неправильный type guard
+function badIsString(value: unknown): boolean {
+  return typeof value === 'string'  // Не сужает тип!
+}
+
+function example(value: unknown) {
+  if (badIsString(value)) {
+    // value всё ещё unknown
+    // value.toUpperCase()  // ❌ Error
+  }
+}
+
+// ✅ ПРАВИЛЬНО: Использовать type predicate
+function goodIsString(value: unknown): value is string {
+  return typeof value === 'string'
+}
+
+function betterExample(value: unknown) {
+  if (goodIsString(value)) {
+    // value теперь string
+    value.toUpperCase()  // ✅ OK
+  }
+}
+
+// ❌ ОШИБКА 4: Потеря сужения при реассигнации
+function badFlow(value: string | number) {
+  if (typeof value === 'string') {
+    console.log(value.length)  // ✅ OK: value - string
+
+    value = Math.random()  // Переназначение
+
+    console.log(value.length)  // ❌ Error: value теперь number
+  }
+}
+
+// ✅ ПРАВИЛЬНО: Избегать реассигнации или использовать отдельную переменную
+function goodFlow(value: string | number) {
+  if (typeof value === 'string') {
+    const stringValue = value
+    console.log(stringValue.length)  // ✅ OK
+
+    const numValue = Math.random()
+    console.log(numValue.toFixed(2))  // ✅ OK
+  }
+}
+
+// ❌ ОШИБКА 5: Неполная проверка объектов
+interface Person {
+  name: string
+  age: number
+}
+
+function badIsPerson(obj: unknown): obj is Person {
+  // Неполная проверка!
+  return typeof obj === 'object' && obj !== null
+}
+
+// ✅ ПРАВИЛЬНО: Проверять все обязательные свойства
+function goodIsPerson(obj: unknown): obj is Person {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'name' in obj &&
+    'age' in obj &&
+    typeof (obj as any).name === 'string' &&
+    typeof (obj as any).age === 'number'
+  )
+}
+
+// ❌ ОШИБКА 6: Игнорирование exhaustiveness checking
+type Status = 'pending' | 'approved' | 'rejected'
+
+function badHandleStatus(status: Status) {
+  switch (status) {
+    case 'pending':
+      console.log('Pending')
+      break
+    case 'approved':
+      console.log('Approved')
+      break
+    // Забыли 'rejected'! TypeScript не выдаст ошибку
+  }
+}
+
+// ✅ ПРАВИЛЬНО: Использовать never для exhaustiveness
+function goodHandleStatus(status: Status) {
+  switch (status) {
+    case 'pending':
+      console.log('Pending')
+      break
+    case 'approved':
+      console.log('Approved')
+      break
+    case 'rejected':
+      console.log('Rejected')
+      break
+    default:
+      // Если забыли case, TypeScript выдаст ошибку здесь
+      const exhaustive: never = status
+      throw new Error(`Unhandled status: ${exhaustive}`)
+  }
+}
+
+// ❌ ОШИБКА 7: Неправильное использование in оператора
+interface Cat {
+  meow(): void
+}
+
+interface Dog {
+  bark(): void
+}
+
+function badIdentifyAnimal(animal: Cat | Dog) {
+  if ('meow' in animal) {
+    // Работает, но не идиоматично для TypeScript
+    animal.meow()
+  }
+}
+
+// ✅ ПРАВИЛЬНО: Использовать discriminated union
+type Cat2 = {
+  type: 'cat'
+  meow(): void
+}
+
+type Dog2 = {
+  type: 'dog'
+  bark(): void
+}
+
+function goodIdentifyAnimal(animal: Cat2 | Dog2) {
+  if (animal.type === 'cat') {
+    animal.meow()
+  } else {
+    animal.bark()
+  }
+}
+
+// ❌ ОШИБКА 8: Слишком широкие типы в type guards
+function badIsObject(value: unknown): value is object {
+  return typeof value === 'object'
+}
+
+// null тоже object в JavaScript!
+const result = badIsObject(null)  // true, но это проблема
+
+// ✅ ПРАВИЛЬНО: Проверять на null
+function goodIsObject(value: unknown): value is object {
+  return typeof value === 'object' && value !== null
+}
+
+// ❌ ОШИБКА 9: Использование ! (non-null assertion) без проверки
+function badGetLength(str: string | null) {
+  return str!.length  // Опасно! Может упасть
+}
+
+// ✅ ПРАВИЛЬНО: Использовать type guard или optional chaining
+function goodGetLength(str: string | null): number {
+  if (str !== null) {
+    return str.length
+  }
+  return 0
+}
+
+function betterGetLength(str: string | null): number {
+  return str?.length ?? 0
+}
+
+// ❌ ОШИБКА 10: Забывать про union в generic типах
+function badProcess<T>(value: T) {
+  // Если T - union, это может не работать как ожидается
+  if (typeof value === 'string') {
+    return value.toUpperCase()
+  }
+  return value
+}
+
+// ✅ ПРАВИЛЬНО: Использовать overloads или conditional types
+function goodProcess(value: string): string
+function goodProcess<T>(value: T): T
+function goodProcess<T>(value: T | string): T | string {
+  if (typeof value === 'string') {
+    return value.toUpperCase()
+  }
+  return value
+}

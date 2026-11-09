@@ -1,0 +1,26 @@
+
+// Symbol.toPrimitive - контролирует преобразование к примитивам
+
+const obj = {
+  value: 100,
+
+  [Symbol.toPrimitive](hint) {
+    console.log('Hint:', hint)
+
+    switch (hint) {
+      case 'number':
+        return this.value
+      case 'string':
+        return `Value: ${this.value}`
+      case 'default':
+        return this.value
+      default:
+        return null
+    }
+  }
+}
+
+console.log(+obj)        // Hint: number -> 100
+console.log(`${obj}`)    // Hint: string -> "Value: 100"
+console.log(obj + 10)    // Hint: default -> 110
+console.log(obj == 100)  // Hint: default -> true

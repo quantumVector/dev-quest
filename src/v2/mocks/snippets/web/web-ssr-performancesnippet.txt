@@ -1,0 +1,44 @@
+
+// Метрики производительности: CSR vs SSR
+
+// CSR (Client-Side Rendering)
+// ════════════════════════════════════════════════
+// TTFB (Time to First Byte): ~200ms    ✅ Быстро
+// FCP (First Contentful Paint): ~3s    ❌ Медленно
+// LCP (Largest Contentful Paint): ~4s  ❌ Медленно
+// TTI (Time to Interactive): ~4.5s     ❌ Медленно
+//
+// Причины:
+// 1. Загрузка большого JS бандла (500KB+)
+// 2. Парсинг и выполнение JS
+// 3. API запросы после загрузки JS
+// 4. Рендеринг после получения данных
+
+// SSR (Server-Side Rendering)
+// ════════════════════════════════════════════════
+// TTFB: ~500ms                          ⚠️ Медленнее
+// FCP: ~800ms                           ✅ Быстро!
+// LCP: ~1.2s                            ✅ Быстро!
+// TTI: ~3s                              ✅ Средне
+//
+// Преимущества:
+// 1. Контент виден СРАЗУ
+// 2. JS загружается параллельно
+// 3. Данные уже в HTML
+// 4. Лучший UX на медленных соединениях
+
+// Измерение производительности
+import { measureWebVitals } from 'web-vitals'
+
+measureWebVitals({
+onFCP: (metric) => {
+console.log('First Contentful Paint:', metric.value)
+// CSR: ~3000ms
+// SSR: ~800ms
+},
+onLCP: (metric) => {
+console.log('Largest Contentful Paint:', metric.value)
+// CSR: ~4000ms
+// SSR: ~1200ms
+}
+})

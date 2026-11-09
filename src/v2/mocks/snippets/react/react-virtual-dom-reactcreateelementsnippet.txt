@@ -1,0 +1,51 @@
+
+// Как React создает Virtual DOM
+
+// JSX код:
+function App() {
+  return (
+    <div className="app">
+      <h1>Counter: {count}</h1>
+      <button onClick={increment}>+</button>
+    </div>
+  );
+}
+
+// Компилируется в React.createElement():
+function App() {
+  return React.createElement(
+    'div',
+    { className: 'app' },
+    React.createElement('h1', null, 'Counter: ', count),
+    React.createElement('button', { onClick: increment }, '+')
+  );
+}
+
+// React.createElement создает Virtual DOM объект:
+{
+  type: 'div',
+  key: null,
+  ref: null,
+  props: {
+    className: 'app',
+    children: [
+      {
+        type: 'h1',
+        props: {
+          children: ['Counter: ', 5]
+        }
+      },
+      {
+        type: 'button',
+        props: {
+          onClick: [Function: increment],
+          children: ['+']
+        }
+      }
+    ]
+  },
+  $$typeof: Symbol(react.element) // Защита от XSS
+}
+
+// Это дерево создается в памяти за микросекунды
+// Стоимость: ~0.001ms против ~6ms для реального DOM

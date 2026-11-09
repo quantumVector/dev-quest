@@ -1,0 +1,324 @@
+
+// =====================================
+// ПРАКТИЧЕСКИЕ ПРИМЕРЫ ИСПОЛЬЗОВАНИЯ
+// =====================================
+
+// 1. Отслеживание изменений в списке TODO
+class TodoListObserver {
+  constructor(listElement) {
+    this.listElement = listElement
+    this.observer = null
+    this.setupObserver()
+  }
+
+  setupObserver() {
+    this.observer = new MutationObserver((mutations) => {
+      mutations.forEach(mutation => {
+        if (mutation.type === 'childList') {
+          mutation.addedNodes.forEach(node => {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              console.log('Добавлена задача:', node.textContent)
+              this.animateNewItem(node)
+            }
+          })
+
+          mutation.removedNodes.forEach(node => {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              console.log('Удалена задача:', node.textContent)
+            }
+          })
+        }
+      })
+    })
+
+    this.observer.observe(this.listElement, {
+      childList: true
+    })
+  }
+
+  animateNewItem(item) {
+    item.style.opacity = '0'
+    requestAnimationFrame(() => {
+      item.style.transition = 'opacity 0.3s'
+      item.style.opacity = '1'
+    })
+  }
+
+  disconnect() {
+    this.observer.disconnect()
+  }
+}
+
+// Использование
+const todoList = document.querySelector('#todo-list')
+const todoObserver = new TodoListObserver(todoList)
+
+// 2. Автосохранение при изменении контента
+class AutoSave {
+  constructor(element, saveCallback) {
+    this.element = element
+    this.saveCallback = saveCallback
+    this.saveTimeout = null
+    this.setupObserver()
+  }
+
+  setupObserver() {
+    const observer = new MutationObserver(() => {
+      // Debounce - сохраняем через 2 секунды после последнего изменения
+      clearTimeout(this.saveTimeout)
+      this.saveTimeout = setTimeout(() => {
+        this.save()
+      }, 2000)
+    })
+
+    observer.observe(this.element, {
+      childList: true,
+      characterData: true,
+      subtree: true
+    })
+  }
+
+  save() {
+    const content = this.element.innerHTML
+    console.log('Автосохранение...')
+    this.saveCallback(content)
+  }
+}
+
+// Использование
+const editor = document.querySelector('#editor')
+const autoSave = new AutoSave(editor, (content) => {
+  localStorage.setItem('draft', content)
+})
+
+// 3. Отслеживание изменений темы (светлая/темная)
+class ThemeObserver {
+  constructor() {
+    this.callbacks = []
+    this.setupObserver()
+  }
+
+  setupObserver() {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach(mutation => {
+        if (mutation.type === 'attributes' &&
+            mutation.attributeName === 'class') {
+          const isDark = document.body.classList.contains('dark-theme')
+          this.notifyThemeChange(isDark ? 'dark' : 'light')
+        }
+      })
+    })
+
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['class']
+    })
+  }
+
+  onThemeChange(callback) {
+    this.callbacks.push(callback)
+  }
+
+  notifyThemeChange(theme) {
+    this.callbacks.forEach(callback => callback(theme))
+  }
+}
+
+// Использование
+const themeObserver = new ThemeObserver()
+themeObserver.onThemeChange((theme) => {
+  console.log('Тема изменена на:', theme)
+  // Обновить стили графиков, карт и т.д.
+})
+
+// 4. Отслеживание появления элементов (ленивая загрузка)
+class LazyLoadObserver {
+  constructor(selector, loadCallback) {
+    this.selector = selector
+    this.loadCallback = loadCallback
+    this.loadedElements = new WeakSet()
+    this.setupObserver()
+    this.checkExistingElements()
+  }
+
+  setupObserver() {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach(mutation => {
+        mutation.addedNodes.forEach(node => {
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            this.checkElement(node)
+            // Проверяем потомков
+            node.querySelectorAll(this.selector).forEach(el => {
+              this.checkElement(el)
+            })
+          }
+        })
+      })
+    })
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    })
+  }
+
+  checkExistingElements() {
+    document.querySelectorAll(this.selector).forEach(el => {
+      this.checkElement(el)
+    })
+  }
+
+  checkElement(element) {
+    if (element.matches && element.matches(this.selector) &&
+        !this.loadedElements.has(element)) {
+      this.loadedElements.add(element)
+      this.loadCallback(element)
+    }
+  }
+}
+
+// Использование
+const lazyLoader = new LazyLoadObserver('img[data-src]', (img) => {
+  img.src = img.dataset.src
+  console.log('Загружено изображение:', img.dataset.src)
+})
+
+// 5. Отслеживание изменений в форме
+class FormChangeTracker {
+  constructor(formElement) {
+    this.formElement = formElement
+    this.initialState = this.captureState()
+    this.setupObserver()
+  }
+
+  setupObserver() {
+    const observer = new MutationObserver(() => {
+      const hasChanges = this.hasUnsavedChanges()
+      this.updateUI(hasChanges)
+    })
+
+    observer.observe(this.formElement, {
+      attributes: true,
+      attributeFilter: ['value'],
+      subtree: true,
+      childList: true
+    })
+
+    // Также слушаем события input
+    this.formElement.addEventListener('input', () => {
+      const hasChanges = this.hasUnsavedChanges()
+      this.updateUI(hasChanges)
+    })
+  }
+
+  captureState() {
+    const formData = new FormData(this.formElement)
+    return Object.fromEntries(formData.entries())
+  }
+
+  hasUnsavedChanges() {
+    const currentState = this.captureState()
+    return JSON.stringify(this.initialState) !== JSON.stringify(currentState)
+  }
+
+  updateUI(hasChanges) {
+    const saveButton = document.querySelector('#save-button')
+    if (saveButton) {
+      saveButton.disabled = !hasChanges
+      saveButton.textContent = hasChanges ? 'Сохранить изменения' : 'Нет изменений'
+    }
+  }
+
+  resetInitialState() {
+    this.initialState = this.captureState()
+    this.updateUI(false)
+  }
+}
+
+// Использование
+const form = document.querySelector('#user-form')
+const formTracker = new FormChangeTracker(form)
+
+// 6. Отслеживание появления модальных окон
+class ModalObserver {
+  constructor() {
+    this.setupObserver()
+  }
+
+  setupObserver() {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach(mutation => {
+        mutation.addedNodes.forEach(node => {
+          if (node.nodeType === Node.ELEMENT_NODE &&
+              node.matches('.modal')) {
+            this.onModalOpen(node)
+          }
+        })
+
+        mutation.removedNodes.forEach(node => {
+          if (node.nodeType === Node.ELEMENT_NODE &&
+              node.matches('.modal')) {
+            this.onModalClose(node)
+          }
+        })
+      })
+    })
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    })
+  }
+
+  onModalOpen(modal) {
+    console.log('Модальное окно открыто:', modal.id)
+    // Отключить скролл
+    document.body.style.overflow = 'hidden'
+    // Установить фокус
+    const firstInput = modal.querySelector('input, button')
+    if (firstInput) firstInput.focus()
+  }
+
+  onModalClose(modal) {
+    console.log('Модальное окно закрыто:', modal.id)
+    // Включить скролл
+    document.body.style.overflow = ''
+  }
+}
+
+const modalObserver = new ModalObserver()
+
+// 7. Синхронизация двух элементов
+class ElementSync {
+  constructor(sourceElement, targetElement) {
+    this.sourceElement = sourceElement
+    this.targetElement = targetElement
+    this.setupObserver()
+  }
+
+  setupObserver() {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach(mutation => {
+        if (mutation.type === 'characterData' ||
+            mutation.type === 'childList') {
+          this.sync()
+        }
+      })
+    })
+
+    observer.observe(this.sourceElement, {
+      characterData: true,
+      childList: true,
+      subtree: true
+    })
+  }
+
+  sync() {
+    this.targetElement.innerHTML = this.sourceElement.innerHTML
+  }
+}
+
+// Использование - синхронизация превью
+const editor2 = document.querySelector('#editor')
+const preview = document.querySelector('#preview')
+const sync = new ElementSync(editor2, preview)

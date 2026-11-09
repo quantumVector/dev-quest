@@ -1,0 +1,87 @@
+
+// Практические примеры использования
+
+// 1. Promise.race для timeout
+const createTimeoutPromise = (ms, message = 'Timeout') =>
+  new Promise((_, reject) => setTimeout(() => reject(new Error(message)), ms));
+
+const fetchWithTimeout = (url, timeoutMs = 5000) => {
+  return Promise.race([
+    fetch(url),
+    createTimeoutPromise(timeoutMs, 'Request timeout')
+  ]);
+};
+
+// 2. Promise.any для fallback запросов
+const fetchWithFallback = (primaryUrl, fallbackUrls) => {
+  return Promise.any([
+    fetch(primaryUrl),
+    ...fallbackUrls.map(url => fetch(url))
+  ]);
+};
+
+// 3. Promise.allSettled для batch операций
+const batchProcess = async (items, processor) => {
+  const promises = items.map(item =>
+    processor(item).catch(error => ({ error, item }))
+  );
+
+  const results = await Promise.allSettled(promises);
+
+  return {
+    successful: results
+      .filter(r => r.status === 'fulfilled' && !r.value.error)
+      .map(r => r.value),
+    failed: results
+      .filter(r => r.status === 'rejected' || r.value?.error)
+      .map(r => ({
+        item: r.value?.item,
+        error: r.status === 'rejected' ? r.reason : r.value.error
+      }))
+  };
+};
+
+// 4. Комбинированное использование
+class APIManager {
+  constructor(baseUrls, timeout = 5000) {
+    this.baseUrls = baseUrls;
+    this.timeout = timeout;
+  }
+
+  // Запрос к первому доступному серверу
+  async fetchFromAnyServer(endpoint) {
+    const requests = this.baseUrls.map(baseUrl =>
+      this.fetchWithTimeout(`${baseUrl}${endpoint}`, this.timeout)
+    );
+
+    try {
+      return await Promise.any(requests);
+    } catch (error) {
+      throw new Error('Все серверы недоступны');
+    }
+  }
+
+  // Запрос ко всем серверам для сверки данных
+  async fetchFromAllServers(endpoint) {
+    const requests = this.baseUrls.map(baseUrl =>
+      this.fetchWithTimeout(`${baseUrl}${endpoint}`, this.timeout)
+        .then(response => response.json())
+        .catch(error => ({ error: error.message }))
+    );
+
+    const results = await Promise.allSettled(requests);
+    return results.map((result, index) => ({
+      server: this.baseUrls[index],
+      status: result.status,
+      data: result.status === 'fulfilled' ? result.value : null,
+      error: result.status === 'rejected' ? result.reason : null
+    }));
+  }
+
+  fetchWithTimeout(url, timeout) {
+    return Promise.race([
+      fetch(url),
+      createTimeoutPromise(timeout)
+    ]);
+  }
+}

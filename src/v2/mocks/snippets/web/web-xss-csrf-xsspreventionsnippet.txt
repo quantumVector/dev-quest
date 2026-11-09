@@ -1,0 +1,106 @@
+
+// ✅ ЗАЩИТА ОТ XSS
+
+// 1. Экранирование HTML (серверная сторона)
+function escapeHtml(unsafe) {
+return unsafe
+.replace(/&/g, "&amp;")
+.replace(/</g, "&lt;")
+.replace(/>/g, "&gt;")
+.replace(/"/g, "&quot;")
+.replace(/'/g, "&#039;");
+}
+
+// Node.js/Express с защитой
+app.get('/search', (req, res) => {
+const query = escapeHtml(req.query.q);
+
+res.send(`
+<h1>Результаты поиска для: ${query}</h1>
+`);
+});
+
+// 2. Content Security Policy (CSP)
+app.use((req, res, next) => {
+res.setHeader(
+'Content-Security-Policy',
+"default-src 'self'; " +
+"script-src 'self' 'nonce-{random}'; " +
+"style-src 'self' 'unsafe-inline'; " +
+"img-src 'self' data: https:; " +
+"font-src 'self'; " +
+"connect-src 'self'; " +
+"frame-ancestors 'none';"
+);
+next();
+});
+
+// 3. Использование textContent вместо innerHTML
+function displayCommentSafe(comment) {
+const commentDiv = document.createElement('div');
+commentDiv.className = 'comment';
+
+const textP = document.createElement('p');
+textP.textContent = comment.text; // Безопасно!
+
+const authorSpan = document.createElement('span');
+authorSpan.textContent = `Автор: ${comment.author}`;
+
+commentDiv.appendChild(textP);
+commentDiv.appendChild(authorSpan);
+
+document.getElementById('comments').appendChild(commentDiv);
+}
+
+// 4. DOMPurify для санитизации HTML
+import DOMPurify from 'dompurify';
+
+function displayRichContent(html) {
+const clean = DOMPurify.sanitize(html, {
+ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'p'],
+ALLOWED_ATTR: ['href']
+});
+
+document.getElementById('content').innerHTML = clean;
+}
+
+// 5. React - автоматическое экранирование
+function SafeComment({ comment }) {
+return (
+<div className="comment">
+  {/* React автоматически экранирует */}
+  <p>{comment.text}</p>
+  <span>Автор: {comment.author}</span>
+</div>
+);
+}
+
+// 6. Vue - автоматическое экранирование
+// <template>
+  //   <div class="comment">
+  //     <!-- Vue автоматически экранирует -->
+  //     <p>{{ comment.text }}</p>
+  //     <span>Автор: {{ comment.author }}</span>
+  //   </div>
+  // </template>
+
+// 7. Валидация и санитизация на сервере
+const validator = require('validator');
+
+app.post('/comment', (req, res) => {
+let { text, author } = req.body;
+
+// Валидация
+if (!validator.isLength(text, { min: 1, max: 500 })) {
+return res.status(400).json({ error: 'Invalid text length' });
+}
+
+// Санитизация
+text = validator.escape(text);
+author = validator.escape(author);
+
+// Сохранение в БД
+saveComment({ text, author });
+
+res.json({ success: true });
+});

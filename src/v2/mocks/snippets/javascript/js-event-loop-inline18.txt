@@ -1,0 +1,5 @@
+const channel = new MessageChannel();
+channel.port2.onmessage = () => {
+  // Быстрая макрозадача
+};
+channel.port1.postMessage(null);

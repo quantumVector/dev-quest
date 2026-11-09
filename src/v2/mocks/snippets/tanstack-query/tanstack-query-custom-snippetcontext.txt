@@ -1,0 +1,57 @@
+
+// CacheContext.jsx
+import { createContext, useContext, useRef, useState, useCallback } from 'react';
+
+// Структура записи в кэше:
+// {
+//   data: any,           — полученные данные
+//   status: 'loading' | 'success' | 'error',
+//   error: Error | null,
+//   updatedAt: number,   — timestamp последнего обновления
+// }
+
+const CacheContext = createContext(null);
+
+export function CacheProvider({ children }) {
+  // useRef: кэш не вызывает ре-рендер провайдера при обновлении
+  const cache = useRef({});
+
+  // subscribers: Map<cacheKey, Set<() => void>>
+  // Каждый useCustomQuery подписывается, чтобы получать уведомления
+  const subscribers = useRef({});
+
+  const getEntry = useCallback((key) => {
+    return cache.current[key] ?? null;
+  }, []);
+
+  const setEntry = useCallback((key, entry) => {
+    cache.current[key] = entry;
+
+    // Уведомляем всех подписчиков этого ключа
+    subscribers.current[key]?.forEach(notify => notify());
+  }, []);
+
+  const subscribe = useCallback((key, callback) => {
+    if (!subscribers.current[key]) {
+      subscribers.current[key] = new Set();
+    }
+    subscribers.current[key].add(callback);
+
+    // Возвращаем функцию отписки
+    return () => {
+      subscribers.current[key].delete(callback);
+    };
+  }, []);
+
+  return (
+    <CacheContext.Provider value={{ getEntry, setEntry, subscribe }}>
+      {children}
+    </CacheContext.Provider>
+  );
+}
+
+export function useCache() {
+  const ctx = useContext(CacheContext);
+  if (!ctx) throw new Error('useCache must be used inside CacheProvider');
+  return ctx;
+}

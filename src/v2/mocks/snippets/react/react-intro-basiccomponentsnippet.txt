@@ -1,0 +1,24 @@
+
+// Простой React компонент
+import React from 'react';
+
+function Welcome({ name }) {
+  return (
+    <div className="greeting">
+      <h1>Привет, {name}!</h1>
+      <p>Добро пожаловать в React</p>
+    </div>
+  );
+}
+
+// Использование
+function App() {
+  return (
+    <div>
+      <Welcome name="Иван" />
+      <Welcome name="Мария" />
+    </div>
+  );
+}
+
+export default App;

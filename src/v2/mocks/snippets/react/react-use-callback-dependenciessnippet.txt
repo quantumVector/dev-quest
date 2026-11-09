@@ -1,0 +1,34 @@
+
+// Зависимости в useCallback
+
+function SearchResults({ query, filters }) {
+  const [results, setResults] = useState([]);
+
+  // ❌ НЕПРАВИЛЬНО: Забыли зависимость
+  const handleSearch = useCallback(() => {
+    fetchResults(query, filters) // query и filters не в зависимостях!
+      .then(setResults);
+  }, []); // Будет использовать старые query и filters
+
+  // ✅ ПРАВИЛЬНО: Все используемые переменные в зависимостях
+  const handleSearchCorrect = useCallback(() => {
+    fetchResults(query, filters)
+      .then(setResults);
+  }, [query, filters]); // Пересоздается при изменении query или filters
+
+  // ✅ АЛЬТЕРНАТИВА: Функциональное обновление + ref
+  const filtersRef = useRef(filters);
+  filtersRef.current = filters;
+
+  const handleSearchWithRef = useCallback(() => {
+    fetchResults(query, filtersRef.current)
+      .then(setResults);
+  }, [query]); // Только query в зависимостях
+
+  return (
+    <div>
+      <button onClick={handleSearchCorrect}>Search</button>
+      <ResultsList results={results} />
+    </div>
+  );
+}

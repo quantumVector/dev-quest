@@ -1,0 +1,25 @@
+
+const person = {
+  name: 'David',
+  greet(greeting, punctuation = '.') {
+    console.log(`${greeting}, я ${this.name}${punctuation}`);
+  }
+};
+
+const anotherPerson = { name: 'Eva' };
+
+// call() - вызов с явным this + аргументы через запятую
+person.greet.call(anotherPerson, 'Привет', '!');
+// "Привет, я Eva!"
+
+// apply() - вызов с явным this + аргументы массивом
+person.greet.apply(anotherPerson, ['Здравствуй', '?']);
+// "Здравствуй, я Eva?"
+
+// bind() - создание новой функции с привязанным this
+const boundGreet = person.greet.bind(anotherPerson);
+boundGreet('Добро пожаловать'); // "Добро пожаловать, я Eva."
+
+// bind с частичным применением аргументов
+const boundGreetHello = person.greet.bind(anotherPerson, 'Привет');
+boundGreetHello('!!!'); // "Привет, я Eva!!!"

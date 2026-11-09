@@ -1,0 +1,30 @@
+
+# =====================================
+# DOCKER EXEC - ИНТЕРАКТИВНОЕ ПОДКЛЮЧЕНИЕ
+# =====================================
+
+# Подключение к запущенному контейнеру
+docker exec -it container_name /bin/bash        # Bash терминал
+docker exec -it container_name /bin/sh          # Sh терминал (для Alpine)
+docker exec -it container_name bash             # Краткая форма
+docker exec -it container_name sh               # Для минимальных образов
+
+# Выполнение отдельных команд
+docker exec container_name ls -la               # Выполнить команду без интерактива
+docker exec container_name cat /app/config.json # Посмотреть содержимое файла
+docker exec container_name ps aux               # Процессы в контейнере
+docker exec container_name netstat -tlnp        # Сетевые подключения
+
+# Работа с файловой системой
+docker exec -it container_name find /app -name "*.log"  # Найти лог файлы
+docker exec container_name du -sh /app          # Размер папки приложения
+docker exec container_name df -h                # Свободное место
+
+# Отладка приложения
+docker exec -it container_name env              # Переменные окружения
+docker exec container_name curl localhost:3000/health  # Проверка эндпоинта
+docker exec container_name ping google.com      # Проверка сети
+
+# Работа под другим пользователем
+docker exec -it --user root container_name bash    # Подключиться как root
+docker exec -it --user 1000 container_name sh      # Под определенным UID

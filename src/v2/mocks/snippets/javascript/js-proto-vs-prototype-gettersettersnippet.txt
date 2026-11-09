@@ -1,0 +1,25 @@
+
+// Object.getPrototypeOf и Object.setPrototypeOf
+const animal = {
+  type: 'animal',
+  speak() {
+    return 'Some sound';
+  }
+};
+
+const dog = Object.create(animal);
+dog.name = 'Rex';
+
+// Получение прототипа (современный способ)
+console.log(Object.getPrototypeOf(dog) === animal); // true
+console.log(dog.__proto__ === animal); // true (устаревший)
+
+// Установка прототипа (осторожно!)
+const cat = { name: 'Whiskers' };
+Object.setPrototypeOf(cat, animal);
+console.log(cat.speak()); // "Some sound"
+
+// Проверка наследования
+console.log(dog.isPrototypeOf === undefined); // true (у экземпляров нет)
+console.log(animal.isPrototypeOf(dog)); // true
+console.log(Animal.prototype.isPrototypeOf(rex)); // true

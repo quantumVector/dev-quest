@@ -1,0 +1,16 @@
+
+// ✅ СЛЕДОВАНИЕ DRY - единый источник истины
+function getDiscountRate(user) {
+  return user.membershipYears > 5 ? 0.2 : 0.1;
+}
+
+function calculateDiscount(amount, user) {
+  return amount * getDiscountRate(user);
+}
+
+// Использование
+const userDiscount = calculateDiscount(user.totalPurchases, user);
+const productDiscount = calculateDiscount(product.price, user);
+const cartDiscount = calculateDiscount(cart.total, user);
+
+// Теперь логика скидки в одном месте!

@@ -1,0 +1,123 @@
+
+// Integration тесты - середина пирамиды (30%)
+
+// Преимущества:
+// ✅ Проверяют реальное взаимодействие
+// ✅ Находят проблемы интеграции
+// ✅ Баланс между скоростью и уверенностью
+// ⚠️ Медленнее unit тестов
+// ⚠️ Требуют настройки окружения
+
+// Пример 1: API интеграция
+class UserService {
+  constructor(apiClient, cache) {
+    this.apiClient = apiClient
+    this.cache = cache
+  }
+
+  async getUser(id) {
+    // Проверяем кэш
+    const cached = await this.cache.get(`user:${id}`)
+    if (cached) return JSON.parse(cached)
+
+    // Запрос к API
+    const user = await this.apiClient.get(`/users/${id}`)
+
+    // Сохраняем в кэш
+    await this.cache.set(`user:${id}`, JSON.stringify(user), 3600)
+
+    return user
+  }
+}
+
+describe('UserService Integration', () => {
+  let service
+  let mockApiClient
+  let mockCache
+
+  beforeEach(() => {
+    mockApiClient = {
+      get: jest.fn()
+    }
+    mockCache = {
+      get: jest.fn(),
+      set: jest.fn()
+    }
+    service = new UserService(mockApiClient, mockCache)
+  })
+
+  test('fetches user from API and caches it', async () => {
+    const mockUser = { id: 1, name: 'John' }
+
+    mockCache.get.mockResolvedValue(null) // Нет в кэше
+    mockApiClient.get.mockResolvedValue(mockUser)
+
+    const user = await service.getUser(1)
+
+    // Проверяем взаимодействие
+    expect(mockCache.get).toHaveBeenCalledWith('user:1')
+    expect(mockApiClient.get).toHaveBeenCalledWith('/users/1')
+    expect(mockCache.set).toHaveBeenCalledWith(
+      'user:1',
+      JSON.stringify(mockUser),
+      3600
+    )
+    expect(user).toEqual(mockUser)
+  })
+
+  test('returns cached user without API call', async () => {
+    const cachedUser = JSON.stringify({ id: 1, name: 'John' })
+
+    mockCache.get.mockResolvedValue(cachedUser)
+
+    const user = await service.getUser(1)
+
+    // API не должен вызываться
+    expect(mockApiClient.get).not.toHaveBeenCalled()
+    expect(user).toEqual(JSON.parse(cachedUser))
+  })
+})
+
+// Пример 2: Database интеграция
+describe('User Repository Integration', () => {
+  let db
+  let repository
+
+  beforeAll(async () => {
+    // Настройка тестовой БД
+    db = await setupTestDatabase()
+    repository = new UserRepository(db)
+  })
+
+  afterAll(async () => {
+    await db.close()
+  })
+
+  beforeEach(async () => {
+    await db.query('TRUNCATE TABLE users')
+  })
+
+  test('creates user in database', async () => {
+    const userData = { name: 'John', email: 'john@example.com' }
+
+    const user = await repository.create(userData)
+
+    expect(user.id).toBeDefined()
+    expect(user.name).toBe('John')
+
+    // Проверяем, что действительно в БД
+    const found = await db.query('SELECT * FROM users WHERE id = ?', [user.id])
+    expect(found[0].name).toBe('John')
+  })
+
+  test('finds user by email', async () => {
+    await repository.create({ name: 'John', email: 'john@example.com' })
+
+    const user = await repository.findByEmail('john@example.com')
+
+    expect(user).toBeDefined()
+    expect(user.name).toBe('John')
+  })
+})
+
+// Время выполнения: ~500ms для всех тестов

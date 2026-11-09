@@ -1,0 +1,129 @@
+
+// Кастомные события и их жизненный цикл
+
+// Создание и диспетчеризация кастомных событий
+class EventEmitter {
+  constructor(element) {
+    this.element = element || document;
+  }
+
+  // Создание кастомного события
+  emit(eventName, detail = {}) {
+    const customEvent = new CustomEvent(eventName, {
+      detail: detail,
+      bubbles: true,      // событие всплывает
+      cancelable: true,   // можно отменить с preventDefault()
+      composed: true      // проходит через Shadow DOM границы
+    });
+
+    this.element.dispatchEvent(customEvent);
+    return customEvent;
+  }
+
+  // Удобные методы для подписки
+  on(eventName, handler, options = {}) {
+    this.element.addEventListener(eventName, handler, options);
+  }
+
+  off(eventName, handler) {
+    this.element.removeEventListener(eventName, handler);
+  }
+
+  once(eventName, handler) {
+    this.element.addEventListener(eventName, handler, { once: true });
+  }
+}
+
+// Практический пример: система уведомлений
+class NotificationSystem extends EventEmitter {
+  constructor() {
+    super();
+    this.notifications = [];
+  }
+
+  show(message, type = 'info') {
+    const notification = {
+      id: Date.now(),
+      message,
+      type,
+      timestamp: new Date()
+    };
+
+    this.notifications.push(notification);
+
+    // Генерируем кастомное событие
+    this.emit('notification:show', {
+      notification,
+      count: this.notifications.length
+    });
+
+    return notification;
+  }
+
+  hide(notificationId) {
+    const index = this.notifications.findIndex(n => n.id === notificationId);
+    if (index !== -1) {
+      const notification = this.notifications.splice(index, 1)[0];
+
+      this.emit('notification:hide', {
+        notification,
+        count: this.notifications.length
+      });
+    }
+  }
+
+  clear() {
+    const count = this.notifications.length;
+    this.notifications = [];
+
+    this.emit('notification:clear', {
+      cleared: count
+    });
+  }
+}
+
+// Использование системы уведомлений
+const notifications = new NotificationSystem();
+
+// Подписка на события (можно на фазе погружения)
+document.addEventListener('notification:show', function(event) {
+  console.log('New notification:', event.detail.notification.message);
+  updateNotificationCounter(event.detail.count);
+}, true); // фаза погружения
+
+// Подписка на всплытие
+document.addEventListener('notification:hide', function(event) {
+  console.log('Notification hidden');
+  updateNotificationCounter(event.detail.count);
+});
+
+// Делегирование для UI
+document.addEventListener('click', function(event) {
+  if (event.target.dataset.notify) {
+    const message = event.target.dataset.notify;
+    const type = event.target.dataset.notifyType || 'info';
+
+    notifications.show(message, type);
+  }
+
+  if (event.target.classList.contains('notification-close')) {
+    const notificationId = parseInt(event.target.dataset.notificationId);
+    notifications.hide(notificationId);
+  }
+});
+
+function updateNotificationCounter(count) {
+  const counter = document.getElementById('notification-counter');
+  if (counter) {
+    counter.textContent = count;
+    counter.style.display = count > 0 ? 'block' : 'none';
+  }
+}
+
+// HTML для тестирования:
+// <button data-notify="Задача выполнена!" data-notify-type="success">
+//   Выполнить задачу
+// </button>
+// <button data-notify="Произошла ошибка" data-notify-type="error">
+//   Вызвать ошибку
+// </button>

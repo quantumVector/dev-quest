@@ -1,0 +1,211 @@
+
+// MVVM - Model-View-ViewModel
+// Используем Proxy для реактивности (упрощенный Vue/React подход)
+
+// Модель: данные и бизнес-логика
+class ProductModel {
+  constructor() {
+    this.products = []
+    this.filters = {
+      search: '',
+      category: 'all',
+      minPrice: 0
+    }
+  }
+
+  async fetchProducts() {
+    const response = await fetch('/api/products')
+    this.products = await response.json()
+  }
+
+  addProduct(product) {
+    this.products.push({ ...product, id: Date.now() })
+  }
+
+  updateFilters(filters) {
+    this.filters = { ...this.filters, ...filters }
+  }
+
+  getFilteredProducts() {
+    return this.products.filter(p => {
+      const matchesSearch = p.name.toLowerCase()
+        .includes(this.filters.search.toLowerCase())
+      const matchesCategory = this.filters.category === 'all' ||
+        p.category === this.filters.category
+      const matchesPrice = p.price >= this.filters.minPrice
+
+      return matchesSearch && matchesCategory && matchesPrice
+    })
+  }
+}
+
+// ViewModel: связывает Model и View через реактивность
+class ProductViewModel {
+  constructor(model) {
+    this.model = model
+    this.state = this.createReactiveState({
+      products: [],
+      filteredProducts: [],
+      filters: { search: '', category: 'all', minPrice: 0 },
+      isLoading: false
+    })
+
+    this.init()
+  }
+
+  // Создание реактивного состояния через Proxy
+  createReactiveState(initialState) {
+    return new Proxy(initialState, {
+      set: (target, property, value) => {
+        target[property] = value
+        // Автоматическое обновление View при изменении состояния
+        this.notifyView()
+        return true
+      }
+    })
+  }
+
+  async init() {
+    this.state.isLoading = true
+    await this.model.fetchProducts()
+    this.state.products = this.model.products
+    this.state.filteredProducts = this.model.getFilteredProducts()
+    this.state.isLoading = false
+  }
+
+  // Команды для View (двусторонняя привязка)
+  updateSearch(value) {
+    this.state.filters.search = value
+    this.model.updateFilters({ search: value })
+    this.state.filteredProducts = this.model.getFilteredProducts()
+  }
+
+  updateCategory(value) {
+    this.state.filters.category = value
+    this.model.updateFilters({ category: value })
+    this.state.filteredProducts = this.model.getFilteredProducts()
+  }
+
+  updateMinPrice(value) {
+    this.state.filters.minPrice = parseFloat(value)
+    this.model.updateFilters({ minPrice: parseFloat(value) })
+    this.state.filteredProducts = this.model.getFilteredProducts()
+  }
+
+  addProduct(product) {
+    this.model.addProduct(product)
+    this.state.products = this.model.products
+    this.state.filteredProducts = this.model.getFilteredProducts()
+  }
+
+  // Подписка View на изменения
+  subscribe(callback) {
+    this.viewCallback = callback
+  }
+
+  notifyView() {
+    if (this.viewCallback) {
+      this.viewCallback(this.state)
+    }
+  }
+}
+
+// View: декларативное представление с биндингами
+class ProductView {
+  constructor(viewModel) {
+    this.viewModel = viewModel
+    this.container = document.getElementById('product-app')
+
+    // View подписывается на изменения ViewModel
+    this.viewModel.subscribe(this.render.bind(this))
+
+    // Инициализация event listeners
+    this.bindEvents()
+  }
+
+  render(state) {
+    this.container.innerHTML = `
+      <div class="product-manager">
+        <!-- Filters с двусторонней привязкой -->
+        <div class="filters">
+          <input
+            type="text"
+            id="search"
+            placeholder="Search products"
+            value="${state.filters.search}"
+          >
+          <select id="category">
+            <option value="all">All Categories</option>
+            <option value="electronics">Electronics</option>
+            <option value="books">Books</option>
+          </select>
+          <input
+            type="number"
+            id="minPrice"
+            placeholder="Min price"
+            value="${state.filters.minPrice}"
+          >
+        </div>
+
+        <!-- Product list -->
+        <div class="products">
+          ${state.isLoading ? '<p>Loading...</p>' : ''}
+          ${state.filteredProducts.map(p => `
+            <div class="product-card">
+              <h3>${p.name}</h3>
+              <p>Category: ${p.category}</p>
+              <p class="price">$${p.price}</p>
+            </div>
+          `).join('')}
+        </div>
+
+        <!-- Add product form -->
+        <form id="add-product-form">
+          <input type="text" name="name" placeholder="Product name" required>
+          <input type="number" name="price" placeholder="Price" required>
+          <select name="category">
+            <option value="electronics">Electronics</option>
+            <option value="books">Books</option>
+          </select>
+          <button type="submit">Add Product</button>
+        </form>
+      </div>
+    `
+  }
+
+  bindEvents() {
+    // Двусторонняя привязка данных
+    this.container.addEventListener('input', (e) => {
+      if (e.target.id === 'search') {
+        this.viewModel.updateSearch(e.target.value)
+      }
+      if (e.target.id === 'minPrice') {
+        this.viewModel.updateMinPrice(e.target.value)
+      }
+    })
+
+    this.container.addEventListener('change', (e) => {
+      if (e.target.id === 'category') {
+        this.viewModel.updateCategory(e.target.value)
+      }
+    })
+
+    this.container.addEventListener('submit', (e) => {
+      if (e.target.id === 'add-product-form') {
+        e.preventDefault()
+        const formData = new FormData(e.target)
+        this.viewModel.addProduct({
+          name: formData.get('name'),
+          price: parseFloat(formData.get('price')),
+          category: formData.get('category')
+        })
+        e.target.reset()
+      }
+    })
+  }
+}
+
+// Инициализация MVVM
+const productModel = new ProductModel()
+const productViewModel = new ProductViewModel(productModel)
+const productView = new ProductView(productViewModel)

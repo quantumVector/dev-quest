@@ -1,0 +1,63 @@
+
+// Accessibility Tree - параллельная DOM структура для assistive technologies
+
+// Правильная семантика
+<button onclick="handleClick()">
+  Click me
+</button>
+
+// ❌ ПЛОХО - div без семантики
+<div onclick="handleClick()">
+  Click me
+</div>
+
+// ✅ ПРАВИЛЬНО с ARIA
+<div role="button" tabindex="0"
+     onclick="handleClick()"
+     onkeypress="handleKeyPress(event)">
+  Click me
+</div>
+
+// ARIA атрибуты для сложных виджетов
+<div role="tablist" aria-label="Product tabs">
+  <button role="tab"
+          aria-selected="true"
+          aria-controls="panel-1"
+          id="tab-1">
+    Overview
+  </button>
+  <button role="tab"
+          aria-selected="false"
+          aria-controls="panel-2"
+          id="tab-2">
+    Specs
+  </button>
+</div>
+
+<div role="tabpanel" id="panel-1" aria-labelledby="tab-1">
+  <!-- Content -->
+</div>
+
+// Live regions для динамического контента
+<div role="status" aria-live="polite" aria-atomic="true">
+  Loading...
+</div>
+
+// Проверка контрастности программно
+function checkContrast(foreground, background) {
+  // Упрощенная формула относительной яркости
+  const getLuminance = (color) => {
+    const rgb = color.match(/d+/g).map(Number);
+    return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
+  };
+
+  const l1 = getLuminance(foreground);
+  const l2 = getLuminance(background);
+  const ratio = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+
+  return {
+    ratio: ratio.toFixed(2),
+    passAA: ratio >= 4.5,
+    passAAA: ratio >= 7
+  };
+}

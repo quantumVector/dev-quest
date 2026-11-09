@@ -1,0 +1,26 @@
+
+const obj = {
+  regularProp: 'visible',
+  _secret: 'hidden'
+}
+
+// Скрываем приватные свойства
+Object.defineProperty(obj, '_secret', {
+  enumerable: false
+})
+
+console.log(Object.keys(obj)) // ['regularProp']
+for (let key in obj) {
+  console.log(key) // только 'regularProp'
+}
+
+// Но свойство все еще доступно напрямую
+console.log(obj._secret) // 'hidden'
+
+// Создаем неизменяемое свойство
+Object.defineProperty(obj, 'constant', {
+  value: 'CONST_VALUE',
+  writable: false,
+  enumerable: true,
+  configurable: false
+})

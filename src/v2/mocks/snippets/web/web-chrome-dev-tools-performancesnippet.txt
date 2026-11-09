@@ -1,0 +1,20 @@
+
+// Измерение производительности функции
+console.time('myFunction');
+myFunction();
+console.timeEnd('myFunction');
+
+// Performance API для точных измерений
+const startTime = performance.now();
+await heavyOperation();
+const endTime = performance.now();
+console.log(`Execution time: ${endTime - startTime}ms`);
+
+// Маркеры для Performance Timeline
+performance.mark('task-start');
+doSomething();
+performance.mark('task-end');
+performance.measure('task-duration', 'task-start', 'task-end');
+
+const measures = performance.getEntriesByType('measure');
+console.log(measures);

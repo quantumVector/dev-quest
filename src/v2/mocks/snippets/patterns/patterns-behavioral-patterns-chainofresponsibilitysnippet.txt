@@ -1,0 +1,137 @@
+
+// CHAIN OF RESPONSIBILITY - Цепочка обработчиков
+
+// Базовый обработчик
+class Handler {
+  constructor() {
+    this.nextHandler = null
+  }
+
+  setNext(handler) {
+    this.nextHandler = handler
+    return handler
+  }
+
+  handle(request) {
+    if (this.nextHandler) {
+      return this.nextHandler.handle(request)
+    }
+    return null
+  }
+}
+
+// Обработчики для middleware
+class AuthHandler extends Handler {
+  handle(request) {
+    if (!request.user) {
+      return { error: 'Unauthorized', status: 401 }
+    }
+    console.log('Auth passed')
+    return super.handle(request)
+  }
+}
+
+class ValidationHandler extends Handler {
+  handle(request) {
+    if (!request.data || !request.data.title) {
+      return { error: 'Invalid data', status: 400 }
+    }
+    console.log('Validation passed')
+    return super.handle(request)
+  }
+}
+
+class LoggingHandler extends Handler {
+  handle(request) {
+    console.log('Request:', request)
+    return super.handle(request)
+  }
+}
+
+class RateLimitHandler extends Handler {
+  constructor() {
+    super()
+    this.requests = new Map()
+  }
+
+  handle(request) {
+    const userId = request.user?.id
+    const now = Date.now()
+    const userRequests = this.requests.get(userId) || []
+
+    // Проверяем количество запросов за последнюю минуту
+    const recentRequests = userRequests.filter(time => now - time < 60000)
+
+    if (recentRequests.length >= 10) {
+      return { error: 'Rate limit exceeded', status: 429 }
+    }
+
+    recentRequests.push(now)
+    this.requests.set(userId, recentRequests)
+
+    console.log('Rate limit passed')
+    return super.handle(request)
+  }
+}
+
+// API Client с Chain of Responsibility
+class APIClient {
+  constructor() {
+    this.chain = this.buildChain()
+  }
+
+  buildChain() {
+    const auth = new AuthHandler()
+    const rateLimit = new RateLimitHandler()
+    const validation = new ValidationHandler()
+    const logging = new LoggingHandler()
+
+    // Строим цепочку
+    auth.setNext(rateLimit).setNext(validation).setNext(logging)
+
+    return auth
+  }
+
+  async request(request) {
+    // Проходим через цепочку обработчиков
+    const error = this.chain.handle(request)
+
+    if (error) {
+      throw error
+    }
+
+    // Если все проверки прошли, делаем запрос
+    return fetch(request.url, {
+      method: request.method,
+      body: JSON.stringify(request.data),
+      headers: {
+        'Authorization': `Bearer ${request.user.token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+  }
+}
+
+// React: Hook для API с middleware chain
+function useAPIWithMiddleware() {
+  const client = useRef(new APIClient())
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+
+  const makeRequest = async (request) => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      const response = await client.current.request(request)
+      return await response.json()
+    } catch (err) {
+      setError(err)
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return { makeRequest, loading, error }
+}

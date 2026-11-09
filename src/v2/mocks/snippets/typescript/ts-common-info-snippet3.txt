@@ -1,0 +1,93 @@
+
+// =====================================
+// РЕФАКТОРИНГ И ПОДДЕРЖКА КОДА
+// =====================================
+
+// Интерфейсы как контракты
+interface PaymentProcessor {
+  processPayment(amount: number, currency: string): Promise<boolean>;
+  refund(transactionId: string): Promise<boolean>;
+}
+
+// Любой класс, реализующий интерфейс, должен иметь все методы
+class StripeProcessor implements PaymentProcessor {
+  async processPayment(amount: number, currency: string): Promise<boolean> {
+    // Реализация
+    return true;
+  }
+
+  async refund(transactionId: string): Promise<boolean> {
+    // Реализация
+    return true;
+  }
+
+  // Если забыть метод, TypeScript выдаст ошибку
+}
+
+// Type guards для безопасного сужения типов
+type Shape = Circle | Rectangle;
+
+interface Circle {
+  kind: "circle";
+  radius: number;
+}
+
+interface Rectangle {
+  kind: "rectangle";
+  width: number;
+  height: number;
+}
+
+function getArea(shape: Shape): number {
+  // Type guard через проверку дискриминанта
+  if (shape.kind === "circle") {
+    // TypeScript знает, что здесь shape - это Circle
+    return Math.PI * shape.radius ** 2;
+  } else {
+    // TypeScript знает, что здесь shape - это Rectangle
+    return shape.width * shape.height;
+  }
+}
+
+// Utility types для трансформации типов
+interface Todo {
+  title: string;
+  description: string;
+  completed: boolean;
+  createdAt: Date;
+}
+
+// Partial - все поля опциональны
+type TodoUpdate = Partial<Todo>;
+
+function updateTodo(id: number, updates: TodoUpdate) {
+  // updates может содержать любые поля из Todo или не содержать вообще
+}
+
+// Pick - выбираем только нужные поля
+type TodoPreview = Pick<Todo, "title" | "completed">;
+
+// Omit - исключаем ненужные поля
+type TodoFormData = Omit<Todo, "createdAt">;
+
+// Readonly - делаем поля неизменяемыми
+type ImmutableTodo = Readonly<Todo>;
+
+const todo: ImmutableTodo = {
+  title: "Задача",
+  description: "Описание",
+  completed: false,
+  createdAt: new Date()
+};
+
+// todo.completed = true; // ❌ Ошибка: поле readonly
+
+// Record для создания объектов-словарей
+type UserRoles = "admin" | "user" | "guest";
+type Permissions = Record<UserRoles, string[]>;
+
+const permissions: Permissions = {
+  admin: ["read", "write", "delete"],
+  user: ["read", "write"],
+  guest: ["read"]
+};

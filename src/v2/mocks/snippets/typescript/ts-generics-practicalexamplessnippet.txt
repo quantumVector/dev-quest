@@ -1,0 +1,395 @@
+
+// =====================================
+// ПРАКТИЧЕСКИЕ ПРИМЕРЫ
+// =====================================
+
+// 1. Generic для API запросов
+interface ApiResponse<T> {
+  data: T
+  status: number
+  message: string
+  timestamp: Date
+}
+
+async function apiRequest<T>(url: string): Promise<ApiResponse<T>> {
+  const response = await fetch(url)
+  const data = await response.json()
+  return {
+    data,
+    status: response.status,
+    message: response.statusText,
+    timestamp: new Date()
+  }
+}
+
+// Использование
+interface User {
+  id: number
+  name: string
+  email: string
+}
+
+const userResponse = await apiRequest<User>('/api/users/1')
+console.log(userResponse.data.name)  // TypeScript знает о name
+
+// 2. Generic для кэша с TTL
+class CacheWithTTL<K, V> {
+  private cache = new Map<K, { value: V; expiry: number }>()
+
+  set(key: K, value: V, ttl: number = 60000): void {
+    const expiry = Date.now() + ttl
+    this.cache.set(key, { value, expiry })
+  }
+
+  get(key: K): V | undefined {
+    const item = this.cache.get(key)
+    if (!item) return undefined
+
+    if (Date.now() > item.expiry) {
+      this.cache.delete(key)
+      return undefined
+    }
+
+    return item.value
+  }
+
+  has(key: K): boolean {
+    const value = this.get(key)
+    return value !== undefined
+  }
+
+  delete(key: K): boolean {
+    return this.cache.delete(key)
+  }
+
+  clear(): void {
+    this.cache.clear()
+  }
+
+  // Очистка устаревших записей
+  cleanup(): void {
+    const now = Date.now()
+    for (const [key, item] of this.cache.entries()) {
+      if (now > item.expiry) {
+        this.cache.delete(key)
+      }
+    }
+  }
+}
+
+// Использование
+const userCache = new CacheWithTTL<number, User>()
+userCache.set(1, { id: 1, name: "John", email: "john@example.com" }, 5000)
+
+const user = userCache.get(1)
+if (user) {
+  console.log(user.name)
+}
+
+// 3. Generic для State Machine
+type StateMachine<S extends string, E extends string> = {
+  current: S
+  transitions: Record<S, Partial<Record<E, S>>>
+  transition(event: E): S | undefined
+}
+
+function createStateMachine<S extends string, E extends string>(
+  initial: S,
+  transitions: Record<S, Partial<Record<E, S>>>
+): StateMachine<S, E> {
+  let current = initial
+
+  return {
+    current,
+    transitions,
+    transition(event: E) {
+      const nextState = transitions[current]?.[event]
+      if (nextState) {
+        current = nextState
+        this.current = current
+        return current
+      }
+      return undefined
+    }
+  }
+}
+
+// Использование
+type OrderState = 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled'
+type OrderEvent = 'confirm' | 'ship' | 'deliver' | 'cancel'
+
+const orderMachine = createStateMachine<OrderState, OrderEvent>('pending', {
+  pending: { confirm: 'confirmed', cancel: 'cancelled' },
+  confirmed: { ship: 'shipped', cancel: 'cancelled' },
+  shipped: { deliver: 'delivered' },
+  delivered: {},
+  cancelled: {}
+})
+
+console.log(orderMachine.current)  // "pending"
+orderMachine.transition('confirm')
+console.log(orderMachine.current)  // "confirmed"
+
+// 4. Generic для валидации форм
+type ValidationRule<T> = (value: T) => string | null
+
+type ValidationSchema<T> = {
+  [K in keyof T]: ValidationRule<T[K]>[]
+}
+
+function createValidator<T>(schema: ValidationSchema<T>) {
+  return (data: T): Record<keyof T, string[]> => {
+    const errors = {} as Record<keyof T, string[]>
+
+    for (const key in schema) {
+      const rules = schema[key]
+      const value = data[key]
+      const fieldErrors: string[] = []
+
+      for (const rule of rules) {
+        const error = rule(value)
+        if (error) {
+          fieldErrors.push(error)
+        }
+      }
+
+      if (fieldErrors.length > 0) {
+        errors[key] = fieldErrors
+      }
+    }
+
+    return errors
+  }
+}
+
+// Использование
+interface LoginForm {
+  email: string
+  password: string
+}
+
+const required = (fieldName: string) =>
+  <T>(value: T): string | null =>
+    !value ? `${fieldName} is required` : null
+
+const minLength = (min: number, fieldName: string) =>
+  (value: string): string | null =>
+    value.length < min ? `${fieldName} must be at least ${min} characters` : null
+
+const email = (value: string): string | null =>
+  !value.includes('@') ? 'Invalid email format' : null
+
+const validateLogin = createValidator<LoginForm>({
+  email: [required('Email'), email],
+  password: [required('Password'), minLength(8, 'Password')]
+})
+
+const errors = validateLogin({
+  email: 'invalid-email',
+  password: 'short'
+})
+
+console.log(errors)
+// { email: ['Invalid email format'], password: ['Password must be at least 8 characters'] }
+
+// 5. Generic для создания type-safe Redux actions
+type Action<T extends string, P = void> = P extends void
+  ? { type: T }
+  : { type: T; payload: P }
+
+function createAction<T extends string>(type: T): Action<T, void>
+function createAction<T extends string, P>(type: T, payload: P): Action<T, P>
+function createAction<T extends string, P>(type: T, payload?: P) {
+  return payload === undefined
+    ? { type }
+    : { type, payload }
+}
+
+// Использование
+const increment = createAction('INCREMENT')
+const decrement = createAction('DECREMENT')
+const setCount = createAction('SET_COUNT', 42)
+
+console.log(increment)  // { type: 'INCREMENT' }
+console.log(setCount)   // { type: 'SET_COUNT', payload: 42 }
+
+// 6. Generic для Dependency Injection Container
+class Container {
+  private services = new Map<string, any>()
+
+  register<T>(key: string, factory: () => T): void {
+    this.services.set(key, factory)
+  }
+
+  resolve<T>(key: string): T {
+    const factory = this.services.get(key)
+    if (!factory) {
+      throw new Error(`Service ${key} not found`)
+    }
+    return factory()
+  }
+
+  has(key: string): boolean {
+    return this.services.has(key)
+  }
+}
+
+// Использование
+interface Logger {
+  log(message: string): void
+}
+
+class ConsoleLogger implements Logger {
+  log(message: string): void {
+    console.log(`[LOG]: ${message}`)
+  }
+}
+
+const container = new Container()
+container.register<Logger>('logger', () => new ConsoleLogger())
+
+const logger = container.resolve<Logger>('logger')
+logger.log('Hello, DI!')
+
+// 7. Generic для построения SQL-like запросов
+class QueryBuilder<T> {
+  private selectFields: (keyof T)[] = []
+  private whereConditions: Array<(item: T) => boolean> = []
+  private orderByField?: keyof T
+  private orderDirection: 'asc' | 'desc' = 'asc'
+  private limitValue?: number
+
+  select(...fields: (keyof T)[]): this {
+    this.selectFields = fields
+    return this
+  }
+
+  where(predicate: (item: T) => boolean): this {
+    this.whereConditions.push(predicate)
+    return this
+  }
+
+  orderBy(field: keyof T, direction: 'asc' | 'desc' = 'asc'): this {
+    this.orderByField = field
+    this.orderDirection = direction
+    return this
+  }
+
+  limit(value: number): this {
+    this.limitValue = value
+    return this
+  }
+
+  execute(data: T[]): Partial<T>[] {
+    let result = [...data]
+
+    // WHERE
+    for (const condition of this.whereConditions) {
+      result = result.filter(condition)
+    }
+
+    // ORDER BY
+    if (this.orderByField) {
+      result.sort((a, b) => {
+        const aVal = a[this.orderByField!]
+        const bVal = b[this.orderByField!]
+        const comparison = aVal < bVal ? -1 : aVal > bVal ? 1 : 0
+        return this.orderDirection === 'asc' ? comparison : -comparison
+      })
+    }
+
+    // LIMIT
+    if (this.limitValue !== undefined) {
+      result = result.slice(0, this.limitValue)
+    }
+
+    // SELECT
+    if (this.selectFields.length > 0) {
+      return result.map(item => {
+        const selected: Partial<T> = {}
+        for (const field of this.selectFields) {
+          selected[field] = item[field]
+        }
+        return selected
+      })
+    }
+
+    return result
+  }
+}
+
+// Использование
+interface Product {
+  id: number
+  name: string
+  price: number
+  category: string
+}
+
+const products: Product[] = [
+  { id: 1, name: "Laptop", price: 1000, category: "Electronics" },
+  { id: 2, name: "Phone", price: 500, category: "Electronics" },
+  { id: 3, name: "Book", price: 20, category: "Books" }
+]
+
+const query = new QueryBuilder<Product>()
+  .select('name', 'price')
+  .where(p => p.category === 'Electronics')
+  .orderBy('price', 'desc')
+  .limit(1)
+  .execute(products)
+
+console.log(query)  // [{ name: "Laptop", price: 1000 }]
+
+// 8. Generic для создания type-safe router
+type RouteParams = Record<string, string>
+
+interface Route<P extends RouteParams = {}> {
+  path: string
+  handler: (params: P) => void
+}
+
+class Router<Routes extends Record<string, Route>> {
+  private routes: Routes
+
+  constructor(routes: Routes) {
+    this.routes = routes
+  }
+
+  navigate<K extends keyof Routes>(
+    name: K,
+    params: Routes[K] extends Route<infer P> ? P : never
+  ): void {
+    const route = this.routes[name]
+    route.handler(params)
+  }
+
+  getRoute<K extends keyof Routes>(name: K): Routes[K] {
+    return this.routes[name]
+  }
+}
+
+// Использование
+const router = new Router({
+  home: {
+    path: '/',
+    handler: () => console.log('Home page')
+  },
+  user: {
+    path: '/user/:id',
+    handler: (params: { id: string }) => {
+      console.log(`User page: ${params.id}`)
+    }
+  },
+  post: {
+    path: '/post/:postId/comment/:commentId',
+    handler: (params: { postId: string; commentId: string }) => {
+      console.log(`Post: ${params.postId}, Comment: ${params.commentId}`)
+    }
+  }
+})
+
+router.navigate('home', {})
+router.navigate('user', { id: '123' })
+router.navigate('post', { postId: '456', commentId: '789' })
+// router.navigate('user', { id: 123 })  // ❌ Error: должен быть string

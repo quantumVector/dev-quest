@@ -1,0 +1,15 @@
+
+import { atom, createStore } from 'jotai'
+
+const countAtom = atom(0)
+const store = createStore()
+
+store.set(countAtom, 5)
+
+const count = store.get(countAtom)
+
+const unsubscribe = store.sub(countAtom, () => {
+  console.log('Count changed:', store.get(countAtom))
+})
+
+unsubscribe()

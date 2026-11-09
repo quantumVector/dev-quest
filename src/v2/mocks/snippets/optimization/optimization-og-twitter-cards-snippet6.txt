@@ -1,0 +1,87 @@
+
+// Next.js - метаданные через Metadata API (App Router)
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Заголовок страницы',
+  description: 'Описание страницы',
+  openGraph: {
+    type: 'article',
+    url: 'https://example.com/article',
+    title: 'Заголовок для OG',
+    description: 'Описание для OG',
+    siteName: 'Название сайта',
+    locale: 'ru_RU',
+    images: [
+      {
+        url: 'https://example.com/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Описание изображения',
+      },
+      {
+        url: 'https://example.com/og-image-square.jpg',
+        width: 1080,
+        height: 1080,
+        alt: 'Квадратное изображение',
+      }
+    ],
+    article: {
+      publishedTime: '2025-02-03T10:00:00Z',
+      modifiedTime: '2025-02-03T15:00:00Z',
+      authors: ['https://example.com/author'],
+      tags: ['JavaScript', 'Next.js'],
+    }
+  },
+  twitter: {
+    card: 'summary_large_image',
+    site: '@username',
+    creator: '@author',
+    title: 'Заголовок для Twitter',
+    description: 'Описание для Twitter',
+    images: ['https://example.com/twitter-image.jpg'],
+  },
+  alternates: {
+    canonical: 'https://example.com/article',
+  }
+};
+
+export default function ArticlePage() {
+  return (
+    <article>
+      <h1>Заголовок статьи</h1>
+      {/* Контент */}
+    </article>
+  );
+}
+
+// Динамическая генерация метаданных
+export async function generateMetadata({
+  params
+}: {
+  params: { slug: string }
+}): Promise<Metadata> {
+  const article = await fetchArticle(params.slug);
+
+  return {
+    title: article.title,
+    description: article.excerpt,
+    openGraph: {
+      title: article.title,
+      description: article.excerpt,
+      images: [article.coverImage],
+      type: 'article',
+      article: {
+        publishedTime: article.publishedAt,
+        authors: [article.author.url],
+        tags: article.tags,
+      }
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: article.title,
+      description: article.excerpt,
+      images: [article.coverImage],
+    }
+  };
+}

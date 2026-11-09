@@ -1,0 +1,4 @@
+// С constraints
+function process<T extends number[]>(data: T) {
+  return data.map(x => x * 2) // ✅ OK
+}

@@ -1,0 +1,21 @@
+
+# Альтернативные решения
+
+# 1. Apache .htaccess
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  RewriteRule ^index.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>
+
+# 2. Express.js сервер
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
+
+# 3. Hash Router (не требует серверной настройки)
+# URL: https://example.com/#/about
+# Все после # обрабатывается только клиентом

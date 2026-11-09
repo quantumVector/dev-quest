@@ -1,0 +1,21 @@
+
+<!-- Microdata формат (встроенный в HTML) -->
+<article itemscope itemtype="https://schema.org/Article">
+<header>
+  <h1 itemprop="headline">Полное руководство по React Hooks</h1>
+  <p>
+    <time itemprop="datePublished" datetime="2025-02-04T08:00:00+00:00">
+      4 февраля 2025
+    </time>
+    автор:
+    <span itemprop="author" itemscope itemtype="https://schema.org/Person">
+        <span itemprop="name">Иван Петров</span>
+      </span>
+  </p>
+  <img itemprop="image" src="article-image.jpg" alt="React Hooks">
+</header>
+
+<div itemprop="articleBody">
+  <p>Содержимое статьи...</p>
+</div>
+</article>

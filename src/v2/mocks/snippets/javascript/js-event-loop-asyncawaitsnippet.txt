@@ -1,0 +1,34 @@
+
+// async/await и Event Loop
+async function asyncFunction() {
+  console.log('Async function start');
+
+  const result = await Promise.resolve('Async result');
+  console.log(result);
+
+  console.log('Async function end');
+}
+
+console.log('Script start');
+
+asyncFunction();
+
+Promise.resolve().then(() => {
+  console.log('Promise then');
+});
+
+console.log('Script end');
+
+// Вывод:
+// Script start
+// Async function start
+// Script end
+// Async result
+// Promise then
+// Async function end
+
+// Объяснение:
+// 1. asyncFunction() начинается синхронно до первого await
+// 2. await создает микрозадачу и приостанавливает функцию
+// 3. Выполняется остальной синхронный код
+// 4. Выполняются микрозадачи в порядке создания

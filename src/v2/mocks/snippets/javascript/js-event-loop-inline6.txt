@@ -1,0 +1,9 @@
+// Выполнить перед рендерингом
+requestAnimationFrame(() => {
+  console.log('Перед рендером');
+});
+
+// Выполнить после рендеринга
+requestAnimationFrame(() => {
+  setTimeout(() => console.log('После рендера'), 0);
+});

@@ -1,0 +1,18 @@
+
+<!-- HTML Template -->
+<template id="card-template">
+  <div class="card">
+    <h3 class="title">Заголовок</h3>
+    <p class="content">Содержимое</p>
+  </div>
+  <style>
+    .card { border: 1px solid #ddd; padding: 16px; }
+  </style>
+</template>
+
+<script>
+// Использование template
+const template = document.getElementById('card-template');
+const clone = template.content.cloneNode(true);
+document.body.appendChild(clone);
+</script>

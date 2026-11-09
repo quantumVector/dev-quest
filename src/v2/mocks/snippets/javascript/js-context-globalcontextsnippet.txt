@@ -1,0 +1,15 @@
+
+// Глобальный контекст (Global Execution Context)
+console.log(this); // В браузере: Window, в Node.js: global
+
+var globalVar = 'Глобальная переменная';
+let globalLet = 'Глобальный let';
+
+function globalFunction() {
+    console.log(this); // В строгом режиме: undefined, иначе: Window/global
+    return 'Глобальная функция';
+}
+
+// this в глобальном контексте
+console.log(this.globalVar); // 'Глобальная переменная'
+console.log(this.globalLet); // undefined (let не создает свойство объекта)

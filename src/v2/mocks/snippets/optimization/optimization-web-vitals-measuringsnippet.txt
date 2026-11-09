@@ -1,0 +1,17 @@
+
+// Измерение Web Vitals
+
+// 1. Библиотека web-vitals (рекомендуется)
+import {onCLS, onFCP, onLCP, onTTFB, onINP} from 'web-vitals';
+onLCP(metric => console.log('LCP:', metric.value));
+
+// 2. Performance Observer API (нативный способ)
+const observer = new PerformanceObserver(list => {
+  list.getEntries().forEach(entry => console.log(entry));
+});
+observer.observe({entryTypes: ['largest-contentful-paint']});
+
+// 3. Инструменты:
+// • Chrome DevTools → Lighthouse
+// • PageSpeed Insights (https://pagespeed.web.dev/)
+// • WebPageTest (https://www.webpagetest.org/)

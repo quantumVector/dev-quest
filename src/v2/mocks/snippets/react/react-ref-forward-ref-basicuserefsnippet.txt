@@ -1,0 +1,16 @@
+
+import { useRef, useEffect } from 'react';
+
+function AutoFocusInput() {
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    // Доступ к DOM-элементу
+    inputRef.current.focus();
+  }, []);
+
+  return <input ref={inputRef} type="text" />;
+}
+
+// useRef создает объект { current: null }
+// React автоматически присваивает DOM-элемент в ref.current

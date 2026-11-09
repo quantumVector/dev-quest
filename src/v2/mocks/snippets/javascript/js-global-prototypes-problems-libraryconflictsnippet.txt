@@ -1,0 +1,24 @@
+
+// Реальный пример конфликта библиотек
+
+// Lodash добавляет методы в прототипы (в старых версиях)
+Array.prototype.first = function() {
+  return this[0];
+}
+
+// Ваш код добавляет другой метод
+Array.prototype.first = function(n = 1) {
+  return this.slice(0, n);
+}
+
+const arr = [1, 2, 3, 4, 5];
+
+// Какой результат ожидается?
+console.log(arr.first());    // 1 или [1]?
+console.log(arr.first(3));   // [1, 2, 3] или undefined?
+
+// Использование в for...in сломается
+const myArray = ['a', 'b', 'c'];
+for (let key in myArray) {
+  console.log(key); // "0", "1", "2", "first" <- нежелательное поведение!
+}

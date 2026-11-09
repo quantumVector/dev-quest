@@ -1,0 +1,75 @@
+
+// Модульный паттерн с замыканием
+const Calculator = (function() {
+  // Приватные переменные и методы
+  let result = 0;
+  let history = [];
+
+  function log(operation, value) {
+    history.push(`${operation}: ${value} = ${result}`);
+  }
+
+  function validateNumber(num) {
+    if (typeof num !== 'number' || isNaN(num)) {
+      throw new Error('Недопустимое число');
+    }
+  }
+
+  // Публичные методы (замыкания)
+  return {
+    add: function(num) {
+      validateNumber(num);
+      result += num;
+      log('ADD', num);
+      return this; // Для цепочки вызовов
+    },
+
+    subtract: function(num) {
+      validateNumber(num);
+      result -= num;
+      log('SUBTRACT', num);
+      return this;
+    },
+
+    multiply: function(num) {
+      validateNumber(num);
+      result *= num;
+      log('MULTIPLY', num);
+      return this;
+    },
+
+    divide: function(num) {
+      validateNumber(num);
+      if (num === 0) throw new Error('Деление на ноль');
+      result /= num;
+      log('DIVIDE', num);
+      return this;
+    },
+
+    getResult: function() {
+      return result;
+    },
+
+    getHistory: function() {
+      return history.slice(); // Возвращаем копию
+    },
+
+    clear: function() {
+      result = 0;
+      history = [];
+      return this;
+    }
+  };
+})();
+
+// Использование
+Calculator
+  .add(10)
+  .multiply(2)
+  .subtract(5);
+
+console.log(Calculator.getResult()); // 15
+console.log(Calculator.getHistory()); // История операций
+
+// result и history недоступны напрямую
+console.log(Calculator.result); // undefined

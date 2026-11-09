@@ -1,0 +1,22 @@
+
+// Простой пример замыкания
+function outerFunction(x) {
+  // Переменная во внешней функции
+  let outerVariable = x;
+
+  // Внутренняя функция имеет доступ к переменным внешней функции
+  function innerFunction(y) {
+    return outerVariable + y; // Использует outerVariable из внешней области
+  }
+
+  return innerFunction; // Возвращаем внутреннюю функцию
+}
+
+const myClosure = outerFunction(10); // outerFunction завершилась, но...
+console.log(myClosure(5)); // 15 - innerFunction всё ещё помнит outerVariable!
+
+// Что происходит:
+// 1. outerFunction создает переменную outerVariable
+// 2. innerFunction создается и "захватывает" ссылку на outerVariable
+// 3. outerFunction возвращает innerFunction и завершается
+// 4. innerFunction сохраняет доступ к outerVariable (это и есть замыкание)

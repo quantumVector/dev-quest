@@ -1,0 +1,39 @@
+
+// Две стратегии ревалидации:
+
+// Стратегия 1: при фокусе окна (как в TanStack Query по умолчанию)
+useEffect(() => {
+  const handleFocus = () => {
+    const entry = getEntry(cacheKey);
+    const isStale = !entry?.updatedAt
+      || Date.now() - entry.updatedAt > staleTime;
+
+    if (isStale) {
+      fetchData();
+    }
+  };
+
+  window.addEventListener('focus', handleFocus);
+  return () => window.removeEventListener('focus', handleFocus);
+}, [cacheKey, staleTime]);
+
+// Стратегия 2: фоновый интервал (аналог refetchInterval)
+useEffect(() => {
+  if (!refetchInterval) return;
+
+  const id = setInterval(() => {
+    fetchData();
+  }, refetchInterval);
+
+  return () => clearInterval(id);
+}, [refetchInterval, fetchData]);
+
+// Как staleTime влияет на поведение:
+//
+// staleTime: 0        — каждый mount триггерит запрос (данные сразу устарели)
+// staleTime: 5000     — 5 секунд данные считаются свежими
+// staleTime: Infinity — кэш никогда не устаревает (только ручной refetch)
+//
+// Разница с gcTime (cacheTime в старых версиях):
+// staleTime — когда данные считаются устаревшими (нужен новый запрос)
+// gcTime    — когда данные удаляются из кэша (нет подписчиков + таймер)

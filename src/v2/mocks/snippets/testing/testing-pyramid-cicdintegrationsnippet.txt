@@ -1,0 +1,103 @@
+
+# CI/CD интеграция с пирамидой тестирования
+
+# GitHub Actions пример
+name: Testing Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  # ШАГ 1: Unit тесты (быстрые, запускаются всегда)
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - run: npm ci
+      - run: npm run test:unit
+        # Время: ~1-2 минуты
+        # Покрытие: 60% всех тестов
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+
+  # ШАГ 2: Integration тесты (средняя скорость)
+  integration-tests:
+    runs-on: ubuntu-latest
+    needs: unit-tests  # Запускаются после unit
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: test_db
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+
+      - run: npm ci
+      - run: npm run test:integration
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/test_db
+        # Время: ~3-5 минут
+        # Покрытие: 30% всех тестов
+
+  # ШАГ 3: E2E тесты (медленные, только на важных ветках)
+  e2e-tests:
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests]
+    if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request'
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+
+      - run: npm ci
+      - run: npx playwright install --with-deps
+
+      - name: Build application
+        run: npm run build
+
+      - name: Start application
+        run: npm run start:test &
+
+      - name: Wait for application
+        run: npx wait-on http://localhost:3000
+
+      - name: Run E2E tests
+        run: npm run test:e2e
+        # Время: ~5-10 минут
+        # Покрытие: 10% всех тестов
+        # ТОЛЬКО критические сценарии!
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-report
+          path: playwright-report/
+
+  # ШАГ 4: Деплой (только если все тесты прошли)
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests, e2e-tests]
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Deploy to production
+        run: echo "Deploying to production..."
+        # Деплой только после ВСЕХ тестов

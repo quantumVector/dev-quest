@@ -1,0 +1,49 @@
+
+// useMemo - мемоизация вычислений
+
+import { useMemo, useState } from 'react'
+
+function ProductList({ products, filter }) {
+  // ❌ БЕЗ useMemo - фильтрация при каждом рендере
+  const filteredProducts = products.filter(p =>
+    p.category === filter
+  )
+
+  // ✅ С useMemo - пересчет только при изменении зависимостей
+  const filteredProductsMemo = useMemo(() => {
+    console.log('Filtering products...')
+    return products.filter(p => p.category === filter)
+  }, [products, filter])
+
+  return (
+    <ul>
+      {filteredProductsMemo.map(product => (
+        <li key={product.id}>{product.name}</li>
+      ))}
+    </ul>
+  )
+}
+
+// Сложные вычисления
+function Chart({ data }) {
+  const chartConfig = useMemo(() => {
+    console.log('Computing chart config...')
+
+    // Тяжелые вычисления
+    const processed = data.map(item => ({
+      x: item.timestamp,
+      y: item.value * 2,
+      color: item.value > 100 ? 'red' : 'green'
+    }))
+
+    return {
+      data: processed,
+      options: {
+        scales: { /* ... */ },
+        plugins: { /* ... */ }
+      }
+    }
+  }, [data]) // Пересчет только при изменении data
+
+  return <ChartComponent config={chartConfig} />
+}

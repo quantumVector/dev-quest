@@ -1,0 +1,51 @@
+
+// Статические методы Promise
+
+// Promise.all - ждет выполнения всех промисов
+const promise1 = Promise.resolve(1)
+const promise2 = Promise.resolve(2)
+const promise3 = Promise.resolve(3)
+
+Promise.all([promise1, promise2, promise3])
+  .then(results => {
+    console.log('Все промисы выполнены:', results) // [1, 2, 3]
+  })
+  .catch(error => {
+    console.error('Один из промисов отклонен:', error)
+  })
+
+// Promise.race - возвращает первый выполненный промис
+const fastPromise = new Promise(resolve => setTimeout(() => resolve('быстрый'), 100))
+const slowPromise = new Promise(resolve => setTimeout(() => resolve('медленный'), 1000))
+
+Promise.race([fastPromise, slowPromise])
+  .then(result => {
+    console.log('Первый выполненный:', result) // "быстрый"
+  })
+
+// Promise.allSettled - ждет завершения всех (ES2020)
+const mixedPromises = [
+  Promise.resolve('успех'),
+  Promise.reject('ошибка'),
+  Promise.resolve('еще успех')
+]
+
+Promise.allSettled(mixedPromises)
+  .then(results => {
+    console.log('Все завершены:', results)
+    // [
+    //   { status: 'fulfilled', value: 'успех' },
+    //   { status: 'rejected', reason: 'ошибка' },
+    //   { status: 'fulfilled', value: 'еще успех' }
+    // ]
+  })
+
+// Promise.any - первый успешный (ES2021)
+Promise.any([
+  Promise.reject('ошибка 1'),
+  Promise.resolve('успех'),
+  Promise.reject('ошибка 2')
+])
+  .then(result => {
+    console.log('Первый успешный:', result) // "успех"
+  })

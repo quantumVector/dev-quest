@@ -1,0 +1,32 @@
+
+// Подход через события (Event-driven)
+const EventEmitter = require('events')
+
+class DataService extends EventEmitter {
+  getUserData(userId) {
+    setTimeout(() => {
+      this.emit('user-loaded', { id: userId, name: 'John' })
+    }, 1000)
+  }
+
+  getUserPosts(userId) {
+    setTimeout(() => {
+      this.emit('posts-loaded', [{ id: 1, title: 'Post 1' }])
+    }, 1000)
+  }
+}
+
+const service = new DataService()
+
+// Подписка на события
+service.on('user-loaded', (user) => {
+  console.log('Пользователь загружен:', user)
+  service.getUserPosts(user.id)
+})
+
+service.on('posts-loaded', (posts) => {
+  console.log('Посты загружены:', posts)
+})
+
+// Запуск
+service.getUserData(1)

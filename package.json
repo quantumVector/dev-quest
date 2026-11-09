@@ -9,11 +9,13 @@
     "preview": "vite preview",
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
+    "test:v2": "node --test src/v2/__tests__/*.test.mjs",
     "lint": "eslint . --fix",
     "format": "prettier --write src/"
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
+    "markdown-it": "^15.0.3",
     "pinia": "^3.0.1",
     "prismjs": "^1.30.0",
     "vue": "^3.5.13",
@@ -22,6 +24,7 @@
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.1",
+    "@types/markdown-it": "^14.2.0",
     "@types/node": "^22.14.0",
     "@vitejs/plugin-vue": "^5.2.3",
     "@vue/eslint-config-prettier": "^10.2.0",

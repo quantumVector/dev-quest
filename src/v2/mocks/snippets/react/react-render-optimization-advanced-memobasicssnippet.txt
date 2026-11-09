@@ -1,0 +1,40 @@
+
+// ✅ React.memo - мемоизация компонента
+
+import { memo } from 'react'
+
+// Без memo - ре-рендер при каждом рендере родителя
+function UserCard({ user }) {
+  console.log('UserCard rendered')
+  return (
+    <div className="user-card">
+      <h3>{user.name}</h3>
+      <p>{user.email}</p>
+    </div>
+  )
+}
+
+// С memo - ре-рендер только если изменился user
+const UserCardMemo = memo(function UserCard({ user }) {
+  console.log('UserCardMemo rendered')
+  return (
+    <div className="user-card">
+      <h3>{user.name}</h3>
+      <p>{user.email}</p>
+    </div>
+  )
+})
+
+// Использование
+function App() {
+  const [count, setCount] = useState(0)
+  const user = { name: 'John', email: 'john@example.com' }
+
+  return (
+    <div>
+      <button onClick={() => setCount(count + 1)}>Count: {count}</button>
+      <UserCard user={user} />         {/* Ре-рендер при каждом клике */}
+      <UserCardMemo user={user} />     {/* Все равно ре-рендер! user - новый объект */}
+    </div>
+  )
+}

@@ -1,0 +1,125 @@
+
+// =====================================
+// ОПЦИИ КОНФИГУРАЦИИ - ДЕТАЛЬНЫЙ ОБЗОР
+// =====================================
+
+// Полная конфигурация с комментариями
+const fullConfig = {
+  // === ОСНОВНЫЕ ОПЦИИ (хотя бы одна обязательна) ===
+
+  // childList: отслеживать добавление/удаление дочерних элементов
+  childList: true,
+
+  // attributes: отслеживать изменения атрибутов
+  attributes: true,
+
+  // characterData: отслеживать изменения текстового содержимого
+  characterData: true,
+
+  // === РАСШИРЕННЫЕ ОПЦИИ ===
+
+  // subtree: применять настройки ко всему поддереву
+  subtree: true,
+
+  // attributeOldValue: сохранять предыдущие значения атрибутов
+  // ⚠️ Требует attributes: true
+  attributeOldValue: true,
+
+  // characterDataOldValue: сохранять предыдущие текстовые данные
+  // ⚠️ Требует characterData: true
+  characterDataOldValue: true,
+
+  // attributeFilter: отслеживать только указанные атрибуты
+  // ⚠️ Требует attributes: true
+  attributeFilter: ['class', 'style', 'data-id']
+}
+
+// === ПРИМЕРЫ РАЗНЫХ КОНФИГУРАЦИЙ ===
+
+// 1. Минимальная конфигурация - только добавление элементов
+const minimalConfig = {
+  childList: true
+}
+
+// 2. Отслеживание изменений классов
+const classConfig = {
+  attributes: true,
+  attributeFilter: ['class'],
+  attributeOldValue: true
+}
+
+// 3. Глубокое отслеживание всех изменений
+const deepConfig = {
+  childList: true,
+  attributes: true,
+  characterData: true,
+  subtree: true,
+  attributeOldValue: true,
+  characterDataOldValue: true
+}
+
+// 4. Только изменения в стилях
+const styleConfig = {
+  attributes: true,
+  attributeFilter: ['style', 'class']
+}
+
+// 5. Отслеживание текстового содержимого во всем дереве
+const textConfig = {
+  characterData: true,
+  subtree: true,
+  characterDataOldValue: true
+}
+
+// === ТИПИЧНЫЕ ОШИБКИ В КОНФИГУРАЦИИ ===
+
+// ❌ ОШИБКА: не указана ни одна основная опция
+const invalidConfig1 = {
+  subtree: true // Нужна хотя бы одна из: childList, attributes, characterData
+}
+
+// ❌ ОШИБКА: attributeOldValue без attributes
+const invalidConfig2 = {
+  childList: true,
+  attributeOldValue: true // Нужен attributes: true
+}
+
+// ❌ ОШИБКА: attributeFilter без attributes
+const invalidConfig3 = {
+  childList: true,
+  attributeFilter: ['class'] // Нужен attributes: true
+}
+
+// ✅ ПРАВИЛЬНО: всё корректно настроено
+const validConfig = {
+  attributes: true,
+  attributeFilter: ['class', 'id'],
+  attributeOldValue: true
+}
+
+// === ВЫБОР КОНФИГУРАЦИИ ПОД ЗАДАЧУ ===
+
+// Задача 1: Отслеживать добавление элементов в список
+const listConfig = {
+  childList: true,
+  subtree: false // Только прямые дети
+}
+
+// Задача 2: Отслеживать изменения видимости элемента
+const visibilityConfig = {
+  attributes: true,
+  attributeFilter: ['class', 'style', 'hidden']
+}
+
+// Задача 3: Отслеживать изменения в редакторе контента
+const editorConfig = {
+  childList: true,
+  characterData: true,
+  subtree: true
+}
+
+// Задача 4: Отслеживать изменения data-атрибутов
+const dataAttributesConfig = {
+  attributes: true,
+  attributeFilter: Array.from({ length: 10 }, (_, i) => `data-value${i}`)
+}

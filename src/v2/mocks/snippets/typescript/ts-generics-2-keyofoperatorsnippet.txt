@@ -1,0 +1,253 @@
+
+// =====================================
+// KEYOF - получение ключей типа
+// =====================================
+
+// 1. Базовое использование keyof
+interface User {
+  id: number
+  name: string
+  email: string
+}
+
+type UserKeys = keyof User  // 'id' | 'name' | 'email'
+
+// 2. Функция с keyof для безопасного доступа к свойствам
+function getProperty<T, K extends keyof T>(obj: T, key: K): T[K] {
+  return obj[key]
+}
+
+const user: User = { id: 1, name: 'John', email: 'john@example.com' }
+
+const userName = getProperty(user, 'name')   // тип: string
+const userId = getProperty(user, 'id')       // тип: number
+// const invalid = getProperty(user, 'age')  // ❌ Error
+
+// 3. Keyof с индексной сигнатурой
+interface Dictionary {
+  [key: string]: string
+}
+
+type DictKeys = keyof Dictionary  // string | number
+// number потому что obj[0] === obj['0']
+
+// 4. Создание типа из значений объекта
+function pluck<T, K extends keyof T>(array: T[], key: K): T[K][] {
+  return array.map(item => item[key])
+}
+
+const users = [
+  { id: 1, name: 'John', age: 30 },
+  { id: 2, name: 'Jane', age: 25 }
+]
+
+const names = pluck(users, 'name')  // string[]
+const ages = pluck(users, 'age')    // number[]
+
+// 5. Keyof с mapped types
+type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
+
+interface Product {
+  id: number
+  name: string
+  price: number
+  description: string
+}
+
+// id и name обязательны, остальные опциональны
+type CreateProduct = PartialBy<Product, 'price' | 'description'>
+
+const newProduct: CreateProduct = {
+  id: 1,
+  name: 'Laptop'
+  // price и description необязательны
+}
+
+// 6. Создание типа для обновления
+type UpdateFields<T> = {
+  [K in keyof T]?: T[K]
+}
+
+type UserUpdate = UpdateFields<User>
+
+const update: UserUpdate = {
+  name: 'New Name'
+  // другие поля опциональны
+}
+
+// 7. Keyof для создания Record типа
+function createRecord<K extends string | number | symbol, V>(
+  keys: K[],
+  value: V
+): Record<K, V> {
+  const result = {} as Record<K, V>
+  keys.forEach(key => {
+    result[key] = value
+  })
+  return result
+}
+
+const defaults = createRecord(['x', 'y', 'z'], 0)
+// { x: 0, y: 0, z: 0 }
+
+// 8. Keyof для типизации событий
+interface Events {
+  click: { x: number; y: number }
+  focus: { element: HTMLElement }
+  submit: { formData: FormData }
+}
+
+type EventName = keyof Events  // 'click' | 'focus' | 'submit'
+
+function addEventListener<E extends keyof Events>(
+  event: E,
+  handler: (payload: Events[E]) => void
+): void {
+  // Реализация...
+}
+
+addEventListener('click', ({ x, y }) => {
+  console.log(`Clicked at ${x}, ${y}`)
+})
+
+addEventListener('submit', ({ formData }) => {
+  console.log('Form submitted', formData)
+})
+
+// 9. Создание строго типизированного селектора
+type Selector<T> = {
+  [K in keyof T]: (state: T) => T[K]
+}
+
+interface State {
+  user: User
+  count: number
+  isLoading: boolean
+}
+
+const selectors: Selector<State> = {
+  user: (state) => state.user,
+  count: (state) => state.count,
+  isLoading: (state) => state.isLoading
+}
+
+// 10. Keyof для валидации схемы
+type ValidationRules<T> = {
+  [K in keyof T]?: (value: T[K]) => string | null
+}
+
+const userValidation: ValidationRules<User> = {
+  name: (value) => value.length < 3 ? 'Too short' : null,
+  email: (value) => value.includes('@') ? null : 'Invalid email',
+  id: (value) => value > 0 ? null : 'Must be positive'
+}
+
+// 11. Keyof с template literal types
+type Getters<T> = {
+  [K in keyof T as `get${Capitalize<string & K>}`]: () => T[K]
+}
+
+type UserGetters = Getters<User>
+// {
+//   getId: () => number
+//   getName: () => string
+//   getEmail: () => string
+// }
+
+// 12. Keyof для создания builder pattern
+type Builder<T> = {
+  [K in keyof T as `set${Capitalize<string & K>}`]: (value: T[K]) => Builder<T>
+} & {
+  build: () => T
+}
+
+class UserBuilder implements Builder<User> {
+  private user: Partial<User> = {}
+
+  setId(value: number): this {
+    this.user.id = value
+    return this
+  }
+
+  setName(value: string): this {
+    this.user.name = value
+    return this
+  }
+
+  setEmail(value: string): this {
+    this.user.email = value
+    return this
+  }
+
+  build(): User {
+    return this.user as User
+  }
+}
+
+const builtUser = new UserBuilder()
+  .setId(1)
+  .setName('John')
+  .setEmail('john@example.com')
+  .build()
+
+// 13. Keyof для создания proxy объектов
+type Proxied<T> = {
+  [K in keyof T]: {
+    get: () => T[K]
+    set: (value: T[K]) => void
+  }
+}
+
+function createProxy<T extends object>(obj: T): Proxied<T> {
+  const proxy = {} as Proxied<T>
+
+  for (const key in obj) {
+    proxy[key] = {
+      get: () => obj[key],
+      set: (value: T[typeof key]) => {
+        obj[key] = value
+      }
+    }
+  }
+
+  return proxy
+}
+
+// 14. Keyof для path строк
+type PathKeys<T> = {
+  [K in keyof T]: T[K] extends object
+    ? K | `${K & string}.${PathKeys<T[K]> & string}`
+    : K
+}[keyof T]
+
+interface NestedUser {
+  name: string
+  profile: {
+    age: number
+    address: {
+      city: string
+    }
+  }
+}
+
+type Paths = PathKeys<NestedUser>
+// 'name' | 'profile' | 'profile.age' | 'profile.address' | 'profile.address.city'
+
+// 15. Keyof с условными типами для фильтрации
+type FilterByType<T, U> = {
+  [K in keyof T as T[K] extends U ? K : never]: T[K]
+}
+
+interface Mixed {
+  id: number
+  name: string
+  count: number
+  active: boolean
+  description: string
+}
+
+type OnlyNumbers = FilterByType<Mixed, number>
+// { id: number, count: number }
+
+type OnlyStrings = FilterByType<Mixed, string>
+// { name: string, description: string }

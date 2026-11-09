@@ -1,0 +1,43 @@
+
+// ✅ ПРАВИЛЬНО - Альтернативы модификации прототипов
+
+// 1. Утилитарные функции
+const ArrayUtils = {
+  filterPositive(arr) {
+    return arr.filter(x => x > 0);
+  },
+
+  remove(arr, item) {
+    const index = arr.indexOf(item);
+    if (index > -1) arr.splice(index, 1);
+    return arr;
+  }
+};
+
+// 2. Расширение через классы
+class ExtendedArray extends Array {
+  filterPositive() {
+    return this.filter(x => x > 0);
+  }
+
+  remove(item) {
+    const index = this.indexOf(item);
+    if (index > -1) this.splice(index, 1);
+    return this;
+  }
+}
+
+// 3. Композиция и миксины
+function createArrayWithUtils(arr) {
+  return Object.assign(arr, {
+    filterPositive() {
+      return this.filter(x => x > 0);
+    }
+  });
+}
+
+// 4. Symbol для уникальных свойств (если всё-таки нужно)
+const FILTER_POSITIVE = Symbol('filterPositive');
+Array.prototype[FILTER_POSITIVE] = function() {
+  return this.filter(x => x > 0);
+}

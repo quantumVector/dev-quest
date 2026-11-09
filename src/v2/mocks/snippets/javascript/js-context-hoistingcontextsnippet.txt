@@ -1,0 +1,29 @@
+
+// Поднятие (Hoisting) и контекст
+console.log(hoistedVar); // undefined (не ошибка!)
+console.log(hoistedFunc()); // 'Работает!' (функция поднялась)
+
+// console.log(letVar); // ReferenceError: Cannot access before initialization
+// console.log(constVar); // ReferenceError: Cannot access before initialization
+
+var hoistedVar = 'Переменная';
+
+function hoistedFunc() {
+    return 'Работает!';
+}
+
+let letVar = 'Let переменная';
+const constVar = 'Const переменная';
+
+// Как видит JavaScript (упрощенно):
+/*
+var hoistedVar; // undefined
+function hoistedFunc() { return 'Работает!'; }
+
+console.log(hoistedVar); // undefined
+console.log(hoistedFunc()); // 'Работает!'
+
+hoistedVar = 'Переменная';
+let letVar = 'Let переменная';
+const constVar = 'Const переменная';
+*/

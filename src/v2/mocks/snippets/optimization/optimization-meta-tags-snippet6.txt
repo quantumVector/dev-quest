@@ -1,0 +1,52 @@
+
+<!-- Полный набор meta-тегов для современного сайта -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <!-- Базовые -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <!-- SEO основные -->
+  <title>iPhone 15 Pro 256GB - купить по выгодной цене | TechStore</title>
+  <meta name="description" content="Купите iPhone 15 Pro 256GB.
+    Официальная гарантия Apple, доставка по РФ, рассрочка 0%.
+    Все цвета в наличии. Цена от 129 990 ₽">
+
+  <!-- Robots -->
+  <meta name="robots" content="index, follow">
+  <meta name="googlebot" content="index, follow">
+
+  <!-- Автор и копирайт -->
+  <meta name="author" content="TechStore">
+  <meta name="copyright" content="© 2025 TechStore">
+
+  <!-- Open Graph (социальные сети) -->
+  <meta property="og:title" content="iPhone 15 Pro 256GB - купить | TechStore">
+  <meta property="og:description" content="Официальная гарантия,
+    доставка по РФ, рассрочка 0%">
+  <meta property="og:image" content="https://example.com/iphone-15-pro.jpg">
+  <meta property="og:url" content="https://example.com/iphone-15-pro">
+  <meta property="og:type" content="product">
+  <meta property="og:site_name" content="TechStore">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="iPhone 15 Pro 256GB - купить">
+  <meta name="twitter:description" content="Официальная гарантия Apple">
+  <meta name="twitter:image" content="https://example.com/iphone-15-pro.jpg">
+
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://example.com/iphone-15-pro">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+  <!-- Theme color для мобильных браузеров -->
+  <meta name="theme-color" content="#007bff">
+</head>
+<body>
+  <!-- Контент -->
+</body>
+</html>

@@ -1,0 +1,62 @@
+
+import { forwardRef, useRef, useImperativeHandle } from 'react';
+
+// Сложный компонент с внутренней логикой
+const FancyInput = forwardRef((props, ref) => {
+  const inputRef = useRef(null);
+  const [value, setValue] = useState('');
+
+  // Определяем, какие методы доступны через ref
+  useImperativeHandle(ref, () => ({
+    // Публичный API компонента
+    focus: () => {
+      inputRef.current.focus();
+    },
+    scrollIntoView: () => {
+      inputRef.current.scrollIntoView({ behavior: 'smooth' });
+    },
+    getValue: () => value,
+    setValue: (newValue) => setValue(newValue),
+    clear: () => setValue('')
+  }));
+
+  return (
+    <div className="fancy-input">
+      <input
+        ref={inputRef}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        {...props}
+      />
+    </div>
+  );
+});
+
+// Использование
+function App() {
+  const fancyInputRef = useRef(null);
+
+  const handleFocus = () => {
+    fancyInputRef.current.focus();
+  };
+
+  const handleClear = () => {
+    fancyInputRef.current.clear();
+  };
+
+  const handleGetValue = () => {
+    console.log(fancyInputRef.current.getValue());
+  };
+
+  return (
+    <div>
+      <FancyInput ref={fancyInputRef} placeholder="Type here" />
+      <button onClick={handleFocus}>Focus</button>
+      <button onClick={handleClear}>Clear</button>
+      <button onClick={handleGetValue}>Get Value</button>
+    </div>
+  );
+}
+
+// useImperativeHandle позволяет контролировать,
+// что именно доступно через ref (инкапсуляция)

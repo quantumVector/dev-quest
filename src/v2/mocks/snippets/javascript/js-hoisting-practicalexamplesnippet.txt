@@ -1,0 +1,27 @@
+
+// Практический пример: частые ошибки
+
+// 1. Проблема с циклами и var
+for (var i = 0; i < 3; i++) {
+  setTimeout(() => {
+    console.log(i); // 3, 3, 3 (не 0, 1, 2!)
+  }, 100);
+}
+
+// Решение с let:
+for (let i = 0; i < 3; i++) {
+  setTimeout(() => {
+    console.log(i); // 0, 1, 2
+  }, 100);
+}
+
+// 2. Проблема с условным объявлением
+if (false) {
+  var x = 1; // все равно всплывает!
+}
+console.log(x); // undefined (не ReferenceError)
+
+if (false) {
+  let y = 1; // не всплывает
+}
+console.log(y); // ReferenceError: y is not defined

@@ -1,0 +1,78 @@
+
+// Инструменты для измерения Web Vitals
+
+// 1. Chrome DevTools
+// - Открыть DevTools (F12)
+// - Performance tab → Record
+// - Lighthouse tab → Generate report
+// - Performance Insights (новый инструмент)
+
+// 2. PageSpeed Insights (онлайн)
+// https://pagespeed.web.dev/
+// - Реальные данные (Field Data) из Chrome UX Report
+// - Лабораторные данные (Lab Data) с рекомендациями
+
+// 3. Chrome UX Report (CrUX)
+// - Реальные данные пользователей Chrome
+// - Доступ через BigQuery, API, или PageSpeed Insights
+// - Данные за последние 28 дней
+
+// Пример запроса CrUX API:
+const API_KEY = 'your-api-key';
+const url = 'https://chromeuxreport.googleapis.com/v1/records:queryRecord?key=' + API_KEY;
+
+fetch(url, {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({
+url: 'https://example.com',
+formFactor: 'PHONE', // или DESKTOP, TABLET
+metrics: ['largest_contentful_paint', 'cumulative_layout_shift', 'interaction_to_next_paint']
+})
+})
+.then(res => res.json())
+.then(data => console.log(data));
+
+// 4. Lighthouse CI для автоматизации
+// .lighthouserc.js
+module.exports = {
+ci: {
+collect: {
+numberOfRuns: 5,
+url: ['http://localhost:3000']
+},
+assert: {
+assertions: {
+'largest-contentful-paint': ['error', { maxNumericValue: 2500 }],
+'cumulative-layout-shift': ['error', { maxNumericValue: 0.1 }],
+'total-blocking-time': ['error', { maxNumericValue: 200 }]
+}
+},
+upload: {
+target: 'temporary-public-storage'
+}
+}
+};
+
+// 5. Real User Monitoring (RUM) сервисы
+// - Google Analytics 4 (встроенные Web Vitals)
+// - Sentry Performance Monitoring
+// - New Relic Browser
+// - Datadog RUM
+// - Vercel Analytics
+
+// Интеграция с Google Analytics 4:
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-XXXXXXXXXX');
+
+// Web Vitals автоматически отправляются в GA4
+</script>
+
+// 6. Web Vitals Extension для Chrome
+// - Устанавливается из Chrome Web Store
+// - Показывает метрики в реальном времени
+// - HUD (Heads-Up Display) overlay на странице

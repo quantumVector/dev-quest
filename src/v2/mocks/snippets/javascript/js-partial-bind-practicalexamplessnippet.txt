@@ -1,0 +1,61 @@
+
+// ПРАКТИЧЕСКИЕ ПРИМЕРЫ
+
+// 1. Логирование с префиксом
+function log(level, module, message) {
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] ${level.toUpperCase()} [${module}]: ${message}`);
+}
+
+// Создаем специализированные логгеры
+const errorLogger = log.bind(null, 'error');
+const apiLogger = errorLogger.bind(null, 'API');
+
+apiLogger('Failed to fetch user data');
+// [2024-01-01T12:00:00.000Z] ERROR [API]: Failed to fetch user data
+
+// 2. HTTP запросы с базовым URL
+function makeRequest(method, baseUrl, endpoint, data) {
+  return fetch(`${baseUrl}${endpoint}`, {
+    method: method,
+    body: data ? JSON.stringify(data) : undefined,
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+}
+
+// Создаем API-клиент для конкретного сервиса
+const apiClient = makeRequest.bind(null, 'GET', 'https://api.example.com');
+const postToApi = makeRequest.bind(null, 'POST', 'https://api.example.com');
+
+// Использование
+apiClient('/users/123'); // GET https://api.example.com/users/123
+postToApi('/users', { name: 'John' }); // POST https://api.example.com/users
+
+// 3. Валидация с предустановленными правилами
+function validate(rules, required, value) {
+  if (required && !value) {
+    return { valid: false, error: 'Field is required' };
+  }
+
+  for (let rule of rules) {
+    if (!rule(value)) {
+      return { valid: false, error: 'Validation failed' };
+    }
+  }
+
+  return { valid: true };
+}
+
+// Создаем валидаторы для email
+const emailRules = [
+  (val) => val && val.includes('@'),
+  (val) => val && val.length > 5
+];
+
+const validateRequiredEmail = validate.bind(null, emailRules, true);
+const validateOptionalEmail = validate.bind(null, emailRules, false);
+
+console.log(validateRequiredEmail('user@example.com')); // { valid: true }
+console.log(validateRequiredEmail('')); // { valid: false, error: 'Field is required' }

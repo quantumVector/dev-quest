@@ -1,0 +1,48 @@
+
+// useCallback - мемоизация функций
+
+import { useCallback, useState } from 'react'
+
+function TodoList() {
+  const [todos, setTodos] = useState([])
+  const [filter, setFilter] = useState('all')
+
+  // ❌ БЕЗ useCallback - новая функция при каждом рендере
+  const handleDelete = (id) => {
+    setTodos(todos.filter(todo => todo.id !== id))
+  }
+
+  // ✅ С useCallback - та же функция, если зависимости не изменились
+  const handleDeleteMemo = useCallback((id) => {
+    setTodos(todos.filter(todo => todo.id !== id))
+  }, [todos]) // Новая функция только при изменении todos
+
+  // Лучше - используем функциональное обновление
+  const handleDeleteBetter = useCallback((id) => {
+    setTodos(prevTodos => prevTodos.filter(todo => todo.id !== id))
+  }, []) // Пустой массив - функция никогда не меняется!
+
+  return (
+    <div>
+      {todos.map(todo => (
+        <TodoItem
+          key={todo.id}
+          todo={todo}
+          onDelete={handleDeleteBetter}
+        />
+      ))}
+    </div>
+  )
+}
+
+// TodoItem с memo
+const TodoItem = memo(function TodoItem({ todo, onDelete }) {
+  console.log('TodoItem rendered:', todo.id)
+
+  return (
+    <div>
+      {todo.text}
+      <button onClick={() => onDelete(todo.id)}>Delete</button>
+    </div>
+  )
+})

@@ -1,0 +1,52 @@
+
+// Интерфейсы и классы
+interface IPerson {
+  name: string
+  age: number
+  greet(): void
+}
+
+interface IEmployee {
+  employeeId: number
+  department: string
+  getSalary(): number
+}
+
+// Класс может реализовывать несколько интерфейсов
+class Employee implements IPerson, IEmployee {
+  constructor(
+    public name: string,
+    public age: number,
+    public employeeId: number,
+    public department: string,
+    private salary: number
+  ) {}
+
+  greet(): void {
+    console.log(`Hello, I'm ${this.name}`)
+  }
+
+  getSalary(): number {
+    return this.salary
+  }
+}
+
+// Интерфейс для конструктора класса
+interface IUserConstructor {
+  new (name: string, age: number): IUser
+  isAdult(age: number): boolean
+}
+
+interface IUser {
+  name: string
+  age: number
+}
+
+// Класс, соответствующий интерфейсу конструктора
+const UserClass: IUserConstructor = class implements IUser {
+  constructor(public name: string, public age: number) {}
+
+  static isAdult(age: number): boolean {
+    return age >= 18
+  }
+}

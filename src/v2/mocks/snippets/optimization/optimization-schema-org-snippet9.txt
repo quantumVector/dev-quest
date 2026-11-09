@@ -1,0 +1,77 @@
+
+// React компонент с динамической генерацией Schema.org
+import { Helmet } from 'react-helmet-async';
+
+interface ArticleSchemaProps {
+headline: string;
+description: string;
+image: string;
+datePublished: string;
+dateModified: string;
+author: {
+name: string;
+url: string;
+};
+}
+
+export function ArticleSchema({
+headline,
+description,
+image,
+datePublished,
+dateModified,
+author
+}: ArticleSchemaProps) {
+const schema = {
+'@context': 'https://schema.org',
+'@type': 'Article',
+headline,
+description,
+image: [image],
+datePublished,
+dateModified,
+author: {
+'@type': 'Person',
+name: author.name,
+url: author.url
+},
+publisher: {
+'@type': 'Organization',
+name: 'Tech Blog',
+logo: {
+'@type': 'ImageObject',
+url: 'https://example.com/logo.jpg'
+}
+}
+};
+
+return (
+<Helmet>
+<script type="application/ld+json">
+  {JSON.stringify(schema)}
+</script>
+</Helmet>
+);
+}
+
+// Использование
+function ArticlePage() {
+return (
+<>
+<ArticleSchema
+  headline="Введение в TypeScript"
+  description="Изучаем основы TypeScript"
+  image="https://example.com/typescript-intro.jpg"
+  datePublished="2025-02-04T08:00:00+00:00"
+  dateModified="2025-02-04T12:00:00+00:00"
+  author={{
+  name: "Иван Петров",
+url: "https://example.com/authors/ivan"
+}}
+/>
+<article>
+{/* Контент статьи */}
+</article>
+</>
+);
+}

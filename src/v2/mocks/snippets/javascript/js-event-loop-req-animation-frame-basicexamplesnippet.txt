@@ -1,0 +1,27 @@
+
+// Место requestAnimationFrame в Event Loop
+console.log('1. Синхронный код');
+
+setTimeout(() => {
+  console.log('4. Макрозадача (setTimeout)');
+}, 0);
+
+Promise.resolve().then(() => {
+  console.log('2. Микрозадача (Promise)');
+});
+
+requestAnimationFrame(() => {
+  console.log('3. requestAnimationFrame');
+});
+
+console.log('1.5. Синхронный код');
+
+// Ожидаемый вывод:
+// 1. Синхронный код
+// 1.5. Синхронный код
+// 2. Микрозадача (Promise)
+// 3. requestAnimationFrame (перед рендерингом)
+// 4. Макрозадача (setTimeout)
+
+// ВАЖНО: requestAnimationFrame выполняется ПОСЛЕ микрозадач,
+// но ДО рендеринга и ДО следующей макрозадачи

@@ -1,0 +1,32 @@
+
+// Структура JWT токена
+// JWT состоит из трех частей, разделенных точками:
+// HEADER.PAYLOAD.SIGNATURE
+
+// Пример реального JWT токена:
+const jwtToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+
+// Часть 1: HEADER (заголовок)
+const header = {
+  "alg": "HS256",  // Алгоритм подписи (HMAC SHA-256)
+  "typ": "JWT"     // Тип токена
+}
+// Base64Url encoded: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+
+// Часть 2: PAYLOAD (полезная нагрузка)
+const payload = {
+  "sub": "1234567890",           // Subject - ID пользователя
+  "name": "John Doe",             // Кастомные данные
+  "iat": 1516239022,              // Issued At - время создания
+  "exp": 1516242622,              // Expiration - время истечения
+  "role": "admin",                // Роль пользователя
+  "email": "john@example.com"    // Email пользователя
+}
+// Base64Url encoded: eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ
+
+// Часть 3: SIGNATURE (подпись)
+// HMACSHA256(
+//   base64UrlEncode(header) + "." + base64UrlEncode(payload),
+//   secret
+// )
+// Результат: SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c

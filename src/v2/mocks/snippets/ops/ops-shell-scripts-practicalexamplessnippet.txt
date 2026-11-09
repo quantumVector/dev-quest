@@ -1,0 +1,250 @@
+
+#!/bin/bash
+
+# =====================================
+# ПРАКТИЧЕСКИЕ ПРИМЕРЫ ДЛЯ РАЗРАБОТКИ
+# =====================================
+
+# 1. Скрипт деплоя
+#!/bin/bash
+set -e  # Остановка при ошибке
+
+echo "Starting deployment..."
+
+# Проверка окружения
+if [ -z "$DEPLOY_ENV" ]; then
+    echo "Error: DEPLOY_ENV not set"
+    exit 1
+fi
+
+# Сборка
+echo "Building application..."
+npm run build
+
+# Тесты
+echo "Running tests..."
+npm test
+
+# Деплой
+echo "Deploying to $DEPLOY_ENV..."
+if [ "$DEPLOY_ENV" = "production" ]; then
+    # Дополнительные проверки для production
+    read -p "Deploy to PRODUCTION? (yes/no): " confirm
+    if [ "$confirm" != "yes" ]; then
+        echo "Deployment cancelled"
+        exit 0
+    fi
+fi
+
+# Копирование файлов
+rsync -avz dist/ user@server:/var/www/app/
+
+echo "Deployment complete!"
+
+# =====================================
+# 2. Скрипт резервного копирования
+#!/bin/bash
+
+BACKUP_DIR="/backups"
+DATE=$(date +%Y%m%d_%H%M%S)
+SOURCE="/var/www/app"
+BACKUP_FILE="$BACKUP_DIR/backup_$DATE.tar.gz"
+
+# Создание директории для бэкапов
+mkdir -p "$BACKUP_DIR"
+
+# Создание архива
+echo "Creating backup..."
+tar -czf "$BACKUP_FILE" -C "$(dirname "$SOURCE")" "$(basename "$SOURCE")"
+
+# Проверка размера
+SIZE=$(du -h "$BACKUP_FILE" | cut -f1)
+echo "Backup created: $BACKUP_FILE ($SIZE)"
+
+# Удаление старых бэкапов (старше 7 дней)
+find "$BACKUP_DIR" -name "backup_*.tar.gz" -mtime +7 -delete
+echo "Old backups cleaned"
+
+# =====================================
+# 3. Мониторинг процессов
+#!/bin/bash
+
+APP_NAME="node"
+MAX_RESTARTS=3
+RESTART_COUNT=0
+
+monitor_process() {
+    if ! pgrep -x "$APP_NAME" > /dev/null; then
+        echo "[$(date)] Process $APP_NAME not running"
+
+        if [ $RESTART_COUNT -lt $MAX_RESTARTS ]; then
+            echo "Restarting... (attempt $((RESTART_COUNT + 1))/$MAX_RESTARTS)"
+            npm start &
+            ((RESTART_COUNT++))
+        else
+            echo "Max restarts reached. Sending alert..."
+            # Отправка уведомления
+        fi
+    else
+        echo "[$(date)] Process $APP_NAME is running"
+        RESTART_COUNT=0
+    fi
+}
+
+# Запуск мониторинга каждые 60 секунд
+while true; do
+    monitor_process
+    sleep 60
+done
+
+# =====================================
+# 4. Анализ логов
+#!/bin/bash
+
+LOG_FILE="/var/log/app/error.log"
+REPORT_FILE="error_report_$(date +%Y%m%d).txt"
+
+{
+    echo "=== Error Report $(date) ==="
+    echo ""
+
+    echo "Total errors:"
+    grep -c "ERROR" "$LOG_FILE"
+    echo ""
+
+    echo "Errors by type:"
+    grep "ERROR" "$LOG_FILE" | awk '{print $4}' | sort | uniq -c | sort -rn
+    echo ""
+
+    echo "Top 10 most recent errors:"
+    grep "ERROR" "$LOG_FILE" | tail -n 10
+
+} > "$REPORT_FILE"
+
+echo "Report saved to $REPORT_FILE"
+
+# =====================================
+# 5. Настройка окружения
+#!/bin/bash
+
+setup_project() {
+    echo "Setting up development environment..."
+
+    # Проверка Node.js
+    if ! command -v node &> /dev/null; then
+        echo "Installing Node.js..."
+        # установка Node.js
+    fi
+
+    # Проверка Git
+    if ! command -v git &> /dev/null; then
+        echo "Installing Git..."
+        # установка Git
+    fi
+
+    # Установка зависимостей
+    if [ -f "package.json" ]; then
+        echo "Installing npm dependencies..."
+        npm install
+    fi
+
+    # Создание .env файла
+    if [ ! -f ".env" ]; then
+        echo "Creating .env file..."
+        cat > .env << EOF
+NODE_ENV=development
+PORT=3000
+DATABASE_URL=postgresql://localhost/myapp
+EOF
+    fi
+
+    # Git hooks
+    if [ -d ".git" ]; then
+        echo "Setting up Git hooks..."
+        cat > .git/hooks/pre-commit << 'EOF'
+#!/bin/bash
+npm run lint
+npm test
+EOF
+        chmod +x .git/hooks/pre-commit
+    fi
+
+    echo "Setup complete!"
+}
+
+setup_project
+
+# =====================================
+# 6. Очистка проекта
+#!/bin/bash
+
+clean_project() {
+    echo "Cleaning project..."
+
+    # Удаление зависимостей
+    rm -rf node_modules
+
+    # Удаление временных файлов
+    rm -rf dist build .next
+
+    # Удаление логов
+    rm -rf logs/*.log
+
+    # Очистка кэша
+    npm cache clean --force
+
+    echo "Project cleaned"
+}
+
+rebuild_project() {
+    clean_project
+
+    echo "Reinstalling dependencies..."
+    npm install
+
+    echo "Rebuilding..."
+    npm run build
+
+    echo "Rebuild complete"
+}
+
+case "$1" in
+    clean)
+        clean_project
+        ;;
+    rebuild)
+        rebuild_project
+        ;;
+    *)
+        echo "Usage: $0 {clean|rebuild}"
+        exit 1
+        ;;
+esac
+
+# =====================================
+# 7. Проверка здоровья сервиса
+#!/bin/bash
+
+API_URL="http://localhost:3000/health"
+TIMEOUT=5
+MAX_RETRIES=3
+
+check_health() {
+    local retry=0
+
+    while [ $retry -lt $MAX_RETRIES ]; do
+        if curl -sf --max-time $TIMEOUT "$API_URL" > /dev/null; then
+            echo "✓ Service is healthy"
+            return 0
+        else
+            ((retry++))
+            echo "× Health check failed (attempt $retry/$MAX_RETRIES)"
+            sleep 2
+        fi
+    done
+
+    echo "× Service is unhealthy"
+    return 1
+}
+
+check_health || exit 1

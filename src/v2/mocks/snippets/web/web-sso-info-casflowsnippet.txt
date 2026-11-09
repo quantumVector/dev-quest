@@ -1,0 +1,73 @@
+
+// CAS (Central Authentication Service) - еще один популярный протокол
+
+// 1. Проверка авторизации в приложении
+const checkCASAuth = () => {
+  // Проверяем наличие TGC (Ticket Granting Cookie)
+  const ticket = new URLSearchParams(window.location.search).get('ticket')
+
+  if (!ticket && !hasValidSession()) {
+    // Редирект на CAS сервер для логина
+    const serviceURL = encodeURIComponent(window.location.href)
+    window.location.href =
+      `https://cas.example.com/login?service=${serviceURL}`
+  } else if (ticket) {
+    // Валидируем полученный ticket
+    validateCASTicket(ticket)
+  }
+}
+
+// 2. Валидация CAS Service Ticket
+const validateCASTicket = async (ticket) => {
+  const serviceURL = encodeURIComponent(
+    window.location.origin + window.location.pathname
+  )
+
+  const response = await fetch(
+    `https://cas.example.com/serviceValidate?ticket=${ticket}&service=${serviceURL}`
+  )
+
+  const xmlResponse = await response.text()
+  const validation = parseCASValidation(xmlResponse)
+
+  if (validation.success) {
+    // Создаем сессию для пользователя
+    createUserSession({
+      username: validation.user,
+      attributes: validation.attributes
+    })
+
+    // Убираем ticket из URL
+    window.history.replaceState({}, '', window.location.pathname)
+  } else {
+    throw new Error('CAS validation failed')
+  }
+}
+
+// 3. Пример CAS Validation Response
+const casValidationResponse = `
+<cas:serviceResponse xmlns:cas='http://www.yale.edu/tp/cas'>
+  <cas:authenticationSuccess>
+    <cas:user>john.doe</cas:user>
+    <cas:attributes>
+      <cas:email>john.doe@example.com</cas:email>
+      <cas:firstName>John</cas:firstName>
+      <cas:lastName>Doe</cas:lastName>
+      <cas:roles>
+        <cas:role>admin</cas:role>
+        <cas:role>user</cas:role>
+      </cas:roles>
+    </cas:attributes>
+  </cas:authenticationSuccess>
+</cas:serviceResponse>
+`
+
+// 4. Single Logout (SLO)
+const initiateCASLogout = () => {
+  // Очищаем локальную сессию
+  clearUserSession()
+
+  // Редирект на CAS logout endpoint
+  // Это также выйдет из всех SSO приложений
+  window.location.href = 'https://cas.example.com/logout'
+}

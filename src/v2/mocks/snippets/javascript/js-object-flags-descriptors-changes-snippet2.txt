@@ -1,0 +1,16 @@
+
+const obj = {}
+
+// Создаем свойство с кастомными флагами
+Object.defineProperty(obj, 'name', {
+  value: 'John',
+  writable: false,    // нельзя изменять
+  enumerable: true,   // видно в for..in
+  configurable: false // нельзя удалять/изменять дескриптор
+})
+
+obj.name = 'Jane' // Не сработает (в strict mode выбросит ошибку)
+console.log(obj.name) // 'John'
+
+delete obj.name // Не сработает
+console.log(obj.name) // 'John'

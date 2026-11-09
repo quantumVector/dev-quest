@@ -1,0 +1,108 @@
+
+// =======================================
+// ES6 MODULES (ESM) - современный стандарт
+// =======================================
+
+// math.js - различные способы экспорта
+export const PI = 3.14159;
+export let counter = 0;
+
+// Именованный экспорт функций
+export function add(a, b) {
+  return a + b;
+}
+
+export function subtract(a, b) {
+  return a - b;
+}
+
+// Экспорт класса
+export class Calculator {
+  constructor() {
+    this.history = [];
+  }
+
+  calculate(operation, a, b) {
+    let result;
+    switch (operation) {
+      case 'add':
+        result = add(a, b);
+        break;
+      case 'subtract':
+        result = subtract(a, b);
+        break;
+      default:
+        throw new Error('Unknown operation');
+    }
+
+    this.history.push({ operation, a, b, result });
+    return result;
+  }
+}
+
+// Экспорт по умолчанию (default export)
+export default function multiply(a, b) {
+  return a * b;
+}
+
+// Альтернативный синтаксис экспорта в конце файла
+const power = (base, exponent) => Math.pow(base, exponent);
+const sqrt = (num) => Math.sqrt(num);
+
+export { power, sqrt };
+
+// Переименование при экспорте
+const secretFunction = () => 'secret';
+export { secretFunction as getSecret };
+
+// =======================================
+
+// app.js - различные способы импорта
+import multiply from './math.js';           // Импорт default экспорта
+import { add, subtract, PI } from './math.js';  // Именованный импорт
+import { Calculator } from './math.js';     // Импорт класса
+
+// Импорт с переименованием
+import { getSecret as secret, power } from './math.js';
+
+// Импорт всего модуля
+import * as MathModule from './math.js';
+
+// Смешанный импорт
+import multiply, { add, Calculator } from './math.js';
+
+// Динамический импорт (ES2020)
+async function loadModule() {
+  const { add, Calculator } = await import('./math.js');
+
+  console.log(add(5, 3));
+
+  const calc = new Calculator();
+  const result = calc.calculate('add', 10, 5);
+}
+
+// Условный динамический импорт
+if (condition) {
+  import('./feature.js').then(module => {
+    module.default.init();
+  });
+}
+
+// Использование
+console.log(multiply(4, 5));               // 20
+console.log(add(10, 5));                   // 15
+console.log(PI);                           // 3.14159
+
+const calc = new Calculator();
+console.log(calc.calculate('add', 8, 2));  // 10
+
+console.log(MathModule.add(1, 1));         // 2
+console.log(MathModule.default(3, 4));     // 12
+
+// Re-export (перенаправление экспорта)
+// utils.js
+export { add, subtract } from './math.js';
+export { default as multiply } from './math.js';
+
+// Tree shaking - оптимизация при сборке
+import { add } from './math.js';  // Только функция add попадет в bundle

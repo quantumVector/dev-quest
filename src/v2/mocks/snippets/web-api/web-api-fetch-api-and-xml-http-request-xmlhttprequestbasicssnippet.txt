@@ -1,0 +1,91 @@
+
+// =====================================
+// XMLHTTPREQUEST - классический подход
+// =====================================
+
+// 1. Простой GET запрос
+const xhr = new XMLHttpRequest()
+
+xhr.open('GET', 'https://api.example.com/users')
+
+xhr.onload = function() {
+  if (xhr.status === 200) {
+    const data = JSON.parse(xhr.responseText)
+    console.log(data)
+  } else {
+    console.error('Error:', xhr.status)
+  }
+}
+
+xhr.onerror = function() {
+  console.error('Network error')
+}
+
+xhr.send()
+
+// 2. POST запрос с JSON
+const xhr = new XMLHttpRequest()
+
+xhr.open('POST', 'https://api.example.com/users')
+xhr.setRequestHeader('Content-Type', 'application/json')
+
+xhr.onload = function() {
+  if (xhr.status === 201) {
+    const result = JSON.parse(xhr.responseText)
+    console.log('User created:', result)
+  }
+}
+
+xhr.send(JSON.stringify({
+  name: 'John Doe',
+  email: 'john@example.com'
+}))
+
+// 3. Все события XMLHttpRequest
+const xhr = new XMLHttpRequest()
+
+xhr.onloadstart = () => console.log('Запрос начат')
+xhr.onprogress = (e) => {
+  if (e.lengthComputable) {
+    const percent = (e.loaded / e.total) * 100
+    console.log(`Загружено: ${percent}%`)
+  }
+}
+xhr.onload = () => console.log('Запрос завершен')
+xhr.onloadend = () => console.log('Завершение (всегда вызывается)')
+xhr.onerror = () => console.error('Ошибка сети')
+xhr.onabort = () => console.log('Запрос отменен')
+xhr.ontimeout = () => console.error('Timeout')
+
+xhr.open('GET', '/large-file.json')
+xhr.timeout = 5000  // 5 секунд
+xhr.send()
+
+// 4. Отмена запроса
+const xhr = new XMLHttpRequest()
+xhr.open('GET', '/data')
+xhr.send()
+
+// Отменить запрос
+setTimeout(() => xhr.abort(), 1000)
+
+// 5. Синхронный запрос (НЕ РЕКОМЕНДУЕТСЯ!)
+const xhr = new XMLHttpRequest()
+xhr.open('GET', '/data', false)  // false = синхронный
+xhr.send()
+
+// Код блокируется до получения ответа
+console.log('Response:', xhr.responseText)
+
+// 6. Получение различных типов данных
+const xhr = new XMLHttpRequest()
+xhr.open('GET', '/data')
+
+// Тип ответа
+xhr.responseType = 'json'  // 'text', 'blob', 'arraybuffer', 'document'
+
+xhr.onload = () => {
+  console.log(xhr.response)  // Уже распарсен как JSON
+}
+
+xhr.send()

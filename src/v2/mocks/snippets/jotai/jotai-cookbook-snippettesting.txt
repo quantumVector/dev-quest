@@ -1,0 +1,16 @@
+
+import { atom, createStore } from 'jotai'
+
+const countAtom = atom(0)
+
+const incrementAtom = atom(null, (get, set, by: number) => {
+  set(countAtom, get(countAtom) + by)
+})
+
+test('increments count', () => {
+  const store = createStore()
+
+  store.set(incrementAtom, 5)
+
+  expect(store.get(countAtom)).toBe(5)
+})

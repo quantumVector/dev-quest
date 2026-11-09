@@ -1,0 +1,50 @@
+
+class MyElement extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+  }
+
+  // Отслеживаемые атрибуты
+  static get observedAttributes() {
+    return ['title', 'content'];
+  }
+
+  // Подключение к DOM
+  connectedCallback() {
+    this.render();
+  }
+
+  // Изменение атрибутов
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue !== newValue) {
+      this.render();
+    }
+  }
+
+  render() {
+    const title = this.getAttribute('title') || 'Заголовок';
+    const content = this.getAttribute('content') || 'Контент';
+
+    this.shadowRoot.innerHTML = `
+      <style>
+        :host { display: block; padding: 16px; border: 1px solid #ccc; }
+        .title { color: #333; margin: 0 0 8px 0; }
+        .content { color: #666; }
+        ::slotted(.highlight) { background: yellow; }
+      </style>
+
+      <h3 class="title">${title}</h3>
+      <p class="content">${content}</p>
+      <slot></slot>
+    `;
+  }
+}
+
+// Регистрация элемента
+customElements.define('my-element', MyElement);
+
+// Использование:
+// <my-element title="Привет" content="Мир">
+//   <span class="highlight" slot="">Дополнительный контент</span>
+// </my-element>

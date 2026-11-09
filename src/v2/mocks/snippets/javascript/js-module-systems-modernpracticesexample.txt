@@ -1,0 +1,135 @@
+
+// =======================================
+// СОВРЕМЕННЫЕ ПРАКТИКИ И ИНСТРУМЕНТЫ
+// =======================================
+
+// package.json - настройка типа модулей
+{
+  "type": "module",  // Используем ES modules
+  "main": "index.js",
+  "exports": {
+    ".": {
+      "import": "./index.esm.js",
+      "require": "./index.cjs.js"
+    },
+    "./utils": {
+      "import": "./utils.esm.js",
+      "require": "./utils.cjs.js"
+    }
+  }
+}
+
+// Поддержка CommonJS и ES modules в одном проекте
+// index.cjs.js (CommonJS версия)
+const { createServer } = require('http');
+const utils = require('./utils.cjs.js');
+
+module.exports = {
+  startServer: () => {
+    const server = createServer(utils.requestHandler);
+    server.listen(3000);
+  }
+};
+
+// index.esm.js (ES modules версия)
+import { createServer } from 'http';
+import { requestHandler } from './utils.esm.js';
+
+export function startServer() {
+  const server = createServer(requestHandler);
+  server.listen(3000);
+}
+
+// Webpack конфигурация для совместимости
+module.exports = {
+  entry: './src/index.js',
+  output: {
+    library: 'MyLibrary',
+    libraryTarget: 'umd',  // UMD для совместимости
+    globalObject: 'this'
+  },
+  module: {
+    rules: [
+      {
+        test: /.js$/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: [
+              ['@babel/preset-env', {
+                modules: false  // Не транспайлим ES modules
+              }]
+            ]
+          }
+        }
+      }
+    ]
+  }
+};
+
+// Rollup конфигурация для создания разных форматов
+export default [
+  // ES modules
+  {
+    input: 'src/index.js',
+    output: {
+      file: 'dist/index.esm.js',
+      format: 'esm'
+    }
+  },
+  // CommonJS
+  {
+    input: 'src/index.js',
+    output: {
+      file: 'dist/index.cjs.js',
+      format: 'cjs'
+    }
+  },
+  // UMD
+  {
+    input: 'src/index.js',
+    output: {
+      file: 'dist/index.umd.js',
+      format: 'umd',
+      name: 'MyLibrary'
+    }
+  }
+];
+
+// Современная структура пакета
+my-package/
+├── src/
+│   ├── index.js      (исходники ES6)
+│   └── utils.js
+├── dist/
+│   ├── index.esm.js  (ES modules)
+│   ├── index.cjs.js  (CommonJS)
+│   └── index.umd.js  (UMD)
+├── package.json
+└── README.md
+
+// Условные экспорты в Node.js 12+
+// package.json
+{
+  "exports": {
+    ".": {
+      "node": {
+        "import": "./dist/index.node.esm.js",
+        "require": "./dist/index.node.cjs.js"
+      },
+      "browser": {
+        "import": "./dist/index.browser.esm.js",
+        "require": "./dist/index.browser.cjs.js"
+      },
+      "default": "./dist/index.esm.js"
+    }
+  }
+}
+
+// Типы для TypeScript
+// index.d.ts
+export declare function myFunction(param: string): number;
+export declare class MyClass {
+  constructor(options?: Options);
+}
+export default MyClass;

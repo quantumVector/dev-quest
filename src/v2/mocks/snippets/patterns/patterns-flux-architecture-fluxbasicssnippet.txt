@@ -1,0 +1,122 @@
+
+// ✅ FLUX - Однонаправленный поток данных
+
+// 1. Action - описывает ЧТО произошло
+const UserActions = {
+  updateName(name) {
+    return {
+      type: 'USER_UPDATE_NAME',
+      payload: { name }
+    }
+  },
+
+  updateEmail(email) {
+    return {
+      type: 'USER_UPDATE_EMAIL',
+      payload: { email }
+    }
+  },
+
+  loadUser(userId) {
+    return {
+      type: 'USER_LOAD',
+      payload: { userId }
+    }
+  }
+}
+
+// 2. Dispatcher - центральный хаб для всех действий
+class Dispatcher {
+  constructor() {
+    this.callbacks = []
+  }
+
+  register(callback) {
+    this.callbacks.push(callback)
+    return this.callbacks.length - 1 // token для отписки
+  }
+
+  dispatch(action) {
+    console.log('Dispatching:', action.type)
+    // Все Store получают ВСЕ действия
+    this.callbacks.forEach(callback => callback(action))
+  }
+}
+
+// 3. Store - хранит состояние и бизнес-логику
+class UserStore {
+  constructor(dispatcher) {
+    this.state = {
+      name: '',
+      email: '',
+      loading: false
+    }
+
+    this.listeners = []
+
+    // Регистрируемся в Dispatcher
+    dispatcher.register(this.handleAction.bind(this))
+  }
+
+  handleAction(action) {
+    switch (action.type) {
+      case 'USER_UPDATE_NAME':
+        this.state.name = action.payload.name
+        this.emitChange()
+        break
+
+      case 'USER_UPDATE_EMAIL':
+        this.state.email = action.payload.email
+        this.emitChange()
+        break
+
+      case 'USER_LOAD':
+        this.state.loading = true
+        this.emitChange()
+        // Имитация загрузки
+        setTimeout(() => {
+          this.state.loading = false
+          this.state.name = 'John Doe'
+          this.emitChange()
+        }, 1000)
+        break
+    }
+  }
+
+  getState() {
+    // Store - единственный источник правды
+    return this.state
+  }
+
+  addListener(callback) {
+    this.listeners.push(callback)
+  }
+
+  emitChange() {
+    // Уведомляем View об изменениях
+    this.listeners.forEach(listener => listener())
+  }
+}
+
+// 4. View - отображает данные и создает действия
+class UserView {
+  constructor(store, dispatcher) {
+    this.store = store
+    this.dispatcher = dispatcher
+
+    // Подписываемся на изменения Store
+    this.store.addListener(this.render.bind(this))
+  }
+
+  render() {
+    const state = this.store.getState()
+    console.log('Rendering:', state)
+    // Обновляем UI
+  }
+
+  handleNameInput(name) {
+    // View создает Action и отправляет через Dispatcher
+    const action = UserActions.updateName(name)
+    this.dispatcher.dispatch(action)
+  }
+}

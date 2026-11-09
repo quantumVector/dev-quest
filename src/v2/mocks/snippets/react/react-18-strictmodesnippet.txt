@@ -1,0 +1,59 @@
+
+// React 18 - улучшенный Strict Mode
+import { StrictMode } from 'react';
+
+function App() {
+  return (
+    <StrictMode>
+      <MyApplication />
+    </StrictMode>
+  );
+}
+
+// Что делает Strict Mode в React 18:
+
+// 1. Двойной вызов эффектов (только в dev mode)
+function Component() {
+  useEffect(() => {
+    console.log('Mount');
+
+    return () => {
+      console.log('Cleanup');
+    };
+  }, []);
+
+  // В dev с Strict Mode:
+  // Mount
+  // Cleanup (имитация unmount)
+  // Mount (проверка правильной очистки)
+
+  // В production:
+  // Mount (один раз)
+}
+
+// 2. Двойной вызов useState/useReducer initializer
+function Component() {
+  const [state] = useState(() => {
+    console.log('Initialize state');
+    return 0;
+  });
+
+  // В dev с Strict Mode:
+  // "Initialize state" выведется дважды
+
+  // Помогает обнаружить побочные эффекты в инициализаторах
+}
+
+// 3. Предупреждения о устаревших API
+function LegacyComponent() {
+  // Предупреждения о:
+  // - Legacy Context API
+  // - findDOMNode
+  // - String refs
+  // - и других устаревших паттернах
+}
+
+// Зачем двойной вызов?
+// Подготовка к новой функции: Offscreen Component
+// Компоненты могут монтироваться/размонтироваться
+// при сохранении состояния (background tabs, modals)

@@ -1,0 +1,211 @@
+
+// Инструменты для отладки и мониторинга requestAnimationFrame
+
+// 1. Счетчик кадров в секунду
+class FrameRateCounter {
+  constructor() {
+    this.frames = 0;
+    this.lastTime = performance.now();
+    this.fps = 0;
+    this.element = null;
+
+    this.createDisplay();
+    this.start();
+  }
+
+  createDisplay() {
+    this.element = document.createElement('div');
+    this.element.style.cssText = `
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.8);
+      color: white;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 14px;
+      z-index: 9999;
+      border-radius: 4px;
+    `;
+    document.body.appendChild(this.element);
+  }
+
+  update() {
+    const currentTime = performance.now();
+    this.frames++;
+
+    if (currentTime - this.lastTime >= 1000) {
+      this.fps = Math.round((this.frames * 1000) / (currentTime - this.lastTime));
+      this.frames = 0;
+      this.lastTime = currentTime;
+
+      // Цветовая индикация производительности
+      let color = '#4CAF50'; // зеленый
+      if (this.fps < 60) color = '#FF9800'; // оранжевый
+      if (this.fps < 30) color = '#F44336'; // красный
+
+      this.element.innerHTML = `
+        <div style="color: ${color}">FPS: ${this.fps}</div>
+        <div style="color: #999; font-size: 12px;">Target: 60</div>
+      `;
+    }
+
+    requestAnimationFrame(() => this.update());
+  }
+
+  start() {
+    this.update();
+  }
+}
+
+// 2. Мониторинг длительности кадров
+class FrameTimeMonitor {
+  constructor() {
+    this.frameTimings = [];
+    this.maxSamples = 60; // храним последние 60 кадров
+  }
+
+  monitor() {
+    let lastTime = performance.now();
+
+    const measureFrame = () => {
+      const currentTime = performance.now();
+      const frameTime = currentTime - lastTime;
+
+      this.frameTimings.push(frameTime);
+
+      // Ограничиваем размер массива
+      if (this.frameTimings.length > this.maxSamples) {
+        this.frameTimings.shift();
+      }
+
+      // Вычисляем статистику
+      const avgFrameTime = this.frameTimings.reduce((a, b) => a + b) / this.frameTimings.length;
+      const maxFrameTime = Math.max(...this.frameTimings);
+      const minFrameTime = Math.min(...this.frameTimings);
+
+      // Логируем проблемные кадры
+      if (frameTime > 20) { // больше 20ms = меньше 50 FPS
+        console.warn(`Slow frame: ${frameTime.toFixed(2)}ms`);
+      }
+
+      // Периодически выводим статистику
+      if (this.frameTimings.length === this.maxSamples) {
+        console.log(`Frame stats - Avg: ${avgFrameTime.toFixed(2)}ms, Min: ${minFrameTime.toFixed(2)}ms, Max: ${maxFrameTime.toFixed(2)}ms`);
+        this.frameTimings = []; // сброс для новой выборки
+      }
+
+      lastTime = currentTime;
+      requestAnimationFrame(measureFrame);
+    };
+
+    requestAnimationFrame(measureFrame);
+  }
+}
+
+// 3. Детектор пропущенных кадров
+class DroppedFrameDetector {
+  constructor() {
+    this.expectedFrameTime = 16.67; // 60 FPS
+    this.tolerance = 5; // допуск в мс
+    this.droppedFrames = 0;
+    this.totalFrames = 0;
+  }
+
+  detect() {
+    let lastTime = performance.now();
+
+    const checkFrame = () => {
+      const currentTime = performance.now();
+      const actualFrameTime = currentTime - lastTime;
+      const expectedFrames = Math.round(actualFrameTime / this.expectedFrameTime);
+
+      this.totalFrames += expectedFrames;
+
+      if (expectedFrames > 1) {
+        const dropped = expectedFrames - 1;
+        this.droppedFrames += dropped;
+        console.warn(`Dropped ${dropped} frame(s). Actual time: ${actualFrameTime.toFixed(2)}ms`);
+      }
+
+      // Периодическая статистика
+      if (this.totalFrames % 600 === 0) { // каждые 10 секунд при 60 FPS
+        const dropRate = (this.droppedFrames / this.totalFrames * 100).toFixed(2);
+        console.log(`Frame drop rate: ${dropRate}% (${this.droppedFrames}/${this.totalFrames})`);
+      }
+
+      lastTime = currentTime;
+      requestAnimationFrame(checkFrame);
+    };
+
+    requestAnimationFrame(checkFrame);
+  }
+}
+
+// 4. Профилировщик производительности анимаций
+class AnimationProfiler {
+  constructor() {
+    this.profiles = new Map();
+  }
+
+  profile(name, animationFn) {
+    const startTime = performance.now();
+    let frameCount = 0;
+    let totalCpuTime = 0;
+
+    const profiledAnimation = (timestamp) => {
+      const frameStart = performance.now();
+
+      // Выполняем анимацию
+      const continueAnimation = animationFn(timestamp, frameCount);
+
+      const frameEnd = performance.now();
+      const frameCpuTime = frameEnd - frameStart;
+
+      frameCount++;
+      totalCpuTime += frameCpuTime;
+
+      // Предупреждение о тяжелых кадрах
+      if (frameCpuTime > 10) {
+        console.warn(`Heavy frame in ${name}: ${frameCpuTime.toFixed(2)}ms`);
+      }
+
+      if (continueAnimation !== false) {
+        requestAnimationFrame(profiledAnimation);
+      } else {
+        // Анимация завершена, выводим статистику
+        const totalTime = performance.now() - startTime;
+        const avgCpuPerFrame = totalCpuTime / frameCount;
+
+        console.log(`Animation "${name}" profile:`);
+        console.log(`  Total time: ${totalTime.toFixed(2)}ms`);
+        console.log(`  Total frames: ${frameCount}`);
+        console.log(`  Avg CPU per frame: ${avgCpuPerFrame.toFixed(2)}ms`);
+        console.log(`  CPU usage: ${(totalCpuTime / totalTime * 100).toFixed(2)}%`);
+      }
+    };
+
+    requestAnimationFrame(profiledAnimation);
+  }
+}
+
+// Использование инструментов отладки
+const fpsCounter = new FrameRateCounter();
+const frameMonitor = new FrameTimeMonitor();
+const dropDetector = new DroppedFrameDetector();
+const profiler = new AnimationProfiler();
+
+frameMonitor.monitor();
+dropDetector.detect();
+
+// Пример профилирования анимации
+profiler.profile('slideAnimation', (timestamp, frameCount) => {
+  // Симуляция анимации
+  const element = document.querySelector('#animated-element');
+  if (element) {
+    element.style.transform = `translateX(${Math.sin(timestamp * 0.001) * 100}px)`;
+  }
+
+  // Анимация длится 5 секунд (300 кадров при 60 FPS)
+  return frameCount < 300;
+});

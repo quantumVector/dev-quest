@@ -1,0 +1,42 @@
+
+// Hydration - процесс "оживления" статического HTML
+
+// 1. Сервер рендерит HTML со всеми данными
+const htmlString = ReactDOMServer.renderToString(
+<App data={serverData} />
+)
+
+// 2. HTML отправляется браузеру с данными
+const html = `
+<!DOCTYPE html>
+<html>
+<body>
+<div id="root">${htmlString}</div>
+<script>
+  window.__INITIAL_DATA__ = ${JSON.stringify(serverData)}
+</script>
+<script src="bundle.js"></script>
+</body>
+</html>
+`
+
+// 3. Клиент "гидрирует" существующий HTML
+ReactDOM.hydrateRoot(
+document.getElementById('root'),
+<App data={window.__INITIAL_DATA__} />
+)
+
+// Что происходит при гидратации:
+// ✅ React/Vue прикрепляет обработчики событий
+// ✅ Восстанавливает состояние компонентов
+// ✅ Делает статический HTML интерактивным
+// ⚠️ НЕ перерендеривает DOM (если совпадает)
+
+// Проблема: Hydration Mismatch
+function BadComponent() {
+// ❌ ПЛОХО: время на сервере ≠ время на клиенте
+return <div>{new Date().toISOString()}</div>
+
+// ✅ ХОРОШО: одинаковые данные
+return <div>{props.timestamp}</div>
+}

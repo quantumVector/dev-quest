@@ -1,0 +1,148 @@
+
+#!/bin/bash
+
+# =====================================
+# ОБЪЯВЛЕНИЕ ПЕРЕМЕННЫХ
+# =====================================
+
+# Простое присваивание (БЕЗ пробелов вокруг =!)
+NAME="John"
+AGE=25
+PI=3.14
+
+# НЕПРАВИЛЬНО:
+# NAME = "John"  # Ошибка!
+# NAME= "John"   # Ошибка!
+
+# Использование переменных
+echo "Name: $NAME"
+echo "Age: $AGE"
+echo "Name: ${NAME}"  # Более явная форма
+
+# Переменные из команд
+CURRENT_DATE=$(date +%Y-%m-%d)
+USER_NAME=$(whoami)
+FILES_COUNT=$(ls -1 | wc -l)
+
+echo "Date: $CURRENT_DATE"
+echo "User: $USER_NAME"
+echo "Files: $FILES_COUNT"
+
+# =====================================
+# СПЕЦИАЛЬНЫЕ ПЕРЕМЕННЫЕ
+# =====================================
+
+echo "Script name: $0"           # Имя скрипта
+echo "First argument: $1"        # Первый аргумент
+echo "Second argument: $2"       # Второй аргумент
+echo "All arguments: $@"         # Все аргументы (массив)
+echo "All arguments: $*"         # Все аргументы (строка)
+echo "Number of arguments: $#"   # Количество аргументов
+echo "Last exit code: $?"        # Код возврата последней команды
+echo "Process ID: $$"            # PID текущего скрипта
+echo "Background PID: $!"        # PID последнего фонового процесса
+
+# =====================================
+# ПЕРЕМЕННЫЕ ОКРУЖЕНИЯ
+# =====================================
+
+echo "Home: $HOME"
+echo "User: $USER"
+echo "Path: $PATH"
+echo "Working dir: $PWD"
+echo "Shell: $SHELL"
+
+# Экспорт переменной (доступна дочерним процессам)
+export API_KEY="secret123"
+export NODE_ENV="production"
+
+# =====================================
+# СТРОКОВЫЕ ОПЕРАЦИИ
+# =====================================
+
+TEXT="Hello World"
+
+# Длина строки
+echo "${#TEXT}"              # 11
+
+# Подстрока
+echo "${TEXT:0:5}"           # Hello (с позиции 0, 5 символов)
+echo "${TEXT:6}"             # World (с позиции 6 до конца)
+
+# Замена
+echo "${TEXT/World/Bash}"    # Hello Bash (первое вхождение)
+echo "${TEXT//o/0}"          # Hell0 W0rld (все вхождения)
+
+# Удаление префикса/суффикса
+FILE="script.test.js"
+echo "${FILE%.js}"           # script.test (удалить .js)
+echo "${FILE%%.*}"           # script (удалить всё после первой точки)
+echo "${FILE#*.}"            # test.js (удалить до первой точки)
+
+# Регистр
+echo "${TEXT^^}"             # HELLO WORLD (верхний регистр)
+echo "${TEXT,,}"             # hello world (нижний регистр)
+
+# =====================================
+# ЗНАЧЕНИЯ ПО УМОЛЧАНИЮ
+# =====================================
+
+# Если переменная не установлена, использовать значение
+echo "${UNDEFINED:-default}"     # default
+
+# Если переменная пустая или не установлена
+echo "${EMPTY:-default}"         # default
+
+# Присвоить значение, если не установлено
+: ${PORT:=3000}
+echo "Port: $PORT"
+
+# Ошибка, если не установлено
+: ${REQUIRED_VAR:?Error: REQUIRED_VAR not set}
+
+# =====================================
+# МАССИВЫ
+# =====================================
+
+# Объявление массива
+FRUITS=("Apple" "Banana" "Orange")
+
+# Доступ к элементам
+echo "${FRUITS[0]}"          # Apple
+echo "${FRUITS[1]}"          # Banana
+
+# Все элементы
+echo "${FRUITS[@]}"          # Apple Banana Orange
+
+# Количество элементов
+echo "${#FRUITS[@]}"         # 3
+
+# Добавление элемента
+FRUITS+=("Mango")
+
+# Итерация
+for fruit in "${FRUITS[@]}"; do
+    echo "Fruit: $fruit"
+done
+
+# Ассоциативные массивы (требуется bash 4+)
+declare -A COLORS
+COLORS[red]="#FF0000"
+COLORS[green]="#00FF00"
+COLORS[blue]="#0000FF"
+
+echo "${COLORS[red]}"        # #FF0000
+
+# =====================================
+# READONLY И LOCAL
+# =====================================
+
+# Константа (нельзя изменить)
+readonly VERSION="1.0.0"
+# VERSION="2.0.0"  # Ошибка!
+
+# Локальная переменная (только внутри функции)
+function test() {
+    local LOCAL_VAR="local value"
+    echo "$LOCAL_VAR"
+}

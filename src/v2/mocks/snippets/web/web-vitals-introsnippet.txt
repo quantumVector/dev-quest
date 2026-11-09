@@ -1,0 +1,12 @@
+
+// Web Vitals - ключевые метрики производительности от Google
+
+// Три основные (Core Web Vitals):
+// 1. LCP (Largest Contentful Paint) - загрузка контента
+// 2. FID (First Input Delay) → INP (Interaction to Next Paint) - интерактивность
+// 3. CLS (Cumulative Layout Shift) - визуальная стабильность
+
+// Дополнительные метрики:
+// - FCP (First Contentful Paint) - первое отображение контента
+// - TTFB (Time to First Byte) - время до первого байта
+// - TBT (Total Blocking Time) - общее время блокировки

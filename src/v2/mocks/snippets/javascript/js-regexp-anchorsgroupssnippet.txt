@@ -1,0 +1,26 @@
+
+// Якоря и границы
+const startLine = /^Hello/;          // начало строки
+const endLine = /world$/;            // конец строки
+const wordBoundary = /\bword\b/;    // граница слова
+const notWordBoundary = /\Bword\B/; // не граница слова
+
+// Группы и захваты
+const simpleGroup = /(\d{2})-(\d{2})-(\d{4})/; // захватывающие группы
+const namedGroup = /(?<day>\d{2})-(?<month>\d{2})-(?<year>\d{4})/; // именованные группы
+const nonCapturing = /(?:\d{2})-(?:\d{2})-(?:\d{4})/; // не захватывающая группа
+
+const dateText = "Дата: 25-12-2023";
+const match = dateText.match(namedGroup);
+console.log(match.groups.day);   // "25"
+console.log(match.groups.month); // "12"
+console.log(match.groups.year);  // "2023"
+
+// Альтернация
+const either = /cat|dog/;           // либо cat, либо dog
+const grouped = /(cat|dog)s?/;      // cats, cat, dogs, dog
+
+// Обратные ссылки
+const repeated = /(['"])(.*?)\1/;   // строка в кавычках (одинаковых)
+const text2 = 'Он сказал "Привет" и добавил \'Пока\'';
+console.log(text2.match(repeated)); // находит строки в кавычах

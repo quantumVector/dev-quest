@@ -1,0 +1,63 @@
+
+// Несколько BFF для разных клиентов
+
+// BFF для веб-приложения (Web BFF)
+app.get('/web/api/dashboard/:userId', async (req, res) => {
+  const dashboard = await aggregateDashboardData(req.params.userId)
+
+  res.json({
+    user: {
+      ...dashboard.user,
+      fullAddress: formatAddress(dashboard.user.address) // Для веба
+    },
+    posts: dashboard.posts.map(post => ({
+      ...post,
+      content: post.content, // Полный контент
+      richMedia: post.media // Все медиа
+    })),
+    friends: dashboard.friends, // Полный список
+    notifications: dashboard.notifications
+  })
+})
+
+// BFF для мобильного приложения (Mobile BFF)
+app.get('/mobile/api/dashboard/:userId', async (req, res) => {
+  const dashboard = await aggregateDashboardData(req.params.userId)
+
+  res.json({
+    user: {
+      ...dashboard.user,
+      // Упрощенный адрес для мобильного
+      city: dashboard.user.address.city
+    },
+    posts: dashboard.posts.map(post => ({
+      ...post,
+      // Сокращенный контент
+      content: post.content.substring(0, 200),
+      // Только превью изображения
+      thumbnail: post.media[0]?.thumbnail
+    })),
+    // Ограниченный список друзей для экономии трафика
+    friends: dashboard.friends.slice(0, 5),
+    notifications: {
+      // Только счетчик для мобильного
+      count: dashboard.notifications.count
+    }
+  })
+})
+
+// BFF для умных часов (Wearable BFF)
+app.get('/wearable/api/dashboard/:userId', async (req, res) => {
+  const dashboard = await aggregateDashboardData(req.params.userId)
+
+  res.json({
+    // Минимальные данные для часов
+    user: {
+      name: dashboard.user.name.split(' ')[0] // Только имя
+    },
+    unreadCount: dashboard.notifications.count,
+    latestPost: {
+      title: dashboard.posts[0]?.title.substring(0, 50)
+    }
+  })
+})

@@ -1,0 +1,47 @@
+
+<!-- React/Next.js: динамические meta-теги -->
+
+// pages/_document.js (Next.js)
+import { Html, Head, Main, NextScript } from 'next/document'
+
+export default function Document() {
+  return (
+    <Html lang="ru">
+      <Head>
+        {/* Статические meta-теги */}
+        <meta name="author" content="Your Company" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+      <body>
+        <Main />
+        <NextScript />
+      </body>
+    </Html>
+  )
+}
+
+// pages/index.js (Next.js) - динамические meta
+import Head from 'next/head'
+
+export default function HomePage({ product }) {
+  return (
+    <>
+      <Head>
+        <title>{product.name} - купить в магазине | {product.brand}</title>
+        <meta
+          name="description"
+          content={`Купите ${product.name}. ${product.shortDescription}.
+            Цена: ${product.price} ₽`}
+        />
+        <meta property="og:title" content={`${product.name} | Shop`} />
+        <meta property="og:description" content={product.shortDescription} />
+        <meta property="og:image" content={product.image} />
+        <link rel="canonical" href={`https://example.com/${product.slug}`} />
+      </Head>
+
+      <main>
+        {/* Контент страницы */}
+      </main>
+    </>
+  )
+}

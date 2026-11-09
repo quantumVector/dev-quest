@@ -1,0 +1,57 @@
+
+// Практические примеры отлова событий на погружении
+
+// 1. Перехват всех кликов для аналитики
+document.addEventListener('click', function(event) {
+  // Срабатывает ДО всех других обработчиков
+  console.log('Analytics: клик по', event.target.tagName);
+
+  // Отправка данных в аналитику
+  if (event.target.dataset.track) {
+    sendAnalytics({
+      action: 'click',
+      element: event.target.dataset.track,
+      timestamp: Date.now()
+    });
+  }
+}, true); // true = фаза погружения
+
+// 2. Глобальная обработка ошибок форм
+document.addEventListener('invalid', function(event) {
+  // Срабатывает на погружении до стандартного поведения
+  console.log('Validation error:', event.target.name);
+
+  // Кастомная обработка ошибок валидации
+  showCustomErrorMessage(event.target);
+
+  // Предотвращаем стандартное сообщение браузера
+  event.preventDefault();
+}, true);
+
+// 3. Перехват отправки форм для предобработки
+document.addEventListener('submit', function(event) {
+  const form = event.target;
+
+  // Добавляем CSRF токен ко всем формам
+  if (!form.querySelector('[name="csrf_token"]')) {
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrf_token';
+    csrfInput.value = getCSRFToken();
+    form.appendChild(csrfInput);
+  }
+
+  // Логирование отправки форм
+  console.log('Form submitted:', form.id || form.action);
+}, true);
+
+// 4. Контроль доступа к элементам
+document.addEventListener('click', function(event) {
+  if (event.target.dataset.requireAuth && !isUserAuthenticated()) {
+    event.stopPropagation(); // останавливаем дальнейшее распространение
+    event.preventDefault();  // отменяем действие по умолчанию
+
+    showLoginModal();
+    return;
+  }
+}, true);

@@ -1,0 +1,11 @@
+
+<!-- Реализация через HTTP-заголовки (для PDF, файлов) -->
+
+<!-- Для страницы /ru/products -->
+Link: <https://example.com/en/products>; rel="alternate"; hreflang="en",
+      <https://example.com/ru/products>; rel="alternate"; hreflang="ru",
+      <https://example.com/de/products>; rel="alternate"; hreflang="de",
+      <https://example.com/en/products>; rel="alternate"; hreflang="x-default"
+
+<!-- Для Canonical -->
+Link: <https://example.com/ru/products>; rel="canonical"

@@ -1,0 +1,75 @@
+
+// Mocking - подмена зависимостей в тестах
+
+// Класс для тестирования
+class OrderService {
+  constructor(paymentGateway, emailService) {
+    this.paymentGateway = paymentGateway
+    this.emailService = emailService
+  }
+
+  async processOrder(order) {
+    // Обработка платежа
+    const payment = await this.paymentGateway.charge(order.total)
+
+    if (!payment.success) {
+      throw new Error('Payment failed')
+    }
+
+    // Отправка email
+    await this.emailService.sendConfirmation(order.email, order.id)
+
+    return { orderId: order.id, status: 'completed' }
+  }
+}
+
+// Тесты с моками
+describe('OrderService', () => {
+  let orderService
+  let mockPaymentGateway
+  let mockEmailService
+
+  beforeEach(() => {
+    // Создаем моки
+    mockPaymentGateway = {
+      charge: jest.fn()
+    }
+
+    mockEmailService = {
+      sendConfirmation: jest.fn()
+    }
+
+    orderService = new OrderService(mockPaymentGateway, mockEmailService)
+  })
+
+  test('processes order successfully', async () => {
+    const order = { id: 1, total: 100, email: 'user@example.com' }
+
+    // Настраиваем поведение моков
+    mockPaymentGateway.charge.mockResolvedValue({ success: true })
+    mockEmailService.sendConfirmation.mockResolvedValue()
+
+    const result = await orderService.processOrder(order)
+
+    // Проверяем результат
+    expect(result).toEqual({ orderId: 1, status: 'completed' })
+
+    // Проверяем вызовы моков
+    expect(mockPaymentGateway.charge).toHaveBeenCalledWith(100)
+    expect(mockEmailService.sendConfirmation).toHaveBeenCalledWith(
+      'user@example.com',
+      1
+    )
+  })
+
+  test('throws error when payment fails', async () => {
+    const order = { id: 1, total: 100, email: 'user@example.com' }
+
+    mockPaymentGateway.charge.mockResolvedValue({ success: false })
+
+    await expect(orderService.processOrder(order)).rejects.toThrow('Payment failed')
+
+    // Email не должен отправиться
+    expect(mockEmailService.sendConfirmation).not.toHaveBeenCalled()
+  })
+})

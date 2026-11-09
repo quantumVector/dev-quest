@@ -1,0 +1,52 @@
+
+// Основы лексического окружения
+console.log("=== Глобальное лексическое окружение ===");
+
+var globalVar = "Я глобальная переменная";
+let globalLet = "Я тоже глобальная, но в другом месте";
+const globalConst = "И я глобальная константа";
+
+function outerFunction() {
+  console.log("Внешняя функция:");
+  console.log("- globalVar доступна:", globalVar);
+  console.log("- globalLet доступна:", globalLet);
+
+  var outerVar = "Переменная внешней функции";
+  let outerLet = "Let внешней функции";
+
+  function innerFunction() {
+    console.log("\nВнутренняя функция:");
+    console.log("- globalVar:", globalVar);        // ✅ Доступна
+    console.log("- outerVar:", outerVar);          // ✅ Доступна
+    console.log("- outerLet:", outerLet);          // ✅ Доступна
+
+    var innerVar = "Переменная внутренней функции";
+    console.log("- innerVar:", innerVar);          // ✅ Доступна
+  }
+
+  innerFunction();
+
+  // console.log(innerVar); // ❌ ReferenceError: innerVar не доступна
+}
+
+outerFunction();
+
+/*
+Структура лексических окружений:
+
+Global Lexical Environment:
+├── globalVar: "Я глобальная переменная"
+├── globalLet: "Я тоже глобальная"
+├── globalConst: "И я глобальная константа"
+└── outerFunction: function
+
+outerFunction Lexical Environment:
+├── Parent: Global Lexical Environment
+├── outerVar: "Переменная внешней функции"
+├── outerLet: "Let внешней функции"
+└── innerFunction: function
+
+innerFunction Lexical Environment:
+├── Parent: outerFunction Lexical Environment
+└── innerVar: "Переменная внутренней функции"
+*/

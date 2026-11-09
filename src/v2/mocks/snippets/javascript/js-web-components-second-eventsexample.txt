@@ -1,0 +1,111 @@
+
+// =====================================
+// CUSTOM EVENTS - КОММУНИКАЦИЯ
+// =====================================
+
+class UserCard extends HTMLElement {
+  static get observedAttributes() {
+    return ['user-id', 'user-name'];
+  }
+
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+    this.render();
+  }
+
+  render() {
+    const userName = this.getAttribute('user-name') || 'Unknown';
+    const userId = this.getAttribute('user-id') || '0';
+
+    this.shadowRoot.innerHTML = `
+      <style>
+        .card {
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          padding: 16px;
+          margin: 8px 0;
+          background: white;
+        }
+        button {
+          margin: 4px;
+          padding: 8px 16px;
+          border: 1px solid #007bff;
+          background: white;
+          color: #007bff;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+        button:hover {
+          background: #007bff;
+          color: white;
+        }
+      </style>
+      <div class="card">
+        <h3>${userName}</h3>
+        <p>ID: ${userId}</p>
+        <button id="edit">Edit</button>
+        <button id="delete">Delete</button>
+      </div>
+    `;
+
+    this.attachEventListeners();
+  }
+
+  attachEventListeners() {
+    this.shadowRoot.getElementById('edit').addEventListener('click', () => {
+      this.dispatchEvent(new CustomEvent('user-edit', {
+        bubbles: true,
+        composed: true,
+        detail: {
+          userId: this.getAttribute('user-id'),
+          userName: this.getAttribute('user-name'),
+          action: 'edit'
+        }
+      }));
+    });
+
+    this.shadowRoot.getElementById('delete').addEventListener('click', () => {
+      const event = new CustomEvent('user-delete', {
+        bubbles: true,
+        composed: true,
+        cancelable: true,  // Можно отменить через preventDefault()
+        detail: {
+          userId: this.getAttribute('user-id'),
+          userName: this.getAttribute('user-name')
+        }
+      });
+
+      this.dispatchEvent(event);
+
+      if (!event.defaultPrevented) {
+        console.log('Deletion confirmed');
+        // Логика удаления
+      } else {
+        console.log('Deletion cancelled');
+      }
+    });
+  }
+
+  // Реакция на изменение атрибутов
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue !== newValue) {
+      this.render();
+    }
+  }
+}
+
+customElements.define('user-card', UserCard);
+
+// Слушаем события от компонентов
+document.addEventListener('user-edit', (event) => {
+  console.log('Edit user:', event.detail);
+});
+
+document.addEventListener('user-delete', (event) => {
+  // Можем отменить удаление
+  if (event.detail.userId === 'admin') {
+    event.preventDefault();
+    alert('Cannot delete admin user!');
+  }
+});

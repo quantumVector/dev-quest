@@ -1,0 +1,34 @@
+
+<!-- Продвинутая техника: native lazy + IntersectionObserver fallback -->
+<img
+  data-src="image.jpg"
+  src="placeholder.jpg"
+  alt="Изображение"
+  class="lazy-image"
+  loading="lazy">
+
+<script>
+// Для старых браузеров без поддержки loading="lazy"
+if ('loading' in HTMLImageElement.prototype) {
+  // Браузер поддерживает native lazy loading
+  const images = document.querySelectorAll('img[loading="lazy"]');
+  images.forEach(img => {
+    img.src = img.dataset.src;
+  });
+} else {
+  // Fallback: IntersectionObserver
+  const imageObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const img = entry.target;
+        img.src = img.dataset.src;
+        img.classList.remove('lazy-image');
+        observer.unobserve(img);
+      }
+    });
+  });
+
+  const images = document.querySelectorAll('.lazy-image');
+  images.forEach(img => imageObserver.observe(img));
+}
+</script>

@@ -1,0 +1,31 @@
+
+import { forwardRef, useRef } from 'react';
+
+// ❌ Без forwardRef - не работает
+function Input({ placeholder }) {
+  return <input placeholder={placeholder} />;
+}
+
+// ✅ С forwardRef - работает
+const InputWithRef = forwardRef((props, ref) => {
+  return <input ref={ref} placeholder={props.placeholder} />;
+});
+
+// Использование
+function Form() {
+  const inputRef = useRef(null);
+
+  const focusInput = () => {
+    inputRef.current.focus();
+  };
+
+  return (
+    <div>
+      <InputWithRef ref={inputRef} placeholder="Enter text" />
+      <button onClick={focusInput}>Focus Input</button>
+    </div>
+  );
+}
+
+// forwardRef позволяет пробросить ref через компонент
+// Без него React игнорирует prop "ref"

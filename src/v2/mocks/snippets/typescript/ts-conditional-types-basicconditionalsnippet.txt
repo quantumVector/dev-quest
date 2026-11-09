@@ -1,0 +1,59 @@
+
+// =====================================
+// CONDITIONAL TYPES - основы
+// =====================================
+
+// 1. Базовый синтаксис
+// T extends U ? X : Y
+// Если T расширяет U (совместим с U), то тип X, иначе Y
+
+type IsString<T> = T extends string ? true : false
+
+type A = IsString<string>  // true
+type B = IsString<number>  // false
+type C = IsString<'hello'> // true (string literal extends string)
+
+// 2. Простой пример - TypeName
+type TypeName<T> =
+  T extends string ? "string" :
+  T extends number ? "number" :
+  T extends boolean ? "boolean" :
+  T extends undefined ? "undefined" :
+  T extends Function ? "function" :
+  "object"
+
+type T0 = TypeName<string>        // "string"
+type T1 = TypeName<"a">           // "string"
+type T2 = TypeName<true>          // "boolean"
+type T3 = TypeName<() => void>    // "function"
+type T4 = TypeName<string[]>      // "object"
+
+// 3. NonNullable - исключение null и undefined
+type MyNonNullable<T> = T extends null | undefined ? never : T
+
+type D = MyNonNullable<string | null>        // string
+type E = MyNonNullable<number | undefined>   // number
+type F = MyNonNullable<string | null | undefined>  // string
+
+// 4. Условия с объектами
+type HasName<T> = T extends { name: string } ? true : false
+
+type G = HasName<{ name: string; age: number }>  // true
+type H = HasName<{ age: number }>                // false
+type I = HasName<{ name: number }>               // false (name не string)
+
+// 5. Множественные условия
+type MsgOf<T> =
+  T extends { message: unknown } ? T["message"] :
+  never
+
+interface Email {
+  message: string
+}
+
+interface Dog {
+  bark(): void
+}
+
+type EmailMessageContents = MsgOf<Email>  // string
+type DogMessageContents = MsgOf<Dog>      // never

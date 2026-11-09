@@ -1,0 +1,5 @@
+function User(name) {
+  this.name = name; // this = новый объект
+}
+
+const user = new User('Alice'); // this = user

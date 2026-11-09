@@ -1,0 +1,223 @@
+
+// =====================================
+// ПРОДВИНУТЫЕ ТЕХНИКИ СУЖЕНИЯ
+// =====================================
+
+// 1. Сужение с использованием дженериков
+function findFirst<T>(
+  array: T[],
+  predicate: (item: T) => boolean
+): T | undefined {
+  for (const item of array) {
+    if (predicate(item)) {
+      return item
+    }
+  }
+  return undefined
+}
+
+// Использование с type guard
+interface Animal {
+  type: 'cat' | 'dog'
+  name: string
+}
+
+const animals: Animal[] = [
+  { type: 'cat', name: 'Whiskers' },
+  { type: 'dog', name: 'Buddy' }
+]
+
+const firstCat = findFirst(animals, (animal): animal is Animal & { type: 'cat' } => {
+  return animal.type === 'cat'
+})
+
+if (firstCat) {
+  // TypeScript знает, что firstCat.type === 'cat'
+  console.log(`First cat: ${firstCat.name}`)
+}
+
+// 2. Branded types для дополнительной безопасности
+type UserId = string & { readonly __brand: 'UserId' }
+type ProductId = string & { readonly __brand: 'ProductId' }
+
+function createUserId(id: string): UserId {
+  return id as UserId
+}
+
+function createProductId(id: string): ProductId {
+  return id as ProductId
+}
+
+function getUserById(userId: UserId) {
+  console.log(`Getting user: ${userId}`)
+}
+
+function getProductById(productId: ProductId) {
+  console.log(`Getting product: ${productId}`)
+}
+
+const userId = createUserId('user-123')
+const productId = createProductId('prod-456')
+
+getUserById(userId)        // ✅ OK
+// getUserById(productId)  // ❌ Error: Type 'ProductId' is not assignable to type 'UserId'
+
+// 3. Template literal types с narrowing
+type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE'
+type ApiEndpoint = `/api/${string}`
+type ApiUrl = `${HttpMethod} ${ApiEndpoint}`
+
+function makeRequest(url: ApiUrl) {
+  const [method, endpoint] = url.split(' ') as [HttpMethod, ApiEndpoint]
+
+  console.log(`Making ${method} request to ${endpoint}`)
+}
+
+makeRequest('GET /api/users')    // ✅ OK
+// makeRequest('PATCH /api/users') // ❌ Error
+
+// 4. Conditional types с narrowing
+type Unpacked<T> =
+  T extends Array<infer U> ? U :
+  T extends Promise<infer U> ? U :
+  T
+
+function processValue<T>(value: T): Unpacked<T> {
+  if (Array.isArray(value)) {
+    return value[0] as Unpacked<T>
+  }
+
+  if (value instanceof Promise) {
+    throw new Error('Cannot process Promise synchronously')
+  }
+
+  return value as Unpacked<T>
+}
+
+// 5. Mapped types с сужением
+type Nullable<T> = {
+  [K in keyof T]: T[K] | null
+}
+
+type NonNullable<T> = {
+  [K in keyof T]: Exclude<T[K], null | undefined>
+}
+
+interface User {
+  name: string
+  email: string | null
+  age: number | undefined
+}
+
+function filterNulls<T extends object>(obj: Nullable<T>): Partial<NonNullable<T>> {
+  const result: any = {}
+
+  for (const key in obj) {
+    const value = obj[key]
+    if (value !== null && value !== undefined) {
+      result[key] = value
+    }
+  }
+
+  return result
+}
+
+// 6. Recursive type narrowing
+type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | Json[]
+  | { [key: string]: Json }
+
+function stringifyJson(value: Json): string {
+  if (value === null) {
+    return 'null'
+  }
+
+  if (typeof value === 'string') {
+    return `"${value}"`
+  }
+
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return String(value)
+  }
+
+  if (Array.isArray(value)) {
+    return '[' + value.map(stringifyJson).join(',') + ']'
+  }
+
+  // TypeScript знает, что value - объект
+  const entries = Object.entries(value)
+    .map(([k, v]) => `"${k}":${stringifyJson(v)}`)
+
+  return '{' + entries.join(',') + '}'
+}
+
+// 7. Narrowing с использованием Map и Set
+function processCollection<T>(
+  collection: Set<T> | Map<string, T>
+): T[] {
+  if (collection instanceof Set) {
+    // TypeScript знает, что это Set<T>
+    return Array.from(collection)
+  } else {
+    // TypeScript знает, что это Map<string, T>
+    return Array.from(collection.values())
+  }
+}
+
+// 8. Narrowing для readonly массивов
+function processArray(arr: readonly number[] | number[]): number {
+  // Проверяем, является ли массив readonly
+  if (Object.isFrozen(arr)) {
+    // Обрабатываем readonly массив
+    return arr.reduce((sum, n) => sum + n, 0)
+  }
+
+  // Можем изменять обычный массив
+  arr.sort((a, b) => a - b)
+  return arr[0]
+}
+
+// 9. Narrowing с помощью WeakMap
+const metadata = new WeakMap<object, { type: string }>()
+
+function setMetadata(obj: object, type: string) {
+  metadata.set(obj, { type })
+}
+
+function getType(obj: object): string | undefined {
+  return metadata.get(obj)?.type
+}
+
+function isKnownObject(obj: unknown): obj is object {
+  return typeof obj === 'object' && obj !== null && metadata.has(obj)
+}
+
+// 10. Narrowing через Symbol
+const TYPE_SYMBOL = Symbol('type')
+
+interface Tagged {
+  [TYPE_SYMBOL]: string
+}
+
+function tag<T extends object>(obj: T, type: string): T & Tagged {
+  return Object.assign(obj, { [TYPE_SYMBOL]: type })
+}
+
+function isTagged(obj: unknown): obj is Tagged {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    TYPE_SYMBOL in obj
+  )
+}
+
+function getTag(obj: unknown): string | undefined {
+  if (isTagged(obj)) {
+    return obj[TYPE_SYMBOL]
+  }
+  return undefined
+}

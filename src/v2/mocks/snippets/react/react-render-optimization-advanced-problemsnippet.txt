@@ -1,0 +1,33 @@
+
+// ❌ ПРОБЛЕМА - Избыточные рендеры
+
+function App() {
+  const [count, setCount] = useState(0)
+  const [text, setText] = useState('')
+
+  return (
+    <div>
+      <input value={text} onChange={e => setText(e.target.value)} />
+      <Counter count={count} />
+      <ExpensiveList /> {/* Ре-рендерится при каждом изменении text! */}
+    </div>
+  )
+}
+
+function ExpensiveList() {
+  console.log('ExpensiveList rendered')
+
+  // Тяжелые вычисления при каждом рендере
+  const items = Array.from({ length: 10000 }, (_, i) => ({
+    id: i,
+    value: Math.random()
+  }))
+
+  return (
+    <ul>
+      {items.map(item => (
+        <li key={item.id}>{item.value}</li>
+      ))}
+    </ul>
+  )
+}

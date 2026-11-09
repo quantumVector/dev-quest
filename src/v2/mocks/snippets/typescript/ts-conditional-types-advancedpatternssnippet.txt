@@ -1,0 +1,232 @@
+
+// =====================================
+// ПРОДВИНУТЫЕ ПАТТЕРНЫ
+// =====================================
+
+// 1. Создание строго типизированного EventEmitter
+type EventMap = {
+  'user:login': { userId: number; timestamp: Date }
+  'user:logout': { userId: number }
+  'data:update': { id: string; value: any }
+}
+
+type EventKey = keyof EventMap
+
+type EventCallback<K extends EventKey> = (data: EventMap[K]) => void
+
+class TypedEventEmitter {
+  private listeners: {
+    [K in EventKey]?: EventCallback<K>[]
+  } = {}
+
+  on<K extends EventKey>(event: K, callback: EventCallback<K>) {
+    if (!this.listeners[event]) {
+      this.listeners[event] = []
+    }
+    this.listeners[event]!.push(callback as any)
+  }
+
+  emit<K extends EventKey>(event: K, data: EventMap[K]) {
+    this.listeners[event]?.forEach(callback => callback(data))
+  }
+}
+
+const emitter = new TypedEventEmitter()
+
+emitter.on('user:login', (data) => {
+  console.log(data.userId, data.timestamp)  // Типизировано!
+})
+
+// 2. Условная типизация для Builder Pattern
+type BuilderMethods<T> = {
+  [K in keyof T as `set${Capitalize<string & K>}`]: (value: T[K]) => Builder<T>
+} & {
+  build(): T
+}
+
+type Builder<T> = BuilderMethods<T>
+
+type UserBuilder = Builder<{ name: string; age: number }>
+// {
+//   setName(value: string): Builder<...>
+//   setAge(value: number): Builder<...>
+//   build(): { name: string; age: number }
+// }
+
+// 3. Типизация состояний (State Machine)
+type State<T extends string, Data = void> = Data extends void
+  ? { type: T }
+  : { type: T; data: Data }
+
+type LoadingState = State<'loading'>
+type SuccessState<T> = State<'success', { data: T }>
+type ErrorState = State<'error', { error: string }>
+
+type AsyncState<T> = LoadingState | SuccessState<T> | ErrorState
+
+function handleState<T>(state: AsyncState<T>) {
+  switch (state.type) {
+    case 'loading':
+      return 'Loading...'
+    case 'success':
+      return state.data  // TypeScript знает о data
+    case 'error':
+      return state.error // TypeScript знает об error
+  }
+}
+
+// 4. Reverse Mapped Type - обратное отображение
+type ReverseMap<T extends Record<string, any>> = {
+  [V in T[keyof T]]: {
+    [K in keyof T]: T[K] extends V ? K : never
+  }[keyof T]
+}
+
+type StatusCodes = {
+  OK: 200
+  NOT_FOUND: 404
+  SERVER_ERROR: 500
+}
+
+type StatusNames = ReverseMap<StatusCodes>
+// {
+//   200: "OK"
+//   404: "NOT_FOUND"
+//   500: "SERVER_ERROR"
+// }
+
+// 5. Объединение типов с контролем дубликатов
+type Merge<T, U> = {
+  [K in keyof T | keyof U]: K extends keyof U
+    ? U[K]
+    : K extends keyof T
+      ? T[K]
+      : never
+}
+
+type A = { a: string; b: number }
+type B = { b: string; c: boolean }
+
+type C = Merge<A, B>
+// { a: string; b: string; c: boolean }
+
+// 6. Функция типа для проверки равенства типов
+type Equals<X, Y> =
+  (<T>() => T extends X ? 1 : 2) extends
+  (<T>() => T extends Y ? 1 : 2) ? true : false
+
+type D = Equals<string, string>           // true
+type E = Equals<string, number>           // false
+type F = Equals<string | number, number | string>  // true
+
+// 7. Получение union всех возможных значений tuple
+type TupleValues<T extends readonly any[]> = T[number]
+
+const tuple = ['a', 'b', 'c'] as const
+type Values = TupleValues<typeof tuple>  // "a" | "b" | "c"
+
+// 8. Разбиение строки по разделителю
+type Split<S extends string, D extends string> =
+  S extends `${infer T}${D}${infer U}`
+    ? [T, ...Split<U, D>]
+    : [S]
+
+type Path = Split<'user.profile.name', '.'>
+// ["user", "profile", "name"]
+
+// 9. Join - объединение массива строк
+type Join<T extends string[], D extends string> =
+  T extends [infer F extends string, ...infer R extends string[]]
+    ? R extends []
+      ? F
+      : `${F}${D}${Join<R, D>}`
+    : ''
+
+type Joined = Join<['user', 'profile', 'name'], '.'>
+// "user.profile.name"
+
+// 10. Deeply Readonly с исключениями
+type DeeplyReadonlyExcept<T, K extends keyof any = never> =
+  T extends (infer R)[]
+    ? DeeplyReadonlyArray<R, K>
+    : T extends Function
+      ? T
+      : T extends object
+        ? DeeplyReadonlyObject<T, K>
+        : T
+
+type DeeplyReadonlyArray<T, K extends keyof any> =
+  ReadonlyArray<DeeplyReadonlyExcept<T, K>>
+
+type DeeplyReadonlyObject<T, K extends keyof any> = {
+  readonly [P in keyof T]: P extends K
+    ? T[P]
+    : DeeplyReadonlyExcept<T[P], K>
+}
+
+type Config = {
+  api: {
+    url: string
+    timeout: number
+  }
+  cache: {
+    enabled: boolean
+  }
+}
+
+type ReadonlyConfig = DeeplyReadonlyExcept<Config, 'cache'>
+// {
+//   readonly api: {
+//     readonly url: string
+//     readonly timeout: number
+//   }
+//   cache: {  // НЕ readonly
+//     enabled: boolean
+//   }
+// }
+
+// 11. Типизация SQL-like Query Builder
+type Table = {
+  users: { id: number; name: string; email: string }
+  posts: { id: number; userId: number; title: string }
+}
+
+type SelectFields<T extends keyof Table, F extends keyof Table[T]> = {
+  table: T
+  fields: F[]
+  result: Pick<Table[T], F>[]
+}
+
+type Query1 = SelectFields<'users', 'id' | 'name'>
+// {
+//   table: 'users'
+//   fields: ('id' | 'name')[]
+//   result: { id: number; name: string }[]
+// }
+
+// 12. Tagged Union с автоматическими дискриминантами
+type Tagged<T extends Record<string, any>, K extends keyof T> = {
+  [P in keyof T]: { type: P } & T[P]
+}[K]
+
+type Shapes = {
+  circle: { radius: number }
+  rectangle: { width: number; height: number }
+  triangle: { base: number; height: number }
+}
+
+type Shape = Tagged<Shapes, keyof Shapes>
+// | { type: 'circle'; radius: number }
+// | { type: 'rectangle'; width: number; height: number }
+// | { type: 'triangle'; base: number; height: number }
+
+function area(shape: Shape): number {
+  switch (shape.type) {
+    case 'circle':
+      return Math.PI * shape.radius ** 2
+    case 'rectangle':
+      return shape.width * shape.height
+    case 'triangle':
+      return (shape.base * shape.height) / 2
+  }
+}

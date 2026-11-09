@@ -1,0 +1,20 @@
+
+<!-- ARIA-атрибуты для сложных элементов -->
+<div role="button"
+     tabindex="0"
+     aria-label="Закрыть диалог"
+     onclick="closeDialog()"
+     onkeydown="handleKeyDown(event)">
+  ×
+</div>
+
+<!-- Скрытый текст для скринридеров -->
+<button>
+  <span aria-hidden="true">🏠</span>
+  <span class="sr-only">Главная страница</span>
+</button>
+
+<!-- Описание состояния -->
+<button aria-expanded="false" aria-controls="menu">
+  Меню
+</button>

@@ -1,0 +1,293 @@
+
+// =====================================
+// ПРАКТИЧЕСКИЕ ПРИМЕРЫ
+// =====================================
+
+// 1. Плавная прокрутка (Smooth Scroll)
+function smoothScrollTo(targetY, duration = 1000) {
+  const startY = window.pageYOffset
+  const difference = targetY - startY
+  const startTime = performance.now()
+
+  function scroll(currentTime) {
+    const elapsed = currentTime - startTime
+    const progress = Math.min(elapsed / duration, 1)
+
+    // Easing функция (ease-in-out)
+    const easing = progress < 0.5
+      ? 2 * progress * progress
+      : 1 - Math.pow(-2 * progress + 2, 2) / 2
+
+    window.scrollTo(0, startY + difference * easing)
+
+    if (progress < 1) {
+      requestAnimationFrame(scroll)
+    }
+  }
+
+  requestAnimationFrame(scroll)
+}
+
+// Использование
+smoothScrollTo(1000) // Плавно прокрутить к 1000px
+
+// 2. Параллакс эффект
+class ParallaxEffect {
+  constructor() {
+    this.layers = document.querySelectorAll('.parallax-layer')
+    this.ticking = false
+
+    window.addEventListener('scroll', () => {
+      if (!this.ticking) {
+        requestAnimationFrame(() => {
+          this.update()
+          this.ticking = false
+        })
+
+        this.ticking = true
+      }
+    })
+  }
+
+  update() {
+    const scrollY = window.pageYOffset
+
+    this.layers.forEach((layer, index) => {
+      const speed = (index + 1) * 0.3
+      const yPos = -(scrollY * speed)
+
+      layer.style.transform = `translate3d(0, ${yPos}px, 0)`
+    })
+  }
+}
+
+new ParallaxEffect()
+
+// 3. Счетчик с анимацией
+function animateCounter(element, target, duration = 2000) {
+  const start = parseInt(element.textContent) || 0
+  const startTime = performance.now()
+
+  function update(currentTime) {
+    const elapsed = currentTime - startTime
+    const progress = Math.min(elapsed / duration, 1)
+
+    // Ease out cubic
+    const easing = 1 - Math.pow(1 - progress, 3)
+    const current = Math.floor(start + (target - start) * easing)
+
+    element.textContent = current
+
+    if (progress < 1) {
+      requestAnimationFrame(update)
+    } else {
+      element.textContent = target // Точное финальное значение
+    }
+  }
+
+  requestAnimationFrame(update)
+}
+
+// Использование
+const counter = document.getElementById('counter')
+animateCounter(counter, 1000, 2000) // От 0 до 1000 за 2 секунды
+
+// 4. Отслеживание перемещения мыши (плавное следование)
+class SmoothFollower {
+  constructor(element) {
+    this.element = element
+    this.targetX = 0
+    this.targetY = 0
+    this.currentX = 0
+    this.currentY = 0
+    this.ease = 0.1 // Коэффициент сглаживания
+
+    document.addEventListener('mousemove', (e) => {
+      this.targetX = e.clientX
+      this.targetY = e.clientY
+    })
+
+    this.animate()
+  }
+
+  animate = () => {
+    // Плавная интерполяция к целевой позиции
+    this.currentX += (this.targetX - this.currentX) * this.ease
+    this.currentY += (this.targetY - this.currentY) * this.ease
+
+    this.element.style.transform =
+      `translate(${this.currentX}px, ${this.currentY}px)`
+
+    requestAnimationFrame(this.animate)
+  }
+}
+
+const follower = new SmoothFollower(document.getElementById('follower'))
+
+// 5. Загрузочный прогресс бар
+class ProgressBar {
+  constructor(element) {
+    this.element = element
+    this.current = 0
+    this.target = 0
+    this.animating = false
+  }
+
+  setProgress(value) {
+    this.target = Math.max(0, Math.min(100, value))
+
+    if (!this.animating) {
+      this.animating = true
+      this.animate()
+    }
+  }
+
+  animate = () => {
+    const diff = this.target - this.current
+
+    if (Math.abs(diff) < 0.1) {
+      this.current = this.target
+      this.animating = false
+    } else {
+      this.current += diff * 0.1
+      requestAnimationFrame(this.animate)
+    }
+
+    this.element.style.width = this.current + '%'
+  }
+}
+
+const progressBar = new ProgressBar(document.getElementById('progress'))
+
+// Симуляция загрузки
+let progress = 0
+const interval = setInterval(() => {
+  progress += Math.random() * 10
+  progressBar.setProgress(progress)
+
+  if (progress >= 100) {
+    clearInterval(interval)
+  }
+}, 200)
+
+// 6. Скроллджек (ScrollJacking) с RAF
+class ScrollJacker {
+  constructor() {
+    this.sections = document.querySelectorAll('.section')
+    this.currentSection = 0
+    this.isScrolling = false
+
+    window.addEventListener('wheel', (e) => {
+      e.preventDefault()
+
+      if (this.isScrolling) return
+
+      if (e.deltaY > 0 && this.currentSection < this.sections.length - 1) {
+        this.currentSection++
+        this.scrollToSection()
+      } else if (e.deltaY < 0 && this.currentSection > 0) {
+        this.currentSection--
+        this.scrollToSection()
+      }
+    }, { passive: false })
+  }
+
+  scrollToSection() {
+    this.isScrolling = true
+
+    const targetY = this.sections[this.currentSection].offsetTop
+    const startY = window.pageYOffset
+    const difference = targetY - startY
+    const startTime = performance.now()
+    const duration = 800
+
+    const scroll = (currentTime) => {
+      const elapsed = currentTime - startTime
+      const progress = Math.min(elapsed / duration, 1)
+
+      const easing = progress < 0.5
+        ? 4 * progress * progress * progress
+        : 1 - Math.pow(-2 * progress + 2, 3) / 2
+
+      window.scrollTo(0, startY + difference * easing)
+
+      if (progress < 1) {
+        requestAnimationFrame(scroll)
+      } else {
+        this.isScrolling = false
+      }
+    }
+
+    requestAnimationFrame(scroll)
+  }
+}
+
+new ScrollJacker()
+
+// 7. Игровой цикл (Game Loop)
+class GameLoop {
+  constructor() {
+    this.entities = []
+    this.lastTimestamp = 0
+    this.running = false
+  }
+
+  addEntity(entity) {
+    this.entities.push(entity)
+  }
+
+  start() {
+    if (this.running) return
+
+    this.running = true
+    this.lastTimestamp = performance.now()
+    this.loop(this.lastTimestamp)
+  }
+
+  stop() {
+    this.running = false
+  }
+
+  loop = (timestamp) => {
+    if (!this.running) return
+
+    const deltaTime = (timestamp - this.lastTimestamp) / 1000
+    this.lastTimestamp = timestamp
+
+    // Update всех сущностей
+    this.entities.forEach(entity => {
+      entity.update(deltaTime)
+    })
+
+    // Render всех сущностей
+    this.entities.forEach(entity => {
+      entity.render()
+    })
+
+    requestAnimationFrame(this.loop)
+  }
+}
+
+// Пример сущности
+class Player {
+  constructor(x, y) {
+    this.x = x
+    this.y = y
+    this.velocityX = 0
+    this.velocityY = 0
+  }
+
+  update(deltaTime) {
+    this.x += this.velocityX * deltaTime
+    this.y += this.velocityY * deltaTime
+  }
+
+  render() {
+    // Отрисовка игрока
+    ctx.fillRect(this.x, this.y, 50, 50)
+  }
+}
+
+const game = new GameLoop()
+game.addEntity(new Player(100, 100))
+game.start()

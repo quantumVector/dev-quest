@@ -1,0 +1,118 @@
+
+// =====================================
+// ПРОДВИНУТЫЕ ТИПЫ
+// =====================================
+
+// 1. Conditional Types - условные типы
+type IsString<T> = T extends string ? true : false
+
+type A = IsString<string>  // true
+type B = IsString<number>  // false
+
+// Практический пример
+type NonNullable<T> = T extends null | undefined ? never : T
+
+type C = NonNullable<string | null>  // string
+type D = NonNullable<number | undefined>  // number
+
+// 2. Template Literal Types
+type EventName = 'click' | 'scroll' | 'mousemove'
+type EventHandler = `on${Capitalize<EventName>}`
+
+// Результат: 'onClick' | 'onScroll' | 'onMousemove'
+
+type CSSValue = number | string
+type CSSProperty = 'width' | 'height' | 'margin'
+type CSSStyle = `${CSSProperty}:${CSSValue}`
+
+// 3. Utility Types - встроенные вспомогательные типы
+
+// Partial - все свойства необязательные
+type User = {
+  id: number
+  name: string
+  email: string
+}
+
+type PartialUser = Partial<User>
+// Результат: { id?: number, name?: string, email?: string }
+
+const updateUser = (user: User, updates: PartialUser): User => {
+  return { ...user, ...updates }
+}
+
+// Required - все свойства обязательные
+type OptionalUser = {
+  id?: number
+  name?: string
+}
+
+type RequiredUser = Required<OptionalUser>
+// Результат: { id: number, name: string }
+
+// Pick - выбрать определенные свойства
+type UserPreview = Pick<User, 'id' | 'name'>
+// Результат: { id: number, name: string }
+
+// Omit - исключить определенные свойства
+type UserWithoutEmail = Omit<User, 'email'>
+// Результат: { id: number, name: string }
+
+// Record - создать объект с ключами и значениями
+type Roles = 'admin' | 'user' | 'guest'
+type RolePermissions = Record<Roles, string[]>
+
+const permissions: RolePermissions = {
+  admin: ['read', 'write', 'delete'],
+  user: ['read', 'write'],
+  guest: ['read']
+}
+
+// 4. infer - вывод типов в условных типах
+type ReturnType<T> = T extends (...args: any[]) => infer R ? R : never
+
+type Func = () => string
+type R = ReturnType<Func>  // string
+
+type ArrayElement<T> = T extends (infer E)[] ? E : never
+
+type E = ArrayElement<number[]>  // number
+
+// 5. Recursive Types - рекурсивные типы
+type JSONValue =
+  | string
+  | number
+  | boolean
+  | null
+  | JSONValue[]
+  | { [key: string]: JSONValue }
+
+const json: JSONValue = {
+  name: 'John',
+  age: 30,
+  hobbies: ['reading', 'coding'],
+  address: {
+    city: 'New York',
+    zip: 10001
+  }
+}
+
+// Рекурсивный тип для вложенных объектов
+type DeepReadonly<T> = {
+  readonly [P in keyof T]: T[P] extends object
+    ? DeepReadonly<T[P]>
+    : T[P]
+}
+
+type NestedUser = {
+  name: string
+  profile: {
+    age: number
+    address: {
+      city: string
+    }
+  }
+}
+
+type ReadonlyNestedUser = DeepReadonly<NestedUser>
+// Все вложенные объекты тоже readonly

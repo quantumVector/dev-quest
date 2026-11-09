@@ -1,0 +1,127 @@
+
+// Сравнение подходов на одном примере - счетчик
+
+// =====================================
+// MVC - Controller управляет потоком
+// =====================================
+class CounterModelMVC {
+  constructor() { this.count = 0 }
+  increment() { this.count++ }
+  getCount() { return this.count }
+}
+
+class CounterViewMVC {
+  render(count) {
+    document.getElementById('count').textContent = count
+  }
+  bindIncrement(handler) {
+    document.getElementById('btn').onclick = handler
+  }
+}
+
+class CounterControllerMVC {
+  constructor(model, view) {
+    this.model = model
+    this.view = view
+    this.view.bindIncrement(() => this.handleIncrement())
+    this.updateView()
+  }
+  handleIncrement() {
+    this.model.increment()
+    this.updateView()
+  }
+  updateView() {
+    this.view.render(this.model.getCount())
+  }
+}
+
+// =====================================
+// MVP - Presenter управляет всем
+// =====================================
+class CounterModelMVP {
+  constructor() { this.count = 0 }
+  increment() { this.count++ }
+  getCount() { return this.count }
+}
+
+class CounterViewMVP {
+  displayCount(count) {
+    document.getElementById('count').textContent = count
+  }
+  bindIncrement(handler) {
+    document.getElementById('btn').onclick = handler
+  }
+}
+
+class CounterPresenterMVP {
+  constructor(model, view) {
+    this.model = model
+    this.view = view
+    this.view.bindIncrement(() => this.handleIncrement())
+    this.updateView()
+  }
+  handleIncrement() {
+    this.model.increment()
+    this.updateView()
+  }
+  updateView() {
+    // Presenter явно вызывает методы View
+    this.view.displayCount(this.model.getCount())
+  }
+}
+
+// =====================================
+// MVVM - ViewModel с реактивностью
+// =====================================
+class CounterModelMVVM {
+  constructor() { this.count = 0 }
+  increment() { this.count++ }
+}
+
+class CounterViewModelMVVM {
+  constructor(model) {
+    this.model = model
+    this.state = new Proxy(
+      { count: 0 },
+      {
+        set: (target, prop, value) => {
+          target[prop] = value
+          this.notifyView()
+          return true
+        }
+      }
+    )
+  }
+
+  increment() {
+    this.model.increment()
+    this.state.count = this.model.count
+  }
+
+  subscribe(callback) {
+    this.viewCallback = callback
+  }
+
+  notifyView() {
+    if (this.viewCallback) this.viewCallback(this.state)
+  }
+}
+
+class CounterViewMVVM {
+  constructor(viewModel) {
+    this.viewModel = viewModel
+    // View подписывается на изменения
+    this.viewModel.subscribe((state) => this.render(state))
+    this.bindEvents()
+  }
+
+  render(state) {
+    document.getElementById('count').textContent = state.count
+  }
+
+  bindEvents() {
+    document.getElementById('btn').onclick = () => {
+      this.viewModel.increment()
+    }
+  }
+}

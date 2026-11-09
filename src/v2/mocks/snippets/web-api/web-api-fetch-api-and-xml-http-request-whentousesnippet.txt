@@ -1,0 +1,108 @@
+
+// =====================================
+// КОГДА ИСПОЛЬЗОВАТЬ ЧТО
+// =====================================
+
+// ✅ ИСПОЛЬЗУЙТЕ FETCH КОГДА:
+
+// 1. Обычные API запросы
+async function fetchData() {
+  const response = await fetch('/api/data')
+  return response.json()
+}
+
+// 2. Современный асинхронный код
+async function loadUser(id) {
+  const response = await fetch(`/api/users/${id}`)
+  if (!response.ok) throw new Error('User not found')
+  return response.json()
+}
+
+// 3. Работа с промисами и async/await
+Promise.all([
+  fetch('/api/users'),
+  fetch('/api/posts'),
+  fetch('/api/comments')
+])
+  .then(responses => Promise.all(responses.map(r => r.json())))
+  .then(([users, posts, comments]) => {
+    console.log({ users, posts, comments })
+  })
+
+// 4. Streaming данных (прогресс скачивания)
+async function downloadWithProgress(url) {
+  const response = await fetch(url)
+  const reader = response.body.getReader()
+  // ... обработка потока
+}
+
+// ✅ ИСПОЛЬЗУЙТЕ XMLHTTPREQUEST КОГДА:
+
+// 1. Нужен прогресс ОТПРАВКИ файла
+function uploadWithProgress(file) {
+  const xhr = new XMLHttpRequest()
+
+  xhr.upload.onprogress = (e) => {
+    const percent = (e.loaded / e.total) * 100
+    updateProgressBar(percent)
+  }
+
+  xhr.open('POST', '/upload')
+  xhr.send(file)
+}
+
+// 2. Работа в событиях unload/beforeunload (с синхронным запросом)
+window.addEventListener('beforeunload', () => {
+  // Вариант 1: sendBeacon (ЛУЧШЕ)
+  navigator.sendBeacon('/analytics', data)
+
+  // Вариант 2: XHR синхронный (если sendBeacon недоступен)
+  if (!navigator.sendBeacon) {
+    const xhr = new XMLHttpRequest()
+    xhr.open('POST', '/analytics', false)  // синхронный
+    xhr.send(data)
+  }
+})
+
+// 3. Нужна поддержка старых браузеров (IE10+)
+function legacyRequest(url, callback) {
+  const xhr = new XMLHttpRequest()
+  xhr.open('GET', url)
+  xhr.onload = () => callback(JSON.parse(xhr.responseText))
+  xhr.send()
+}
+
+// 4. Нужен полный контроль над событиями
+function requestWithEvents(url) {
+  const xhr = new XMLHttpRequest()
+
+  xhr.onloadstart = () => console.log('Start')
+  xhr.onprogress = (e) => console.log('Progress:', e.loaded)
+  xhr.onload = () => console.log('Load')
+  xhr.onloadend = () => console.log('End')
+  xhr.onerror = () => console.error('Error')
+  xhr.onabort = () => console.log('Abort')
+  xhr.ontimeout = () => console.log('Timeout')
+
+  xhr.open('GET', url)
+  xhr.timeout = 5000
+  xhr.send()
+}
+
+// 5. Синхронные запросы (НЕ РЕКОМЕНДУЕТСЯ, но иногда нужно)
+function syncRequest(url) {
+  const xhr = new XMLHttpRequest()
+  xhr.open('GET', url, false)  // false = синхронный
+  xhr.send()
+  return JSON.parse(xhr.responseText)
+}
+
+// ❌ НЕ ИСПОЛЬЗУЙТЕ FETCH КОГДА:
+// - Нужен прогресс отправки файла
+// - Работа в beforeunload/unload (используйте sendBeacon)
+// - Нужна поддержка IE10 (хотя есть полифиллы)
+
+// ❌ НЕ ИСПОЛЬЗУЙТЕ XMLHTTPREQUEST КОГДА:
+// - Пишете новый код (используйте Fetch)
+// - Не нужны специфичные возможности XHR
+// - Хотите более чистый и читаемый код

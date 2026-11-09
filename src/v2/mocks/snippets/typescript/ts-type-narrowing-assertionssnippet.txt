@@ -1,0 +1,146 @@
+
+// =====================================
+// ASSERTION FUNCTIONS (ФУНКЦИИ УТВЕРЖДЕНИЯ)
+// =====================================
+
+// 1. Базовая assertion функция с "asserts"
+function assert(condition: unknown): asserts condition {
+  if (!condition) {
+    throw new Error('Assertion failed')
+  }
+}
+
+function processValue(value: string | null) {
+  assert(value !== null)
+
+  // После assert TypeScript знает, что value - string
+  console.log(value.toUpperCase())
+}
+
+// 2. Assertion с явным типом
+function assertIsString(value: unknown): asserts value is string {
+  if (typeof value !== 'string') {
+    throw new Error('Value must be a string')
+  }
+}
+
+function printUpperCase(value: unknown) {
+  assertIsString(value)
+
+  // TypeScript знает, что value - string
+  console.log(value.toUpperCase())
+}
+
+// 3. Assertion для объектов
+interface User {
+  id: number
+  name: string
+  email: string
+}
+
+function assertIsUser(obj: unknown): asserts obj is User {
+  if (
+    typeof obj !== 'object' ||
+    obj === null ||
+    !('id' in obj) ||
+    !('name' in obj) ||
+    !('email' in obj)
+  ) {
+    throw new Error('Object is not a User')
+  }
+}
+
+function processUser(data: unknown) {
+  assertIsUser(data)
+
+  // TypeScript знает, что data - User
+  console.log(`User: ${data.name} (${data.email})`)
+}
+
+// 4. Assertion с условием
+function assertNonNull<T>(
+  value: T | null | undefined,
+  message?: string
+): asserts value is T {
+  if (value === null || value === undefined) {
+    throw new Error(message || 'Value is null or undefined')
+  }
+}
+
+function getUserName(user: User | null): string {
+  assertNonNull(user, 'User must be provided')
+
+  // TypeScript знает, что user не null
+  return user.name
+}
+
+// 5. Assertion для массивов
+function assertIsArray<T>(
+  value: unknown,
+  itemCheck: (item: unknown) => item is T
+): asserts value is T[] {
+  if (!Array.isArray(value)) {
+    throw new Error('Value is not an array')
+  }
+
+  for (const item of value) {
+    if (!itemCheck(item)) {
+      throw new Error('Array contains invalid items')
+    }
+  }
+}
+
+function isNumber(value: unknown): value is number {
+  return typeof value === 'number'
+}
+
+function sumArray(arr: unknown): number {
+  assertIsArray(arr, isNumber)
+
+  // TypeScript знает, что arr - number[]
+  return arr.reduce((sum, num) => sum + num, 0)
+}
+
+// 6. Комбинирование assertions
+interface ValidatedData {
+  id: number
+  email: string
+  age: number
+}
+
+function assertValidId(id: unknown): asserts id is number {
+  if (typeof id !== 'number' || id <= 0) {
+    throw new Error('Invalid ID')
+  }
+}
+
+function assertValidEmail(email: unknown): asserts email is string {
+  if (typeof email !== 'string' || !email.includes('@')) {
+    throw new Error('Invalid email')
+  }
+}
+
+function assertValidAge(age: unknown): asserts age is number {
+  if (typeof age !== 'number' || age < 0 || age > 150) {
+    throw new Error('Invalid age')
+  }
+}
+
+function validateData(data: unknown): asserts data is ValidatedData {
+  if (typeof data !== 'object' || data === null) {
+    throw new Error('Data must be an object')
+  }
+
+  const obj = data as Record<string, unknown>
+
+  assertValidId(obj.id)
+  assertValidEmail(obj.email)
+  assertValidAge(obj.age)
+}
+
+function processValidatedData(data: unknown) {
+  validateData(data)
+
+  // TypeScript знает, что data - ValidatedData
+  console.log(`User #${data.id}: ${data.email}, age ${data.age}`)
+}

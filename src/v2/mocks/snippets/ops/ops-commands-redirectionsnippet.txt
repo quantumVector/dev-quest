@@ -1,0 +1,66 @@
+
+# Перенаправление ввода/вывода
+# Работа с потоками: stdin (0), stdout (1), stderr (2)
+
+# Перенаправление вывода
+echo "Hello" > output.txt
+# Создает файл (или перезаписывает)
+
+echo "World" >> output.txt
+# Добавляет в конец
+
+# Перенаправление ошибок
+npm install 2> errors.txt
+# Только ошибки в файл
+
+# Вывод и ошибки в разные файлы
+command > output.txt 2> errors.txt
+
+# Вывод и ошибки в один файл
+npm run build > build.log 2>&1
+
+# Современный синтаксис
+npm run build &> build.log
+# То же самое, короче
+
+# Подавление вывода
+command > /dev/null 2>&1
+# Игнорирует весь вывод
+
+# Только ошибки в терминал
+command 2>&1 > output.txt | grep "ERROR"
+
+# Сохранение и просмотр одновременно
+npm test | tee test-results.txt
+# Вывод в терминал И в файл
+
+# Перенаправление ввода
+mysql -u root -p < database.sql
+# Выполняет SQL из файла
+
+# Here document
+cat > config.yml << EOF
+server:
+  port: 3000
+  host: localhost
+EOF
+
+# Практические примеры
+
+# Логирование сборки
+npm run build 2>&1 | tee build.log
+# В терминал и в файл
+
+# Фоновый процесс с логами
+node server.js > app.log 2>&1 &
+# Запуск в фоне с логированием
+
+# Условное выполнение
+if command > /dev/null 2>&1; then
+  echo "Success"
+else
+  echo "Failed"
+fi
+
+# Объединение команд
+(echo "=== Build Start ===" && npm run build && echo "=== Build End ===") > build.log

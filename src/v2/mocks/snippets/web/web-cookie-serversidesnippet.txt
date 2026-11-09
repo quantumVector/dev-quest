@@ -1,0 +1,60 @@
+
+// ==========================================
+// СОЗДАНИЕ COOKIE НА СТОРОНЕ СЕРВЕРА
+// ==========================================
+
+// Node.js + Express
+const express = require('express')
+const app = express()
+
+// 1. Базовая установка cookie
+app.get('/login', (req, res) => {
+  res.cookie('username', 'John Doe')
+  res.send('Cookie set!')
+})
+
+// 2. Cookie с опциями
+app.get('/secure-login', (req, res) => {
+  res.cookie('sessionId', 'abc123', {
+    maxAge: 3600000,    // 1 час в миллисекундах
+    httpOnly: true,     // ❗ Недоступна из JavaScript
+    secure: true,       // Только HTTPS
+    sameSite: 'strict', // CSRF защита
+    path: '/',
+    domain: '.example.com'
+  })
+  res.send('Secure cookie set!')
+})
+
+// 3. Signed cookies (подписанные)
+// Требует cookie-parser middleware с секретом
+const cookieParser = require('cookie-parser')
+app.use(cookieParser('my-secret-key'))
+
+app.get('/signed', (req, res) => {
+  res.cookie('userId', '123', { signed: true })
+  res.send('Signed cookie set!')
+})
+
+// Чтение signed cookie
+app.get('/read-signed', (req, res) => {
+  console.log(req.signedCookies.userId) // '123'
+  res.send('Signed cookie read!')
+})
+
+// 4. Удаление cookie
+app.get('/logout', (req, res) => {
+  res.clearCookie('sessionId', {
+    path: '/',
+    domain: '.example.com'
+  })
+  res.send('Cookie deleted!')
+})
+
+// 5. Множественные cookies
+app.get('/set-multiple', (req, res) => {
+  res.cookie('theme', 'dark')
+  res.cookie('language', 'ru')
+  res.cookie('token', 'xyz', { httpOnly: true })
+  res.send('Multiple cookies set!')
+})

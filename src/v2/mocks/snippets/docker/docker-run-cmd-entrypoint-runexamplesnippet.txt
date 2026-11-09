@@ -1,0 +1,19 @@
+
+# RUN - выполняется во время СБОРКИ образа
+FROM ubuntu:20.04
+
+# RUN создает новый слой в образе
+RUN apt-get update && apt-get install -y \
+    curl \
+    vim \
+    git
+
+# Каждая RUN инструкция = новый слой
+RUN mkdir /app
+RUN cd /app && touch file.txt
+
+# Лучше объединять команды в одну RUN
+RUN apt-get update && \
+    apt-get install -y nodejs npm && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*

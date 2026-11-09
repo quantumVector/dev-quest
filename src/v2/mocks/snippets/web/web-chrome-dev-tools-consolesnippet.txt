@@ -1,0 +1,44 @@
+
+// Продвинутые техники Console
+
+// 1. Console.table для структурированных данных
+const users = [
+  {id: 1, name: 'John', age: 30},
+  {id: 2, name: 'Jane', age: 25},
+  {id: 3, name: 'Bob', age: 35}
+];
+console.table(users);
+console.table(users, ['name', 'age']); // Только определенные колонки
+
+// 2. Console.group для структурирования логов
+console.group('User Details');
+console.log('Name:', 'John Doe');
+console.log('Age:', 30);
+console.log('Email:', 'john@example.com');
+console.groupEnd();
+
+// 3. Console.assert для проверок
+function divide(a, b) {
+  console.assert(b !== 0, 'Division by zero!', {a, b});
+  return a / b;
+}
+
+// 4. Console.count для подсчета вызовов
+function trackClicks(button) {
+  console.count(`Button ${button} clicked`);
+}
+
+// 5. Console.trace для стека вызовов
+function deepFunction() {
+  console.trace('How did we get here?');
+}
+
+// 6. Кастомные стили
+console.log(
+  '%cSuccess!%c Operation completed',
+  'color: green; font-size: 20px; font-weight: bold;',
+  'color: blue;'
+);
+
+// 7. Console.dir для детального вывода объектов
+console.dir(document.body, {depth: 3});

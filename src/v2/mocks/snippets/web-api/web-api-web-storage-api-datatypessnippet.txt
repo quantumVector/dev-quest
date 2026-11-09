@@ -1,0 +1,129 @@
+
+// =====================================
+// ТИПЫ ДАННЫХ В WEB STORAGE
+// =====================================
+
+// ⚠️ ВАЖНО: Web Storage хранит ТОЛЬКО СТРОКИ!
+// Все значения автоматически конвертируются в string
+
+// 1. СТРОКИ - работают нативно
+localStorage.setItem('string', 'Hello World')
+console.log(localStorage.getItem('string')) // "Hello World"
+console.log(typeof localStorage.getItem('string')) // "string"
+
+// 2. ЧИСЛА - автоматически конвертируются в строки
+localStorage.setItem('number', 42)
+console.log(localStorage.getItem('number')) // "42" (строка!)
+console.log(typeof localStorage.getItem('number')) // "string"
+
+// Для использования нужно парсить обратно
+const num = Number(localStorage.getItem('number'))
+console.log(num) // 42 (число)
+console.log(typeof num) // "number"
+
+// 3. BOOLEAN - конвертируются в строки "true" / "false"
+localStorage.setItem('bool', true)
+console.log(localStorage.getItem('bool')) // "true" (строка!)
+
+// ❌ ОШИБКА - прямая проверка всегда true!
+if (localStorage.getItem('bool')) {
+  console.log('Выполнится даже для false!') // Строка "false" === truthy
+}
+
+// ✅ ПРАВИЛЬНО - парсинг boolean
+const isEnabled = localStorage.getItem('bool') === 'true'
+console.log(isEnabled) // true (boolean)
+
+// 4. ОБЪЕКТЫ - нужна сериализация через JSON
+const user = {
+  name: 'John',
+  age: 30,
+  roles: ['admin', 'user']
+}
+
+// ❌ ОШИБКА - прямое сохранение объекта
+localStorage.setItem('user', user)
+console.log(localStorage.getItem('user')) // "[object Object]" - бесполезно!
+
+// ✅ ПРАВИЛЬНО - JSON.stringify / JSON.parse
+localStorage.setItem('user', JSON.stringify(user))
+const savedUser = JSON.parse(localStorage.getItem('user'))
+console.log(savedUser) // { name: 'John', age: 30, roles: [...] }
+
+// 5. МАССИВЫ - тоже через JSON
+const colors = ['red', 'green', 'blue']
+
+localStorage.setItem('colors', JSON.stringify(colors))
+const savedColors = JSON.parse(localStorage.getItem('colors'))
+console.log(savedColors) // ['red', 'green', 'blue']
+
+// 6. DATE - особый случай
+const now = new Date()
+
+// ❌ ОШИБКА - прямое сохранение
+localStorage.setItem('date', now)
+console.log(localStorage.getItem('date')) // "Wed Nov 03 2025..." (строка)
+
+// ✅ ПРАВИЛЬНО - через ISO строку или timestamp
+localStorage.setItem('date', now.toISOString())
+const savedDate = new Date(localStorage.getItem('date'))
+console.log(savedDate) // Date object
+
+// Или через timestamp
+localStorage.setItem('timestamp', now.getTime().toString())
+const restoredDate = new Date(Number(localStorage.getItem('timestamp')))
+
+// 7. NULL и UNDEFINED
+localStorage.setItem('nullValue', null)
+console.log(localStorage.getItem('nullValue')) // "null" (строка!)
+
+localStorage.setItem('undefinedValue', undefined)
+console.log(localStorage.getItem('undefinedValue')) // "undefined" (строка!)
+
+// Проверка на null
+const value = localStorage.getItem('nonexistent')
+console.log(value === null) // true - ключ не существует
+
+// 8. MAP и SET - через Array.from()
+const myMap = new Map([
+  ['key1', 'value1'],
+  ['key2', 'value2']
+])
+
+// Сохранение Map
+localStorage.setItem('map', JSON.stringify(Array.from(myMap.entries())))
+
+// Восстановление Map
+const savedMap = new Map(JSON.parse(localStorage.getItem('map')))
+console.log(savedMap.get('key1')) // "value1"
+
+// Set аналогично
+const mySet = new Set([1, 2, 3])
+localStorage.setItem('set', JSON.stringify(Array.from(mySet)))
+const savedSet = new Set(JSON.parse(localStorage.getItem('set')))
+
+// 9. ФУНКЦИИ - нельзя сохранить напрямую!
+const myFunc = () => console.log('Hello')
+
+// ❌ НЕ РАБОТАЕТ
+localStorage.setItem('func', myFunc.toString())
+const savedFunc = localStorage.getItem('func')
+// savedFunc - это просто строка, не функция!
+
+// Решение - использовать eval() (небезопасно!) или передавать данные
+
+// 10. СИМВОЛЫ - конвертируются в пустую строку
+const sym = Symbol('test')
+localStorage.setItem('symbol', sym)
+console.log(localStorage.getItem('symbol')) // "" (пустая строка)
+
+// 11. BIGINT - нужна специальная обработка
+const bigNum = 9007199254740991n
+
+// ❌ JSON.stringify не работает с BigInt
+// localStorage.setItem('big', JSON.stringify(bigNum)) // Ошибка!
+
+// ✅ Конвертация в строку
+localStorage.setItem('big', bigNum.toString())
+const savedBig = BigInt(localStorage.getItem('big'))
+console.log(savedBig) // 9007199254740991n

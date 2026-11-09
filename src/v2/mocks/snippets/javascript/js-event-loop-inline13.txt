@@ -1,0 +1,14 @@
+// ПРОБЛЕМА: блокирует Event Loop
+function infiniteMicrotask() {
+  Promise.resolve().then(infiniteMicrotask);
+}
+infiniteMicrotask(); // UI зависнет!
+
+// РЕШЕНИЕ: добавить условие выхода
+let counter = 0;
+function safeMicrotask() {
+  if (counter++ < 1000) {
+    Promise.resolve().then(safeMicrotask);
+  }
+}
+safeMicrotask();

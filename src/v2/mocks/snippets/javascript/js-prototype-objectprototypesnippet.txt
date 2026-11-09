@@ -1,0 +1,30 @@
+
+// Работа с Object.prototype и __proto__
+
+const obj = {
+  name: 'Test'
+};
+
+// Все объекты наследуют от Object.prototype
+console.log(obj.toString()); // "[object Object]" - метод из Object.prototype
+console.log(obj.hasOwnProperty('name')); // true - метод из Object.prototype
+
+// __proto__ - ссылка на прототип объекта (не стандарт, но широко поддерживается)
+console.log(obj.__proto__ === Object.prototype); // true
+
+// Современные способы работы с прототипами
+console.log(Object.getPrototypeOf(obj) === Object.prototype); // true
+
+// Создание объекта с определенным прототипом
+const prototypeObj = {
+  greet() {
+    return 'Привет!';
+  }
+};
+
+const newObj = Object.create(prototypeObj);
+newObj.name = 'Test';
+
+console.log(newObj.greet()); // "Привет!" - из прототипа
+console.log(newObj.hasOwnProperty('name')); // true
+console.log(newObj.hasOwnProperty('greet')); // false

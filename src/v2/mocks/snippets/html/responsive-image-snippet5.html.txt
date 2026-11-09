@@ -1,0 +1,26 @@
+
+<!-- Комплексный пример -->
+<picture>
+  <!-- Десктоп: WebP с разными плотностями -->
+  <source media="(min-width: 1024px)"
+          srcset="hero-desktop.webp 1x, hero-desktop-2x.webp 2x"
+          type="image/webp">
+  <source media="(min-width: 1024px)"
+          srcset="hero-desktop.jpg 1x, hero-desktop-2x.jpg 2x">
+
+  <!-- Планшет: адаптивные размеры -->
+  <source media="(min-width: 768px)"
+          srcset="hero-tablet-400.webp 400w, hero-tablet-800.webp 800w"
+          sizes="(max-width: 900px) 100vw, 800px"
+          type="image/webp">
+  <source media="(min-width: 768px)"
+          srcset="hero-tablet-400.jpg 400w, hero-tablet-800.jpg 800w"
+          sizes="(max-width: 900px) 100vw, 800px">
+
+  <!-- Мобильные устройства -->
+  <img src="hero-mobile.jpg"
+       srcset="hero-mobile.webp 1x, hero-mobile-2x.webp 2x"
+       alt="Главное изображение"
+       loading="lazy"
+       decoding="async">
+</picture>

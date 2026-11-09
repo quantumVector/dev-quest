@@ -1,0 +1,10 @@
+
+<!-- Простая адаптивность через CSS -->
+<img src="photo.jpg" alt="Фотография" class="responsive-img">
+
+<style>
+.responsive-img {
+  max-width: 100%;
+  height: auto;
+}
+</style>

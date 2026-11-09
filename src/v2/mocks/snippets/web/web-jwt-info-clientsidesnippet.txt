@@ -1,0 +1,123 @@
+
+// Работа с JWT на клиенте (React/Vue/Angular)
+
+// 1. Функции для работы с токенами в localStorage
+const TokenService = {
+  // Сохранение токенов
+  setTokens(accessToken, refreshToken) {
+    localStorage.setItem('accessToken', accessToken)
+    localStorage.setItem('refreshToken', refreshToken)
+  },
+
+  // Получение access token
+  getAccessToken() {
+    return localStorage.getItem('accessToken')
+  },
+
+  // Получение refresh token
+  getRefreshToken() {
+    return localStorage.getItem('refreshToken')
+  },
+
+  // Удаление токенов (logout)
+  removeTokens() {
+    localStorage.removeItem('accessToken')
+    localStorage.removeItem('refreshToken')
+  },
+
+  // Проверка наличия токена
+  hasToken() {
+    return !!this.getAccessToken()
+  }
+}
+
+// 2. API клиент с автоматическим добавлением токена
+import axios from 'axios'
+
+const apiClient = axios.create({
+  baseURL: 'https://api.example.com',
+  headers: {
+    'Content-Type': 'application/json'
+  }
+})
+
+// Interceptor для добавления токена к каждому запросу
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = TokenService.getAccessToken()
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
+  },
+  (error) => {
+    return Promise.reject(error)
+  }
+)
+
+// 3. Автоматическое обновление токена при истечении
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config
+
+    // Если токен истек и это не повторный запрос
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true
+
+      try {
+        // Обновляем токен
+        const refreshToken = TokenService.getRefreshToken()
+        const response = await axios.post(
+          'https://api.example.com/auth/refresh',
+          { refreshToken }
+        )
+
+        const { accessToken, refreshToken: newRefreshToken } = response.data
+
+        // Сохраняем новые токены
+        TokenService.setTokens(accessToken, newRefreshToken)
+
+        // Повторяем оригинальный запрос с новым токеном
+        originalRequest.headers.Authorization = `Bearer ${accessToken}`
+        return apiClient(originalRequest)
+      } catch (refreshError) {
+        // Refresh token тоже истек - выходим из системы
+        TokenService.removeTokens()
+        window.location.href = '/login'
+        return Promise.reject(refreshError)
+      }
+    }
+
+    return Promise.reject(error)
+  }
+)
+
+// 4. Использование в компонентах
+async function loginUser(email, password) {
+  try {
+    const response = await apiClient.post('/auth/login', { email, password })
+    const { accessToken, refreshToken } = response.data
+
+    TokenService.setTokens(accessToken, refreshToken)
+
+    // Перенаправляем на защищенную страницу
+    window.location.href = '/dashboard'
+  } catch (error) {
+    console.error('Login failed:', error)
+  }
+}
+
+async function getUserProfile() {
+  try {
+    const response = await apiClient.get('/user/profile')
+    return response.data
+  } catch (error) {
+    console.error('Failed to get profile:', error)
+  }
+}
+
+function logoutUser() {
+  TokenService.removeTokens()
+  window.location.href = '/login'
+}

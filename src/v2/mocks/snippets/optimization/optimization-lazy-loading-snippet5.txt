@@ -1,0 +1,30 @@
+
+<!-- React пример с библиотекой react-lazy-load-image-component -->
+import { LazyLoadImage } from 'react-lazy-load-image-component';
+import 'react-lazy-load-image-component/src/effects/blur.css';
+
+function Gallery() {
+  return (
+    <div>
+      {/* Hero изображение - загружаем сразу */}
+      <img
+        src="hero.jpg"
+        alt="Hero"
+        loading="eager"
+        fetchpriority="high"
+      />
+
+      {/* Галерея - lazy loading */}
+      {images.map((image) => (
+        <LazyLoadImage
+          key={image.id}
+          src={image.src}
+          alt={image.alt}
+          effect="blur"
+          threshold={100}
+          placeholderSrc={image.placeholder}
+        />
+      ))}
+    </div>
+  );
+}

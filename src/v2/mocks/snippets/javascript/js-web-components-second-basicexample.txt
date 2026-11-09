@@ -1,0 +1,57 @@
+
+// =====================================
+// ОСНОВЫ CUSTOM ELEMENTS
+// =====================================
+
+class MyButton extends HTMLElement {
+  constructor() {
+    super();
+    // Создаем Shadow DOM для инкапсуляции
+    this.attachShadow({ mode: 'open' });
+
+    this.shadowRoot.innerHTML = `
+      <style>
+        button {
+          background: linear-gradient(45deg, #667eea, #764ba2);
+          border: none;
+          color: white;
+          padding: 10px 20px;
+          border-radius: 5px;
+          cursor: pointer;
+          transition: transform 0.2s;
+        }
+        button:hover { transform: scale(1.05); }
+      </style>
+      <button><slot>Click me</slot></button>
+    `;
+  }
+
+  connectedCallback() {
+    // Компонент добавлен в DOM
+    this.shadowRoot.querySelector('button')
+      .addEventListener('click', this.handleClick.bind(this));
+  }
+
+  disconnectedCallback() {
+    // Компонент удален из DOM - очищаем ресурсы
+    this.shadowRoot.querySelector('button')
+      .removeEventListener('click', this.handleClick);
+  }
+
+  handleClick(event) {
+    // Создаем и отправляем кастомное событие
+    this.dispatchEvent(new CustomEvent('my-button-click', {
+      bubbles: true,        // Всплывает по DOM дереву
+      composed: true,       // Пересекает границы Shadow DOM
+      detail: {             // Передаваемые данные
+        message: 'Hello from MyButton!',
+        timestamp: Date.now()
+      }
+    }));
+  }
+}
+
+// Регистрируем веб-компонент
+customElements.define('my-button', MyButton);
+
+// Использование в HTML: <my-button>Нажми меня</my-button>

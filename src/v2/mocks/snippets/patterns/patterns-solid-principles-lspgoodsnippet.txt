@@ -1,0 +1,51 @@
+
+// ✅ ПРАВИЛЬНО - Правильная иерархия
+
+// Базовый интерфейс с общими свойствами
+interface Bird {
+  eat(): void
+  move(): void
+}
+
+// Расширение для летающих птиц
+interface FlyingBird extends Bird {
+  fly(): void
+}
+
+// Расширение для плавающих птиц
+interface SwimmingBird extends Bird {
+  swim(): void
+}
+
+class Sparrow implements FlyingBird {
+  eat() {
+    console.log('Sparrow eats')
+  }
+  move() {
+    this.fly()
+  }
+  fly() {
+    console.log('Sparrow flies')
+  }
+}
+
+class Penguin implements SwimmingBird {
+  eat() {
+    console.log('Penguin eats')
+  }
+  move() {
+    this.swim()
+  }
+  swim() {
+    console.log('Penguin swims')
+  }
+}
+
+// Функции работают с правильными типами
+const makeFlyingBirdFly = (bird: FlyingBird) => {
+  bird.fly() // Всегда работает
+}
+
+const makeSwimmingBirdSwim = (bird: SwimmingBird) => {
+  bird.swim() // Всегда работает
+}

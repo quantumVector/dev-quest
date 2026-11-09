@@ -1,0 +1,37 @@
+
+// 1. Функциональный компонент (современный подход)
+function Counter() {
+  const [count, setCount] = React.useState(0);
+
+  return (
+    <div>
+      <p>Счёт: {count}</p>
+      <button onClick={() => setCount(count + 1)}>
+        Увеличить
+      </button>
+    </div>
+  );
+}
+
+// 2. Классовый компонент (legacy)
+class Counter extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { count: 0 };
+  }
+
+  increment = () => {
+    this.setState({ count: this.state.count + 1 });
+  }
+
+  render() {
+    return (
+      <div>
+        <p>Счёт: {this.state.count}</p>
+        <button onClick={this.increment}>
+          Увеличить
+        </button>
+      </div>
+    );
+  }
+}

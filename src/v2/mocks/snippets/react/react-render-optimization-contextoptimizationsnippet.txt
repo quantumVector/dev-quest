@@ -1,0 +1,77 @@
+
+// Оптимизация Context API
+
+// ❌ ПЛОХО - все потребители ререндерятся при любом изменении
+function App() {
+  const [user, setUser] = useState({ name: 'John', age: 30 })
+  const [theme, setTheme] = useState('light')
+
+  return (
+    <AppContext.Provider value={{ user, setUser, theme, setTheme }}>
+      <Header />
+      <Main />
+      <Footer />
+    </AppContext.Provider>
+  )
+}
+
+// ✅ ХОРОШО - разделение на несколько контекстов
+const UserContext = React.createContext()
+const ThemeContext = React.createContext()
+
+function App() {
+  const [user, setUser] = useState({ name: 'John', age: 30 })
+  const [theme, setTheme] = useState('light')
+
+  // Мемоизация значений контекста
+  const userValue = useMemo(() => ({ user, setUser }), [user])
+  const themeValue = useMemo(() => ({ theme, setTheme }), [theme])
+
+  return (
+    <UserContext.Provider value={userValue}>
+      <ThemeContext.Provider value={themeValue}>
+        <Header />
+        <Main />
+        <Footer />
+      </ThemeContext.Provider>
+    </UserContext.Provider>
+  )
+}
+
+// Компоненты используют только нужный контекст
+function Header() {
+  const { theme } = useContext(ThemeContext)
+  // НЕ ререндерится при изменении user
+  return <header className={theme}>Header</header>
+}
+
+// ✅ ЛУЧШЕ - селекторы для контекста
+function createContextWithSelector() {
+  const Context = React.createContext()
+
+  function Provider({ value, children }) {
+    return <Context.Provider value={value}>{children}</Context.Provider>
+  }
+
+  function useContextSelector(selector) {
+    const value = useContext(Context)
+    return useMemo(() => selector(value), [value, selector])
+  }
+
+  return { Provider, useContextSelector }
+}
+
+// Использование
+const { Provider, useContextSelector } = createContextWithSelector()
+
+function UserName() {
+  // Ререндер только при изменении name
+  const name = useContextSelector(state => state.user.name)
+  return <div>{name}</div>
+}
+
+function UserAge() {
+  // Ререндер только при изменении age
+  const age = useContextSelector(state => state.user.age)
+  return <div>{age}</div>
+}

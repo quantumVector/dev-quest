@@ -1,0 +1,91 @@
+
+// =====================================
+// СРАВНЕНИЕ ПРОИЗВОДИТЕЛЬНОСТИ
+// =====================================
+
+// 1. setInterval - фиксированная частота (НЕОПТИМАЛЬНО)
+let intervalPosition = 0
+
+const intervalId = setInterval(() => {
+  intervalPosition += 2
+  element.style.left = intervalPosition + 'px'
+
+  // Проблемы:
+  // - Не учитывает реальную частоту обновления монитора
+  // - Может пропускать фреймы или дублировать
+  // - Работает даже когда вкладка неактивна
+  // - Нет синхронизации с рендерингом браузера
+
+  if (intervalPosition >= 500) {
+    clearInterval(intervalId)
+  }
+}, 16) // 16ms ≈ 60fps, но это приблизительно
+
+// 2. setTimeout - рекурсивный (ЛУЧШЕ, НО ВСЁ ЕЩЁ НЕОПТИМАЛЬНО)
+let timeoutPosition = 0
+
+function animateTimeout() {
+  timeoutPosition += 2
+  element.style.left = timeoutPosition + 'px'
+
+  if (timeoutPosition < 500) {
+    setTimeout(animateTimeout, 16)
+  }
+
+  // Лучше чем setInterval, но:
+  // - Всё ещё не синхронизирован с монитором
+  // - Может вызывать layout thrashing
+  // - Нет автоматической оптимизации
+}
+
+setTimeout(animateTimeout, 16)
+
+// 3. requestAnimationFrame - ОПТИМАЛЬНЫЙ ПОДХОД
+let rafPosition = 0
+let rafId
+
+function animateRAF(timestamp) {
+  rafPosition += 2
+  element.style.left = rafPosition + 'px'
+
+  if (rafPosition < 500) {
+    rafId = requestAnimationFrame(animateRAF)
+  }
+
+  // Преимущества:
+  // ✅ Автоматически адаптируется к частоте монитора (60Hz/120Hz/144Hz)
+  // ✅ Выполняется перед следующим рендерингом
+  // ✅ Батчинг всех RAF коллбэков
+  // ✅ Автопауза на неактивных вкладках
+  // ✅ Нет layout thrashing
+}
+
+rafId = requestAnimationFrame(animateRAF)
+
+// 4. Сравнение CPU использования
+// setTimeout/setInterval: 100% загрузка даже на неактивных вкладках
+// requestAnimationFrame: ~5% на неактивных вкладках (автоматическая пауза)
+
+// 5. Пример с измерением FPS
+let frameCount = 0
+let lastTime = performance.now()
+let fps = 0
+
+function measureFPS(timestamp) {
+  frameCount++
+
+  if (timestamp - lastTime >= 1000) { // Каждую секунду
+    fps = Math.round((frameCount * 1000) / (timestamp - lastTime))
+    console.log(`Current FPS: ${fps}`)
+
+    frameCount = 0
+    lastTime = timestamp
+  }
+
+  requestAnimationFrame(measureFPS)
+}
+
+requestAnimationFrame(measureFPS)
+
+// requestAnimationFrame обеспечивает стабильные 60 FPS
+// setTimeout/setInterval дают нестабильные 45-60 FPS с просадками

@@ -1,0 +1,16 @@
+
+# Сборка образа с контекстом
+# Контекст сборки = текущая папка (.)
+docker build -t my-app:1.0 .
+
+# Сборка с другим контекстом
+docker build -t my-app:1.0 /path/to/context
+
+# Dockerfile в другой папке, контекст текущий
+docker build -f docker/Dockerfile -t my-app:1.0 .
+
+# Просмотр размера контекста
+du -sh .
+
+# Проверка, что попадает в контекст
+tar -czh . | wc -c

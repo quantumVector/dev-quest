@@ -1,0 +1,28 @@
+
+// Unit тестирование - тестирование отдельных функций/методов
+
+// Функция для тестирования
+function calculateTotal(items) {
+  return items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+}
+
+// Unit тест
+describe('calculateTotal', () => {
+  test('correctly calculates total for multiple items', () => {
+    const items = [
+      { price: 100, quantity: 2 },
+      { price: 50, quantity: 3 }
+    ]
+
+    expect(calculateTotal(items)).toBe(350)
+  })
+
+  test('returns 0 for empty array', () => {
+    expect(calculateTotal([])).toBe(0)
+  })
+
+  test('handles single item', () => {
+    const items = [{ price: 100, quantity: 1 }]
+    expect(calculateTotal(items)).toBe(100)
+  })
+})

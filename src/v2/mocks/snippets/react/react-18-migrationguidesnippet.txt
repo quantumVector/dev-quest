@@ -1,0 +1,77 @@
+
+// Миграция с React 17 на React 18
+
+// Шаг 1: Обновление зависимостей
+// npm install react@18 react-dom@18
+// npm install @types/react@18 @types/react-dom@18 (TypeScript)
+
+// Шаг 2: Замена ReactDOM.render на createRoot
+// До (React 17):
+import ReactDOM from 'react-dom';
+ReactDOM.render(<App />, document.getElementById('root'));
+
+// После (React 18):
+import { createRoot } from 'react-dom/client';
+const root = createRoot(document.getElementById('root'));
+root.render(<App />);
+
+// Шаг 3: Обновление TypeScript типов (если используется)
+// До:
+interface AppProps {
+  children: React.ReactNode;
+}
+
+// После - то же самое, но проверьте конфликты типов
+
+// Шаг 4: Тестирование с автоматическим батчингом
+// Проверьте компоненты, которые полагаются на множественные рендеры:
+function Component() {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    // В React 17 - 2 ре-рендера
+    // В React 18 - 1 ре-рендер
+    fetch('/api').then(() => {
+      setCount(1);
+      setCount(2);
+    });
+  }, []);
+}
+
+// Если нужно старое поведение:
+import { flushSync } from 'react-dom';
+
+flushSync(() => {
+  setCount(1); // Ре-рендер 1
+});
+flushSync(() => {
+  setCount(2); // Ре-рендер 2
+});
+
+// Шаг 5: Обновление серверного рендеринга
+// До (React 17):
+import { renderToString } from 'react-dom/server';
+const html = renderToString(<App />);
+
+// После (React 18) - с Suspense поддержкой:
+import { renderToPipeableStream } from 'react-dom/server';
+
+renderToPipeableStream(<App />, {
+  onShellReady() {
+    response.statusCode = 200;
+    response.setHeader('Content-type', 'text/html');
+    stream.pipe(response);
+  }
+});
+
+// Шаг 6: Обновление тестов
+// Enzyme НЕ поддерживает React 18 полностью
+// Мигрируйте на React Testing Library
+
+// Было:
+import { shallow } from 'enzyme';
+const wrapper = shallow(<Component />);
+
+// Стало:
+import { render } from '@testing-library/react';
+const { getByText } = render(<Component />);

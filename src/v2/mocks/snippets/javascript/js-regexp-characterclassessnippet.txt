@@ -1,0 +1,26 @@
+
+// Символьные классы
+const digits = /\d/;       // [0-9] - любая цифра
+const nonDigits = /\D/;    // [^0-9] - любой не-цифра
+const word = /\w/;         // [a-zA-Z0-9_] - буква, цифра или _
+const nonWord = /\W/;      // [^a-zA-Z0-9_] - не буква/цифра/_
+const space = /\s/;        // [ \t\r\n\f] - пробельный символ
+const nonSpace = /\S/;     // [^ \t\r\n\f] - не пробельный
+
+// Собственные классы
+const vowels = /[aeiou]/i;           // любая гласная
+const notVowels = /[^aeiou]/i;       // не гласная
+const range = /[a-zA-Z0-9]/;         // буквы и цифры
+const specific = /[.,!?]/;           // конкретные символы
+
+// Квантификаторы
+const oneOrMore = /\d+/;            // 1 или больше цифр
+const zeroOrMore = /\d*/;           // 0 или больше цифр
+const zeroOrOne = /\d?/;            // 0 или 1 цифра
+const exactly = /\d{3}/;            // ровно 3 цифры
+const range2 = /\d{2,5}/;           // от 2 до 5 цифр
+const minimum = /\d{2,}/;           // минимум 2 цифры
+
+// Жадные vs ленивые квантификаторы
+const greedy = /<.*>/;     // жадный - захватит всё между < и >
+const lazy = /<.*?>/;      // ленивый - минимальный захват

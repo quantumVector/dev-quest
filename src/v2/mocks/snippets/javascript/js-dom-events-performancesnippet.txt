@@ -1,0 +1,162 @@
+
+// Оптимизация производительности событий
+
+// 1. Throttling - ограничение частоты вызовов
+function throttle(func, limit) {
+  let inThrottle;
+  return function(...args) {
+    if (!inThrottle) {
+      func.apply(this, args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
+  };
+}
+
+// 2. Debouncing - задержка выполнения
+function debounce(func, delay) {
+  let timeoutId;
+  return function(...args) {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func.apply(this, args), delay);
+  };
+}
+
+// Практическое применение
+class PerformantEventHandlers {
+  constructor() {
+    this.setupScrollHandling();
+    this.setupResizeHandling();
+    this.setupSearchHandling();
+  }
+
+  setupScrollHandling() {
+    // Throttling для scroll - срабатывает максимум раз в 16мс (60fps)
+    const throttledScroll = throttle((event) => {
+      this.handleScroll(event);
+    }, 16);
+
+    // Пассивный обработчик для лучшей производительности
+    window.addEventListener('scroll', throttledScroll, {
+      passive: true // браузер знает, что preventDefault не будет вызван
+    });
+  }
+
+  setupResizeHandling() {
+    // Debouncing для resize - срабатывает после окончания изменения размера
+    const debouncedResize = debounce((event) => {
+      this.handleResize(event);
+    }, 250);
+
+    window.addEventListener('resize', debouncedResize);
+  }
+
+  setupSearchHandling() {
+    const searchInput = document.getElementById('search');
+    if (!searchInput) return;
+
+    // Debouncing для поиска - запрос отправляется после паузы в печати
+    const debouncedSearch = debounce((query) => {
+      this.performSearch(query);
+    }, 300);
+
+    searchInput.addEventListener('input', (event) => {
+      const query = event.target.value.trim();
+      if (query.length >= 2) {
+        debouncedSearch(query);
+      }
+    });
+  }
+
+  handleScroll(event) {
+    const scrollY = window.scrollY;
+    const header = document.querySelector('.header');
+
+    // Показать/скрыть header при скролле
+    if (header) {
+      header.classList.toggle('header-hidden', scrollY > 100);
+    }
+
+    // Ленивая загрузка изображений
+    this.lazyLoadImages();
+  }
+
+  handleResize(event) {
+    console.log('Window resized:', window.innerWidth, window.innerHeight);
+
+    // Пересчет layout
+    this.recalculateLayout();
+
+    // Обновление charts/graphs
+    this.updateCharts();
+  }
+
+  performSearch(query) {
+    console.log('Searching for:', query);
+
+    // Отмена предыдущего запроса
+    if (this.searchController) {
+      this.searchController.abort();
+    }
+
+    // Новый запрос с возможностью отмены
+    this.searchController = new AbortController();
+
+    fetch(`/api/search?q=${encodeURIComponent(query)}`, {
+      signal: this.searchController.signal
+    })
+    .then(response => response.json())
+    .then(results => {
+      this.displaySearchResults(results);
+    })
+    .catch(error => {
+      if (error.name !== 'AbortError') {
+        console.error('Search error:', error);
+      }
+    });
+  }
+
+  lazyLoadImages() {
+    const images = document.querySelectorAll('img[data-src]');
+    const imageObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          img.src = img.dataset.src;
+          img.removeAttribute('data-src');
+          imageObserver.unobserve(img);
+        }
+      });
+    });
+
+    images.forEach(img => imageObserver.observe(img));
+  }
+
+  recalculateLayout() {
+    // Логика пересчета layout
+  }
+
+  updateCharts() {
+    // Обновление графиков при изменении размера
+  }
+
+  displaySearchResults(results) {
+    const resultsContainer = document.getElementById('search-results');
+    if (resultsContainer) {
+      resultsContainer.innerHTML = results.map(result =>
+        `<div class="search-result">${result.title}</div>`
+      ).join('');
+    }
+  }
+}
+
+// Инициализация
+const performantHandlers = new PerformantEventHandlers();
+
+// Очистка при необходимости
+window.addEventListener('beforeunload', () => {
+  // Отмена активных запросов
+  if (performantHandlers.searchController) {
+    performantHandlers.searchController.abort();
+  }
+});

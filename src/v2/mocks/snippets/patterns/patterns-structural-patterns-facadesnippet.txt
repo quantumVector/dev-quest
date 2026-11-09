@@ -1,0 +1,100 @@
+
+// FACADE - упрощенный интерфейс для сложной системы
+
+// Сложная подсистема аутентификации
+class AuthService {
+  validateCredentials(email: string, password: string) {
+    // сложная логика
+    return { valid: true, userId: '123' };
+  }
+}
+
+class TokenService {
+  generateToken(userId: string) {
+    return `token_${userId}_${Date.now()}`;
+  }
+
+  validateToken(token: string) {
+    return token.startsWith('token_');
+  }
+}
+
+class SessionService {
+  createSession(userId: string, token: string) {
+    localStorage.setItem('session', JSON.stringify({ userId, token }));
+  }
+
+  getSession() {
+    const data = localStorage.getItem('session');
+    return data ? JSON.parse(data) : null;
+  }
+
+  clearSession() {
+    localStorage.removeItem('session');
+  }
+}
+
+class PermissionService {
+  loadPermissions(userId: string) {
+    return ['read', 'write'];
+  }
+}
+
+// Фасад для упрощения работы
+class AuthFacade {
+  private authService = new AuthService();
+  private tokenService = new TokenService();
+  private sessionService = new SessionService();
+  private permissionService = new PermissionService();
+
+  async login(email: string, password: string) {
+    // Упрощенный интерфейс для сложной операции
+    const validation = this.authService.validateCredentials(email, password);
+
+    if (!validation.valid) {
+      throw new Error('Invalid credentials');
+    }
+
+    const token = this.tokenService.generateToken(validation.userId);
+    this.sessionService.createSession(validation.userId, token);
+    const permissions = this.permissionService.loadPermissions(validation.userId);
+
+    return {
+      userId: validation.userId,
+      token,
+      permissions
+    };
+  }
+
+  logout() {
+    this.sessionService.clearSession();
+  }
+
+  isAuthenticated() {
+    const session = this.sessionService.getSession();
+    if (!session) return false;
+    return this.tokenService.validateToken(session.token);
+  }
+
+  getCurrentUser() {
+    const session = this.sessionService.getSession();
+    if (!session) return null;
+
+    return {
+      userId: session.userId,
+      permissions: this.permissionService.loadPermissions(session.userId)
+    };
+  }
+}
+
+// Простое использование
+const auth = new AuthFacade();
+
+// Вместо вызова 4+ методов разных сервисов
+await auth.login('user@example.com', 'password123');
+
+// Проверка авторизации
+if (auth.isAuthenticated()) {
+  const user = auth.getCurrentUser();
+  console.log('Current user:', user);
+}

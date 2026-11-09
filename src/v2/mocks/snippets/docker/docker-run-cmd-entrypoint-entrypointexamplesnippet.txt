@@ -1,0 +1,15 @@
+
+# ENTRYPOINT - основная команда контейнера (не переопределяется)
+FROM alpine:latest
+
+# ENTRYPOINT всегда выполняется
+ENTRYPOINT ["echo", "Hello"]
+
+# CMD добавляет параметры к ENTRYPOINT
+CMD ["World"]
+
+# При запуске: docker run image
+# Результат: echo "Hello" "World"
+
+# При запуске: docker run image "Docker"
+# Результат: echo "Hello" "Docker"

@@ -1,0 +1,97 @@
+
+// Оптимизация производительности коллекций промисов
+
+// 1. Ограничение количества параллельных операций
+const limitConcurrency = async (promises, limit = 3) => {
+  const results = []
+  const executing = []
+
+  for (const promise of promises) {
+    const p = Promise.resolve().then(() => promise())
+    results.push(p)
+
+    if (promises.length >= limit) {
+      executing.push(p.then(() => executing.splice(executing.indexOf(p), 1)))
+    }
+
+    if (executing.length >= limit) {
+      await Promise.race(executing)
+    }
+  }
+
+  return Promise.all(results)
+}
+
+// Пример использования
+const heavyOperations = Array.from({ length: 20 }, (_, i) =>
+  () => new Promise(resolve => {
+    console.log(`Запуск операции ${i + 1}`)
+    setTimeout(() => resolve(`Результат ${i + 1}`), 1000)
+  })
+)
+
+limitConcurrency(heavyOperations, 3)
+  .then(results => {
+    console.log('Все операции завершены:', results.length)
+  })
+
+// 2. Batch обработка с контролем нагрузки
+const processBatches = async (items, batchSize = 5, delayBetweenBatches = 100) => {
+  const results = []
+
+  for (let i = 0; i < items.length; i += batchSize) {
+    const batch = items.slice(i, i + batchSize)
+    const startTime = Date.now()
+
+    // Обрабатываем batch
+    const batchPromises = batch.map(item => processItem(item))
+    const batchResults = await Promise.all(batchPromises)
+
+    results.push(...batchResults)
+
+    const duration = Date.now() - startTime
+    console.log(`Batch ${Math.floor(i / batchSize) + 1} завершен за ${duration}ms`)
+
+    // Пауза между батчами для снижения нагрузки
+    if (i + batchSize < items.length) {
+      await new Promise(resolve => setTimeout(resolve, delayBetweenBatches))
+    }
+  }
+
+  return results
+}
+
+// 3. Кэширование результатов промисов
+const promiseCache = new Map()
+
+const cachedFetch = (url) => {
+  if (promiseCache.has(url)) {
+    console.log(`Используем кэш для: ${url}`)
+    return promiseCache.get(url)
+  }
+
+  const promise = fetch(url)
+    .then(res => res.json())
+    .catch(error => {
+      // Удаляем из кэша при ошибке
+      promiseCache.delete(url)
+      throw error
+    })
+
+  promiseCache.set(url, promise)
+  return promise
+}
+
+// Множественные вызовы одного URL будут использовать кэш
+const duplicateUrls = [
+  'https://api.example.com/data',
+  'https://api.example.com/data',  // Из кэша
+  'https://api.example.com/other',
+  'https://api.example.com/data'   // Из кэша
+]
+
+const cachedPromises = duplicateUrls.map(url => cachedFetch(url))
+Promise.all(cachedPromises)
+  .then(results => {
+    console.log('Результаты (с кэшированием):', results)
+  })

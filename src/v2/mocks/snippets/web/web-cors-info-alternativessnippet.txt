@@ -1,0 +1,33 @@
+
+// Альтернативы и обходы CORS (когда нет доступа к серверу)
+
+// 1. JSONP (устаревший, только для GET)
+function jsonp(url, callback) {
+  const script = document.createElement('script')
+  script.src = `${url}?callback=${callback}`
+  document.head.appendChild(script)
+}
+// ⚠️ Не рекомендуется: проблемы безопасности
+
+// 2. Proxy сервер (разработка)
+// package.json в Create React App:
+{
+  "proxy": "https://api.example.com"
+}
+
+// fetch('/api/users') → проксируется на https://api.example.com/api/users
+
+// 3. Browser extension (только для разработки!)
+// CORS Unblock, Allow CORS
+// ⚠️ Только для локальной разработки!
+
+// 4. Server-side proxy
+// Создать собственный эндпоинт, который делает запрос от имени клиента
+// GET /api/proxy?url=https://external-api.com/data
+
+// 5. Использование CORS Anywhere (для разработки)
+fetch('https://cors-anywhere.herokuapp.com/https://api.example.com/data')
+// ⚠️ Только для прототипирования!
+
+// ✅ ПРАВИЛЬНОЕ решение:
+// Настроить CORS на целевом сервере

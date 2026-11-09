@@ -1,0 +1,38 @@
+
+// Композиция и pipe
+
+// compose - справа налево
+const compose = (...fns) => x =>
+  fns.reduceRight((acc, fn) => fn(acc), x);
+
+// pipe - слева направо
+const pipe = (...fns) => x =>
+  fns.reduce((acc, fn) => fn(acc), x);
+
+// Пример обработки пользовательских данных
+const users = [
+  { name: 'john', age: 25, active: true },
+  { name: 'jane', age: 30, active: false },
+  { name: 'bob', age: 35, active: true }
+];
+
+const capitalize = str =>
+  str.charAt(0).toUpperCase() + str.slice(1);
+
+const getActiveUsers = users =>
+  users.filter(u => u.active);
+
+const getUserNames = users =>
+  users.map(u => u.name);
+
+const capitalizeNames = names =>
+  names.map(capitalize);
+
+// Композиция
+const getActiveUserNames = pipe(
+  getActiveUsers,
+  getUserNames,
+  capitalizeNames
+);
+
+console.log(getActiveUserNames(users)); // ['John', 'Bob']

@@ -1,0 +1,46 @@
+
+// Параметры по умолчанию (ES6)
+function greet(name = "Друг", greeting = "Привет") {
+  return `${greeting}, ${name}!`;
+}
+
+console.log(greet()); // "Привет, Друг!"
+console.log(greet("Анна")); // "Привет, Анна!"
+console.log(greet("Боб", "Здравствуй")); // "Здравствуй, Боб!"
+
+// Rest параметры (остаточные параметры)
+function sum(...numbers) {
+  return numbers.reduce((total, num) => total + num, 0);
+}
+
+console.log(sum(1, 2, 3)); // 6
+console.log(sum(1, 2, 3, 4, 5)); // 15
+
+function introduce(name, age, ...hobbies) {
+  console.log(`Меня зовут ${name}, мне ${age} лет`);
+  console.log("Мои хобби:", hobbies.join(", "));
+}
+
+introduce("Анна", 25, "чтение", "плавание", "кулинария");
+
+// Деструктуризация параметров
+function createUser({name, age, email = "не указан"}) {
+  return {
+    name,
+    age,
+    email,
+    created: new Date()
+  };
+}
+
+const user = createUser({
+  name: "Иван",
+  age: 30
+});
+
+// Деструктуризация массивов в параметрах
+function processCoordinates([x, y, z = 0]) {
+  return {x, y, z};
+}
+
+console.log(processCoordinates([10, 20])); // {x: 10, y: 20, z: 0}

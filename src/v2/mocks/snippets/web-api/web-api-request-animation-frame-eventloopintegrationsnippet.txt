@@ -1,0 +1,170 @@
+
+// =====================================
+// RAF И EVENT LOOP
+// =====================================
+
+// Порядок выполнения в Event Loop:
+// 1. Microtasks (Promise.then, queueMicrotask)
+// 2. Macrotasks (setTimeout, setInterval)
+// 3. requestAnimationFrame callbacks
+// 4. Layout/Paint
+// 5. requestIdleCallback (если есть время)
+
+// Пример взаимодействия с Event Loop
+console.log('1. Синхронный код')
+
+setTimeout(() => {
+  console.log('4. setTimeout (macrotask)')
+}, 0)
+
+Promise.resolve().then(() => {
+  console.log('2. Promise (microtask)')
+})
+
+requestAnimationFrame(() => {
+  console.log('5. requestAnimationFrame')
+})
+
+queueMicrotask(() => {
+  console.log('3. queueMicrotask')
+})
+
+console.log('1. Синхронный код (конец)')
+
+// Вывод:
+// 1. Синхронный код
+// 1. Синхронный код (конец)
+// 2. Promise (microtask)
+// 3. queueMicrotask
+// 4. setTimeout (macrotask)
+// 5. requestAnimationFrame (перед рендерингом)
+
+// =====================================
+// ДЕТАЛЬНЫЙ ЦИКЛ РЕНДЕРИНГА БРАУЗЕРА
+// =====================================
+
+/*
+Один цикл рендеринга (один фрейм):
+
+1️⃣ MACROTASK QUEUE
+   └─ setTimeout, setInterval, I/O callbacks
+
+2️⃣ MICROTASK QUEUE
+   └─ Promise.then, queueMicrotask, MutationObserver
+   └─ Очищается полностью перед переходом к следующему этапу
+
+3️⃣ STYLE CALCULATION
+   └─ Пересчёт CSS стилей (если были изменения)
+
+4️⃣ LAYOUT (REFLOW)
+   └─ Вычисление позиций и размеров элементов
+
+5️⃣ requestAnimationFrame CALLBACKS
+   └─ Все зарегистрированные RAF коллбэки выполняются здесь
+   └─ Идеальное место для обновления анимаций
+
+6️⃣ PAINT
+   └─ Растеризация: отрисовка пикселей
+
+7️⃣ COMPOSITE
+   └─ Композиция слоёв на GPU
+
+8️⃣ requestIdleCallback (если есть свободное время)
+
+Затем цикл повторяется (обычно 60 раз в секунду = 60 FPS)
+*/
+
+// Пример с полным циклом
+function demonstrateRenderCycle() {
+  console.log('Start')
+
+  // Macrotask - выполнится в следующей итерации event loop
+  setTimeout(() => {
+    console.log('setTimeout (macrotask)')
+  }, 0)
+
+  // Microtask - выполнится сразу после текущего кода
+  Promise.resolve().then(() => {
+    console.log('Promise (microtask)')
+  })
+
+  // RAF - выполнится перед следующим рендерингом
+  requestAnimationFrame(() => {
+    console.log('requestAnimationFrame (before paint)')
+
+    // Этот Promise выполнится до следующего RAF
+    Promise.resolve().then(() => {
+      console.log('Promise inside RAF (microtask)')
+    })
+  })
+
+  // Изменение DOM вызовет reflow/repaint в следующем фрейме
+  document.body.style.backgroundColor = 'red'
+
+  console.log('End')
+}
+
+// Вывод:
+// Start
+// End
+// Promise (microtask)
+// setTimeout (macrotask)
+// requestAnimationFrame (before paint)
+// Promise inside RAF (microtask)
+// [затем происходит Paint/Composite с красным фоном]
+
+// =====================================
+// ОПТИМИЗАЦИЯ С RAF
+// =====================================
+
+// ❌ ПЛОХО - Layout Thrashing
+function badAnimation() {
+  requestAnimationFrame(() => {
+    // Чтение вызывает layout
+    const height = element.offsetHeight
+
+    // Запись вызывает новый layout
+    element.style.height = height + 10 + 'px'
+
+    // Снова чтение - ещё один layout!
+    const width = element.offsetWidth
+
+    // Снова запись - и ещё layout!
+    element.style.width = width + 10 + 'px'
+
+    // 4 layout операции в одном фрейме - ОЧЕНЬ МЕДЛЕННО
+  })
+}
+
+// ✅ ХОРОШО - Батчинг операций
+function goodAnimation() {
+  requestAnimationFrame(() => {
+    // Сначала все чтения (1 layout)
+    const height = element.offsetHeight
+    const width = element.offsetWidth
+
+    // Потом все записи (будут применены вместе)
+    element.style.height = height + 10 + 'px'
+    element.style.width = width + 10 + 'px'
+
+    // Только 1 layout операция - БЫСТРО
+  })
+}
+
+// ✅ ЕЩЁ ЛУЧШЕ - Использование transform (GPU)
+function bestAnimation() {
+  let position = 0
+
+  function animate() {
+    position += 2
+
+    // transform не вызывает layout - работает на GPU!
+    element.style.transform = `translateX(${position}px)`
+
+    if (position < 500) {
+      requestAnimationFrame(animate)
+    }
+  }
+
+  requestAnimationFrame(animate)
+}

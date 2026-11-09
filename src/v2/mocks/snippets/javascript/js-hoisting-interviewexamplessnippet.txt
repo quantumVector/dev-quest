@@ -1,0 +1,35 @@
+
+// Типичные вопросы на собеседовании
+
+// Вопрос 1: Что выведет?
+var a = 1;
+function test() {
+  console.log(a); // undefined (не 1!)
+  var a = 2;
+  console.log(a); // 2
+}
+test();
+
+// Объяснение: локальный var a всплывает наверх функции
+
+// Вопрос 2: Что выведет?
+function foo() {
+  console.log(bar); // function bar() {...}
+  console.log(baz); // undefined
+
+  function bar() {
+    return "I'm bar";
+  }
+
+  var baz = function() {
+    return "I'm baz";
+  };
+}
+foo();
+
+// Вопрос 3: Что выведет?
+console.log(typeof foo); // "function"
+console.log(typeof bar); // "undefined"
+
+function foo() {}
+var bar = function() {};

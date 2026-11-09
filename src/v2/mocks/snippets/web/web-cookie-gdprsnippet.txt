@@ -1,0 +1,153 @@
+
+// ==========================================
+// GDPR И COOKIE CONSENT
+// ==========================================
+
+// Категории cookies согласно GDPR
+const cookieCategories = {
+  // Необходимые - не требуют согласия
+  necessary: {
+    sessionId: 'abc123',
+    csrfToken: 'xyz789',
+    language: 'ru'
+  },
+
+  // Функциональные - улучшают UX
+  functional: {
+    theme: 'dark',
+    fontSize: '16',
+    sidebarCollapsed: 'true'
+  },
+
+  // Аналитические - требуют согласия
+  analytics: {
+    _ga: 'GA1.2.123456789',
+    _gid: 'GA1.2.987654321'
+  },
+
+  // Рекламные - требуют согласия
+  marketing: {
+    fbp: 'fb.1.123456789',
+    ads_id: 'ads-123'
+  }
+}
+
+// Cookie Consent Manager
+class CookieConsent {
+  static CONSENT_KEY = 'cookie_consent'
+
+  static setConsent(preferences) {
+    const consent = {
+      necessary: true, // Всегда true
+      functional: preferences.functional || false,
+      analytics: preferences.analytics || false,
+      marketing: preferences.marketing || false,
+      timestamp: new Date().toISOString()
+    }
+
+    CookieManager.set(this.CONSENT_KEY, JSON.stringify(consent), {
+      days: 365,
+      secure: true,
+      sameSite: 'Lax'
+    })
+
+    this.applyCookies(consent)
+  }
+
+  static getConsent() {
+    const consent = CookieManager.get(this.CONSENT_KEY)
+    return consent ? JSON.parse(consent) : null
+  }
+
+  static hasConsent() {
+    return this.getConsent() !== null
+  }
+
+  static applyCookies(consent) {
+    // Необходимые cookies - всегда
+    Object.entries(cookieCategories.necessary).forEach(([name, value]) => {
+      CookieManager.set(name, value, { days: 1 })
+    })
+
+    // Функциональные
+    if (consent.functional) {
+      Object.entries(cookieCategories.functional).forEach(([name, value]) => {
+        CookieManager.set(name, value, { days: 365 })
+      })
+    }
+
+    // Аналитические
+    if (consent.analytics) {
+      // Загрузка Google Analytics
+      this.loadGoogleAnalytics()
+    }
+
+    // Рекламные
+    if (consent.marketing) {
+      // Загрузка рекламных скриптов
+      this.loadMarketingScripts()
+    }
+  }
+
+  static loadGoogleAnalytics() {
+    // Загрузка GA только после согласия
+    const script = document.createElement('script')
+    script.src = 'https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID'
+    document.head.appendChild(script)
+  }
+
+  static loadMarketingScripts() {
+    // Загрузка рекламных пикселей
+  }
+
+  static revokeConsent() {
+    CookieManager.remove(this.CONSENT_KEY)
+    // Удаление всех необязательных cookies
+    this.clearNonEssentialCookies()
+  }
+
+  static clearNonEssentialCookies() {
+    const consent = this.getConsent()
+    if (!consent) return
+
+    if (!consent.functional) {
+      Object.keys(cookieCategories.functional).forEach(name => {
+        CookieManager.remove(name)
+      })
+    }
+
+    if (!consent.analytics) {
+      Object.keys(cookieCategories.analytics).forEach(name => {
+        CookieManager.remove(name)
+      })
+    }
+
+    if (!consent.marketing) {
+      Object.keys(cookieCategories.marketing).forEach(name => {
+        CookieManager.remove(name)
+      })
+    }
+  }
+}
+
+// Использование в приложении
+window.addEventListener('DOMContentLoaded', () => {
+  if (!CookieConsent.hasConsent()) {
+    // Показываем баннер согласия
+    showCookieBanner()
+  } else {
+    // Применяем сохраненные настройки
+    const consent = CookieConsent.getConsent()
+    CookieConsent.applyCookies(consent)
+  }
+})
+
+function showCookieBanner() {
+  // UI для получения согласия пользователя
+  // После получения согласия:
+  CookieConsent.setConsent({
+    functional: true,
+    analytics: true,
+    marketing: false
+  })
+}

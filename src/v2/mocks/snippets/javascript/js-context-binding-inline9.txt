@@ -1,0 +1,10 @@
+// Кэширование в constructor
+constructor() {
+  this.handleClick = this.handleClick.bind(this)
+}
+
+render() {
+  return items.map(item =>
+    <Item onClick={this.handleClick} />
+  )
+}

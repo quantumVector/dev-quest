@@ -1,0 +1,65 @@
+
+// Практический пример: различие между определением и выполнением
+console.log("=== Определение vs Выполнение ===");
+
+let globalCounter = 0;
+
+// Определение функции-фабрики
+function createCounter(name) {
+  console.log(`Создаем счетчик "${name}", globalCounter = ${++globalCounter}`);
+
+  // Лексическое окружение createCounter создается СЕЙЧАС (при вызове):
+  // {
+  //   Environment Record: { name: значение_параметра, count: undefined }
+  //   Outer Reference: Global Lexical Environment
+  // }
+
+  let count = 0;
+
+  // Определяем функции, но их лексические окружения ещё НЕ созданы
+  function increment() {
+    // Лексическое окружение increment создается ТОЛЬКО при вызове
+    count++;
+    console.log(`  ${name}: increment to ${count}`);
+    return count;
+  }
+
+  function decrement() {
+    // Лексическое окружение decrement создается ТОЛЬКО при вызове
+    count--;
+    console.log(`  ${name}: decrement to ${count}`);
+    return count;
+  }
+
+  function getValue() {
+    // Лексическое окружение getValue создается ТОЛЬКО при вызове
+    console.log(`  ${name}: current value is ${count}`);
+    return count;
+  }
+
+  // Возвращаем объект с методами (все функции создают замыкания)
+  return { increment, decrement, getValue };
+}
+
+console.log("\n1. Определили createCounter");
+console.log("   - Лексическое окружение createCounter ещё НЕ создано");
+
+console.log("\n2. Вызываем createCounter('Counter1')");
+const counter1 = createCounter('Counter1');
+// ЗДЕСЬ создалось лексическое окружение createCounter для первого вызова
+
+console.log("\n3. Вызываем createCounter('Counter2')");
+const counter2 = createCounter('Counter2');
+// ЗДЕСЬ создалось НОВОЕ лексическое окружение createCounter для второго вызова
+
+console.log("\n4. Вызываем методы счетчиков:");
+console.log("   - counter1.increment() - создается лексическое окружение increment");
+counter1.increment();
+
+console.log("   - counter2.getValue() - создается лексическое окружение getValue");
+counter2.getValue();
+
+console.log("   - counter1.increment() - создается НОВОЕ лексическое окружение increment");
+counter1.increment();
+
+console.log("   - Каждый вызов функции создает НОВОЕ лексическое окружение");

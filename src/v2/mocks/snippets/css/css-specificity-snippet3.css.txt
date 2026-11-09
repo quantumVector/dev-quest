@@ -1,0 +1,23 @@
+
+/* Примеры расчета специфичности */
+
+/* 0,0,0,1 - один элемент */
+h1 { color: red; }
+
+/* 0,0,1,0 - один класс */
+.title { color: blue; }
+
+/* 0,1,0,0 - один ID */
+#main { color: green; }
+
+/* 0,0,1,1 - класс + элемент */
+.content p { color: orange; }
+
+/* 0,1,1,2 - ID + класс + два элемента */
+#sidebar .widget ul li { color: purple; }
+
+/* 0,0,3,1 - три класса + элемент */
+.nav.active.dropdown a { color: yellow; }
+
+/* 0,2,0,1 - два ID + элемент */
+#header#main h1 { color: pink; }

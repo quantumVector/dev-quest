@@ -1,0 +1,61 @@
+
+// =====================================
+// СРАВНЕНИЕ ANY, UNKNOWN, NEVER
+// =====================================
+
+// 1. Присваивание TO
+let anyVar: any
+let unknownVar: unknown
+let neverVar: never
+
+anyVar = 42             // OK
+unknownVar = 42         // OK
+// neverVar = 42        // ошибка! never не может иметь значение
+
+// 2. Присваивание FROM
+let str: string
+
+str = anyVar            // OK - any отключает проверку типов
+// str = unknownVar     // ошибка! требуется проверка типа
+// str = neverVar       // OK - never подтип любого типа (но присвоить never нельзя)
+
+// 3. Безопасность типов
+function handleAny(value: any) {
+  value.toUpperCase()   // компилируется, но может упасть в runtime
+}
+
+function handleUnknown(value: unknown) {
+  // value.toUpperCase() // ошибка компиляции!
+
+  if (typeof value === "string") {
+    value.toUpperCase()  // OK - проверка типа
+  }
+}
+
+// 4. Использование в возвращаемых типах
+function returnsAny(): any {
+  return "anything"
+}
+
+function returnsUnknown(): unknown {
+  return "something"
+}
+
+function returnsNever(): never {
+  throw new Error("Never returns")
+}
+
+// 5. Таблица совместимости
+/*
+┌─────────────┬─────────────┬─────────────┬─────────────┐
+│             │ any         │ unknown     │ never       │
+├─────────────┼─────────────┼─────────────┼─────────────┤
+│ TO any      │ ✅          │ ✅          │ ✅          │
+│ TO unknown  │ ✅          │ ✅          │ ✅          │
+│ TO string   │ ✅          │ ❌          │ ✅*         │
+│ FROM any    │ ✅          │ ✅          │ ❌          │
+│ FROM unknown│ ❌          │ ✅          │ ❌          │
+│ FROM never  │ ✅          │ ✅          │ ✅          │
+└─────────────┴─────────────┴─────────────┴─────────────┘
+* never подтип всех типов, но создать never значение нельзя
+*/

@@ -1,0 +1,39 @@
+
+<!-- Next.js встроенная оптимизация -->
+import Image from 'next/image';
+
+export default function Gallery() {
+  return (
+    <div>
+      {/* Hero - приоритет высокий */}
+      <Image
+        src="/hero.jpg"
+        alt="Hero"
+        width={1200}
+        height={600}
+        priority
+      />
+
+      {/* Галерея - автоматический lazy loading */}
+      <div className="gallery">
+        {images.map((img) => (
+          <Image
+            key={img.id}
+            src={img.src}
+            alt={img.alt}
+            width={400}
+            height={300}
+            placeholder="blur"
+            blurDataURL={img.blurDataURL}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Next.js автоматически:
+// - Добавляет loading="lazy"
+// - Генерирует responsive srcset
+// - Оптимизирует форматы (WebP/AVIF)
+// - Добавляет blur placeholder

@@ -1,0 +1,91 @@
+
+// E2E тесты - вершина пирамиды (10%)
+
+// Преимущества:
+// ✅ Максимальная уверенность
+// ✅ Тестируют как реальный пользователь
+// ✅ Проверяют всю систему целиком
+// ⚠️ Медленные (секунды/минуты)
+// ⚠️ Хрупкие (flaky)
+// ⚠️ Дорогие в поддержке
+
+// Только для КРИТИЧЕСКИХ сценариев!
+
+// Playwright E2E тест
+import { test, expect } from '@playwright/test'
+
+test.describe('Critical User Flows', () => {
+  // Тест 1: Полный путь покупки
+  test('complete purchase flow', async ({ page }) => {
+    // 1. Логин
+    await page.goto('/login')
+    await page.fill('[name="email"]', 'user@example.com')
+    await page.fill('[name="password"]', 'password123')
+    await page.click('button[type="submit"]')
+    await page.waitForURL('/dashboard')
+
+    // 2. Поиск товара
+    await page.fill('[placeholder="Search products"]', 'laptop')
+    await page.press('[placeholder="Search products"]', 'Enter')
+    await page.waitForSelector('.product-card')
+
+    // 3. Добавление в корзину
+    await page.click('.product-card:first-child .add-to-cart')
+    await expect(page.locator('.cart-badge')).toContainText('1')
+
+    // 4. Переход к оформлению
+    await page.click('.cart-icon')
+    await page.click('text=Proceed to Checkout')
+
+    // 5. Заполнение адреса доставки
+    await page.fill('[name="address"]', '123 Main St')
+    await page.fill('[name="city"]', 'New York')
+    await page.fill('[name="zipCode"]', '10001')
+
+    // 6. Выбор способа оплаты
+    await page.click('text=Credit Card')
+    await page.fill('[name="cardNumber"]', '4242424242424242')
+    await page.fill('[name="expiry"]', '12/25')
+    await page.fill('[name="cvv"]', '123')
+
+    // 7. Подтверждение заказа
+    await page.click('button:has-text("Place Order")')
+
+    // 8. Проверка успешного заказа
+    await page.waitForURL(//order\/[0-9]+/)
+    await expect(page.locator('h1')).toContainText('Order Confirmed')
+    await expect(page.locator('.order-status')).toContainText('Processing')
+  })
+
+  // Тест 2: Регистрация нового пользователя
+  test('user registration flow', async ({ page }) => {
+    await page.goto('/register')
+
+    await page.fill('[name="name"]', 'New User')
+    await page.fill('[name="email"]', `test${Date.now()}@example.com`)
+    await page.fill('[name="password"]', 'SecurePass123!')
+    await page.fill('[name="confirmPassword"]', 'SecurePass123!')
+
+    await page.click('button[type="submit"]')
+
+    // Проверка welcome экрана
+    await page.waitForURL('/welcome')
+    await expect(page.locator('h1')).toContainText('Welcome, New User')
+  })
+
+  // Тест 3: Восстановление пароля
+  test('password reset flow', async ({ page }) => {
+    await page.goto('/login')
+    await page.click('text=Forgot password?')
+
+    await page.fill('[name="email"]', 'user@example.com')
+    await page.click('button:has-text("Send Reset Link")')
+
+    await expect(page.locator('.success-message')).toContainText(
+      'Reset link sent to your email'
+    )
+  })
+})
+
+// Время выполнения: ~3-5 минут для всех E2E тестов
+// Запускаются только перед деплоем в production!

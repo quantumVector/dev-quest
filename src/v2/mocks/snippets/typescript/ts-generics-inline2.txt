@@ -1,0 +1,3 @@
+function idNum(x: number): number
+function idStr(x: string): string
+// Много похожего кода

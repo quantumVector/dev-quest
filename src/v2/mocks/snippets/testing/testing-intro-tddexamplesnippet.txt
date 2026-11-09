@@ -1,0 +1,48 @@
+
+// TDD (Test-Driven Development) подход
+
+// Шаг 1: Пишем тест (RED)
+describe('StringUtils', () => {
+  test('capitalize first letter of string', () => {
+    expect(StringUtils.capitalize('hello')).toBe('Hello')
+  })
+})
+
+// Тест падает - функция не существует
+
+// Шаг 2: Пишем минимальный код (GREEN)
+class StringUtils {
+  static capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1)
+  }
+}
+
+// Тест проходит
+
+// Шаг 3: Рефакторинг (REFACTOR)
+class StringUtils {
+  static capitalize(str) {
+    if (!str || typeof str !== 'string') return ''
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
+  }
+}
+
+// Добавляем больше тестов
+describe('StringUtils', () => {
+  test('capitalize first letter of string', () => {
+    expect(StringUtils.capitalize('hello')).toBe('Hello')
+  })
+
+  test('handles empty string', () => {
+    expect(StringUtils.capitalize('')).toBe('')
+  })
+
+  test('handles non-string input', () => {
+    expect(StringUtils.capitalize(null)).toBe('')
+    expect(StringUtils.capitalize(undefined)).toBe('')
+  })
+
+  test('lowercases rest of the string', () => {
+    expect(StringUtils.capitalize('hELLO')).toBe('Hello')
+  })
+})

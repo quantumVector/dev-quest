@@ -1,0 +1,30 @@
+
+import { useRef, useState } from 'react';
+
+function Timer() {
+  const [count, setCount] = useState(0);
+  const intervalRef = useRef(null);
+
+  const startTimer = () => {
+    // Сохраняем ID интервала без ререндера
+    intervalRef.current = setInterval(() => {
+      setCount(c => c + 1);
+    }, 1000);
+  };
+
+  const stopTimer = () => {
+    // Используем сохраненный ID
+    clearInterval(intervalRef.current);
+    intervalRef.current = null;
+  };
+
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={startTimer}>Start</button>
+      <button onClick={stopTimer}>Stop</button>
+    </div>
+  );
+}
+
+// Ключевое отличие: изменение ref.current НЕ вызывает ререндер!

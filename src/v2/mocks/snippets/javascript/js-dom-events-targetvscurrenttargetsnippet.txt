@@ -1,0 +1,53 @@
+
+// Разница между target и currentTarget
+
+// HTML:
+// <ul id="menu">
+//   <li data-action="save">
+//     <span>💾</span> Сохранить
+//   </li>
+//   <li data-action="delete">
+//     <span>🗑️</span> Удалить
+//   </li>
+// </ul>
+
+const menu = document.getElementById('menu');
+
+menu.addEventListener('click', function(event) {
+  // event.target - элемент, на котором ПРОИЗОШЛО событие
+  console.log('Target:', event.target); // может быть <span>, <li> или текстовый узел
+
+  // event.currentTarget - элемент, на котором ОБРАБАТЫВАЕТСЯ событие
+  console.log('CurrentTarget:', event.currentTarget); // всегда <ul id="menu">
+
+  // Поиск нужного элемента
+  let clickedItem = event.target;
+
+  // Поднимаемся вверх до нужного элемента
+  while (clickedItem && !clickedItem.dataset.action) {
+    clickedItem = clickedItem.parentElement;
+  }
+
+  if (clickedItem && clickedItem.dataset.action) {
+    console.log('Действие:', clickedItem.dataset.action);
+  }
+});
+
+// Более элегантное решение с closest()
+menu.addEventListener('click', function(event) {
+  const actionItem = event.target.closest('[data-action]');
+
+  if (actionItem) {
+    const action = actionItem.dataset.action;
+    console.log('Выбрано действие:', action);
+
+    switch(action) {
+      case 'save':
+        handleSave();
+        break;
+      case 'delete':
+        handleDelete();
+        break;
+    }
+  }
+});

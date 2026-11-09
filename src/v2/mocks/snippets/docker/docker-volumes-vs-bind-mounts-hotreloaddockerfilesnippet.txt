@@ -1,0 +1,24 @@
+
+# Dockerfile.dev - для разработки
+FROM node:18-alpine
+
+# Установка глобальных пакетов для разработки
+RUN npm install -g nodemon
+
+# Рабочая директория
+WORKDIR /app
+
+# Копируем только package.json для кеширования
+COPY package*.json ./
+
+# Устанавливаем ВСЕ зависимости (включая devDependencies)
+RUN npm install
+
+# Копируем исходный код (будет заменен bind mount'ом)
+COPY . .
+
+# Открываем порт
+EXPOSE 3000
+
+# Команда с hot reload
+CMD ["npm", "run", "dev"]

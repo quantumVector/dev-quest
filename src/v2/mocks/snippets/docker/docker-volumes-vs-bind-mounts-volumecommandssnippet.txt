@@ -1,0 +1,26 @@
+
+# =====================================
+# DOCKER VOLUMES - ИМЕНОВАННЫЕ ХРАНИЛИЩА
+# =====================================
+
+# Создание volume
+docker volume create my-database-data
+docker volume create app-logs
+
+# Использование volume в контейнере
+docker run -d \
+  --name postgres \
+  -v my-database-data:/var/lib/postgresql/data \
+  postgres:13
+
+# Список volumes
+docker volume ls
+
+# Информация о volume
+docker volume inspect my-database-data
+
+# Удаление volume
+docker volume rm my-database-data
+
+# Удаление неиспользуемых volumes
+docker volume prune

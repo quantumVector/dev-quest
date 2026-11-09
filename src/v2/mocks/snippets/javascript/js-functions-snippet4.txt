@@ -1,0 +1,76 @@
+
+// Контекст выполнения и this
+
+// 1. В обычных функциях this зависит от способа вызова
+const person = {
+  name: "Анна",
+  greet: function() {
+    console.log(`Привет, я ${this.name}`);
+  },
+
+  greetArrow: () => {
+    // Стрелочная функция наследует this из окружающего контекста
+    console.log(`Привет, я ${this.name}`); // undefined в строгом режиме
+  }
+};
+
+person.greet(); // "Привет, я Анна"
+person.greetArrow(); // "Привет, я undefined"
+
+// 2. call, apply, bind
+function introduce(greeting, punctuation) {
+  console.log(`${greeting}, я ${this.name}${punctuation}`);
+}
+
+const user = { name: "Иван" };
+
+// call - передаем аргументы отдельно
+introduce.call(user, "Привет", "!");
+
+// apply - передаем аргументы массивом
+introduce.apply(user, ["Здравствуй", "."]);
+
+// bind - создает новую функцию с привязанным this
+const boundIntroduce = introduce.bind(user);
+boundIntroduce("Добро пожаловать", "!!!");
+
+// 3. this в стрелочных функциях
+const obj = {
+  name: "Объект",
+
+  regularMethod: function() {
+    console.log("Regular:", this.name);
+
+    // Вложенная обычная функция теряет контекст
+    setTimeout(function() {
+      console.log("Nested regular:", this.name); // undefined
+    }, 100);
+
+    // Стрелочная функция сохраняет контекст
+    setTimeout(() => {
+      console.log("Nested arrow:", this.name); // "Объект"
+    }, 200);
+  }
+};
+
+// 4. this в классах
+class MyClass {
+  constructor(name) {
+    this.name = name;
+  }
+
+  regularMethod() {
+    return `Regular: ${this.name}`;
+  }
+
+  arrowMethod = () => {
+    return `Arrow: ${this.name}`;
+  }
+}
+
+const instance = new MyClass("Тест");
+const detached = instance.regularMethod;
+const detachedArrow = instance.arrowMethod;
+
+// console.log(detached()); // Error: this is undefined
+console.log(detachedArrow()); // "Arrow: Тест"

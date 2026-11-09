@@ -1,0 +1,51 @@
+
+// ❌ ПЛОХО - Компонент делает слишком много
+const UserProfile = () => {
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(false)
+
+  // Логика загрузки данных
+  const fetchUser = async (id) => {
+    setLoading(true)
+    const response = await fetch(`/api/users/${id}`)
+    const data = await response.json()
+    setUser(data)
+    setLoading(false)
+  }
+
+  // Логика валидации
+  const validateEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+  }
+
+  // Логика форматирования
+  const formatDate = (date) => {
+    return new Date(date).toLocaleDateString('ru-RU')
+  }
+
+  // Логика сохранения
+  const saveUser = async (userData) => {
+    if (!validateEmail(userData.email)) {
+      alert('Неверный email')
+      return
+    }
+    await fetch(`/api/users/${user.id}`, {
+      method: 'PUT',
+      body: JSON.stringify(userData)
+    })
+  }
+
+  // И еще рендеринг...
+  return (
+    <div>
+      {loading ? <Spinner /> : (
+        <form onSubmit={(e) => {
+          e.preventDefault()
+          saveUser(/* ... */)
+        }}>
+          {/* Форма */}
+        </form>
+      )}
+    </div>
+  )
+}

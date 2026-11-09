@@ -1,0 +1,40 @@
+
+# Практические примеры tail для разработки
+
+# 1. Мониторинг логов приложения
+tail -f logs/application.log | grep --color=auto "ERROR\|WARN"
+# Следим за ошибками и предупреждениями
+
+# 2. Последние деплойменты
+tail -n 20 /var/log/deploy.log
+
+# 3. Мониторинг нескольких логов одновременно
+tail -f logs/*.log | grep "user_id"
+# Отслеживание действий пользователя
+
+# 4. Логи с фильтрацией по времени
+tail -f app.log | grep "$(date +%Y-%m-%d)"
+# Только сегодняшние записи
+
+# 5. Подсчет событий в реальном времени
+tail -f access.log | grep "POST" | wc -l
+# Количество POST запросов (обновляется)
+
+# 6. Цветная подсветка важных событий
+tail -f app.log | grep --color=auto -E "ERROR|SUCCESS|FAIL"
+
+# 7. Фильтрация по нескольким критериям
+tail -f app.log | grep "user_123" | grep "payment"
+# События оплаты конкретного пользователя
+
+# 8. Сохранение логов в файл
+tail -f production.log | tee backup.log
+# Одновременно в терминал и файл
+
+# 9. Мониторинг производительности
+tail -f performance.log | awk '$3 > 1000 {print "Slow query:", $0}'
+# Запросы дольше 1000ms
+
+# 10. Debug режим
+tail -f debug.log | grep --line-buffered "function_name" | head -n 100
+# Первые 100 вызовов функции

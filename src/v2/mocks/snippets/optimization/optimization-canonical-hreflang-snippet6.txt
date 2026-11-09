@@ -1,0 +1,43 @@
+
+<!-- Распространенные ошибки и их исправления -->
+
+<!-- ❌ ОШИБКА 1: Canonical указывает на другой язык -->
+<!-- На странице /ru/products -->
+<link rel="canonical" href="https://example.com/en/products">
+<!-- ✅ ПРАВИЛЬНО: -->
+<link rel="canonical" href="https://example.com/ru/products">
+
+<!-- ❌ ОШИБКА 2: Нет самоссылки в hreflang -->
+<!-- На странице /ru/products -->
+<link rel="alternate" hreflang="en" href="https://example.com/en/products">
+<link rel="alternate" hreflang="de" href="https://example.com/de/products">
+<!-- ✅ ПРАВИЛЬНО: добавить текущую страницу -->
+<link rel="alternate" hreflang="ru" href="https://example.com/ru/products">
+<link rel="alternate" hreflang="en" href="https://example.com/en/products">
+<link rel="alternate" hreflang="de" href="https://example.com/de/products">
+
+<!-- ❌ ОШИБКА 3: Несовпадение hreflang между страницами -->
+<!-- На /ru/products -->
+<link rel="alternate" hreflang="en" href="https://example.com/en/products">
+<!-- На /en/products -->
+<link rel="alternate" hreflang="ru" href="https://example.com/ru/blog">
+<!-- ✅ ПРАВИЛЬНО: обе страницы должны ссылаться друг на друга -->
+
+<!-- ❌ ОШИБКА 4: Неправильные коды языков -->
+<link rel="alternate" hreflang="uk" href="..."> <!-- uk = украинский, не UK! -->
+<link rel="alternate" hreflang="EN" href="..."> <!-- регистр важен, должно быть en -->
+<!-- ✅ ПРАВИЛЬНО: -->
+<link rel="alternate" hreflang="en-GB" href="..."> <!-- Английский UK -->
+<link rel="alternate" hreflang="uk" href="..."> <!-- Украинский -->
+<link rel="alternate" hreflang="en" href="..."> <!-- Английский -->
+
+<!-- ❌ ОШИБКА 5: Canonical на странице 404/redirect -->
+<link rel="canonical" href="https://example.com/deleted-page">
+<!-- ✅ ПРАВИЛЬНО: canonical должен указывать на доступную страницу -->
+
+<!-- ❌ ОШИБКА 6: Смешивание абсолютных и относительных URL -->
+<link rel="alternate" hreflang="en" href="/en/products">
+<link rel="alternate" hreflang="ru" href="https://example.com/ru/products">
+<!-- ✅ ПРАВИЛЬНО: всегда используйте абсолютные URL -->
+<link rel="alternate" hreflang="en" href="https://example.com/en/products">
+<link rel="alternate" hreflang="ru" href="https://example.com/ru/products">

@@ -1,0 +1,207 @@
+
+// Производительность обработки событий
+
+// ========================================
+// 1. Избегайте создания функций в render
+// ========================================
+
+// ❌ ПЛОХО - новая функция при каждом рендере
+function BadList({ items }) {
+  return (
+    <ul>
+      {items.map(item => (
+        <li key={item.id} onClick={() => console.log(item.id)}>
+          {item.name}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+// ✅ ХОРОШО - мемоизированная функция
+function GoodList({ items }) {
+  const handleClick = useCallback((id) => {
+    console.log(id);
+  }, []);
+
+  return (
+    <ul>
+      {items.map(item => (
+        <li key={item.id} onClick={() => handleClick(item.id)}>
+          {item.name}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+// ✅ ЕЩЕ ЛУЧШЕ - вынести Item в отдельный компонент
+const ListItem = React.memo(({ item, onClick }) => {
+  return (
+    <li onClick={() => onClick(item.id)}>
+      {item.name}
+    </li>
+  );
+});
+
+function BestList({ items }) {
+  const handleClick = useCallback((id) => {
+    console.log(id);
+  }, []);
+
+  return (
+    <ul>
+      {items.map(item => (
+        <ListItem key={item.id} item={item} onClick={handleClick} />
+      ))}
+    </ul>
+  );
+}
+
+// ========================================
+// 2. Пассивные слушатели для скролла/тача
+// ========================================
+
+// Пассивные слушатели улучшают производительность скролла
+function PassiveEventListeners() {
+  const divRef = useRef(null);
+
+  useEffect(() => {
+    const div = divRef.current;
+
+    function handleScroll(event) {
+      // НЕ вызываем preventDefault() в пассивном слушателе!
+      console.log('Scroll');
+    }
+
+    function handleTouchMove(event) {
+      console.log('Touch move');
+    }
+
+    // Добавляем пассивные слушатели напрямую
+    div.addEventListener('scroll', handleScroll, { passive: true });
+    div.addEventListener('touchmove', handleTouchMove, { passive: true });
+
+    return () => {
+      div.removeEventListener('scroll', handleScroll);
+      div.removeEventListener('touchmove', handleTouchMove);
+    };
+  }, []);
+
+  return <div ref={divRef} style={{ height: '200vh' }}>Scroll me</div>;
+}
+
+// ========================================
+// 3. Делегирование для больших списков
+// ========================================
+
+// ❌ ПЛОХО - обработчик на каждом элементе
+function BadLargeList({ items }) {
+  return (
+    <ul>
+      {items.map(item => (
+        <li key={item.id} onClick={() => console.log(item.id)}>
+          {item.name}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+// ✅ ХОРОШО - один обработчик на родителе
+function GoodLargeList({ items }) {
+  function handleClick(event) {
+    const id = event.target.dataset.id;
+    if (id) {
+      console.log(id);
+    }
+  }
+
+  return (
+    <ul onClick={handleClick}>
+      {items.map(item => (
+        <li key={item.id} data-id={item.id}>
+          {item.name}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+// ========================================
+// 4. Отмена обработчиков при размонтировании
+// ========================================
+
+function CleanupExample() {
+  useEffect(() => {
+    function handleResize() {
+      console.log('Window resized');
+    }
+
+    function handleScroll() {
+      console.log('Window scrolled');
+    }
+
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('scroll', handleScroll);
+
+    // ✅ ВАЖНО: очистка при размонтировании!
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+  return <div>Component</div>;
+}
+
+// ========================================
+// 5. Измерение производительности
+// ========================================
+
+function PerformanceMeasurement() {
+  function handleClick(event) {
+    performance.mark('click-start');
+
+    // Ваш код обработки события
+    for (let i = 0; i < 1000000; i++) {
+      // Имитация работы
+    }
+
+    performance.mark('click-end');
+    performance.measure('click-duration', 'click-start', 'click-end');
+
+    const measure = performance.getEntriesByName('click-duration')[0];
+    console.log('Click handler took:', measure.duration, 'ms');
+
+    // Очистка
+    performance.clearMarks();
+    performance.clearMeasures();
+  }
+
+  return <button onClick={handleClick}>Измерить</button>;
+}
+
+// ========================================
+// 6. React Profiler для событий
+// ========================================
+
+function ProfiledComponent() {
+  function onRenderCallback(
+    id,
+    phase,
+    actualDuration,
+    baseDuration,
+    startTime,
+    commitTime,
+    interactions
+  ) {
+    console.log(`${id} (${phase}) took ${actualDuration}ms`);
+  }
+
+  return (
+    <Profiler id="EventComponent" onRender={onRenderCallback}>
+      <ExpensiveEventHandler />
+    </Profiler>
+  );
+}

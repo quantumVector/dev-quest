@@ -1,0 +1,91 @@
+
+// =====================================
+// HTTP REDIRECTS (Перенаправления)
+// =====================================
+
+// 301 - Permanent Redirect (Постоянное)
+// SEO: поисковики обновят индекс
+// Браузеры кэшируют перенаправление
+HTTP/1.1 301 Moved Permanently
+Location: https://example.com/new-page
+
+// Пример: смена домена
+http://old-domain.com → https://new-domain.com (301)
+
+// 302 - Temporary Redirect (Временное)
+// SEO: поисковики сохраняют старый URL
+// Не кэшируется агрессивно
+HTTP/1.1 302 Found
+Location: https://example.com/temporary-page
+
+// Пример: временная страница обслуживания
+https://example.com → https://example.com/maintenance (302)
+
+// 303 - See Other
+// Меняет метод на GET (после POST)
+HTTP/1.1 303 See Other
+Location: https://example.com/success
+
+// Пример: Post-Redirect-Get паттерн
+POST /form → 303 → GET /success
+
+// 307 - Temporary Redirect (сохраняет метод)
+// Гарантирует, что метод не изменится
+HTTP/1.1 307 Temporary Redirect
+Location: https://example.com/new-endpoint
+
+// Пример: временное изменение API endpoint
+POST /api/v1/users → 307 → POST /api/v2/users
+
+// 308 - Permanent Redirect (сохраняет метод)
+// Постоянное перенаправление с сохранением метода
+HTTP/1.1 308 Permanent Redirect
+Location: https://example.com/new-endpoint
+
+// Пример: постоянное изменение API endpoint
+POST /api/old → 308 → POST /api/new
+
+// JavaScript обработка редиректов
+fetch('https://example.com/old-page', {
+  redirect: 'follow' // по умолчанию - следовать редиректам
+  // redirect: 'error' // выбросить ошибку при редиректе
+  // redirect: 'manual' // вручную обрабатывать редиректы
+}).then(response => {
+  console.log('Final URL:', response.url)
+  console.log('Redirected:', response.redirected)
+  console.log('Type:', response.type)
+})
+
+// Ручная обработка редиректов
+async function fetchWithRedirectInfo(url) {
+  const response = await fetch(url, {redirect: 'manual'})
+
+  if (response.type === 'opaqueredirect') {
+    console.log('Redirect detected')
+    const location = response.headers.get('Location')
+    console.log('Redirect to:', location)
+    // Ручное перенаправление
+    return fetch(location)
+  }
+
+  return response
+}
+
+// Server-side редиректы (Node.js/Express)
+// 301 - Постоянный редирект
+app.get('/old-page', (req, res) => {
+  res.redirect(301, '/new-page')
+})
+
+// 302 - Временный редирект
+app.get('/temporary', (req, res) => {
+  res.redirect(302, '/maintenance')
+})
+
+// Post-Redirect-Get паттерн
+app.post('/form', (req, res) => {
+  // Обработка формы
+  processForm(req.body)
+  // Редирект на success page (303 или 302)
+  res.redirect(303, '/success')
+})

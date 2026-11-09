@@ -1,0 +1,86 @@
+
+// ❌ АНТИПАТТЕРНЫ пирамиды тестирования
+
+// Антипаттерн 1: ПЕРЕВЕРНУТАЯ ПИРАМИДА (Ice Cream Cone)
+/*
+┌─────────────────┐
+│                 │
+│   E2E Tests     │  60% - Слишком много E2E!
+│   (UI Tests)    │       Медленно, хрупко, дорого
+├─────────────────┤
+│  Integration    │  30% - Средний уровень
+│     Tests       │
+├─────────────────┤
+│   Unit Tests    │  10% - Мало unit тестов!
+└─────────────────┘
+*/
+
+// Проблемы:
+// ❌ Тесты выполняются часами
+// ❌ Flaky тесты постоянно падают
+// ❌ Невозможно понять причину падения
+// ❌ Сложно поддерживать
+// ❌ Тормозит разработку
+
+// Антипаттерн 2: ТОЛЬКО E2E ТЕСТЫ
+describe('Bad Practice - Only E2E', () => {
+  // ❌ Тестируем простую функцию через UI
+  test('validate email through UI', async () => {
+    await page.goto('/register')
+    await page.fill('[name="email"]', 'invalid-email')
+    await page.click('button[type="submit"]')
+    await expect(page.locator('.error')).toContainText('Invalid email')
+  })
+
+  // ✅ ПРАВИЛЬНО: Unit тест
+  test('validate email function', () => {
+    expect(validateEmail('invalid-email')).toBe(false)
+    expect(validateEmail('valid@example.com')).toBe(true)
+  })
+})
+
+// Антипаттерн 3: ИГНОРИРОВАНИЕ UNIT ТЕСТОВ
+class PaymentService {
+  calculateTax(amount, taxRate) {
+    // Сложная бизнес-логика
+    if (amount < 0) return 0
+    if (taxRate < 0 || taxRate > 1) return 0
+    return amount * taxRate
+  }
+}
+
+// ❌ Тестируем через E2E
+test('tax calculation in checkout', async ({ page }) => {
+  // 50 строк кода для достижения экрана оплаты...
+  await expect(page.locator('.tax')).toContainText('$10.00')
+})
+
+// ✅ ПРАВИЛЬНО: Unit тест
+describe('PaymentService', () => {
+  test('calculates tax correctly', () => {
+    const service = new PaymentService()
+    expect(service.calculateTax(100, 0.1)).toBe(10)
+    expect(service.calculateTax(-100, 0.1)).toBe(0)
+    expect(service.calculateTax(100, -0.1)).toBe(0)
+  })
+})
+
+// Антипаттерн 4: ТЕСТИРОВАНИЕ ЧЕРЕЗ UI ВМЕСТО API
+// ❌ ПЛОХО
+test('create user through UI', async ({ page }) => {
+  await page.goto('/admin/users')
+  await page.click('button:has-text("Add User")')
+  await page.fill('[name="name"]', 'John')
+  await page.fill('[name="email"]', 'john@example.com')
+  await page.click('button:has-text("Save")')
+  // Медленно, хрупко
+})
+
+// ✅ ПРАВИЛЬНО
+test('create user via API', async ({ request }) => {
+  const response = await request.post('/api/users', {
+    data: { name: 'John', email: 'john@example.com' }
+  })
+  expect(response.status()).toBe(201)
+  // Быстро, стабильно
+})

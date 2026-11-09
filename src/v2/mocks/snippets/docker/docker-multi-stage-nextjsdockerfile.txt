@@ -1,0 +1,52 @@
+
+# =====================================
+# NEXT.JS SSR - Multi-stage Dockerfile
+# =====================================
+
+# СТАДИЯ 1: Dependencies stage (зависимости)
+FROM node:18-alpine AS deps
+RUN apk add --no-cache libc6-compat
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production --silent
+
+# СТАДИЯ 2: Build stage (сборка)
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+
+# Копируем зависимости из предыдущей стадии
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Собираем Next.js приложение
+RUN npm run build
+
+# СТАДИЯ 3: Production stage (рантайм)
+FROM node:18-alpine AS runner
+
+WORKDIR /app
+
+ENV NODE_ENV production
+
+# Создаем пользователя для безопасности
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nextjs -u 1001
+
+# Копируем только необходимые файлы
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/package.json ./package.json
+
+# Копируем built приложение
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
+
+EXPOSE 3000
+
+ENV PORT 3000
+
+# Запускаем Next.js сервер
+CMD ["node", "server.js"]

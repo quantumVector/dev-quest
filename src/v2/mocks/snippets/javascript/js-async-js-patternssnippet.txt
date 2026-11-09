@@ -1,0 +1,89 @@
+
+// Паттерны работы с асинхронностью
+
+// 1. Параллельное выполнение
+async function parallelExecution() {
+  const start = Date.now()
+
+  // ❌ Последовательно - 6 секунд
+  // const result1 = await slowOperation1() // 3 сек
+  // const result2 = await slowOperation2() // 3 сек
+
+  // ✅ Параллельно - 3 секунды
+  const [result1, result2] = await Promise.all([
+    slowOperation1(), // 3 сек
+    slowOperation2()  // 3 сек
+  ])
+
+  console.log(`Выполнено за ${Date.now() - start}мс`)
+  return { result1, result2 }
+}
+
+// 2. Retry с экспоненциальной задержкой
+async function retryWithBackoff(operation, maxRetries = 3) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await operation()
+    } catch (error) {
+      if (attempt === maxRetries) throw error
+
+      const delay = Math.pow(2, attempt - 1) * 1000 // 1s, 2s, 4s
+      console.log(`Попытка ${attempt} неудачна, повтор через ${delay}мс`)
+      await new Promise(resolve => setTimeout(resolve, delay))
+    }
+  }
+}
+
+// 3. Ограничение конкурентности
+async function limitConcurrency(tasks, limit = 3) {
+  const results = []
+  const executing = new Set()
+
+  for (const task of tasks) {
+    const promise = task().then(result => {
+      executing.delete(promise)
+      return result
+    })
+
+    results.push(promise)
+    executing.add(promise)
+
+    if (executing.size >= limit) {
+      await Promise.race(executing)
+    }
+  }
+
+  return Promise.all(results)
+}
+
+// 4. Timeout для операций
+function withTimeout(operation, timeoutMs) {
+  return Promise.race([
+    operation(),
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Operation timeout')), timeoutMs)
+    )
+  ])
+}
+
+// 5. Debounce для пользовательского ввода
+function debounce(func, delay) {
+  let timeoutId
+
+  return function (...args) {
+    clearTimeout(timeoutId)
+
+    return new Promise((resolve) => {
+      timeoutId = setTimeout(async () => {
+        const result = await func.apply(this, args)
+        resolve(result)
+      }, delay)
+    })
+  }
+}
+
+// Использование debounce
+const debouncedSearch = debounce(async (query) => {
+  const response = await fetch(`/search?q=${query}`)
+  return response.json()
+}, 300)

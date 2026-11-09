@@ -1,0 +1,167 @@
+
+// =====================================
+// ПОЛИФИЛЛЫ И СОВМЕСТИМОСТЬ
+// =====================================
+
+// 1. Проверка поддержки
+function checkAbortControllerSupport() {
+  return typeof AbortController !== 'undefined'
+}
+
+if (!checkAbortControllerSupport()) {
+  console.warn('AbortController not supported')
+}
+
+// 2. Простой полифилл для AbortController
+if (typeof AbortController === 'undefined') {
+  class AbortSignal extends EventTarget {
+    constructor() {
+      super()
+      this.aborted = false
+      this.reason = undefined
+    }
+  }
+
+  class AbortController {
+    constructor() {
+      this.signal = new AbortSignal()
+    }
+
+    abort(reason) {
+      if (this.signal.aborted) return
+
+      this.signal.aborted = true
+      this.signal.reason = reason
+
+      this.signal.dispatchEvent(new Event('abort'))
+    }
+  }
+
+  window.AbortController = AbortController
+  window.AbortSignal = AbortSignal
+}
+
+// 3. Полифилл для AbortSignal.timeout()
+if (!AbortSignal.timeout) {
+  AbortSignal.timeout = function(ms) {
+    const controller = new AbortController()
+
+    setTimeout(() => {
+      const error = new DOMException(
+        'The operation was aborted due to timeout',
+        'TimeoutError'
+      )
+      controller.abort(error)
+    }, ms)
+
+    return controller.signal
+  }
+}
+
+// 4. Полифилл для AbortSignal.any()
+if (!AbortSignal.any) {
+  AbortSignal.any = function(signals) {
+    const controller = new AbortController()
+
+    for (const signal of signals) {
+      if (signal.aborted) {
+        controller.abort(signal.reason)
+        return controller.signal
+      }
+
+      signal.addEventListener('abort', () => {
+        controller.abort(signal.reason)
+      }, { once: true })
+    }
+
+    return controller.signal
+  }
+}
+
+// 5. Обертка для старых браузеров
+function createAbortableFetch() {
+  // Проверяем поддержку signal в fetch
+  const supportsSignal = 'signal' in new Request('')
+
+  if (supportsSignal) {
+    return fetch
+  }
+
+  // Полифилл для старых браузеров
+  return function abortableFetch(url, options = {}) {
+    const { signal, ...fetchOptions } = options
+
+    if (!signal) {
+      return fetch(url, fetchOptions)
+    }
+
+    return new Promise((resolve, reject) => {
+      if (signal.aborted) {
+        reject(new DOMException('Aborted', 'AbortError'))
+        return
+      }
+
+      const xhr = new XMLHttpRequest()
+
+      xhr.open(fetchOptions.method || 'GET', url)
+
+      // Устанавливаем заголовки
+      if (fetchOptions.headers) {
+        Object.entries(fetchOptions.headers).forEach(([key, value]) => {
+          xhr.setRequestHeader(key, value)
+        })
+      }
+
+      xhr.onload = () => {
+        resolve(new Response(xhr.responseText, {
+          status: xhr.status,
+          statusText: xhr.statusText
+        }))
+      }
+
+      xhr.onerror = () => {
+        reject(new TypeError('Network request failed'))
+      }
+
+      // Подписываемся на abort
+      signal.addEventListener('abort', () => {
+        xhr.abort()
+        reject(new DOMException('Aborted', 'AbortError'))
+      })
+
+      xhr.send(fetchOptions.body)
+    })
+  }
+}
+
+// Использование полифилла
+const safeFetch = createAbortableFetch()
+
+const controller = new AbortController()
+
+safeFetch('https://api.example.com/data', {
+  signal: controller.signal
+})
+  .then(response => response.json())
+  .then(data => console.log(data))
+  .catch(error => {
+    if (error.name === 'AbortError') {
+      console.log('Request aborted')
+    }
+  })
+
+// 6. Graceful degradation
+function fetchWithAbortSupport(url, options = {}) {
+  const { signal, ...fetchOptions } = options
+
+  // Проверяем поддержку
+  const supportsAbort = 'signal' in new Request('')
+
+  if (supportsAbort && signal) {
+    return fetch(url, { ...fetchOptions, signal })
+  }
+
+  // Fallback без поддержки отмены
+  console.warn('AbortController not supported, request cannot be cancelled')
+  return fetch(url, fetchOptions)
+}

@@ -1,0 +1,53 @@
+
+// ❌ ПРОБЛЕМА - Двунаправленный поток данных (MVC)
+
+// Model
+class UserModel {
+  constructor() {
+    this.name = ''
+    this.email = ''
+  }
+
+  setName(name) {
+    this.name = name
+    // Уведомляем View
+    this.notifyViews()
+  }
+}
+
+// View
+class UserView {
+  constructor(model) {
+    this.model = model
+  }
+
+  render() {
+    // View читает из Model
+    console.log(this.model.name)
+  }
+
+  handleInput(value) {
+    // View обновляет Model
+    this.model.setName(value)
+  }
+}
+
+// Controller
+class UserController {
+  constructor(model, view) {
+    this.model = model
+    this.view = view
+  }
+
+  updateUser(name) {
+    // Controller обновляет Model
+    this.model.setName(name)
+  }
+}
+
+// Проблемы:
+// 1. View может напрямую менять Model
+// 2. Model уведомляет View (двунаправленная связь)
+// 3. Сложно отследить, откуда пришло изменение
+// 4. Каскадные обновления приводят к непредсказуемости
+// 5. Множественные источники правды (data flow)

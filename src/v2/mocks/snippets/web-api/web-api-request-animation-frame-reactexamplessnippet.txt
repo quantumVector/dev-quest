@@ -1,0 +1,311 @@
+
+// =====================================
+// REQUESTANIMATIONFRAME В REACT
+// =====================================
+
+// 1. Базовый хук useAnimationFrame
+import { useEffect, useRef } from 'react'
+
+function useAnimationFrame(callback) {
+  const requestRef = useRef()
+  const previousTimeRef = useRef()
+
+  useEffect(() => {
+    const animate = (time) => {
+      if (previousTimeRef.current !== undefined) {
+        const deltaTime = time - previousTimeRef.current
+        callback(deltaTime)
+      }
+
+      previousTimeRef.current = time
+      requestRef.current = requestAnimationFrame(animate)
+    }
+
+    requestRef.current = requestAnimationFrame(animate)
+
+    return () => cancelAnimationFrame(requestRef.current)
+  }, [callback])
+}
+
+// Использование
+function AnimatedComponent() {
+  const [position, setPosition] = useState(0)
+
+  useAnimationFrame((deltaTime) => {
+    setPosition(prev => prev + (deltaTime * 0.1))
+  })
+
+  return (
+    <div style={{ transform: `translateX(${position}px)` }}>
+      Animated Element
+    </div>
+  )
+}
+
+// 2. Продвинутый хук с контролем
+function useControllableAnimation(callback, isPlaying = true) {
+  const requestRef = useRef()
+  const previousTimeRef = useRef()
+  const isPlayingRef = useRef(isPlaying)
+
+  useEffect(() => {
+    isPlayingRef.current = isPlaying
+  }, [isPlaying])
+
+  useEffect(() => {
+    const animate = (time) => {
+      if (isPlayingRef.current) {
+        if (previousTimeRef.current !== undefined) {
+          const deltaTime = time - previousTimeRef.current
+          callback(deltaTime)
+        }
+        previousTimeRef.current = time
+      } else {
+        previousTimeRef.current = undefined
+      }
+
+      requestRef.current = requestAnimationFrame(animate)
+    }
+
+    requestRef.current = requestAnimationFrame(animate)
+
+    return () => cancelAnimationFrame(requestRef.current)
+  }, [callback])
+}
+
+// Использование с контролем
+function ControllableAnimation() {
+  const [position, setPosition] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(true)
+
+  useControllableAnimation((deltaTime) => {
+    setPosition(prev => (prev + deltaTime * 0.1) % 500)
+  }, isPlaying)
+
+  return (
+    <div>
+      <div style={{ transform: `translateX(${position}px)` }}>
+        Animated Element
+      </div>
+      <button onClick={() => setIsPlaying(!isPlaying)}>
+        {isPlaying ? 'Pause' : 'Play'}
+      </button>
+    </div>
+  )
+}
+
+// 3. Хук для плавного скролла
+function useSmoothScroll() {
+  const scrollTo = useCallback((targetY, duration = 1000) => {
+    const startY = window.pageYOffset
+    const difference = targetY - startY
+    const startTime = performance.now()
+
+    const scroll = (currentTime) => {
+      const elapsed = currentTime - startTime
+      const progress = Math.min(elapsed / duration, 1)
+
+      const easing = progress < 0.5
+        ? 2 * progress * progress
+        : 1 - Math.pow(-2 * progress + 2, 2) / 2
+
+      window.scrollTo(0, startY + difference * easing)
+
+      if (progress < 1) {
+        requestAnimationFrame(scroll)
+      }
+    }
+
+    requestAnimationFrame(scroll)
+  }, [])
+
+  return scrollTo
+}
+
+// Использование
+function ScrollButton() {
+  const scrollTo = useSmoothScroll()
+
+  return (
+    <button onClick={() => scrollTo(1000)}>
+      Scroll to 1000px
+    </button>
+  )
+}
+
+// 4. Анимация счетчика
+function useAnimatedCounter(target, duration = 2000) {
+  const [count, setCount] = useState(0)
+  const rafRef = useRef()
+
+  useEffect(() => {
+    const startTime = performance.now()
+    const startValue = count
+
+    const animate = (currentTime) => {
+      const elapsed = currentTime - startTime
+      const progress = Math.min(elapsed / duration, 1)
+
+      const easing = 1 - Math.pow(1 - progress, 3)
+      const current = Math.floor(startValue + (target - startValue) * easing)
+
+      setCount(current)
+
+      if (progress < 1) {
+        rafRef.current = requestAnimationFrame(animate)
+      }
+    }
+
+    rafRef.current = requestAnimationFrame(animate)
+
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [target, duration])
+
+  return count
+}
+
+// Использование
+function Counter({ target }) {
+  const count = useAnimatedCounter(target)
+
+  return <div className="counter">{count}</div>
+}
+
+// 5. Параллакс эффект в React
+function useParallax() {
+  const [scrollY, setScrollY] = useState(0)
+  const rafRef = useRef()
+  const tickingRef = useRef(false)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!tickingRef.current) {
+        rafRef.current = requestAnimationFrame(() => {
+          setScrollY(window.pageYOffset)
+          tickingRef.current = false
+        })
+
+        tickingRef.current = true
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll)
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current)
+      }
+    }
+  }, [])
+
+  return scrollY
+}
+
+function ParallaxLayer({ speed, children }) {
+  const scrollY = useParallax()
+  const offset = scrollY * speed
+
+  return (
+    <div style={{ transform: `translate3d(0, ${offset}px, 0)` }}>
+      {children}
+    </div>
+  )
+}
+
+// 6. Canvas анимация в React
+function useCanvas(draw, options = {}) {
+  const canvasRef = useRef(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    const context = canvas.getContext('2d')
+    let animationFrameId
+    let previousTime = 0
+
+    const render = (time) => {
+      const deltaTime = time - previousTime
+      previousTime = time
+
+      draw(context, deltaTime, time)
+      animationFrameId = requestAnimationFrame(render)
+    }
+
+    animationFrameId = requestAnimationFrame(render)
+
+    return () => {
+      cancelAnimationFrame(animationFrameId)
+    }
+  }, [draw])
+
+  return canvasRef
+}
+
+// Использование
+function AnimatedCanvas() {
+  const draw = useCallback((ctx, deltaTime, time) => {
+    // Очистка canvas
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+
+    // Анимация
+    const x = (Math.sin(time * 0.001) * 200) + 250
+    const y = (Math.cos(time * 0.001) * 200) + 250
+
+    ctx.beginPath()
+    ctx.arc(x, y, 50, 0, 2 * Math.PI)
+    ctx.fillStyle = 'blue'
+    ctx.fill()
+  }, [])
+
+  const canvasRef = useCanvas(draw)
+
+  return <canvas ref={canvasRef} width={500} height={500} />
+}
+
+// 7. Производительность - оптимизация setState
+function useThrottledAnimationFrame(callback, throttleMs = 16) {
+  const requestRef = useRef()
+  const previousTimeRef = useRef()
+  const throttleRef = useRef(0)
+
+  useEffect(() => {
+    const animate = (time) => {
+      if (previousTimeRef.current !== undefined) {
+        const deltaTime = time - previousTimeRef.current
+        throttleRef.current += deltaTime
+
+        // Вызываем callback только раз в throttleMs миллисекунд
+        if (throttleRef.current >= throttleMs) {
+          callback(throttleRef.current)
+          throttleRef.current = 0
+        }
+      }
+
+      previousTimeRef.current = time
+      requestRef.current = requestAnimationFrame(animate)
+    }
+
+    requestRef.current = requestAnimationFrame(animate)
+
+    return () => cancelAnimationFrame(requestRef.current)
+  }, [callback, throttleMs])
+}
+
+// Использование для оптимизации
+function OptimizedAnimation() {
+  const [position, setPosition] = useState(0)
+
+  // Обновляем state максимум раз в 32ms (~30 FPS)
+  // Вместо 60 FPS - снижаем нагрузку на React
+  useThrottledAnimationFrame((deltaTime) => {
+    setPosition(prev => prev + deltaTime * 0.05)
+  }, 32)
+
+  return (
+    <div style={{ transform: `translateX(${position}px)` }}>
+      Optimized Animation
+    </div>
+  )
+}

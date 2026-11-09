@@ -1,0 +1,22 @@
+
+/* Способы повышения специфичности */
+
+/* Вместо этого: */
+.button { background: blue; }
+
+/* Можно написать: */
+.container .button { background: blue; }
+/* или */
+.button.button { background: blue; }
+/* или */
+:where(.container) .button { background: blue; } /* специфичность 0,0,1,0 */
+
+/* Понижение специфичности с :where() */
+:where(#sidebar, .widget) p {
+  color: gray; /* специфичность: 0,0,0,1 */
+}
+
+/* Обычно было бы: 0,1,0,1 или 0,0,1,1 */
+#sidebar p, .widget p {
+  color: gray;
+}

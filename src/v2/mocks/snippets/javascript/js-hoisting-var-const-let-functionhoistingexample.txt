@@ -1,0 +1,32 @@
+
+// ========================================
+// FUNCTION HOISTING - Поднятие функций
+// ========================================
+
+// Function Declaration - поднимается полностью
+sayHello(); // ✅ 'Hello!' - работает!
+
+function sayHello() {
+    console.log('Hello!');
+}
+
+// Function Expression с var - поднимается только объявление
+sayBye(); // ❌ TypeError: sayBye is not a function
+
+var sayBye = function() {
+    console.log('Bye!');
+};
+
+// Function Expression с let/const
+sayHi(); // ❌ ReferenceError: Cannot access 'sayHi' before initialization
+
+const sayHi = function() {
+    console.log('Hi!');
+};
+
+// Arrow Functions - ведут себя как переменные
+myArrow(); // ❌ TypeError or ReferenceError
+
+var myArrow = () => {
+    console.log('Arrow!');
+};

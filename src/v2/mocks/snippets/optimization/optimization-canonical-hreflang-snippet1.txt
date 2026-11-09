@@ -1,0 +1,14 @@
+
+<!-- Canonical URL - указание на основную версию страницы -->
+
+<!-- Вариант 1: Страница на русском - указывает сама на себя -->
+<link rel="canonical" href="https://example.com/ru/products">
+
+<!-- Вариант 2: Копия страницы с параметрами - указывает на основную -->
+<link rel="canonical" href="https://example.com/ru/products">
+<!-- https://example.com/ru/products?sort=price -->
+<!-- https://example.com/ru/products?utm_source=google -->
+
+<!-- Вариант 3: Разные домены - указание на главный -->
+<!-- На example.co.uk -->
+<link rel="canonical" href="https://example.com/products">

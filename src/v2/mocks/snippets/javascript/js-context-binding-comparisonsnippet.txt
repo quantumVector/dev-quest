@@ -1,0 +1,31 @@
+
+// Сравнение call, apply, bind
+
+const obj = { value: 42 }
+
+function testFunction(a, b, c) {
+  console.log(`this.value: ${this.value}`)
+  console.log(`arguments: ${a}, ${b}, ${c}`)
+  return this.value + a + b + c
+}
+
+// call - вызывает сразу, аргументы отдельно
+console.log('=== CALL ===')
+const result1 = testFunction.call(obj, 1, 2, 3)
+console.log(`Result: ${result1}`) // 48
+
+// apply - вызывает сразу, аргументы массивом
+console.log('=== APPLY ===')
+const result2 = testFunction.apply(obj, [1, 2, 3])
+console.log(`Result: ${result2}`) // 48
+
+// bind - возвращает новую функцию
+console.log('=== BIND ===')
+const boundFunction = testFunction.bind(obj, 1, 2)
+const result3 = boundFunction(3) // передаем оставшиеся аргументы
+console.log(`Result: ${result3}`) // 48
+
+// bind с полной привязкой аргументов
+const fullyBound = testFunction.bind(obj, 1, 2, 3)
+const result4 = fullyBound()
+console.log(`Result: ${result4}`) // 48

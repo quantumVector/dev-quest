@@ -1,0 +1,12 @@
+// Выполнение (после hoisting):
+var x; // уже "всплыло", x = undefined
+
+console.log(x); // undefined (не ошибка!)
+x = 5;          // присваивание значения
+console.log(x); // 5
+
+function test() { // уже доступна
+  return "Hello!";
+}
+
+test(); // "Hello!"

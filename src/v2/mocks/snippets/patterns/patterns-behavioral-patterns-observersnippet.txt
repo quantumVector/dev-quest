@@ -1,0 +1,63 @@
+
+// OBSERVER PATTERN - Подписка на изменения
+
+// Publisher (Subject)
+class EventEmitter {
+  constructor() {
+    this.events = {}
+  }
+
+  subscribe(event, callback) {
+    if (!this.events[event]) {
+      this.events[event] = []
+    }
+    this.events[event].push(callback)
+
+    // Возвращаем функцию отписки
+    return () => {
+      this.events[event] = this.events[event].filter(cb => cb !== callback)
+    }
+  }
+
+  emit(event, data) {
+    if (this.events[event]) {
+      this.events[event].forEach(callback => callback(data))
+    }
+  }
+}
+
+// React: Custom Hook с Observer
+function useTheme() {
+  const [theme, setTheme] = useState('light')
+
+  useEffect(() => {
+    const themeEmitter = new EventEmitter()
+
+    const unsubscribe = themeEmitter.subscribe('theme-change', (newTheme) => {
+      setTheme(newTheme)
+    })
+
+    return () => unsubscribe()
+  }, [])
+
+  return theme
+}
+
+// Vue: Composable с Observer
+export function useNotifications() {
+  const notifications = ref([])
+  const emitter = new EventEmitter()
+
+  const addNotification = (message) => {
+    const notification = { id: Date.now(), message }
+    notifications.value.push(notification)
+    emitter.emit('notification-added', notification)
+  }
+
+  const removeNotification = (id) => {
+    notifications.value = notifications.value.filter(n => n.id !== id)
+    emitter.emit('notification-removed', id)
+  }
+
+  return { notifications, addNotification, removeNotification, emitter }
+}

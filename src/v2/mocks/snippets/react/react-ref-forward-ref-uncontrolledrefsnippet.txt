@@ -1,0 +1,46 @@
+
+import { useRef } from 'react';
+
+// Неконтролируемый компонент (Uncontrolled Component)
+function UncontrolledInput() {
+  const inputRef = useRef(null);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Значение читается из DOM при необходимости
+    console.log('Submitted:', inputRef.current.value);
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input ref={inputRef} defaultValue="Initial" />
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
+
+// Неконтролируемый компонент с ref - DOM сам управляет значением
+function FileUpload() {
+  const fileInputRef = useRef(null);
+
+  const handleUpload = () => {
+    const file = fileInputRef.current.files[0];
+    if (file) {
+      console.log('Uploading:', file.name);
+      // Загрузка файла...
+    }
+  };
+
+  return (
+    <div>
+      <input type="file" ref={fileInputRef} />
+      <button onClick={handleUpload}>Upload</button>
+    </div>
+  );
+}
+
+// Преимущества:
+// - Меньше кода
+// - Лучше для файлов, медиа
+// - Проще для больших форм
+// - Ближе к нативному HTML

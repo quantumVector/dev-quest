@@ -1,0 +1,30 @@
+
+import { Suspense } from 'react'
+import { atom, useAtom } from 'jotai'
+
+const userIdAtom = atom(1)
+
+const userAtom = atom(async (get) => {
+  const userId = get(userIdAtom)
+  const response = await fetch(`/api/users/${userId}`)
+
+  if (!response.ok) {
+    throw new Error('Failed to load user')
+  }
+
+  return response.json()
+})
+
+function UserProfile() {
+  const [user] = useAtom(userAtom)
+
+  return <div>{user.name}</div>
+}
+
+export function Page() {
+  return (
+    <Suspense fallback={<p>Loading...</p>}>
+      <UserProfile />
+    </Suspense>
+  )
+}

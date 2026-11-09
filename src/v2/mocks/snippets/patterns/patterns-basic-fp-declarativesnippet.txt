@@ -1,0 +1,13 @@
+
+// Декларативный подход - ЧТО нужно получить
+const numbers = [1, 2, 3, 4, 5];
+const doubled = numbers.map(n => n * 2);
+
+console.log(doubled); // [2, 4, 6, 8, 10]
+
+// Иммутабельность
+const user = { name: 'John', age: 30 };
+const updatedUser = { ...user, age: 31 }; // Новый объект
+
+console.log(user);        // { name: 'John', age: 30 }
+console.log(updatedUser); // { name: 'John', age: 31 }

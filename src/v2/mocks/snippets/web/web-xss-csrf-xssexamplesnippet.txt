@@ -1,0 +1,39 @@
+
+// ❌ УЯЗВИМЫЙ КОД - Reflected XSS
+// URL: https://example.com/search?q=<script>alert('XSS')</script>
+
+// Серверный код (Node.js/Express)
+app.get('/search', (req, res) => {
+const query = req.query.q; // Пользовательский ввод
+
+// ОПАСНО! Вставляем без санитизации
+res.send(`
+<h1>Результаты поиска для: ${query}</h1>
+<p>Поиск по запросу: ${query}</p>
+`);
+});
+
+// Клиентский код - Stored XSS
+function displayComment(comment) {
+// ОПАСНО! innerHTML с пользовательскими данными
+document.getElementById('comments').innerHTML += `
+<div class="comment">
+<p>${comment.text}</p>
+<span>Автор: ${comment.author}</span>
+</div>
+`;
+}
+
+// DOM-based XSS
+const userInput = window.location.hash.substring(1);
+// ОПАСНО! Прямая вставка в DOM
+document.getElementById('content').innerHTML = userInput;
+
+// Примеры вредоносных payload
+const maliciousPayloads = [
+'<script>alert("XSS")</script>',
+'<img src=x onerror="alert(\'XSS\')">',
+'<svg onload="alert(\'XSS\')">',
+'javascript:alert("XSS")',
+'<iframe src="javascript:alert(\'XSS\')"></iframe>'
+];

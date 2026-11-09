@@ -1,0 +1,108 @@
+
+// Оптимизация метрик Web Vitals для Lighthouse
+
+// 1. Уменьшение TTFB (Time to First Byte)
+// - Использовать CDN
+// - Включить HTTP/2 или HTTP/3
+// - Оптимизировать серверный код
+// - Использовать кэширование на сервере
+// - Минимизировать редиректы
+
+// nginx конфигурация для кэширования
+/*
+server {
+location ~* \.(jpg|jpeg|png|gif|ico|css|js)$ {
+expires 1y;
+add_header Cache-Control "public, immutable";
+}
+}
+*/
+
+// 2. Улучшение LCP (Largest Contentful Paint)
+// - Оптимизировать изображения
+// - Использовать preload для критических ресурсов
+// - Удалить render-blocking ресурсы
+// - Использовать CDN для изображений
+
+// Preload критических ресурсов
+// <link rel="preload" href="/fonts/main.woff2" as="font" type="font/woff2" crossorigin>
+// <link rel="preload" href="/css/critical.css" as="style">
+// <link rel="preload" href="/images/hero.jpg" as="image">
+
+// 3. Оптимизация FCP (First Contentful Paint)
+// - Inline критический CSS
+// - Использовать font-display: swap
+// - Минимизировать JavaScript на начальной загрузке
+
+// Font display optimization
+/*
+@font-face {
+font-family: 'MyFont';
+src: url('/fonts/myfont.woff2') format('woff2');
+font-display: swap; // Показывать fallback шрифт сразу
+}
+*/
+
+// 4. Code splitting в Webpack/Vite
+// webpack.config.js
+module.exports = {
+optimization: {
+splitChunks: {
+chunks: 'all',
+cacheGroups: {
+vendor: {
+test: /[\\/]node_modules[\\/]/,
+name: 'vendors',
+priority: 10
+},
+common: {
+minChunks: 2,
+priority: 5,
+reuseExistingChunk: true
+}
+}
+}
+}
+};
+
+// 5. Динамические импорты для React/Vue
+// React
+const HeavyComponent = lazy(() => import('./HeavyComponent'));
+
+function App() {
+return (
+<Suspense fallback={<div>Loading...</div>}>
+<HeavyComponent />
+</Suspense>
+);
+}
+
+// Vue 3
+import { defineAsyncComponent } from 'vue';
+
+const HeavyComponent = defineAsyncComponent(() =>
+import('./HeavyComponent.vue')
+);
+
+// 6. Resource Hints
+// <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+// <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+// <link rel="prefetch" href="/next-page.js">
+// <link rel="prerender" href="/next-page.html">
+
+// 7. Compression
+// Включить gzip/brotli на сервере
+// nginx:
+/*
+gzip on;
+gzip_vary on;
+gzip_types text/plain text/css text/xml text/javascript
+application/x-javascript application/xml+rss
+application/javascript application/json;
+*/
+
+// 8. Минимизация и оптимизация
+// - Минифицировать CSS/JS
+// - Удалить неиспользуемый код (tree-shaking)
+// - Оптимизировать изображения (WebP, AVIF)
+// - Использовать responsive images

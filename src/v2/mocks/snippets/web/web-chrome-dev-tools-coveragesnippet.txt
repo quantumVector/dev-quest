@@ -1,0 +1,34 @@
+
+// Coverage Tool для анализа неиспользуемого кода
+
+// Открыть Coverage: Cmd/Ctrl + Shift + P → Show Coverage
+// Начать запись → Взаимодействовать с сайтом → Остановить
+
+// Типичные находки:
+// 1. Неиспользуемые CSS правила
+// 2. Мертвый JavaScript код
+// 3. Неиспользуемые библиотеки
+
+// Оптимизация: Tree-shaking в Webpack/Vite
+// webpack.config.js
+module.exports = {
+  mode: 'production',
+  optimization: {
+    usedExports: true, // Tree-shaking
+    minimize: true
+  }
+};
+
+// Dynamic imports для code-splitting
+async function loadComponent() {
+  const module = await import('./HeavyComponent.js');
+  return module.default;
+}
+
+// CSS-in-JS помогает избежать неиспользуемых стилей
+import styled from 'styled-components';
+
+const Button = styled.button`
+  color: ${props => props.primary ? 'white' : 'black'};
+  background: ${props => props.primary ? 'blue' : 'transparent'};
+`;

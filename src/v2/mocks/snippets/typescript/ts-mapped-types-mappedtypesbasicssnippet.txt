@@ -1,0 +1,115 @@
+
+// =====================================
+// MAPPED TYPES - основы
+// =====================================
+
+// 1. Базовый синтаксис Mapped Types
+type Readonly<T> = {
+  readonly [P in keyof T]: T[P]
+}
+
+interface User {
+  id: number
+  name: string
+  email: string
+}
+
+type ReadonlyUser = Readonly<User>
+// Результат:
+// {
+//   readonly id: number
+//   readonly name: string
+//   readonly email: string
+// }
+
+const user: ReadonlyUser = {
+  id: 1,
+  name: 'John',
+  email: 'john@example.com'
+}
+
+// user.name = 'Jane'  // ❌ Error: Cannot assign to 'name' because it is a read-only property
+
+// 2. Разбор синтаксиса: [P in keyof T]
+// [P in keyof T] - итерация по всем ключам типа T
+// P - переменная, представляющая каждый ключ
+// keyof T - получение всех ключей типа T
+// T[P] - получение типа значения по ключу P
+
+// 3. Optional - все свойства необязательные
+type Optional<T> = {
+  [P in keyof T]?: T[P]
+}
+
+type OptionalUser = Optional<User>
+// Результат:
+// {
+//   id?: number
+//   name?: string
+//   email?: string
+// }
+
+const partialUser: OptionalUser = {
+  name: 'John'  // ✅ OK - остальные свойства необязательны
+}
+
+// 4. Nullable - все свойства могут быть null
+type Nullable<T> = {
+  [P in keyof T]: T[P] | null
+}
+
+type NullableUser = Nullable<User>
+// Результат:
+// {
+//   id: number | null
+//   name: string | null
+//   email: string | null
+// }
+
+const userWithNulls: NullableUser = {
+  id: 1,
+  name: null,  // ✅ OK
+  email: 'john@example.com'
+}
+
+// 5. Mutable - убрать readonly
+type Mutable<T> = {
+  -readonly [P in keyof T]: T[P]
+}
+
+type ReadonlyData = {
+  readonly id: number
+  readonly value: string
+}
+
+type MutableData = Mutable<ReadonlyData>
+// Результат:
+// {
+//   id: number
+//   value: string
+// }
+
+const data: MutableData = { id: 1, value: 'test' }
+data.id = 2  // ✅ OK - readonly убран
+
+// 6. Required - убрать optional (?)
+type Required<T> = {
+  [P in keyof T]-?: T[P]
+}
+
+type OptionalData = {
+  id?: number
+  name?: string
+}
+
+type RequiredData = Required<OptionalData>
+// Результат:
+// {
+//   id: number
+//   name: string
+// }
+
+const requiredData: RequiredData = {
+  id: 1,
+  name: 'John'  // ✅ Оба свойства обязательны
+}

@@ -1,0 +1,45 @@
+
+// Component тестирование (React Testing Library)
+
+import { render, screen, fireEvent } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { Counter } from './Counter'
+
+describe('Counter Component', () => {
+  test('renders initial count', () => {
+    render(<Counter initialCount={0} />)
+
+    const countElement = screen.getByText(/count: 0/i)
+    expect(countElement).toBeInTheDocument()
+  })
+
+  test('increments count when button clicked', async () => {
+    render(<Counter initialCount={0} />)
+
+    const incrementButton = screen.getByRole('button', { name: /increment/i })
+
+    await userEvent.click(incrementButton)
+
+    expect(screen.getByText(/count: 1/i)).toBeInTheDocument()
+  })
+
+  test('decrements count when button clicked', async () => {
+    render(<Counter initialCount={5} />)
+
+    const decrementButton = screen.getByRole('button', { name: /decrement/i })
+
+    await userEvent.click(decrementButton)
+
+    expect(screen.getByText(/count: 4/i)).toBeInTheDocument()
+  })
+
+  test('does not go below zero', async () => {
+    render(<Counter initialCount={0} />)
+
+    const decrementButton = screen.getByRole('button', { name: /decrement/i })
+
+    await userEvent.click(decrementButton)
+
+    expect(screen.getByText(/count: 0/i)).toBeInTheDocument()
+  })
+})

@@ -1,0 +1,27 @@
+
+# =====================================
+# ТИПЫ СЕТЕЙ В DOCKER
+# =====================================
+
+# 1. BRIDGE (по умолчанию)
+docker run -d nginx                    # Автоматически bridge
+docker run -d --network bridge nginx  # Явно bridge
+
+# 2. HOST - использует сеть хоста
+docker run -d --network host nginx
+# Контейнер использует IP хоста напрямую
+# Нет изоляции портов!
+
+# 3. NONE - без сети
+docker run -d --network none nginx
+# Только loopback интерфейс
+
+# 4. Пользовательские сети
+docker network create my-network
+docker run -d --network my-network nginx
+
+# 5. Список сетей
+docker network ls
+
+# 6. Подробная информация о сети
+docker network inspect bridge

@@ -1,0 +1,85 @@
+
+// Практические примеры cleanup
+
+// 1. Отмена fetch запроса
+useEffect(() => {
+  const controller = new AbortController()
+
+  fetch(`/api/users/${userId}`, { signal: controller.signal })
+    .then(res => res.json())
+    .then(setUser)
+    .catch(err => {
+      if (err.name !== 'AbortError') {
+        console.error(err)
+      }
+    })
+
+  return () => {
+    controller.abort() // Отменяем запрос при изменении userId
+  }
+}, [userId])
+
+// 2. Очистка таймера
+useEffect(() => {
+  const timer = setTimeout(() => {
+    console.log('Delayed action')
+  }, 1000)
+
+  return () => {
+    clearTimeout(timer) // Очищаем таймер
+  }
+}, [dependency])
+
+// 3. Очистка интервала
+useEffect(() => {
+  const interval = setInterval(() => {
+    setCount(c => c + 1)
+  }, 1000)
+
+  return () => {
+    clearInterval(interval)
+  }
+}, []) // Запускается один раз
+
+// 4. Отписка от событий
+useEffect(() => {
+  const handleResize = () => {
+    setWindowWidth(window.innerWidth)
+  }
+
+  window.addEventListener('resize', handleResize)
+
+  return () => {
+    window.removeEventListener('resize', handleResize)
+  }
+}, [])
+
+// 5. WebSocket подключение
+useEffect(() => {
+  const ws = new WebSocket('ws://localhost:8080')
+
+  ws.onmessage = (event) => {
+    setMessages(prev => [...prev, event.data])
+  }
+
+  return () => {
+    ws.close() // Закрываем соединение
+  }
+}, [])
+
+// 6. Intersection Observer
+useEffect(() => {
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      setIsVisible(entry.isIntersecting)
+    })
+  })
+
+  if (elementRef.current) {
+    observer.observe(elementRef.current)
+  }
+
+  return () => {
+    observer.disconnect() // Отключаем наблюдатель
+  }
+}, [])

@@ -1,0 +1,76 @@
+
+// Делегирование событий - практическое применение
+
+// HTML:
+// <div id="task-list">
+//   <div class="task" data-id="1">
+//     <span class="task-text">Задача 1</span>
+//     <button class="edit-btn">Редактировать</button>
+//     <button class="delete-btn">Удалить</button>
+//   </div>
+//   <!-- ... другие задачи ... -->
+// </div>
+
+class TaskManager {
+  constructor() {
+    this.taskList = document.getElementById('task-list');
+    this.setupEventDelegation();
+  }
+
+  setupEventDelegation() {
+    // Один обработчик для всех действий
+    this.taskList.addEventListener('click', (event) => {
+      const target = event.target;
+      const taskElement = target.closest('.task');
+
+      if (!taskElement) return;
+
+      const taskId = taskElement.dataset.id;
+
+      if (target.classList.contains('edit-btn')) {
+        this.editTask(taskId, taskElement);
+      } else if (target.classList.contains('delete-btn')) {
+        this.deleteTask(taskId, taskElement);
+      } else if (target.classList.contains('task-text')) {
+        this.toggleTaskComplete(taskId, taskElement);
+      }
+    });
+
+    // Обработка клавиатуры для доступности
+    this.taskList.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        const taskElement = event.target.closest('.task');
+        if (taskElement && event.target.classList.contains('task-text')) {
+          event.preventDefault();
+          this.toggleTaskComplete(taskElement.dataset.id, taskElement);
+        }
+      }
+    });
+  }
+
+  addTask(taskData) {
+    const taskElement = this.createTaskElement(taskData);
+    this.taskList.appendChild(taskElement);
+    // Новые элементы автоматически работают с делегированием!
+  }
+
+  editTask(taskId, element) {
+    console.log('Editing task:', taskId);
+    // Логика редактирования
+  }
+
+  deleteTask(taskId, element) {
+    console.log('Deleting task:', taskId);
+    element.remove();
+  }
+
+  toggleTaskComplete(taskId, element) {
+    element.classList.toggle('completed');
+  }
+}
+
+// Преимущества делегирования:
+// 1. Один обработчик вместо множества
+// 2. Автоматически работает с динамически добавленными элементами
+// 3. Лучшая производительность
+// 4. Меньше потребление памяти

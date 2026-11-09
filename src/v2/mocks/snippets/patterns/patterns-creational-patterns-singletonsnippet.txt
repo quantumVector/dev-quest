@@ -1,0 +1,52 @@
+
+// SINGLETON - один экземпляр на всё приложение
+
+// Классический подход
+class ConfigManager {
+  private static instance: ConfigManager;
+  private config: Record<string, any> = {};
+
+  private constructor() {
+    // Приватный конструктор - нельзя создать через new
+  }
+
+  public static getInstance(): ConfigManager {
+    if (!ConfigManager.instance) {
+      ConfigManager.instance = new ConfigManager();
+    }
+    return ConfigManager.instance;
+  }
+
+  public get(key: string): any {
+    return this.config[key];
+  }
+
+  public set(key: string, value: any): void {
+    this.config[key] = value;
+  }
+}
+
+// Использование
+const config1 = ConfigManager.getInstance();
+const config2 = ConfigManager.getInstance();
+console.log(config1 === config2); // true - один и тот же экземпляр!
+
+// ES6 модули - естественный Singleton
+// apiClient.ts
+class ApiClient {
+  private baseURL: string;
+
+  constructor(baseURL: string) {
+    this.baseURL = baseURL;
+  }
+
+  async get(endpoint: string) {
+    return fetch(`${this.baseURL}${endpoint}`);
+  }
+}
+
+export const apiClient = new ApiClient('https://api.example.com');
+
+// В других файлах
+import { apiClient } from './apiClient';
+// Всегда один и тот же экземпляр!

@@ -1,0 +1,66 @@
+
+// STRATEGY PATTERN - Взаимозаменяемые алгоритмы
+
+// Стратегии сортировки
+const sortStrategies = {
+  byName: (items) => [...items].sort((a, b) => a.name.localeCompare(b.name)),
+  byPrice: (items) => [...items].sort((a, b) => a.price - b.price),
+  byRating: (items) => [...items].sort((a, b) => b.rating - a.rating),
+  byDate: (items) => [...items].sort((a, b) => new Date(b.date) - new Date(a.date))
+}
+
+// React: Компонент с выбором стратегии
+function ProductList({ products }) {
+  const [sortBy, setSortBy] = useState('byName')
+
+  const sortedProducts = useMemo(() => {
+    const strategy = sortStrategies[sortBy]
+    return strategy ? strategy(products) : products
+  }, [products, sortBy])
+
+  return (
+    <div>
+      <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+        <option value="byName">По названию</option>
+        <option value="byPrice">По цене</option>
+        <option value="byRating">По рейтингу</option>
+        <option value="byDate">По дате</option>
+      </select>
+
+      {sortedProducts.map(product => (
+        <ProductCard key={product.id} product={product} />
+      ))}
+    </div>
+  )
+}
+
+// Стратегии валидации форм
+const validationStrategies = {
+  email: (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
+  phone: (value) => /^\+?[1-9]\d{1,14}$/.test(value),
+  password: (value) => value.length >= 8 && /[A-Z]/.test(value) && /[0-9]/.test(value),
+  required: (value) => value !== null && value !== undefined && value !== ''
+}
+
+// Vue: Composable для валидации
+export function useValidation(rules) {
+  const errors = ref({})
+
+  const validate = (field, value) => {
+    const fieldRules = rules[field]
+    if (!fieldRules) return true
+
+    for (const rule of fieldRules) {
+      const strategy = validationStrategies[rule]
+      if (strategy && !strategy(value)) {
+        errors.value[field] = `Invalid ${rule}`
+        return false
+      }
+    }
+
+    delete errors.value[field]
+    return true
+  }
+
+  return { errors, validate }
+}

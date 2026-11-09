@@ -1,0 +1,90 @@
+
+// Генераторы и итераторы
+
+// Простой генератор
+function* simpleGenerator() {
+  yield 1;
+  yield 2;
+  yield 3;
+}
+
+const gen = simpleGenerator();
+console.log(gen.next().value); // 1
+console.log(gen.next().value); // 2
+console.log(gen.next().value); // 3
+
+// Генератор с бесконечной последовательностью
+function* fibonacci() {
+  let a = 0, b = 1;
+
+  while (true) {
+    yield a;
+    [a, b] = [b, a + b];
+  }
+}
+
+const fibGen = fibonacci();
+console.log(fibGen.next().value); // 0
+console.log(fibGen.next().value); // 1
+console.log(fibGen.next().value); // 1
+console.log(fibGen.next().value); // 2
+
+// Генератор для обхода дерева
+function* traverseTree(node) {
+  yield node.value;
+
+  if (node.children) {
+    for (const child of node.children) {
+      yield* traverseTree(child);
+    }
+  }
+}
+
+const tree = {
+  value: 1,
+  children: [
+    { value: 2, children: [{ value: 4 }, { value: 5 }] },
+    { value: 3, children: [{ value: 6 }] }
+  ]
+};
+
+for (const value of traverseTree(tree)) {
+  console.log(value); // 1, 2, 4, 5, 3, 6
+}
+
+// Кастомный итератор
+function createRange(start, end) {
+  return {
+    [Symbol.iterator]() {
+      let current = start;
+      return {
+        next() {
+          if (current <= end) {
+            return { value: current++, done: false };
+          }
+          return { done: true };
+        }
+      };
+    }
+  };
+}
+
+for (const num of createRange(1, 5)) {
+  console.log(num); // 1, 2, 3, 4, 5
+}
+
+// Генератор с обработкой входящих данных
+function* interactive() {
+  const x = yield "Введите первое число:";
+  console.log("Получено:", x);
+
+  const y = yield "Введите второе число:";
+  console.log("Получено:", y);
+
+  return x + y;
+}
+
+const interactiveGen = interactive();
+console.log(interactiveGen.next().value); // "Введите первое число:"
+console.log(interactiveGen.next(10).value); // "Введите второе число:"
+console.log(interactiveGen.next(20).value); // 30

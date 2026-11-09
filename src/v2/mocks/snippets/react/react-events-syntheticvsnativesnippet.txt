@@ -1,0 +1,187 @@
+
+// SyntheticEvent vs Native Event - ключевые различия
+
+// ========================================
+// 1. Кроссбраузерность
+// ========================================
+
+// Native Event - различия между браузерами
+const nativeButton = document.querySelector('button');
+nativeButton.addEventListener('click', (event) => {
+  // В IE: event.srcElement
+  // В современных: event.target
+  const target = event.target || event.srcElement;
+
+  // В IE: event.cancelBubble = true
+  // В современных: event.stopPropagation()
+  if (event.stopPropagation) {
+    event.stopPropagation();
+  } else {
+    event.cancelBubble = true;
+  }
+});
+
+// SyntheticEvent - единый API для всех браузеров
+function ReactButton() {
+  function handleClick(event) {
+    // Всегда одинаково во всех браузерах!
+    const target = event.target;           // ✅ Всегда работает
+    event.stopPropagation();               // ✅ Всегда работает
+    event.preventDefault();                // ✅ Всегда работает
+  }
+
+  return <button onClick={handleClick}>Клик</button>;
+}
+
+// ========================================
+// 2. Пулинг событий (Event Pooling)
+// ========================================
+
+// React < 17: События переиспользуются (pooling)
+function OldReactEventPooling() {
+  function handleClick(event) {
+    console.log(event.type); // "click"
+
+    // Асинхронное использование - НЕ РАБОТАЕТ в React < 17!
+    setTimeout(() => {
+      console.log(event.type); // null! Событие очищено
+    }, 100);
+
+    // Решение: persist() (только React < 17)
+    event.persist();
+    setTimeout(() => {
+      console.log(event.type); // "click" - теперь работает
+    }, 100);
+  }
+
+  return <button onClick={handleClick}>Клик</button>;
+}
+
+// React 17+: Пулинг убран, события не переиспользуются
+function NewReactEventPooling() {
+  function handleClick(event) {
+    console.log(event.type); // "click"
+
+    // Асинхронное использование - РАБОТАЕТ в React 17+!
+    setTimeout(() => {
+      console.log(event.type); // "click" - работает!
+    }, 100);
+
+    // persist() больше не нужен и ничего не делает
+  }
+
+  return <button onClick={handleClick}>Клик</button>;
+}
+
+// ========================================
+// 3. Делегирование событий
+// ========================================
+
+// Native Events - обработчики на каждом элементе
+const buttons = document.querySelectorAll('button');
+buttons.forEach(button => {
+  button.addEventListener('click', handleClick); // N обработчиков
+});
+
+// React - один обработчик на корневом элементе
+// React < 17: на document
+// React 17+: на корневом контейнере ReactDOM.render()
+function ReactEventDelegation() {
+  // React автоматически делегирует события!
+  // Все onClick обрабатываются одним слушателем на корне
+  return (
+    <div>
+      <button onClick={handleClick}>Кнопка 1</button>
+      <button onClick={handleClick}>Кнопка 2</button>
+      <button onClick={handleClick}>Кнопка 3</button>
+      {/* Только 1 настоящий addEventListener на корне! */}
+    </div>
+  );
+
+  function handleClick(e) {
+    console.log('Clicked:', e.target);
+  }
+}
+
+// ========================================
+// 4. Фазы события
+// ========================================
+
+// Native Event - стандартные фазы DOM
+/*
+  1. Capturing phase (погружение)
+  2. Target phase (целевой элемент)
+  3. Bubbling phase (всплытие)
+*/
+
+document.addEventListener('click', handler, true);  // Capturing
+document.addEventListener('click', handler, false); // Bubbling
+
+// React - по умолчанию только bubbling фаза
+function BubblingExample() {
+  return (
+    <div onClick={() => console.log('Div')}>
+      <button onClick={() => console.log('Button')}>
+        Клик
+      </button>
+    </div>
+  );
+  // Порядок: "Button" -> "Div" (всплытие)
+}
+
+// React - capturing фаза с суффиксом Capture
+function CapturingExample() {
+  return (
+    <div onClickCapture={() => console.log('Div (capture)')}>
+      <button onClickCapture={() => console.log('Button (capture)')}>
+        Клик
+      </button>
+    </div>
+  );
+  // Порядок: "Div (capture)" -> "Button (capture)" (погружение)
+}
+
+// Комбинация capturing и bubbling
+function CombinedPhases() {
+  return (
+    <div
+      onClickCapture={() => console.log('1. Div capture')}
+      onClick={() => console.log('4. Div bubble')}
+    >
+      <button
+        onClickCapture={() => console.log('2. Button capture')}
+        onClick={() => console.log('3. Button bubble')}
+      >
+        Клик
+      </button>
+    </div>
+  );
+  // Порядок: 1 -> 2 -> 3 -> 4
+}
+
+// ========================================
+// 5. Доступ к нативному событию
+// ========================================
+
+function AccessNativeEvent() {
+  function handleClick(syntheticEvent) {
+    // SyntheticEvent - обертка React
+    console.log('Synthetic:', syntheticEvent);
+    console.log('Type:', syntheticEvent.type);
+
+    // Доступ к нативному событию
+    const nativeEvent = syntheticEvent.nativeEvent;
+    console.log('Native:', nativeEvent);
+
+    // Нативное событие имеет дополнительные свойства
+    console.log('Native pageX:', nativeEvent.pageX);
+    console.log('Native path:', nativeEvent.path);
+
+    // Некоторые свойства есть только в нативном событии
+    if (nativeEvent.which) {
+      console.log('Кнопка мыши:', nativeEvent.which);
+    }
+  }
+
+  return <button onClick={handleClick}>Клик</button>;
+}

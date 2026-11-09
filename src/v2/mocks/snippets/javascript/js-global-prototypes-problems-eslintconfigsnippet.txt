@@ -1,0 +1,24 @@
+
+// .eslintrc.js - правила для предотвращения модификации прототипов
+module.exports = {
+  rules: {
+    // Запретить расширение встроенных объектов
+    'no-extend-native': 'error',
+
+    // Запретить изменение прототипов
+    'no-proto': 'error',
+
+    // Предупреждать о модификации Object.prototype
+    'no-prototype-builtins': 'warn'
+  }
+};
+
+// TypeScript - строгие типы помогают избежать проблем
+// tsconfig.json
+{
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true
+  }
+}

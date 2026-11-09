@@ -1,0 +1,77 @@
+
+// =====================================
+// FILEREADER - классический способ чтения файлов
+// =====================================
+
+const fileInput = document.getElementById('fileInput')
+
+fileInput.addEventListener('change', (event) => {
+  const file = event.target.files[0]
+
+  // 1. Чтение как текст
+  const textReader = new FileReader()
+
+  textReader.onload = (e) => {
+    console.log('Текст:', e.target.result)
+  }
+
+  textReader.onerror = (e) => {
+    console.error('Ошибка чтения:', e.target.error)
+  }
+
+  textReader.onprogress = (e) => {
+    if (e.lengthComputable) {
+      const percentComplete = (e.loaded / e.total) * 100
+      console.log('Прогресс:', percentComplete + '%')
+    }
+  }
+
+  textReader.readAsText(file, 'UTF-8')
+
+  // 2. Чтение как Data URL (для изображений)
+  const imageReader = new FileReader()
+
+  imageReader.onload = (e) => {
+    const img = document.createElement('img')
+    img.src = e.target.result  // data:image/png;base64,...
+    document.body.appendChild(img)
+  }
+
+  imageReader.readAsDataURL(file)
+
+  // 3. Чтение как ArrayBuffer (бинарные данные)
+  const binaryReader = new FileReader()
+
+  binaryReader.onload = (e) => {
+    const buffer = e.target.result
+    const bytes = new Uint8Array(buffer)
+    console.log('Первые 10 байт:', bytes.slice(0, 10))
+  }
+
+  binaryReader.readAsArrayBuffer(file)
+
+  // 4. Чтение как Binary String (устарело, но работает)
+  const binaryStringReader = new FileReader()
+
+  binaryStringReader.onload = (e) => {
+    console.log('Binary string:', e.target.result)
+  }
+
+  binaryStringReader.readAsBinaryString(file)
+})
+
+// Современный async подход вместо FileReader
+async function modernReadFile(file) {
+  // Вместо FileReader используем методы File
+  const text = await file.text()
+  const buffer = await file.arrayBuffer()
+
+  // Data URL через Promise
+  const dataURL = await new Promise((resolve) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result)
+    reader.readAsDataURL(file)
+  })
+
+  return { text, buffer, dataURL }
+}

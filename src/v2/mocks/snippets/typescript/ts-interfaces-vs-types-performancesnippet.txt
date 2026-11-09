@@ -1,0 +1,159 @@
+
+// =====================================
+// ПРОИЗВОДИТЕЛЬНОСТЬ: INTERFACE VS TYPE
+// =====================================
+
+// 1. Скорость компиляции
+
+// Interface - быстрее компилируются
+interface FastUser {
+  id: number
+  name: string
+  email: string
+}
+
+// TypeScript кэширует проверки Interface
+interface FastAdmin extends FastUser {
+  permissions: string[]
+}
+
+// Type - медленнее при сложных операциях
+type SlowUser = {
+  id: number
+  name: string
+  email: string
+}
+
+type SlowAdmin = SlowUser & {
+  permissions: string[]
+}
+
+// 2. Benchmark: Сложные типы
+
+// Interface - линейная сложность
+interface Base { a: string }
+interface Level1 extends Base { b: string }
+interface Level2 extends Level1 { c: string }
+interface Level3 extends Level2 { d: string }
+interface Level4 extends Level3 { e: string }
+// Быстро компилируется ~1ms
+
+// Type - экспоненциальная сложность
+type Base2 = { a: string }
+type Level1_2 = Base2 & { b: string }
+type Level2_2 = Level1_2 & { c: string }
+type Level3_2 = Level2_2 & { d: string }
+type Level4_2 = Level3_2 & { e: string }
+// Медленнее ~5ms (растет экспоненциально)
+
+// 3. Conditional Types убивают производительность
+
+// Быстро - Interface
+interface SimpleUser {
+  id: number
+  name: string
+}
+
+// Медленно - Type с условиями
+type ConditionalUser<T> = T extends { id: number }
+  ? T & { hasId: true }
+  : T & { hasId: false }
+
+// Очень медленно - вложенные условия
+type DeepConditional<T> = T extends Array<infer U>
+  ? U extends object
+    ? { [K in keyof U]: DeepConditional<U[K]> }
+    : U
+  : T extends object
+    ? { [K in keyof T]: DeepConditional<T[K]> }
+    : T
+
+// 4. Mapped Types - медленные
+
+// Interface - быстро
+interface UserMap {
+  [key: string]: string
+}
+
+// Type - медленнее
+type UserMapType = {
+  [K in 'name' | 'email' | 'phone']: string
+}
+
+// Очень медленно - сложный mapped type
+type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends object
+    ? DeepPartial<T[P]>
+    : T[P]
+}
+
+// 5. Union Types - влияние на производительность
+
+// Небольшой union - OK
+type SmallUnion = 'a' | 'b' | 'c'
+
+// Большой union - медленно
+type LargeUnion =
+  | 'option1' | 'option2' | 'option3' | 'option4'
+  | 'option5' | 'option6' | 'option7' | 'option8'
+  | 'option9' | 'option10' | 'option11' | 'option12'
+  // ... 100+ вариантов
+  // Компиляция может занять секунды!
+
+// Решение - использовать enum или const
+const OPTIONS = ['option1', 'option2', /* ... */] as const
+type Option = typeof OPTIONS[number]  // Быстрее
+
+// 6. Рекомендации для больших проектов
+
+// ✅ Хорошо - Interface для публичного API
+export interface Config {
+  apiUrl: string
+  timeout: number
+}
+
+// ✅ Хорошо - Type для внутренних утилит
+type InternalConfig = Readonly<Config>
+
+// ❌ Плохо - сложные Type в публичном API
+export type ComplexConfig = Readonly<
+  Partial<Config> & {
+    extraOptions?: DeepPartial<Options>
+  }
+>
+// Медленная компиляция + плохие сообщения об ошибках
+
+// 7. Измерение производительности компиляции
+
+// package.json
+{
+  "scripts": {
+    "build": "tsc",
+    "build:trace": "tsc --generateTrace trace",
+    "build:verbose": "tsc --extendedDiagnostics"
+  }
+}
+
+// Анализ trace файлов покажет узкие места
+
+// 8. Оптимизация для production
+
+// До оптимизации - медленно
+type HeavyType<T> = {
+  [K in keyof T]: T[K] extends Array<infer U>
+    ? U extends object
+      ? DeepReadonly<U>
+      : U
+    : T[K]
+}
+
+// После оптимизации - быстрее
+interface OptimizedType<T> {
+  // Упрощенная структура
+  data: T
+  readonly metadata: {
+    readonly timestamp: number
+  }
+}
+
+// Правило: Interface где возможно, Type где необходимо

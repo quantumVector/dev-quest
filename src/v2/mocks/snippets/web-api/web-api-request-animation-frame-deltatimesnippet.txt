@@ -1,0 +1,158 @@
+
+// =====================================
+// РАБОТА С DELTA TIME
+// =====================================
+
+// Проблема: разные мониторы = разная частота обновления
+// 60Hz = ~16.67ms между фреймами
+// 120Hz = ~8.33ms между фреймами
+// 144Hz = ~6.94ms между фреймами
+
+// ❌ ПЛОХО - без учета delta time
+function animateWithoutDelta() {
+  let position = 0
+
+  function animate() {
+    position += 2 // Одинаковое приращение независимо от FPS
+    element.style.left = position + 'px'
+
+    requestAnimationFrame(animate)
+  }
+
+  requestAnimationFrame(animate)
+
+  // Результат:
+  // 60 FPS: 120 пикселей/секунду
+  // 120 FPS: 240 пикселей/секунду (в 2 раза быстрее!)
+  // Анимация идёт с разной скоростью на разных мониторах!
+}
+
+// ✅ ХОРОШО - с учетом delta time
+function animateWithDelta() {
+  let position = 0
+  let lastTimestamp = 0
+  const speed = 120 // пикселей в секунду
+
+  function animate(timestamp) {
+    // Вычисляем время с последнего фрейма
+    const deltaTime = timestamp - lastTimestamp
+    lastTimestamp = timestamp
+
+    // Приращение зависит от времени, не от FPS
+    const delta = (speed * deltaTime) / 1000 // делим на 1000 (мс -> секунды)
+    position += delta
+
+    element.style.left = position + 'px'
+
+    requestAnimationFrame(animate)
+  }
+
+  requestAnimationFrame(animate)
+
+  // Результат:
+  // 60 FPS: 120 пикселей/секунду ✅
+  // 120 FPS: 120 пикселей/секунду ✅
+  // Анимация идёт с одинаковой скоростью везде!
+}
+
+// Продвинутый пример с интерполяцией
+class Animation {
+  constructor(element) {
+    this.element = element
+    this.position = 0
+    this.velocity = 0
+    this.acceleration = 0
+    this.lastTimestamp = 0
+    this.isRunning = false
+    this.animationId = null
+  }
+
+  start() {
+    if (this.isRunning) return
+
+    this.isRunning = true
+    this.lastTimestamp = performance.now()
+    this.animate(this.lastTimestamp)
+  }
+
+  stop() {
+    this.isRunning = false
+    if (this.animationId) {
+      cancelAnimationFrame(this.animationId)
+    }
+  }
+
+  animate = (timestamp) => {
+    if (!this.isRunning) return
+
+    // Delta time в секундах
+    const deltaTime = (timestamp - this.lastTimestamp) / 1000
+    this.lastTimestamp = timestamp
+
+    // Физика движения с учетом времени
+    this.velocity += this.acceleration * deltaTime
+    this.position += this.velocity * deltaTime
+
+    // Применяем позицию
+    this.element.style.transform = `translateX(${this.position}px)`
+
+    // Продолжаем анимацию
+    this.animationId = requestAnimationFrame(this.animate)
+  }
+
+  applyForce(force) {
+    this.acceleration = force
+  }
+}
+
+// Использование
+const ball = new Animation(document.getElementById('ball'))
+ball.applyForce(100) // ускорение 100 пикселей/сек²
+ball.start()
+
+// Остановка через 3 секунды
+setTimeout(() => ball.stop(), 3000)
+
+// =====================================
+// СГЛАЖИВАНИЕ DELTA TIME
+// =====================================
+
+// Проблема: нестабильный FPS дает скачки delta time
+// Решение: усреднение delta time
+
+class SmoothedAnimation {
+  constructor() {
+    this.deltaHistory = []
+    this.historySize = 10
+    this.lastTimestamp = 0
+  }
+
+  getSmoothedDelta(timestamp) {
+    const rawDelta = timestamp - this.lastTimestamp
+    this.lastTimestamp = timestamp
+
+    // Добавляем в историю
+    this.deltaHistory.push(rawDelta)
+
+    // Ограничиваем размер истории
+    if (this.deltaHistory.length > this.historySize) {
+      this.deltaHistory.shift()
+    }
+
+    // Вычисляем среднее
+    const sum = this.deltaHistory.reduce((a, b) => a + b, 0)
+    return sum / this.deltaHistory.length
+  }
+
+  animate = (timestamp) => {
+    const smoothDelta = this.getSmoothedDelta(timestamp)
+
+    // Используем сглаженную дельту
+    console.log(`Smooth delta: ${smoothDelta.toFixed(2)}ms`)
+
+    requestAnimationFrame(this.animate)
+  }
+}
+
+const smoothAnimation = new SmoothedAnimation()
+requestAnimationFrame(smoothAnimation.animate)

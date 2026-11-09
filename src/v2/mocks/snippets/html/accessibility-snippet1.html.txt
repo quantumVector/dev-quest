@@ -1,0 +1,9 @@
+
+<!-- Плохо: недоступно -->
+<div onclick="submitForm()">Отправить</div>
+<input type="text" placeholder="Введите имя">
+
+<!-- Хорошо: доступно -->
+<button type="submit">Отправить</button>
+<label for="name">Имя:</label>
+<input type="text" id="name" name="name" required>

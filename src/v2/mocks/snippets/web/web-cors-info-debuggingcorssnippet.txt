@@ -1,0 +1,53 @@
+
+// Отладка CORS проблем
+
+// 1. Проверка в DevTools
+// - Открыть Console
+// - Искать ошибки типа:
+// "Access to fetch at '...' from origin '...' has been blocked by CORS policy"
+
+// 2. Проверка в Network tab
+// - Найти preflight запрос (OPTIONS)
+// - Проверить Request Headers:
+//   - Origin
+//   - Access-Control-Request-Method
+//   - Access-Control-Request-Headers
+// - Проверить Response Headers:
+//   - Access-Control-Allow-Origin
+//   - Access-Control-Allow-Methods
+//   - Access-Control-Allow-Headers
+
+// 3. Частые проблемы и решения:
+
+// Проблема: "The request client is not a secure context"
+// Решение: Использовать HTTPS вместо HTTP
+
+// Проблема: "Credentials flag is 'true', but Access-Control-Allow-Origin is '*'"
+// Решение: Указать конкретный origin вместо '*'
+
+// Проблема: "Method DELETE is not allowed by Access-Control-Allow-Methods"
+// Решение: Добавить DELETE в Access-Control-Allow-Methods
+
+// Проблема: "Header Authorization is not allowed"
+// Решение: Добавить Authorization в Access-Control-Allow-Headers
+
+// 4. Инструменты для отладки:
+console.log('Request Origin:', window.location.origin)
+
+// Проверка доступных заголовков ответа:
+fetch('https://api.example.com/users')
+  .then(response => {
+    console.log('Response Headers:')
+    for (let [key, value] of response.headers.entries()) {
+      console.log(`  ${key}: ${value}`)
+    }
+  })
+
+// Тест preflight вручную:
+fetch('https://api.example.com/users', {
+  method: 'OPTIONS',
+  headers: {
+    'Access-Control-Request-Method': 'DELETE',
+    'Access-Control-Request-Headers': 'authorization'
+  }
+}).then(r => console.log('Preflight response:', r))

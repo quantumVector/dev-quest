@@ -1,0 +1,44 @@
+
+// Типичная утечка памяти - забытый слушатель
+class Component {
+  constructor() {
+    this.data = new Array(1000000).fill('leak');
+
+    // ❌ ПЛОХО - слушатель не удаляется
+    window.addEventListener('resize', this.handleResize.bind(this));
+  }
+
+  handleResize() {
+    console.log('Resized');
+  }
+
+  // Метод destroy не вызывается
+}
+
+// ✅ ПРАВИЛЬНО - удаление слушателя
+class SafeComponent {
+  constructor() {
+    this.data = new Array(1000000).fill('data');
+    this.handleResize = this.handleResize.bind(this);
+    window.addEventListener('resize', this.handleResize);
+  }
+
+  handleResize() {
+    console.log('Resized');
+  }
+
+  destroy() {
+    window.removeEventListener('resize', this.handleResize);
+    this.data = null;
+  }
+}
+
+// Проверка утечек через WeakMap
+const cache = new WeakMap(); // Автоматическая сборка мусора
+
+function processData(obj) {
+  if (!cache.has(obj)) {
+    cache.set(obj, expensiveOperation(obj));
+  }
+  return cache.get(obj);
+}

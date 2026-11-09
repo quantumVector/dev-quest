@@ -1,0 +1,29 @@
+
+import { useRef, useEffect } from 'react';
+
+function usePrevious(value) {
+  const ref = useRef();
+
+  useEffect(() => {
+    // Обновляем ref после рендера
+    ref.current = value;
+  }, [value]);
+
+  // Возвращаем предыдущее значение (до обновления)
+  return ref.current;
+}
+
+function Counter({ count }) {
+  const prevCount = usePrevious(count);
+
+  return (
+    <div>
+      <p>Current: {count}</p>
+      <p>Previous: {prevCount}</p>
+      <p>Changed by: {count - (prevCount || 0)}</p>
+    </div>
+  );
+}
+
+// ref сохраняет значение между рендерами
+// но обновляется ПОСЛЕ рендера в useEffect

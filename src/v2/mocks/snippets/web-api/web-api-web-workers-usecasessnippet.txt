@@ -1,0 +1,296 @@
+
+// =====================================
+// ПРАКТИЧЕСКИЕ СЦЕНАРИИ ИСПОЛЬЗОВАНИЯ
+// =====================================
+
+// 1. ОБРАБОТКА БОЛЬШИХ ДАННЫХ
+// Парсинг CSV, JSON, обработка массивов
+
+// main.js
+const fileInput = document.querySelector('input[type="file"]')
+
+fileInput.addEventListener('change', async (e) => {
+  const file = e.target.files[0]
+  const worker = new Worker('csv-parser-worker.js')
+
+  // Читаем файл
+  const text = await file.text()
+
+  // Показываем loader
+  showLoader('Обработка данных...')
+
+  worker.postMessage({
+    type: 'parse',
+    data: text
+  })
+
+  worker.onmessage = (event) => {
+    const { rows, stats } = event.data
+
+    hideLoader()
+    displayData(rows)
+    console.log('Обработано строк:', stats.total)
+
+    worker.terminate()
+  }
+})
+
+// csv-parser-worker.js
+self.onmessage = (event) => {
+  const { data } = event.data
+
+  const rows = data.split('\n').map(line => {
+    return line.split(',').map(cell => cell.trim())
+  })
+
+  // Статистика
+  const stats = {
+    total: rows.length,
+    columns: rows[0]?.length || 0
+  }
+
+  self.postMessage({ rows, stats })
+}
+
+// 2. СЛОЖНЫЕ ВЫЧИСЛЕНИЯ
+// Криптография, хеширование, математические операции
+
+// main.js
+async function hashPassword(password) {
+  const worker = new Worker('crypto-worker.js')
+
+  return new Promise((resolve, reject) => {
+    worker.onmessage = (event) => {
+      resolve(event.data.hash)
+      worker.terminate()
+    }
+
+    worker.onerror = reject
+
+    worker.postMessage({
+      type: 'hash',
+      password: password,
+      algorithm: 'SHA-256'
+    })
+  })
+}
+
+// crypto-worker.js
+self.onmessage = async (event) => {
+  const { password, algorithm } = event.data
+
+  // Конвертируем строку в байты
+  const encoder = new TextEncoder()
+  const data = encoder.encode(password)
+
+  // Хешируем
+  const hashBuffer = await crypto.subtle.digest(algorithm, data)
+
+  // Конвертируем в hex
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+
+  self.postMessage({ hash })
+}
+
+// 3. ОБРАБОТКА ИЗОБРАЖЕНИЙ
+// Фильтры, преобразования, анализ
+
+// main.js
+async function applyFilter(imageData, filter) {
+  const worker = new Worker('image-worker.js')
+
+  return new Promise((resolve) => {
+    worker.onmessage = (event) => {
+      resolve(event.data.imageData)
+      worker.terminate()
+    }
+
+    // Transfer ImageData buffer для производительности
+    worker.postMessage({
+      type: 'filter',
+      imageData: imageData,
+      filter: filter
+    })
+  })
+}
+
+// image-worker.js
+self.onmessage = (event) => {
+  const { imageData, filter } = event.data
+  const pixels = imageData.data
+
+  switch (filter) {
+    case 'grayscale':
+      for (let i = 0; i < pixels.length; i += 4) {
+        const avg = (pixels[i] + pixels[i + 1] + pixels[i + 2]) / 3
+        pixels[i] = avg     // R
+        pixels[i + 1] = avg // G
+        pixels[i + 2] = avg // B
+        // pixels[i + 3] - Alpha остается
+      }
+      break
+
+    case 'invert':
+      for (let i = 0; i < pixels.length; i += 4) {
+        pixels[i] = 255 - pixels[i]         // R
+        pixels[i + 1] = 255 - pixels[i + 1] // G
+        pixels[i + 2] = 255 - pixels[i + 2] // B
+      }
+      break
+
+    case 'brightness':
+      const amount = 50
+      for (let i = 0; i < pixels.length; i += 4) {
+        pixels[i] = Math.min(255, pixels[i] + amount)
+        pixels[i + 1] = Math.min(255, pixels[i + 1] + amount)
+        pixels[i + 2] = Math.min(255, pixels[i + 2] + amount)
+      }
+      break
+  }
+
+  self.postMessage({ imageData })
+}
+
+// 4. ФОНОВАЯ СИНХРОНИЗАЦИЯ
+// Периодические задачи, синхронизация с сервером
+
+// sync-worker.js
+let syncInterval = null
+
+self.onmessage = (event) => {
+  const { type, interval } = event.data
+
+  switch (type) {
+    case 'start':
+      syncInterval = setInterval(async () => {
+        try {
+          // Получаем данные для синхронизации
+          const data = await fetchDataToSync()
+
+          // Отправляем на сервер
+          await syncWithServer(data)
+
+          self.postMessage({
+            type: 'sync-success',
+            timestamp: Date.now()
+          })
+        } catch (error) {
+          self.postMessage({
+            type: 'sync-error',
+            error: error.message
+          })
+        }
+      }, interval)
+      break
+
+    case 'stop':
+      if (syncInterval) {
+        clearInterval(syncInterval)
+        syncInterval = null
+      }
+      break
+  }
+}
+
+async function syncWithServer(data) {
+  const response = await fetch('/api/sync', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  })
+
+  return response.json()
+}
+
+// 5. REAL-TIME МОНИТОРИНГ
+// Анализ данных в реальном времени
+
+// monitoring-worker.js
+class MetricsCollector {
+  constructor() {
+    this.metrics = []
+    this.startTime = Date.now()
+  }
+
+  addMetric(metric) {
+    this.metrics.push({
+      ...metric,
+      timestamp: Date.now()
+    })
+
+    // Анализируем каждые 100 метрик
+    if (this.metrics.length >= 100) {
+      this.analyze()
+      this.metrics = []
+    }
+  }
+
+  analyze() {
+    const avgResponseTime = this.metrics.reduce((sum, m) =>
+      sum + m.responseTime, 0) / this.metrics.length
+
+    const errorRate = this.metrics.filter(m =>
+      m.error).length / this.metrics.length
+
+    self.postMessage({
+      type: 'analysis',
+      data: {
+        avgResponseTime,
+        errorRate,
+        total: this.metrics.length,
+        period: Date.now() - this.startTime
+      }
+    })
+  }
+}
+
+const collector = new MetricsCollector()
+
+self.onmessage = (event) => {
+  const { type, metric } = event.data
+
+  if (type === 'metric') {
+    collector.addMetric(metric)
+  }
+}
+
+// 6. ПРЕДВАРИТЕЛЬНАЯ ОБРАБОТКА
+// Подготовка данных для отображения
+
+// data-processor-worker.js
+self.onmessage = async (event) => {
+  const { type, data } = event.data
+
+  switch (type) {
+    case 'preprocess':
+      // Фильтрация
+      const filtered = data.filter(item => item.active)
+
+      // Сортировка
+      const sorted = filtered.sort((a, b) =>
+        b.priority - a.priority)
+
+      // Группировка
+      const grouped = sorted.reduce((acc, item) => {
+        const key = item.category
+        if (!acc[key]) acc[key] = []
+        acc[key].push(item)
+        return acc
+      }, {})
+
+      // Вычисление статистики
+      const stats = Object.entries(grouped).map(([category, items]) => ({
+        category,
+        count: items.length,
+        totalValue: items.reduce((sum, item) => sum + item.value, 0)
+      }))
+
+      self.postMessage({
+        type: 'result',
+        grouped,
+        stats
+      })
+      break
+  }
+}

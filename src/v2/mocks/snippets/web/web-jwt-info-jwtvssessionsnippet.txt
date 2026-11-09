@@ -1,0 +1,101 @@
+
+// JWT vs Session-based аутентификация
+
+// ========================================
+// SESSION-BASED АУТЕНТИФИКАЦИЯ
+// ========================================
+
+// Сервер (Express + express-session)
+const session = require('express-session')
+const RedisStore = require('connect-redis')(session)
+
+app.use(session({
+  store: new RedisStore({ client: redisClient }),
+  secret: 'session-secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: true,
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000  // 24 часа
+  }
+}))
+
+// Логин - создаем сессию на сервере
+app.post('/login', async (req, res) => {
+  const user = await authenticate(req.body)
+
+  // Сохраняем данные в сессии (на сервере в Redis/памяти)
+  req.session.userId = user.id
+  req.session.role = user.role
+
+  res.json({ success: true })
+})
+
+// Защищенный роут - проверяем сессию
+app.get('/profile', (req, res) => {
+  if (!req.session.userId) {
+    return res.status(401).json({ error: 'Unauthorized' })
+  }
+
+  // Данные хранятся на сервере
+  const userId = req.session.userId
+  res.json({ userId })
+})
+
+// Логаут - удаляем сессию с сервера
+app.post('/logout', (req, res) => {
+  req.session.destroy()
+  res.json({ success: true })
+})
+
+// ========================================
+// JWT-BASED АУТЕНТИФИКАЦИЯ
+// ========================================
+
+// Логин - создаем JWT токен
+app.post('/login', async (req, res) => {
+  const user = await authenticate(req.body)
+
+  // Токен содержит все данные (самодостаточный)
+  const token = jwt.sign(
+    { userId: user.id, role: user.role },
+    SECRET_KEY,
+    { expiresIn: '24h' }
+  )
+
+  res.json({ token })
+})
+
+// Защищенный роут - проверяем токен
+app.get('/profile', authenticateJWT, (req, res) => {
+  // Данные из токена (не нужен запрос к БД/Redis)
+  const userId = req.user.userId
+  res.json({ userId })
+})
+
+// Логаут - клиент удаляет токен
+app.post('/logout', (req, res) => {
+  // На сервере делать нечего - токен живет до истечения
+  // (если нужен blacklist - добавляем токен в Redis)
+  res.json({ success: true })
+})
+
+// ========================================
+// СРАВНЕНИЕ
+// ========================================
+
+/*
+┌────────────────────┬──────────────────────┬──────────────────────┐
+│   Характеристика   │   Session-based      │      JWT-based       │
+├────────────────────┼──────────────────────┼──────────────────────┤
+│ Хранение состояния │ Сервер (Redis/БД)    │ Клиент (токен)       │
+│ Масштабируемость   │ Сложнее (нужен Redis)│ Легче (stateless)    │
+│ Размер передачи    │ Маленький (session ID│ Больший (весь токен) │
+│ Отзыв доступа      │ Легко (удалить сессию│ Сложно (blacklist)   │
+│ Производительность │ Запрос к Redis       │ Проверка подписи     │
+│ Безопасность       │ HttpOnly cookie      │ Риск XSS (если в LS) │
+│ Микросервисы       │ Сложно (общий store) │ Отлично (stateless)  │
+│ Мобильные app      │ Сложнее              │ Проще (нет cookies)  │
+└────────────────────┴──────────────────────┴──────────────────────┘
+*/

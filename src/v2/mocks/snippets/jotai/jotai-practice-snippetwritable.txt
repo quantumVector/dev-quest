@@ -1,0 +1,22 @@
+
+const addToCartAtom = atom(
+  null,
+  (get, set, product: { id: string; title: string; price: number }) => {
+    const cart = get(cartAtom)
+    const existing = cart.find((item) => item.id === product.id)
+
+    if (existing) {
+      set(
+        cartAtom,
+        cart.map((item) =>
+          item.id === product.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        )
+      )
+      return
+    }
+
+    set(cartAtom, [...cart, { ...product, quantity: 1 }])
+  }
+)

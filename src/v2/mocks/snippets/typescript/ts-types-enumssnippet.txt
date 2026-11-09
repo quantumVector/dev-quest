@@ -1,0 +1,176 @@
+
+// =====================================
+// ENUMS - ПЕРЕЧИСЛЕНИЯ
+// =====================================
+
+// 1. Числовые enum (numeric enum)
+enum Direction {
+  Up,      // 0
+  Down,    // 1
+  Left,    // 2
+  Right    // 3
+}
+
+let dir: Direction = Direction.Up
+console.log(dir)  // 0
+console.log(Direction[0])  // "Up" - обратное отображение
+
+// С явными значениями
+enum Status {
+  Pending = 1,
+  InProgress = 2,
+  Completed = 3,
+  Failed = 4
+}
+
+// С вычисляемыми значениями
+enum FileAccess {
+  None = 0,
+  Read = 1 << 0,     // 1
+  Write = 1 << 1,    // 2
+  ReadWrite = Read | Write  // 3
+}
+
+// 2. Строковые enum (string enum)
+enum LogLevel {
+  Error = "ERROR",
+  Warning = "WARNING",
+  Info = "INFO",
+  Debug = "DEBUG"
+}
+
+let level: LogLevel = LogLevel.Error
+console.log(level)  // "ERROR"
+
+// Нет обратного отображения для строковых enum!
+// console.log(LogLevel["ERROR"])  // undefined
+
+// 3. Гетерогенные enum (смешанные) - не рекомендуется
+enum Mixed {
+  No = 0,
+  Yes = "YES"
+}
+
+// 4. Const enum - оптимизация
+const enum Colors {
+  Red = "#FF0000",
+  Green = "#00FF00",
+  Blue = "#0000FF"
+}
+
+let color = Colors.Red  // инлайнится в "#FF0000"
+
+// Скомпилируется в:
+// let color = "#FF0000"
+
+// 5. Computed и constant members
+enum E1 {
+  A = 1,
+  B,              // 2 - constant member
+  C = A + B,      // 3 - computed member
+  D = Math.random()  // computed member
+}
+
+// 6. Enum в качестве типа
+enum UserRole {
+  Admin = "ADMIN",
+  User = "USER",
+  Guest = "GUEST"
+}
+
+interface User {
+  id: number
+  name: string
+  role: UserRole  // только значения из enum
+}
+
+const user: User = {
+  id: 1,
+  name: "John",
+  role: UserRole.Admin  // OK
+  // role: "ADMIN"       // ошибка! строка не присваивается UserRole
+}
+
+// 7. Enum vs Union Types
+// Enum
+enum HttpMethod {
+  GET = "GET",
+  POST = "POST",
+  PUT = "PUT",
+  DELETE = "DELETE"
+}
+
+function requestWithEnum(method: HttpMethod) {
+  // ...
+}
+
+requestWithEnum(HttpMethod.GET)
+
+// Union Type - альтернатива
+type HttpMethodType = "GET" | "POST" | "PUT" | "DELETE"
+
+function requestWithUnion(method: HttpMethodType) {
+  // ...
+}
+
+requestWithUnion("GET")  // проще использовать
+
+// 8. Reverse mapping (обратное отображение)
+enum Animal {
+  Dog = 1,
+  Cat = 2
+}
+
+console.log(Animal.Dog)    // 1
+console.log(Animal[1])     // "Dog"
+console.log(Animal["Dog"]) // 1
+
+// Скомпилируется в:
+/*
+var Animal;
+(function (Animal) {
+    Animal[Animal["Dog"] = 1] = "Dog";
+    Animal[Animal["Cat"] = 2] = "Cat";
+})(Animal || (Animal = {}));
+*/
+
+// 9. Практические примеры
+// HTTP статус коды
+enum HttpStatus {
+  OK = 200,
+  Created = 201,
+  BadRequest = 400,
+  Unauthorized = 401,
+  NotFound = 404,
+  InternalServerError = 500
+}
+
+function handleResponse(status: HttpStatus) {
+  switch (status) {
+    case HttpStatus.OK:
+      console.log("Success!")
+      break
+    case HttpStatus.NotFound:
+      console.log("Resource not found")
+      break
+    default:
+      console.log("Unknown status")
+  }
+}
+
+// Флаги с битовыми операциями
+enum Permission {
+  None = 0,
+  Read = 1 << 0,    // 1
+  Write = 1 << 1,   // 2
+  Delete = 1 << 2,  // 4
+  Admin = Read | Write | Delete  // 7
+}
+
+function hasPermission(user: number, permission: Permission): boolean {
+  return (user & permission) === permission
+}
+
+const userPermissions = Permission.Read | Permission.Write
+console.log(hasPermission(userPermissions, Permission.Read))   // true
+console.log(hasPermission(userPermissions, Permission.Delete)) // false

@@ -1,0 +1,64 @@
+
+// Пример LSP в React компонентах
+
+// ❌ ПЛОХО - Дочерний компонент требует больше пропсов
+interface BaseInputProps {
+  value: string
+  onChange: (value: string) => void
+}
+
+const TextInput = ({ value, onChange }: BaseInputProps) => (
+  <input type="text" value={value} onChange={(e) => onChange(e.target.value)} />
+)
+
+// Нарушение LSP - требует дополнительный проп!
+const EmailInput = ({ value, onChange, validator }: BaseInputProps & { validator: (v: string) => boolean }) => {
+  // Не может заменить TextInput без изменения кода
+  return (
+    <input
+      type="email"
+      value={value}
+      onChange={(e) => {
+        if (validator(e.target.value)) {
+          onChange(e.target.value)
+        }
+      }}
+    />
+  )
+}
+
+// ✅ ПРАВИЛЬНО - Одинаковый интерфейс
+const TextInput = ({ value, onChange }: BaseInputProps) => (
+  <input type="text" value={value} onChange={(e) => onChange(e.target.value)} />
+)
+
+const EmailInput = ({ value, onChange }: BaseInputProps) => {
+  const emailValidator = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)
+
+  return (
+    <input
+      type="email"
+      value={value}
+      onChange={(e) => {
+        // Валидация внутри, интерфейс не меняется
+        if (emailValidator(e.target.value)) {
+          onChange(e.target.value)
+        }
+      }}
+    />
+  )
+}
+
+// Теперь можно заменять без проблем
+const Form = () => {
+  const [email, setEmail] = useState('')
+
+  // Оба компонента взаимозаменяемы
+  return (
+    <>
+      <TextInput value={email} onChange={setEmail} />
+      {/* Или */}
+      <EmailInput value={email} onChange={setEmail} />
+    </>
+  )
+}

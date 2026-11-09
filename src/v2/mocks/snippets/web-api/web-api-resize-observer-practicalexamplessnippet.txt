@@ -1,0 +1,190 @@
+
+// =====================================
+// ПРАКТИЧЕСКИЕ ПРИМЕРЫ
+// =====================================
+
+// 1. Адаптивный размер шрифта
+const responsiveText = document.querySelector('.responsive-text')
+
+const textObserver = new ResizeObserver((entries) => {
+  for (const entry of entries) {
+    const width = entry.contentRect.width
+
+    // Адаптивный размер шрифта в зависимости от ширины
+    let fontSize
+    if (width < 300) {
+      fontSize = '14px'
+    } else if (width < 600) {
+      fontSize = '16px'
+    } else {
+      fontSize = '20px'
+    }
+
+    entry.target.style.fontSize = fontSize
+  }
+})
+
+textObserver.observe(responsiveText)
+
+// 2. Адаптивная сетка с auto-layout
+const grid = document.querySelector('.adaptive-grid')
+
+const gridObserver = new ResizeObserver((entries) => {
+  for (const entry of entries) {
+    const width = entry.contentRect.width
+
+    // Вычисляем количество колонок
+    const minColumnWidth = 200
+    const columns = Math.max(1, Math.floor(width / minColumnWidth))
+
+    entry.target.style.gridTemplateColumns = `repeat(${columns}, 1fr)`
+  }
+})
+
+gridObserver.observe(grid)
+
+// 3. Canvas с правильным разрешением для Retina
+const canvas = document.querySelector('canvas')
+
+const canvasObserver = new ResizeObserver((entries) => {
+  for (const entry of entries) {
+    const devicePixelRatio = window.devicePixelRatio || 1
+
+    // Используем device-pixel-content-box если доступен
+    let width, height
+
+    if (entry.devicePixelContentBoxSize) {
+      const size = Array.isArray(entry.devicePixelContentBoxSize)
+        ? entry.devicePixelContentBoxSize[0]
+        : entry.devicePixelContentBoxSize
+
+      width = size.inlineSize
+      height = size.blockSize
+    } else {
+      // Fallback для старых браузеров
+      width = entry.contentRect.width * devicePixelRatio
+      height = entry.contentRect.height * devicePixelRatio
+    }
+
+    canvas.width = width
+    canvas.height = height
+
+    // CSS размеры остаются в CSS pixels
+    canvas.style.width = entry.contentRect.width + 'px'
+    canvas.style.height = entry.contentRect.height + 'px'
+
+    // Перерисовка canvas
+    redrawCanvas()
+  }
+})
+
+canvasObserver.observe(canvas, { box: 'device-pixel-content-box' })
+
+// 4. Debounce для производительности
+function debounce(func, wait) {
+  let timeout
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout)
+      func(...args)
+    }
+    clearTimeout(timeout)
+    timeout = setTimeout(later, wait)
+  }
+}
+
+const expensiveOperation = debounce((entry) => {
+  console.log('Expensive resize handler:', entry.contentRect.width)
+  // Тяжелые вычисления...
+}, 250)
+
+const debouncedObserver = new ResizeObserver((entries) => {
+  entries.forEach(expensiveOperation)
+})
+
+// 5. Tooltip позиционирование при resize
+const tooltipTarget = document.querySelector('.tooltip-target')
+const tooltip = document.querySelector('.tooltip')
+
+const tooltipObserver = new ResizeObserver((entries) => {
+  for (const entry of entries) {
+    const rect = entry.target.getBoundingClientRect()
+
+    // Позиционируем tooltip
+    tooltip.style.left = rect.left + 'px'
+    tooltip.style.top = (rect.bottom + 10) + 'px'
+
+    // Проверяем, помещается ли tooltip
+    const tooltipRect = tooltip.getBoundingClientRect()
+    if (tooltipRect.right > window.innerWidth) {
+      tooltip.style.left = (window.innerWidth - tooltipRect.width - 10) + 'px'
+    }
+  }
+})
+
+tooltipObserver.observe(tooltipTarget)
+
+// 6. Виртуализация списка с динамической высотой
+class VirtualList {
+  constructor(container, items) {
+    this.container = container
+    this.items = items
+    this.itemHeights = new Map()
+    this.observer = new ResizeObserver(this.handleResize.bind(this))
+  }
+
+  renderItem(item, index) {
+    const element = document.createElement('div')
+    element.className = 'list-item'
+    element.textContent = item
+    element.dataset.index = index
+
+    // Наблюдаем за каждым элементом
+    this.observer.observe(element)
+
+    return element
+  }
+
+  handleResize(entries) {
+    entries.forEach(entry => {
+      const index = parseInt(entry.target.dataset.index)
+      const height = entry.contentRect.height
+
+      this.itemHeights.set(index, height)
+
+      // Пересчитываем виртуальный скролл
+      this.updateVirtualScroll()
+    })
+  }
+
+  updateVirtualScroll() {
+    // Логика виртуального скролла с учетом реальных высот
+    console.log('Updated virtual scroll with real heights')
+  }
+
+  destroy() {
+    this.observer.disconnect()
+  }
+}
+
+// 7. Адаптивные media query на уровне компонента
+const component = document.querySelector('.component')
+
+const componentObserver = new ResizeObserver((entries) => {
+  for (const entry of entries) {
+    const width = entry.contentRect.width
+
+    // Применяем разные классы в зависимости от ширины компонента
+    entry.target.classList.remove('small', 'medium', 'large')
+
+    if (width < 400) {
+      entry.target.classList.add('small')
+    } else if (width < 800) {
+      entry.target.classList.add('medium')
+    } else {
+      entry.target.classList.add('large')
+    }
+  }
+})
+
+componentObserver.observe(component)

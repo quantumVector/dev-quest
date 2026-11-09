@@ -1,0 +1,91 @@
+
+// Сравнение производительности: setTimeout vs requestAnimationFrame
+
+// ПЛОХО: анимация через setTimeout
+function animateWithSetTimeout() {
+  let position = 0;
+  const target = 300;
+  const duration = 1000;
+  const fps = 60;
+  const frameTime = 1000 / fps; // ~16.67ms
+  const totalFrames = duration / frameTime;
+  const step = target / totalFrames;
+
+  function frame() {
+    position += step;
+    element.style.transform = `translateX(${position}px)`;
+
+    if (position < target) {
+      setTimeout(frame, frameTime); // Проблема: не синхронизировано с рендерингом
+    }
+  }
+
+  setTimeout(frame, frameTime);
+}
+
+// ХОРОШО: анимация через requestAnimationFrame
+function animateWithRAF() {
+  const startTime = performance.now();
+  const startPos = 0;
+  const endPos = 300;
+  const duration = 1000;
+
+  function frame(currentTime) {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const currentPos = startPos + (endPos - startPos) * progress;
+
+    element.style.transform = `translateX(${currentPos}px)`;
+
+    if (progress < 1) {
+      requestAnimationFrame(frame); // Синхронизировано с refresh rate дисплея
+    }
+  }
+
+  requestAnimationFrame(frame);
+}
+
+// Мониторинг FPS
+class FPSMonitor {
+  constructor() {
+    this.fps = 0;
+    this.lastTime = performance.now();
+    this.frameCount = 0;
+    this.updateInterval = 1000; // обновляем каждую секунду
+  }
+
+  update() {
+    const currentTime = performance.now();
+    this.frameCount++;
+
+    if (currentTime - this.lastTime >= this.updateInterval) {
+      this.fps = Math.round((this.frameCount * 1000) / (currentTime - this.lastTime));
+      console.log(`FPS: ${this.fps}`);
+
+      this.frameCount = 0;
+      this.lastTime = currentTime;
+    }
+
+    requestAnimationFrame(() => this.update());
+  }
+
+  start() {
+    this.update();
+  }
+}
+
+// Использование FPS монитора
+const fpsMonitor = new FPSMonitor();
+fpsMonitor.start();
+
+// Проблемы с setTimeout для анимаций:
+// 1. Не синхронизирован с refresh rate дисплея (60Hz, 120Hz, etc.)
+// 2. Может выполняться когда страница не видна (тратит ресурсы)
+// 3. Менее плавные анимации из-за рассинхронизации
+// 4. Больше потребление батареи на мобильных устройствах
+
+// Преимущества requestAnimationFrame:
+// 1. Автоматическая синхронизация с refresh rate
+// 2. Паузы когда вкладка неактивна (экономия ресурсов)
+// 3. Оптимизации браузера для плавной анимации
+// 4. Лучшая производительность и меньше потребление батареи

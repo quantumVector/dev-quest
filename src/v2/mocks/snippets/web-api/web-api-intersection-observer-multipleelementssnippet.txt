@@ -1,0 +1,265 @@
+
+// =====================================
+// НАБЛЮДЕНИЕ ЗА НЕСКОЛЬКИМИ ЭЛЕМЕНТАМИ
+// =====================================
+
+// 1. Базовый пример - все элементы с одинаковой логикой
+const elements = document.querySelectorAll('.observe-me')
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible')
+      console.log(`Element ${entry.target.id} is visible`)
+    } else {
+      entry.target.classList.remove('visible')
+    }
+  })
+})
+
+// Наблюдаем за всеми элементами
+elements.forEach(element => observer.observe(element))
+
+// 2. Разная логика для разных элементов
+class MultiElementObserver {
+  constructor() {
+    this.observer = new IntersectionObserver(
+      this.handleIntersection.bind(this),
+      {
+        threshold: [0, 0.5, 1.0],
+        rootMargin: '0px'
+      }
+    )
+
+    this.handlers = new Map()
+  }
+
+  observe(element, handler) {
+    // Сохраняем handler для каждого элемента
+    this.handlers.set(element, handler)
+    this.observer.observe(element)
+  }
+
+  unobserve(element) {
+    this.handlers.delete(element)
+    this.observer.unobserve(element)
+  }
+
+  handleIntersection(entries) {
+    entries.forEach(entry => {
+      const handler = this.handlers.get(entry.target)
+      if (handler) {
+        handler(entry)
+      }
+    })
+  }
+
+  disconnect() {
+    this.observer.disconnect()
+    this.handlers.clear()
+  }
+}
+
+// Использование
+const multiObserver = new MultiElementObserver()
+
+// Разные обработчики для разных элементов
+multiObserver.observe(
+  document.querySelector('.header'),
+  (entry) => {
+    if (entry.isIntersecting) {
+      console.log('Header is visible')
+      document.body.classList.add('header-visible')
+    }
+  }
+)
+
+multiObserver.observe(
+  document.querySelector('.sidebar'),
+  (entry) => {
+    if (entry.intersectionRatio > 0.5) {
+      console.log('Sidebar is half visible')
+      entry.target.classList.add('sticky')
+    }
+  }
+)
+
+// 3. Анимации при появлении элементов
+class AnimatedElementsObserver {
+  constructor() {
+    this.observer = new IntersectionObserver(
+      this.handleIntersection.bind(this),
+      {
+        threshold: 0.1,
+        rootMargin: '0px 0px -100px 0px'
+      }
+    )
+
+    this.animatedElements = document.querySelectorAll('[data-animate]')
+    this.animatedElements.forEach(el => this.observer.observe(el))
+  }
+
+  handleIntersection(entries) {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const animationType = entry.target.dataset.animate
+        const delay = entry.target.dataset.delay || 0
+
+        setTimeout(() => {
+          entry.target.classList.add(`animate-${animationType}`)
+        }, delay)
+
+        // Останавливаем наблюдение после анимации
+        this.observer.unobserve(entry.target)
+      }
+    })
+  }
+}
+
+// HTML:
+// <div data-animate="fade-in" data-delay="100">Content</div>
+// <div data-animate="slide-up" data-delay="200">Content</div>
+
+// 4. Отслеживание видимости секций для навигации
+class SectionNavigationObserver {
+  constructor(sections, nav) {
+    this.sections = sections
+    this.nav = nav
+    this.currentSection = null
+
+    this.observer = new IntersectionObserver(
+      this.handleIntersection.bind(this),
+      {
+        threshold: 0.5, // Секция считается видимой, если видно 50%
+        rootMargin: '-100px 0px -100px 0px'
+      }
+    )
+
+    this.sections.forEach(section => this.observer.observe(section))
+  }
+
+  handleIntersection(entries) {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        this.currentSection = entry.target.id
+        this.updateNavigation()
+      }
+    })
+  }
+
+  updateNavigation() {
+    // Убираем active со всех ссылок
+    const navLinks = this.nav.querySelectorAll('a')
+    navLinks.forEach(link => link.classList.remove('active'))
+
+    // Добавляем active к текущей секции
+    const currentLink = this.nav.querySelector(`a[href="#${this.currentSection}"]`)
+    if (currentLink) {
+      currentLink.classList.add('active')
+    }
+  }
+}
+
+// Использование
+const sections = document.querySelectorAll('section')
+const nav = document.querySelector('nav')
+const sectionObserver = new SectionNavigationObserver(sections, nav)
+
+// 5. Счетчик видимых элементов
+class VisibilityCounter {
+  constructor(elements) {
+    this.elements = elements
+    this.visibleCount = 0
+    this.visibleElements = new Set()
+
+    this.observer = new IntersectionObserver(
+      this.handleIntersection.bind(this),
+      { threshold: 0.5 }
+    )
+
+    this.elements.forEach(el => this.observer.observe(el))
+  }
+
+  handleIntersection(entries) {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        this.visibleElements.add(entry.target)
+      } else {
+        this.visibleElements.delete(entry.target)
+      }
+    })
+
+    this.visibleCount = this.visibleElements.size
+    this.updateCounter()
+  }
+
+  updateCounter() {
+    console.log(`Visible: ${this.visibleCount}/${this.elements.length}`)
+    document.querySelector('.counter').textContent =
+      `${this.visibleCount}/${this.elements.length}`
+  }
+}
+
+// 6. Приоритизация загрузки контента
+class PriorityContentLoader {
+  constructor() {
+    this.observer = new IntersectionObserver(
+      this.handleIntersection.bind(this),
+      {
+        threshold: 0,
+        rootMargin: '200px' // Загружаем заранее
+      }
+    )
+
+    this.loadQueue = new Map()
+    this.loadingInProgress = new Set()
+  }
+
+  observe(element, priority, loadFunction) {
+    this.loadQueue.set(element, { priority, loadFunction })
+    this.observer.observe(element)
+  }
+
+  async handleIntersection(entries) {
+    // Сортируем по приоритету
+    const visibleEntries = entries
+      .filter(e => e.isIntersecting)
+      .map(e => ({
+        entry: e,
+        ...this.loadQueue.get(e.target)
+      }))
+      .sort((a, b) => b.priority - a.priority)
+
+    // Загружаем по порядку приоритета
+    for (const { entry, loadFunction } of visibleEntries) {
+      const element = entry.target
+
+      if (!this.loadingInProgress.has(element)) {
+        this.loadingInProgress.add(element)
+
+        try {
+          await loadFunction(element)
+        } catch (error) {
+          console.error('Loading failed:', error)
+        } finally {
+          this.loadingInProgress.delete(element)
+          this.observer.unobserve(element)
+        }
+      }
+    }
+  }
+}
+
+// Использование
+const loader = new PriorityContentLoader()
+
+document.querySelectorAll('[data-load-priority]').forEach(element => {
+  const priority = parseInt(element.dataset.loadPriority)
+  const url = element.dataset.url
+
+  loader.observe(element, priority, async (el) => {
+    const response = await fetch(url)
+    const content = await response.text()
+    el.innerHTML = content
+  })
+})

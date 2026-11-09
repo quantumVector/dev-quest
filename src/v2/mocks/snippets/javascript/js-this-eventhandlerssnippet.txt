@@ -1,0 +1,32 @@
+
+class Button {
+  constructor(element) {
+    this.element = element;
+    this.clickCount = 0;
+
+    // ❌ Проблема - потеря контекста в обработчике
+    // this.element.addEventListener('click', this.handleClick);
+
+    // ✅ Решение 1 - bind
+    this.element.addEventListener('click', this.handleClick.bind(this));
+
+    // ✅ Решение 2 - стрелочная функция
+    this.element.addEventListener('click', (event) => {
+      this.handleClickArrow(event);
+    });
+  }
+
+  handleClick(event) {
+    this.clickCount++; // this = Button instance (благодаря bind)
+    console.log(`Клик #${this.clickCount}`);
+  }
+
+  // ✅ Решение 3 - стрелочная функция как свойство класса
+  handleClickArrow = (event) => {
+    this.clickCount++;
+    console.log(`Arrow клик #${this.clickCount}`);
+  }
+}
+
+// В HTML: <button id="myButton">Нажми меня</button>
+// const button = new Button(document.getElementById('myButton'));

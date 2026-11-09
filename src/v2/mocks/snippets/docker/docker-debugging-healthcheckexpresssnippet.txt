@@ -1,0 +1,59 @@
+
+// Express.js сервер с health endpoint
+const express = require('express');
+const app = express();
+
+let isHealthy = true;
+let startTime = Date.now();
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  const uptime = Date.now() - startTime;
+
+  // Базовая проверка
+  if (!isHealthy) {
+    return res.status(503).json({
+      status: 'unhealthy',
+      uptime: uptime,
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  // Расширенная проверка
+  const healthCheck = {
+    status: 'healthy',
+    uptime: uptime,
+    timestamp: new Date().toISOString(),
+    services: {
+      database: checkDatabase(),
+      redis: checkRedis(),
+      external_api: checkExternalAPI()
+    }
+  };
+
+  res.status(200).json(healthCheck);
+});
+
+// Проверки зависимостей
+function checkDatabase() {
+  try {
+    // Проверка подключения к БД
+    return { status: 'connected' };
+  } catch (error) {
+    return { status: 'error', message: error.message };
+  }
+}
+
+function checkRedis() {
+  // Проверка Redis
+  return { status: 'connected' };
+}
+
+function checkExternalAPI() {
+  // Проверка внешних API
+  return { status: 'available' };
+}
+
+app.listen(3000, () => {
+  console.log('Server running on port 3000');
+});

@@ -1,0 +1,37 @@
+
+// useMemo vs useCallback - в чем разница?
+
+function Example() {
+  const [count, setCount] = useState(0)
+
+  // useMemo - мемоизирует РЕЗУЛЬТАТ вычислений
+  const expensiveValue = useMemo(() => {
+    console.log('Computing expensive value...')
+    return count * 2
+  }, [count])
+  // expensiveValue = число (результат)
+
+  // useCallback - мемоизирует САМУ ФУНКЦИЮ
+  const handleClick = useCallback(() => {
+    console.log('Button clicked')
+    setCount(c => c + 1)
+  }, [])
+  // handleClick = функция
+
+  // Эквивалентная запись:
+  // useCallback(fn, deps) === useMemo(() => fn, deps)
+
+  const handleClickEquivalent = useMemo(() => {
+    return () => {
+      console.log('Button clicked')
+      setCount(c => c + 1)
+    }
+  }, [])
+
+  return (
+    <div>
+      <p>Value: {expensiveValue}</p>
+      <button onClick={handleClick}>Increment</button>
+    </div>
+  )
+}

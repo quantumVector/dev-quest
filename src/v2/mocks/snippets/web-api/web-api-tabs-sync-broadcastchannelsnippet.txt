@@ -1,0 +1,294 @@
+
+// =====================================
+// BROADCAST CHANNEL API
+// =====================================
+
+// 1. Базовая реализация через BroadcastChannel
+class CartSyncBroadcast {
+  constructor() {
+    this.cart = this.loadCart()
+    this.listeners = new Set()
+
+    // Создаем канал для коммуникации между вкладками
+    this.channel = new BroadcastChannel('cart-sync')
+
+    // Подписываемся на сообщения из других вкладок
+    this.channel.onmessage = this.handleMessage.bind(this)
+  }
+
+  loadCart() {
+    try {
+      const data = localStorage.getItem('cart')
+      return data ? JSON.parse(data) : []
+    } catch (error) {
+      console.error('Error loading cart:', error)
+      return []
+    }
+  }
+
+  saveCart(cart) {
+    try {
+      localStorage.setItem('cart', JSON.stringify(cart))
+      this.cart = cart
+
+      // Отправляем сообщение во ВСЕ другие вкладки
+      this.channel.postMessage({
+        type: 'CART_UPDATED',
+        cart: cart,
+        timestamp: Date.now()
+      })
+
+      // Уведомляем подписчиков в текущей вкладке
+      this.notifyListeners(cart)
+    } catch (error) {
+      console.error('Error saving cart:', error)
+    }
+  }
+
+  handleMessage(event) {
+    const { type, cart } = event.data
+
+    if (type === 'CART_UPDATED') {
+      this.cart = cart
+
+      // Обновляем localStorage в этой вкладке
+      localStorage.setItem('cart', JSON.stringify(cart))
+
+      // Уведомляем подписчиков
+      this.notifyListeners(cart)
+    }
+  }
+
+  addItem(item) {
+    const cart = [...this.cart, { ...item, id: Date.now() }]
+    this.saveCart(cart)
+  }
+
+  removeItem(itemId) {
+    const cart = this.cart.filter(item => item.id !== itemId)
+    this.saveCart(cart)
+  }
+
+  updateQuantity(itemId, quantity) {
+    const cart = this.cart.map(item =>
+      item.id === itemId ? { ...item, quantity } : item
+    )
+    this.saveCart(cart)
+  }
+
+  subscribe(callback) {
+    this.listeners.add(callback)
+    return () => this.listeners.delete(callback)
+  }
+
+  notifyListeners(cart) {
+    this.listeners.forEach(callback => callback(cart))
+  }
+
+  getCart() {
+    return [...this.cart]
+  }
+
+  destroy() {
+    // Закрываем канал при уничтожении
+    this.channel.close()
+  }
+}
+
+// Использование
+const cartSync = new CartSyncBroadcast()
+
+cartSync.subscribe((cart) => {
+  console.log('Cart synced across tabs:', cart)
+  renderCart(cart)
+})
+
+// 2. Расширенная версия с разными типами сообщений
+class AdvancedCartSync {
+  constructor() {
+    this.cart = this.loadCart()
+    this.listeners = new Map() // type -> Set<callback>
+    this.channel = new BroadcastChannel('cart-sync-advanced')
+
+    this.channel.onmessage = this.handleMessage.bind(this)
+  }
+
+  loadCart() {
+    const data = localStorage.getItem('cart')
+    return data ? JSON.parse(data) : []
+  }
+
+  handleMessage(event) {
+    const { type, payload } = event.data
+
+    switch (type) {
+      case 'ITEM_ADDED':
+        this.handleItemAdded(payload)
+        break
+
+      case 'ITEM_REMOVED':
+        this.handleItemRemoved(payload)
+        break
+
+      case 'QUANTITY_UPDATED':
+        this.handleQuantityUpdated(payload)
+        break
+
+      case 'CART_CLEARED':
+        this.handleCartCleared()
+        break
+
+      case 'REQUEST_SYNC':
+        // Другая вкладка запрашивает текущее состояние
+        this.sendFullSync()
+        break
+
+      case 'FULL_SYNC':
+        // Получили полное состояние от другой вкладки
+        this.cart = payload.cart
+        localStorage.setItem('cart', JSON.stringify(this.cart))
+        this.notify('SYNCED', this.cart)
+        break
+    }
+  }
+
+  handleItemAdded(item) {
+    this.cart.push(item)
+    localStorage.setItem('cart', JSON.stringify(this.cart))
+    this.notify('ITEM_ADDED', item)
+  }
+
+  handleItemRemoved(itemId) {
+    this.cart = this.cart.filter(item => item.id !== itemId)
+    localStorage.setItem('cart', JSON.stringify(this.cart))
+    this.notify('ITEM_REMOVED', itemId)
+  }
+
+  handleQuantityUpdated({ itemId, quantity }) {
+    this.cart = this.cart.map(item =>
+      item.id === itemId ? { ...item, quantity } : item
+    )
+    localStorage.setItem('cart', JSON.stringify(this.cart))
+    this.notify('QUANTITY_UPDATED', { itemId, quantity })
+  }
+
+  handleCartCleared() {
+    this.cart = []
+    localStorage.setItem('cart', JSON.stringify(this.cart))
+    this.notify('CART_CLEARED', null)
+  }
+
+  addItem(item) {
+    const newItem = { ...item, id: Date.now() }
+    this.cart.push(newItem)
+    localStorage.setItem('cart', JSON.stringify(this.cart))
+
+    // Отправляем сообщение в другие вкладки
+    this.channel.postMessage({
+      type: 'ITEM_ADDED',
+      payload: newItem
+    })
+
+    this.notify('ITEM_ADDED', newItem)
+  }
+
+  removeItem(itemId) {
+    this.cart = this.cart.filter(item => item.id !== itemId)
+    localStorage.setItem('cart', JSON.stringify(this.cart))
+
+    this.channel.postMessage({
+      type: 'ITEM_REMOVED',
+      payload: itemId
+    })
+
+    this.notify('ITEM_REMOVED', itemId)
+  }
+
+  updateQuantity(itemId, quantity) {
+    this.cart = this.cart.map(item =>
+      item.id === itemId ? { ...item, quantity } : item
+    )
+    localStorage.setItem('cart', JSON.stringify(this.cart))
+
+    this.channel.postMessage({
+      type: 'QUANTITY_UPDATED',
+      payload: { itemId, quantity }
+    })
+
+    this.notify('QUANTITY_UPDATED', { itemId, quantity })
+  }
+
+  clearCart() {
+    this.cart = []
+    localStorage.setItem('cart', JSON.stringify(this.cart))
+
+    this.channel.postMessage({
+      type: 'CART_CLEARED'
+    })
+
+    this.notify('CART_CLEARED', null)
+  }
+
+  // Запрос синхронизации (при открытии новой вкладки)
+  requestSync() {
+    this.channel.postMessage({
+      type: 'REQUEST_SYNC'
+    })
+  }
+
+  // Отправка полного состояния
+  sendFullSync() {
+    this.channel.postMessage({
+      type: 'FULL_SYNC',
+      payload: { cart: this.cart }
+    })
+  }
+
+  subscribe(type, callback) {
+    if (!this.listeners.has(type)) {
+      this.listeners.set(type, new Set())
+    }
+    this.listeners.get(type).add(callback)
+
+    return () => this.listeners.get(type)?.delete(callback)
+  }
+
+  notify(type, payload) {
+    const callbacks = this.listeners.get(type)
+    if (callbacks) {
+      callbacks.forEach(callback => callback(payload))
+    }
+  }
+
+  getCart() {
+    return [...this.cart]
+  }
+
+  destroy() {
+    this.channel.close()
+    this.listeners.clear()
+  }
+}
+
+// Использование
+const cart = new AdvancedCartSync()
+
+// При загрузке страницы запрашиваем синхронизацию
+window.addEventListener('load', () => {
+  cart.requestSync()
+})
+
+// Подписываемся на разные события
+cart.subscribe('ITEM_ADDED', (item) => {
+  console.log('Item added:', item)
+  showNotification(`Added ${item.name} to cart`)
+})
+
+cart.subscribe('ITEM_REMOVED', (itemId) => {
+  console.log('Item removed:', itemId)
+})
+
+cart.subscribe('SYNCED', (fullCart) => {
+  console.log('Cart synced:', fullCart)
+  renderCart(fullCart)
+})

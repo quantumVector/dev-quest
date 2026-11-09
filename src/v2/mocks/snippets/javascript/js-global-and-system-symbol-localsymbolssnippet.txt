@@ -1,0 +1,12 @@
+
+// Локальные символы - всегда уникальны
+const sym1 = Symbol('mySymbol')
+const sym2 = Symbol('mySymbol')
+
+console.log(sym1 === sym2) // false - разные символы!
+console.log(sym1.toString()) // "Symbol(mySymbol)"
+console.log(sym2.toString()) // "Symbol(mySymbol)"
+
+// Описание одинаковое, но символы разные
+console.log(sym1.description) // "mySymbol"
+console.log(sym2.description) // "mySymbol"

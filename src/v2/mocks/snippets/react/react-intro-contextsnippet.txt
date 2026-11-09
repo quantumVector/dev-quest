@@ -1,0 +1,59 @@
+
+// Context API - глобальное состояние без prop drilling
+
+import React, { createContext, useContext, useState } from 'react';
+
+// 1. Создание контекста
+const ThemeContext = createContext();
+
+// 2. Provider компонент
+function ThemeProvider({ children }) {
+  const [theme, setTheme] = useState('light');
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
+
+  const value = {
+    theme,
+    toggleTheme
+  };
+
+  return (
+    <ThemeContext.Provider value={value}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+// 3. Хук для использования контекста
+function useTheme() {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error('useTheme должен использоваться внутри ThemeProvider');
+  }
+  return context;
+}
+
+// 4. Использование в компонентах
+function Header() {
+  const { theme, toggleTheme } = useTheme();
+
+  return (
+    <header className={`header header--${theme}`}>
+      <h1>Моё приложение</h1>
+      <button onClick={toggleTheme}>
+        Переключить тему
+      </button>
+    </header>
+  );
+}
+
+function App() {
+  return (
+    <ThemeProvider>
+      <Header />
+      {/* Другие компоненты тоже имеют доступ к theme */}
+    </ThemeProvider>
+  );
+}

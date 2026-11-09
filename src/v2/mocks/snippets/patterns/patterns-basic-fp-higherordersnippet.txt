@@ -1,0 +1,31 @@
+
+// Функции высшего порядка - принимают или возвращают функции
+
+// 1. Принимают функцию как аргумент
+const numbers = [1, 2, 3, 4, 5];
+
+const double = x => x * 2;
+const isEven = x => x % 2 === 0;
+
+console.log(numbers.map(double));      // [2, 4, 6, 8, 10]
+console.log(numbers.filter(isEven));   // [2, 4]
+console.log(numbers.reduce((a, b) => a + b, 0)); // 15
+
+// 2. Возвращают функцию
+const multiplyBy = factor => number => number * factor;
+
+const double = multiplyBy(2);
+const triple = multiplyBy(3);
+
+console.log(double(5)); // 10
+console.log(triple(5)); // 15
+
+// 3. Композиция функций
+const compose = (...fns) => x =>
+  fns.reduceRight((acc, fn) => fn(acc), x);
+
+const addOne = x => x + 1;
+const square = x => x * x;
+
+const addOneThenSquare = compose(square, addOne);
+console.log(addOneThenSquare(5)); // (5 + 1)² = 36

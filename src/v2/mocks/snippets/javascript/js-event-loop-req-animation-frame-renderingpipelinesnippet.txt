@@ -1,0 +1,48 @@
+
+// Полный цикл рендеринга браузера
+console.log('=== Цикл Event Loop с рендерингом ===');
+
+// 1. Синхронный код
+console.log('1. Start');
+
+// 2. Макрозадача
+setTimeout(() => {
+  console.log('6. Макрозадача');
+}, 0);
+
+// 3. Микрозадача
+Promise.resolve().then(() => {
+  console.log('2. Микрозадача');
+});
+
+// 4. requestAnimationFrame (перед рендерингом)
+requestAnimationFrame(() => {
+  console.log('3. rAF - готовимся к рендерингу');
+
+  // Можем делать вычисления для анимации
+  const element = document.getElementById('animated-element');
+  if (element) {
+    element.style.transform = `translateX(${Math.random() * 100}px)`;
+  }
+});
+
+// 5. requestIdleCallback (после рендеринга, в свободное время)
+if ('requestIdleCallback' in window) {
+  requestIdleCallback(() => {
+    console.log('5. Idle callback - в свободное время');
+  });
+}
+
+// Рендеринг браузера происходит здесь (между 3 и 4)
+// 4. Style recalc, Layout, Paint, Composite
+
+console.log('1.5. End sync code');
+
+// Полная последовательность:
+// 1. Start
+// 1.5. End sync code
+// 2. Микрозадача
+// 3. rAF - готовимся к рендерингу
+// [Рендеринг: Style → Layout → Paint → Composite]
+// 5. Idle callback - в свободное время
+// 6. Макрозадача

@@ -1,0 +1,7 @@
+
+<!-- Разные изображения для разных размеров экрана -->
+<picture>
+  <source media="(min-width: 768px)" srcset="photo-desktop.jpg">
+  <source media="(min-width: 480px)" srcset="photo-tablet.jpg">
+  <img src="photo-mobile.jpg" alt="Фотография">
+</picture>

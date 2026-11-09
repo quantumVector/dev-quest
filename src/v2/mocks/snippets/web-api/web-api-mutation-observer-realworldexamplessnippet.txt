@@ -1,0 +1,395 @@
+
+// =====================================
+// РЕАЛЬНЫЕ ПРИМЕРЫ ИЗ ПРАКТИКИ
+// =====================================
+
+// 1. Интеграция с SPA-фреймворками (React/Vue Router)
+class RouteChangeDetector {
+  constructor() {
+    this.currentPath = location.pathname
+    this.callbacks = []
+    this.setupObserver()
+  }
+
+  setupObserver() {
+    // Отслеживаем изменения title (часто меняется при смене роута)
+    const observer = new MutationObserver(() => {
+      const newPath = location.pathname
+      if (newPath !== this.currentPath) {
+        this.currentPath = newPath
+        this.notifyRouteChange(newPath)
+      }
+    })
+
+    observer.observe(document.querySelector('title'), {
+      childList: true,
+      characterData: true
+    })
+
+    // Также отслеживаем изменения в корневом элементе
+    const appObserver = new MutationObserver(() => {
+      const newPath = location.pathname
+      if (newPath !== this.currentPath) {
+        this.currentPath = newPath
+        this.notifyRouteChange(newPath)
+      }
+    })
+
+    appObserver.observe(document.getElementById('app'), {
+      childList: true
+    })
+  }
+
+  onRouteChange(callback) {
+    this.callbacks.push(callback)
+  }
+
+  notifyRouteChange(path) {
+    console.log('Роут изменен:', path)
+    this.callbacks.forEach(cb => cb(path))
+  }
+}
+
+const routeDetector = new RouteChangeDetector()
+routeDetector.onRouteChange((path) => {
+  // Отправка аналитики
+  analytics.pageView(path)
+})
+
+// 2. Отслеживание рекламных блоков (для блокировщиков рекламы)
+class AdBlockDetector {
+  constructor() {
+    this.isAdBlockActive = false
+    this.setupObserver()
+  }
+
+  setupObserver() {
+    // Создаем приманку для AdBlock
+    const bait = document.createElement('div')
+    bait.className = 'ad advertisement adsbox'
+    bait.style.cssText = 'width:1px;height:1px;position:absolute;left:-999px;'
+    document.body.appendChild(bait)
+
+    // Наблюдаем за удалением приманки
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach(mutation => {
+        mutation.removedNodes.forEach(node => {
+          if (node === bait) {
+            this.isAdBlockActive = true
+            console.log('AdBlock обнаружен!')
+            this.showMessage()
+          }
+        })
+      })
+    })
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    })
+
+    // Проверка через некоторое время
+    setTimeout(() => {
+      if (bait.offsetHeight === 0) {
+        this.isAdBlockActive = true
+        this.showMessage()
+      }
+    }, 100)
+  }
+
+  showMessage() {
+    const message = document.createElement('div')
+    message.textContent = 'Пожалуйста, отключите AdBlock для полного доступа'
+    message.style.cssText = 'position:fixed;top:0;left:0;right:0;background:orange;padding:10px;'
+    document.body.prepend(message)
+  }
+}
+
+new AdBlockDetector()
+
+// 3. Отслеживание изменений в localStorage (через DOM)
+class LocalStorageObserver {
+  constructor() {
+    this.callbacks = new Map()
+    this.setupObserver()
+  }
+
+  setupObserver() {
+    // Создаем скрытый элемент для хранения данных
+    const storageElement = document.createElement('div')
+    storageElement.id = 'local-storage-mirror'
+    storageElement.style.display = 'none'
+    document.body.appendChild(storageElement)
+
+    // Переопределяем localStorage методы
+    const originalSetItem = localStorage.setItem.bind(localStorage)
+
+    localStorage.setItem = (key, value) => {
+      originalSetItem(key, value)
+      storageElement.setAttribute(`data-${key}`, value)
+    }
+
+    // Наблюдаем за изменениями атрибутов
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach(mutation => {
+        if (mutation.type === 'attributes') {
+          const key = mutation.attributeName.replace('data-', '')
+          const newValue = mutation.target.getAttribute(mutation.attributeName)
+          this.notifyChange(key, mutation.oldValue, newValue)
+        }
+      })
+    })
+
+    observer.observe(storageElement, {
+      attributes: true,
+      attributeOldValue: true
+    })
+  }
+
+  watch(key, callback) {
+    if (!this.callbacks.has(key)) {
+      this.callbacks.set(key, [])
+    }
+    this.callbacks.get(key).push(callback)
+  }
+
+  notifyChange(key, oldValue, newValue) {
+    if (this.callbacks.has(key)) {
+      this.callbacks.get(key).forEach(cb => cb(oldValue, newValue))
+    }
+  }
+}
+
+const storageObserver = new LocalStorageObserver()
+storageObserver.watch('user', (oldValue, newValue) => {
+  console.log('User changed:', { oldValue, newValue })
+})
+
+// 4. Отслеживание производительности рендеринга
+class PerformanceMonitor {
+  constructor() {
+    this.mutationCount = 0
+    this.mutationRate = 0
+    this.setupObserver()
+  }
+
+  setupObserver() {
+    const observer = new MutationObserver((mutations) => {
+      this.mutationCount += mutations.length
+
+      // Проверяем частоту мутаций
+      if (this.mutationCount > 100) {
+        console.warn('⚠️ Высокая частота DOM мутаций:', this.mutationCount)
+        this.logSlowMutations(mutations)
+      }
+    })
+
+    observer.observe(document.body, {
+      childList: true,
+      attributes: true,
+      characterData: true,
+      subtree: true
+    })
+
+    // Сброс счетчика каждую секунду
+    setInterval(() => {
+      this.mutationRate = this.mutationCount
+      this.mutationCount = 0
+
+      if (this.mutationRate > 50) {
+        console.log(`Мутаций в секунду: ${this.mutationRate}`)
+      }
+    }, 1000)
+  }
+
+  logSlowMutations(mutations) {
+    const summary = mutations.reduce((acc, m) => {
+      acc[m.type] = (acc[m.type] || 0) + 1
+      return acc
+    }, {})
+    console.table(summary)
+  }
+}
+
+const perfMonitor = new PerformanceMonitor()
+
+// 5. Отслеживание добавления скриптов (безопасность)
+class ScriptInjectionDetector {
+  constructor() {
+    this.allowedScripts = new Set([
+      'https://cdn.example.com/app.js',
+      'https://analytics.google.com/analytics.js'
+    ])
+    this.setupObserver()
+  }
+
+  setupObserver() {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach(mutation => {
+        mutation.addedNodes.forEach(node => {
+          if (node.tagName === 'SCRIPT') {
+            this.checkScript(node)
+          }
+        })
+      })
+    })
+
+    observer.observe(document.documentElement, {
+      childList: true,
+      subtree: true
+    })
+  }
+
+  checkScript(scriptElement) {
+    const src = scriptElement.src
+
+    if (src && !this.allowedScripts.has(src)) {
+      console.error('🚨 Обнаружен неавторизованный скрипт:', src)
+      scriptElement.remove()
+      this.reportToServer(src)
+    }
+  }
+
+  reportToServer(src) {
+    fetch('/api/security/report', {
+      method: 'POST',
+      body: JSON.stringify({ type: 'unauthorized_script', src }),
+      headers: { 'Content-Type': 'application/json' }
+    })
+  }
+}
+
+new ScriptInjectionDetector()
+
+// 6. Отслеживание изменений в таблице (DataTable)
+class DataTableObserver {
+  constructor(tableElement) {
+    this.table = tableElement
+    this.rowCache = new Map()
+    this.setupObserver()
+  }
+
+  setupObserver() {
+    const tbody = this.table.querySelector('tbody')
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach(mutation => {
+        if (mutation.type === 'childList') {
+          mutation.addedNodes.forEach(node => {
+            if (node.tagName === 'TR') {
+              this.onRowAdded(node)
+            }
+          })
+
+          mutation.removedNodes.forEach(node => {
+            if (node.tagName === 'TR') {
+              this.onRowRemoved(node)
+            }
+          })
+        }
+
+        if (mutation.type === 'characterData') {
+          const row = mutation.target.closest('tr')
+          if (row) {
+            this.onRowUpdated(row)
+          }
+        }
+      })
+    })
+
+    observer.observe(tbody, {
+      childList: true,
+      characterData: true,
+      subtree: true
+    })
+  }
+
+  onRowAdded(row) {
+    const rowData = this.extractRowData(row)
+    this.rowCache.set(row, rowData)
+    console.log('Добавлена строка:', rowData)
+    this.updateSummary()
+  }
+
+  onRowRemoved(row) {
+    const rowData = this.rowCache.get(row)
+    console.log('Удалена строка:', rowData)
+    this.rowCache.delete(row)
+    this.updateSummary()
+  }
+
+  onRowUpdated(row) {
+    const oldData = this.rowCache.get(row)
+    const newData = this.extractRowData(row)
+    console.log('Обновлена строка:', { oldData, newData })
+    this.rowCache.set(row, newData)
+  }
+
+  extractRowData(row) {
+    return Array.from(row.cells).map(cell => cell.textContent)
+  }
+
+  updateSummary() {
+    const totalRows = this.rowCache.size
+    console.log(`Всего строк: ${totalRows}`)
+  }
+}
+
+const table = document.querySelector('#data-table')
+const tableObserver = new DataTableObserver(table)
+
+// 7. Отслеживание infinite scroll загрузки
+class InfiniteScrollObserver {
+  constructor(containerElement, loadMoreCallback) {
+    this.container = containerElement
+    this.loadMoreCallback = loadMoreCallback
+    this.isLoading = false
+    this.setupObserver()
+  }
+
+  setupObserver() {
+    const observer = new MutationObserver(() => {
+      if (this.isLoading) return
+
+      const scrollHeight = this.container.scrollHeight
+      const scrollTop = this.container.scrollTop
+      const clientHeight = this.container.clientHeight
+
+      const scrollPercent = (scrollTop / (scrollHeight - clientHeight)) * 100
+
+      if (scrollPercent > 80) {
+        this.loadMore()
+      }
+    })
+
+    observer.observe(this.container, {
+      childList: true,
+      subtree: true
+    })
+
+    // Также слушаем scroll
+    this.container.addEventListener('scroll', () => {
+      // MutationObserver обработает после рендера
+    })
+  }
+
+  async loadMore() {
+    this.isLoading = true
+    console.log('Загрузка дополнительного контента...')
+
+    await this.loadMoreCallback()
+
+    this.isLoading = false
+  }
+}
+
+const feed = document.querySelector('#feed')
+const infiniteScroll = new InfiniteScrollObserver(feed, async () => {
+  // Загрузка данных с сервера
+  const data = await fetch('/api/posts?page=' + currentPage).then(r => r.json())
+  data.forEach(post => {
+    const postElement = createPostElement(post)
+    feed.appendChild(postElement)
+  })
+  currentPage++
+})

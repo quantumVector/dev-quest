@@ -1,0 +1,171 @@
+
+// =====================================
+// ИНТЕГРАЦИЯ С VUE
+// =====================================
+
+import { ref, onMounted, onUnmounted, watch } from 'vue'
+
+// 1. Composable useResizeObserver
+export function useResizeObserver(callback, options = {}) {
+  const observer = ref(null)
+
+  const observe = (element) => {
+    if (!element) return
+
+    if (!observer.value) {
+      observer.value = new ResizeObserver(callback)
+    }
+
+    observer.value.observe(element, options)
+  }
+
+  const unobserve = (element) => {
+    if (element && observer.value) {
+      observer.value.unobserve(element)
+    }
+  }
+
+  const disconnect = () => {
+    if (observer.value) {
+      observer.value.disconnect()
+      observer.value = null
+    }
+  }
+
+  onUnmounted(() => {
+    disconnect()
+  })
+
+  return { observe, unobserve, disconnect }
+}
+
+// Использование в компоненте
+// <script setup>
+const boxRef = ref(null)
+const size = ref({ width: 0, height: 0 })
+
+const { observe } = useResizeObserver((entries) => {
+  for (const entry of entries) {
+    size.value = {
+      width: entry.contentRect.width,
+      height: entry.contentRect.height
+    }
+  }
+})
+
+onMounted(() => {
+  if (boxRef.value) {
+    observe(boxRef.value)
+  }
+})
+// </script>
+
+// <template>
+  //   <div ref="boxRef">
+  //     Size: {{ size.width }} x {{ size.height }}
+  //   </div>
+  // </template>
+
+// 2. Composable для размеров элемента
+export function useElementSize(elementRef, options = {}) {
+const width = ref(0)
+const height = ref(0)
+const observer = ref(null)
+
+onMounted(() => {
+if (!elementRef.value) return
+
+observer.value = new ResizeObserver((entries) => {
+const entry = entries[0]
+if (entry) {
+width.value = entry.contentRect.width
+height.value = entry.contentRect.height
+}
+})
+
+observer.value.observe(elementRef.value, options)
+})
+
+onUnmounted(() => {
+observer.value?.disconnect()
+})
+
+return { width, height }
+}
+
+// Использование
+// <script setup>
+const containerRef = ref(null)
+const { width, height } = useElementSize(containerRef)
+
+const isSmall = computed(() => width.value < 400)
+const isMedium = computed(() => width.value >= 400 && width.value < 800)
+const isLarge = computed(() => width.value >= 800)
+// </script>
+
+// 3. Директива v-resize
+export const vResize = {
+mounted(el, binding) {
+const callback = binding.value
+
+if (typeof callback !== 'function') {
+console.warn('v-resize expects a function')
+return
+}
+
+el._resizeObserver = new ResizeObserver((entries) => {
+callback(entries[0])
+})
+
+el._resizeObserver.observe(el, binding.modifiers)
+},
+
+unmounted(el) {
+el._resizeObserver?.disconnect()
+delete el._resizeObserver
+}
+}
+
+// Использование директивы
+// <template>
+  //   <div v-resize="handleResize">
+  //     Content
+  //   </div>
+  // </template>
+
+// <script setup>
+function handleResize(entry) {
+  console.log('Resized:', entry.contentRect.width)
+}
+// </script>
+
+// 4. Адаптивный компонент
+// <script setup>
+const cardRef = ref(null)
+const layout = ref('large')
+
+const { observe } = useResizeObserver((entries) => {
+  const width = entries[0].contentRect.width
+
+  if (width < 300) {
+    layout.value = 'small'
+  } else if (width < 600) {
+    layout.value = 'medium'
+  } else {
+    layout.value = 'large'
+  }
+})
+
+onMounted(() => {
+  if (cardRef.value) {
+    observe(cardRef.value)
+  }
+})
+// </script>
+
+// <template>
+  //   <div ref="cardRef" :class="['card', `card--${layout}`]">
+  //     <h2>Adaptive Card</h2>
+  //     <p>Layout: {{ layout }}</p>
+  //   </div>
+  // </template>

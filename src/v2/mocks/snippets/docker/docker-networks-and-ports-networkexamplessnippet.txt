@@ -1,0 +1,21 @@
+
+# =====================================
+# ПРАКТИЧЕСКИЕ ПРИМЕРЫ
+# =====================================
+
+# Bridge сеть (изолированная)
+docker run -d -p 80:80 --name web nginx
+docker run -d --name app --link web myapp
+
+# Host сеть (прямой доступ)
+docker run -d --network host nginx
+# nginx доступен на всех IP хоста на порту 80
+
+# Пользовательская сеть
+docker network create --driver bridge my-app-net
+docker run -d --network my-app-net --name db postgres
+docker run -d --network my-app-net --name web -p 80:80 nginx
+# Контейнеры могут обращаться друг к другу по именам
+
+# Подключение к нескольким сетям
+docker network connect my-app-net existing-container

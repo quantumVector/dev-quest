@@ -1,0 +1,52 @@
+
+// Эволюция: async/await (ES2017)
+// Делает асинхронный код похожим на синхронный
+
+async function fetchUserData(userId) {
+  try {
+    console.log('Начинаем загрузку...')
+
+    const user = await getUserData(userId)
+    console.log('Пользователь:', user)
+
+    const posts = await getUserPosts(user.id)
+    console.log('Посты:', posts)
+
+    const comments = await getPostComments(posts[0].id)
+    console.log('Комментарии:', comments)
+
+    return { user, posts, comments }
+  } catch (error) {
+    console.error('Ошибка:', error)
+    throw error
+  } finally {
+    console.log('Загрузка завершена')
+  }
+}
+
+// Использование
+fetchUserData(1)
+  .then(data => {
+    console.log('Все данные:', data)
+  })
+  .catch(error => {
+    console.error('Не удалось загрузить данные:', error)
+  })
+
+// async/await с циклами
+async function processUsers(userIds) {
+  const results = []
+
+  // Последовательная обработка
+  for (const userId of userIds) {
+    const user = await getUserData(userId)
+    results.push(user)
+  }
+
+  // Параллельная обработка
+  const users = await Promise.all(
+    userIds.map(id => getUserData(id))
+  )
+
+  return users
+}

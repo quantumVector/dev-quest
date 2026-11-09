@@ -1,0 +1,237 @@
+
+// =====================================
+// SHARED WORKER (продвинутый подход)
+// =====================================
+
+// cart-worker.js - Shared Worker файл
+// Этот код работает в отдельном потоке, общем для всех вкладок
+
+let cart = []
+const connections = new Set()
+
+// Загружаем корзину из IndexedDB при старте
+async function loadCart() {
+  // Используем IndexedDB для персистентности
+  const db = await openDB()
+  const tx = db.transaction('cart', 'readonly')
+  const store = tx.objectStore('cart')
+  cart = await store.getAll()
+}
+
+async function saveCart() {
+  const db = await openDB()
+  const tx = db.transaction('cart', 'readwrite')
+  const store = tx.objectStore('cart')
+  await store.clear()
+  for (const item of cart) {
+    await store.add(item)
+  }
+}
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('CartDB', 1)
+
+    request.onerror = () => reject(request.error)
+    request.onsuccess = () => resolve(request.result)
+
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result
+      if (!db.objectStoreNames.contains('cart')) {
+        db.createObjectStore('cart', { keyPath: 'id' })
+      }
+    }
+  })
+}
+
+// Обработка подключений от вкладок
+self.onconnect = async (event) => {
+  const port = event.ports[0]
+  connections.add(port)
+
+  // Загружаем корзину если еще не загружена
+  if (cart.length === 0) {
+    await loadCart()
+  }
+
+  // Отправляем текущее состояние корзины новой вкладке
+  port.postMessage({
+    type: 'INIT',
+    cart: cart
+  })
+
+  port.onmessage = async (messageEvent) => {
+    const { type, payload } = messageEvent.data
+
+    switch (type) {
+      case 'ADD_ITEM':
+        cart.push(payload)
+        await saveCart()
+        broadcast({ type: 'ITEM_ADDED', payload })
+        break
+
+      case 'REMOVE_ITEM':
+        cart = cart.filter(item => item.id !== payload)
+        await saveCart()
+        broadcast({ type: 'ITEM_REMOVED', payload })
+        break
+
+      case 'UPDATE_QUANTITY':
+        cart = cart.map(item =>
+          item.id === payload.itemId
+            ? { ...item, quantity: payload.quantity }
+            : item
+        )
+        await saveCart()
+        broadcast({ type: 'QUANTITY_UPDATED', payload })
+        break
+
+      case 'CLEAR_CART':
+        cart = []
+        await saveCart()
+        broadcast({ type: 'CART_CLEARED' })
+        break
+
+      case 'GET_CART':
+        port.postMessage({
+          type: 'CART_DATA',
+          cart: cart
+        })
+        break
+    }
+  }
+
+  port.onmessageerror = (error) => {
+    console.error('Message error:', error)
+  }
+
+  // Удаляем подключение при закрытии
+  port.start()
+}
+
+function broadcast(message) {
+  connections.forEach(port => {
+    try {
+      port.postMessage(message)
+    } catch (error) {
+      // Порт закрыт, удаляем
+      connections.delete(port)
+    }
+  })
+}
+
+// main.js - Код в основной вкладке
+class CartSyncWorker {
+  constructor() {
+    this.cart = []
+    this.listeners = new Set()
+    this.worker = new SharedWorker('cart-worker.js')
+
+    // Обработка сообщений от worker
+    this.worker.port.onmessage = this.handleMessage.bind(this)
+
+    // Запускаем подключение
+    this.worker.port.start()
+  }
+
+  handleMessage(event) {
+    const { type, payload, cart } = event.data
+
+    switch (type) {
+      case 'INIT':
+        this.cart = cart
+        this.notifyListeners(this.cart)
+        break
+
+      case 'ITEM_ADDED':
+        this.cart.push(payload)
+        this.notifyListeners(this.cart)
+        break
+
+      case 'ITEM_REMOVED':
+        this.cart = this.cart.filter(item => item.id !== payload)
+        this.notifyListeners(this.cart)
+        break
+
+      case 'QUANTITY_UPDATED':
+        this.cart = this.cart.map(item =>
+          item.id === payload.itemId
+            ? { ...item, quantity: payload.quantity }
+            : item
+        )
+        this.notifyListeners(this.cart)
+        break
+
+      case 'CART_CLEARED':
+        this.cart = []
+        this.notifyListeners(this.cart)
+        break
+
+      case 'CART_DATA':
+        this.cart = cart
+        this.notifyListeners(this.cart)
+        break
+    }
+  }
+
+  addItem(item) {
+    const newItem = { ...item, id: Date.now() }
+    this.worker.port.postMessage({
+      type: 'ADD_ITEM',
+      payload: newItem
+    })
+  }
+
+  removeItem(itemId) {
+    this.worker.port.postMessage({
+      type: 'REMOVE_ITEM',
+      payload: itemId
+    })
+  }
+
+  updateQuantity(itemId, quantity) {
+    this.worker.port.postMessage({
+      type: 'UPDATE_QUANTITY',
+      payload: { itemId, quantity }
+    })
+  }
+
+  clearCart() {
+    this.worker.port.postMessage({
+      type: 'CLEAR_CART'
+    })
+  }
+
+  refreshCart() {
+    this.worker.port.postMessage({
+      type: 'GET_CART'
+    })
+  }
+
+  subscribe(callback) {
+    this.listeners.add(callback)
+    return () => this.listeners.delete(callback)
+  }
+
+  notifyListeners(cart) {
+    this.listeners.forEach(callback => callback(cart))
+  }
+
+  getCart() {
+    return [...this.cart]
+  }
+}
+
+// Использование
+const cartSync = new CartSyncWorker()
+
+cartSync.subscribe((cart) => {
+  console.log('Cart updated via SharedWorker:', cart)
+  renderCart(cart)
+})
+
+cartSync.addItem({
+  name: 'MacBook Pro',
+  price: 2499,
+  quantity: 1
+})

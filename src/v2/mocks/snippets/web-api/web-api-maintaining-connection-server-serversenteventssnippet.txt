@@ -1,0 +1,255 @@
+
+// =====================================
+// SERVER-SENT EVENTS (EventSource)
+// =====================================
+
+// Создание EventSource
+const eventSource = new EventSource('/api/events')
+
+// Состояния EventSource
+console.log(eventSource.readyState)
+// 0 - CONNECTING (подключение)
+// 1 - OPEN (открыто)
+// 2 - CLOSED (закрыто)
+
+// Обработка событий
+
+// 1. Событие onopen - соединение установлено
+eventSource.onopen = (event) => {
+  console.log('Соединение установлено')
+  console.log('ReadyState:', eventSource.readyState)
+}
+
+// 2. Событие onmessage - получено сообщение
+eventSource.onmessage = (event) => {
+  console.log('Новое сообщение:', event.data)
+
+  // event.data - всегда строка
+  // event.lastEventId - ID последнего события
+  // event.origin - источник
+
+  try {
+    const data = JSON.parse(event.data)
+    console.log('Parsed data:', data)
+  } catch (e) {
+    console.log('Plain text:', event.data)
+  }
+}
+
+// 3. Событие onerror - ошибка соединения
+eventSource.onerror = (error) => {
+  console.error('EventSource ошибка:', error)
+
+  // EventSource автоматически переподключается
+  // Если хотите прекратить - закройте соединение
+  if (eventSource.readyState === EventSource.CLOSED) {
+    console.log('Соединение закрыто')
+  }
+}
+
+// Обработка именованных событий
+// Сервер может отправлять события с именами:
+// event: userJoined
+// data: {"username": "John"}
+
+eventSource.addEventListener('userJoined', (event) => {
+  const data = JSON.parse(event.data)
+  console.log('Пользователь присоединился:', data.username)
+})
+
+eventSource.addEventListener('userLeft', (event) => {
+  const data = JSON.parse(event.data)
+  console.log('Пользователь вышел:', data.username)
+})
+
+eventSource.addEventListener('notification', (event) => {
+  const notification = JSON.parse(event.data)
+  showNotification(notification)
+})
+
+// Закрытие соединения
+eventSource.close()
+
+// EventSource с заголовками (через polyfill или библиотеку)
+// Стандартный EventSource не поддерживает кастомные заголовки!
+
+// Обертка для EventSource с переподключением
+class ReconnectingEventSource {
+  constructor(url, options = {}) {
+    this.url = url
+    this.options = {
+      withCredentials: false,
+      maxRetries: Infinity,
+      retryDelay: 1000,
+      ...options
+    }
+
+    this.retryCount = 0
+    this.eventSource = null
+    this.listeners = new Map()
+
+    this.connect()
+  }
+
+  connect() {
+    try {
+      this.eventSource = new EventSource(this.url, {
+        withCredentials: this.options.withCredentials
+      })
+
+      this.eventSource.onopen = (event) => {
+        console.log('EventSource подключен')
+        this.retryCount = 0
+
+        if (this.onopen) this.onopen(event)
+      }
+
+      this.eventSource.onmessage = (event) => {
+        if (this.onmessage) this.onmessage(event)
+      }
+
+      this.eventSource.onerror = (error) => {
+        console.error('EventSource ошибка:', error)
+
+        if (this.eventSource.readyState === EventSource.CLOSED) {
+          this.reconnect()
+        }
+
+        if (this.onerror) this.onerror(error)
+      }
+
+      // Восстанавливаем все слушатели
+      this.listeners.forEach((handlers, eventType) => {
+        handlers.forEach(handler => {
+          this.eventSource.addEventListener(eventType, handler)
+        })
+      })
+
+    } catch (error) {
+      console.error('Ошибка создания EventSource:', error)
+      this.reconnect()
+    }
+  }
+
+  reconnect() {
+    if (this.retryCount >= this.options.maxRetries) {
+      console.error('Достигнут лимит попыток переподключения')
+      return
+    }
+
+    this.retryCount++
+
+    const delay = this.options.retryDelay * Math.pow(2, this.retryCount - 1)
+
+    console.log(`Переподключение через ${delay}ms (попытка ${this.retryCount})`)
+
+    setTimeout(() => this.connect(), delay)
+  }
+
+  addEventListener(eventType, handler) {
+    if (!this.listeners.has(eventType)) {
+      this.listeners.set(eventType, [])
+    }
+
+    this.listeners.get(eventType).push(handler)
+
+    if (this.eventSource) {
+      this.eventSource.addEventListener(eventType, handler)
+    }
+  }
+
+  removeEventListener(eventType, handler) {
+    if (!this.listeners.has(eventType)) return
+
+    const handlers = this.listeners.get(eventType)
+    const index = handlers.indexOf(handler)
+
+    if (index > -1) {
+      handlers.splice(index, 1)
+    }
+
+    if (this.eventSource) {
+      this.eventSource.removeEventListener(eventType, handler)
+    }
+  }
+
+  close() {
+    this.retryCount = this.options.maxRetries
+    if (this.eventSource) {
+      this.eventSource.close()
+    }
+  }
+}
+
+// Использование
+const res = new ReconnectingEventSource('/api/events', {
+  maxRetries: 10,
+  retryDelay: 1000
+})
+
+res.onopen = () => console.log('Подключено')
+res.onmessage = (event) => console.log('Сообщение:', event.data)
+res.onerror = (error) => console.error('Ошибка:', error)
+
+res.addEventListener('notification', (event) => {
+  const data = JSON.parse(event.data)
+  console.log('Уведомление:', data)
+})
+
+// Закрытие
+res.close()
+
+// Формат сообщений от сервера (SSE):
+/*
+// Простое сообщение
+data: Hello World!
+
+// JSON сообщение
+data: {"message": "Hello", "timestamp": 1234567890}
+
+// Многострочное сообщение
+data: First line
+data: Second line
+data: Third line
+
+// Именованное событие
+event: userJoined
+data: {"username": "John"}
+
+// С ID (для восстановления после разрыва)
+id: 123
+data: Message with ID
+
+// С retry (интервал переподключения в мс)
+retry: 10000
+data: Message with custom retry
+*/
+
+// Обработка lastEventId для возобновления
+class EventSourceWithResume {
+  constructor(url) {
+    this.url = url
+    this.lastEventId = localStorage.getItem('lastEventId') || ''
+
+    this.connect()
+  }
+
+  connect() {
+    // Добавляем lastEventId в URL
+    const urlWithId = this.lastEventId
+      ? `${this.url}?lastEventId=${this.lastEventId}`
+      : this.url
+
+    this.eventSource = new EventSource(urlWithId)
+
+    this.eventSource.onmessage = (event) => {
+      // Сохраняем lastEventId
+      if (event.lastEventId) {
+        this.lastEventId = event.lastEventId
+        localStorage.setItem('lastEventId', event.lastEventId)
+      }
+
+      console.log('Message:', event.data)
+    }
+  }
+}

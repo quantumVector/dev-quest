@@ -1,0 +1,42 @@
+
+# Продвинутый robots.txt с правилами для разных ботов
+
+# Общие правила для всех ботов
+User-agent: *
+Disallow: /admin/
+Disallow: /cart/
+Disallow: /checkout/
+Disallow: /account/
+Allow: /api/public/
+Sitemap: https://example.com/sitemap.xml
+
+# Специальные правила для Googlebot
+User-agent: Googlebot
+Disallow: /private/
+Allow: /private/public-section/
+Crawl-delay: 0
+
+# Специальные правила для Googlebot-Image
+User-agent: Googlebot-Image
+Disallow: /images/private/
+Allow: /images/
+
+# Правила для Bingbot
+User-agent: Bingbot
+Crawl-delay: 2
+Disallow: /search/
+
+# Блокировка плохих ботов
+User-agent: AhrefsBot
+User-agent: SemrushBot
+User-agent: MJ12bot
+Disallow: /
+
+# Правила для рекламных ботов
+User-agent: Mediapartners-Google
+Allow: /
+
+# Дополнительные sitemap
+Sitemap: https://example.com/sitemap-posts.xml
+Sitemap: https://example.com/sitemap-products.xml
+Sitemap: https://example.com/sitemap-images.xml

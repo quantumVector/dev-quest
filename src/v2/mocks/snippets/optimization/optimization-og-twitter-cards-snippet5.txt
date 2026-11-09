@@ -1,0 +1,93 @@
+
+// React компонент для динамической генерации мета-тегов
+import { Helmet } from 'react-helmet-async';
+
+interface SEOProps {
+  title: string;
+  description: string;
+  image?: string;
+  url?: string;
+  type?: 'website' | 'article' | 'product';
+  author?: string;
+  publishedTime?: string;
+  tags?: string[];
+}
+
+export function SEO({
+  title,
+  description,
+  image = '/default-og-image.jpg',
+  url = window.location.href,
+  type = 'website',
+  author,
+  publishedTime,
+  tags = []
+}: SEOProps) {
+  const siteName = 'Название сайта';
+  const twitterHandle = '@username';
+
+  // Абсолютный URL для изображения
+  const absoluteImageUrl = image.startsWith('http')
+    ? image
+    : `${window.location.origin}${image}`;
+
+  return (
+    <Helmet>
+      {/* Основные мета-теги */}
+      <title>{title} - {siteName}</title>
+      <meta name="description" content={description} />
+      <link rel="canonical" href={url} />
+
+      {/* Open Graph */}
+      <meta property="og:type" content={type} />
+      <meta property="og:url" content={url} />
+      <meta property="og:title" content={title} />
+      <meta property="og:description" content={description} />
+      <meta property="og:image" content={absoluteImageUrl} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+      <meta property="og:site_name" content={siteName} />
+      <meta property="og:locale" content="ru_RU" />
+
+      {/* Twitter Card */}
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:site" content={twitterHandle} />
+      <meta name="twitter:title" content={title} />
+      <meta name="twitter:description" content={description} />
+      <meta name="twitter:image" content={absoluteImageUrl} />
+
+      {/* Дополнительные теги для статей */}
+      {type === 'article' && (
+        <>
+          {author && <meta property="article:author" content={author} />}
+          {publishedTime && (
+            <meta property="article:published_time" content={publishedTime} />
+          )}
+          {tags.map(tag => (
+            <meta key={tag} property="article:tag" content={tag} />
+          ))}
+        </>
+      )}
+    </Helmet>
+  );
+}
+
+// Использование компонента
+function ArticlePage() {
+  return (
+    <>
+      <SEO
+        title="Заголовок статьи"
+        description="Описание статьи для социальных сетей"
+        image="/images/article-cover.jpg"
+        type="article"
+        author="https://example.com/author/john"
+        publishedTime="2025-02-03T10:00:00Z"
+        tags={['JavaScript', 'React', 'Frontend']}
+      />
+      <article>
+        {/* Контент статьи */}
+      </article>
+    </>
+  );
+}

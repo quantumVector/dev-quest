@@ -1,0 +1,73 @@
+
+// Функторы и монады (упрощенно)
+
+// Функтор - контейнер с методом map
+class Maybe {
+  constructor(value) {
+    this.value = value;
+  }
+
+  static of(value) {
+    return new Maybe(value);
+  }
+
+  isNothing() {
+    return this.value === null || this.value === undefined;
+  }
+
+  map(fn) {
+    return this.isNothing() ? this : Maybe.of(fn(this.value));
+  }
+
+  getOrElse(defaultValue) {
+    return this.isNothing() ? defaultValue : this.value;
+  }
+}
+
+// Использование Maybe для безопасной работы с null/undefined
+const user = { name: 'John', address: { city: 'NYC' } };
+const noAddressUser = { name: 'Jane' };
+
+const getCity = user =>
+  Maybe.of(user)
+    .map(u => u.address)
+    .map(a => a.city)
+    .map(c => c.toUpperCase())
+    .getOrElse('Unknown');
+
+console.log(getCity(user));          // 'NYC'
+console.log(getCity(noAddressUser)); // 'Unknown'
+
+// Either - для обработки ошибок
+class Either {
+  constructor(value, isRight) {
+    this.value = value;
+    this.isRight = isRight;
+  }
+
+  static right(value) {
+    return new Either(value, true);
+  }
+
+  static left(value) {
+    return new Either(value, false);
+  }
+
+  map(fn) {
+    return this.isRight
+      ? Either.right(fn(this.value))
+      : this;
+  }
+
+  chain(fn) {
+    return this.isRight ? fn(this.value) : this;
+  }
+}
+
+const divide = (a, b) =>
+  b === 0
+    ? Either.left('Division by zero')
+    : Either.right(a / b);
+
+const result1 = divide(10, 2).map(x => x * 2); // Right(10)
+const result2 = divide(10, 0).map(x => x * 2); // Left('Division by zero')

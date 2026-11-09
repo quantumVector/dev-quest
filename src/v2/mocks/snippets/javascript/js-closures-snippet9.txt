@@ -1,0 +1,84 @@
+
+// Распространенные ошибки с замыканиями
+
+// ❌ Ошибка: все функции используют одну переменную
+function createBrokenFunctions() {
+  const functions = [];
+
+  for (var i = 0; i < 3; i++) {
+    functions.push(function() {
+      return i; // Все функции будут возвращать 3!
+    });
+  }
+
+  return functions;
+}
+
+const broken = createBrokenFunctions();
+console.log(broken[0]()); // 3 (не 0!)
+console.log(broken[1]()); // 3 (не 1!)
+
+// ✅ Исправление: создаем отдельное замыкание для каждой итерации
+function createCorrectFunctions() {
+  const functions = [];
+
+  for (let i = 0; i < 3; i++) { // let создает новую переменную в каждой итерации
+    functions.push(function() {
+      return i;
+    });
+  }
+
+  return functions;
+}
+
+const correct = createCorrectFunctions();
+console.log(correct[0]()); // 0
+console.log(correct[1]()); // 1
+
+// ✅ Альтернативное решение с IIFE
+function createCorrectFunctionsIIFE() {
+  const functions = [];
+
+  for (var i = 0; i < 3; i++) {
+    functions.push((function(index) {
+      return function() {
+        return index;
+      };
+    })(i));
+  }
+
+  return functions;
+}
+
+// ❌ Память: избегайте избыточных замыканий
+function createHeavyClosures(data) {
+  const heavyData = new Array(1000000).fill(data); // Большой массив
+
+  // Плохо: все функции держат ссылку на heavyData
+  return {
+    getLength: function() {
+      return heavyData.length; // Весь массив остается в памяти
+    },
+    getFirst: function() {
+      return heavyData[0]; // Весь массив остается в памяти
+    }
+  };
+}
+
+// ✅ Лучше: извлекаем только нужные данные
+function createLightClosures(data) {
+  const heavyData = new Array(1000000).fill(data);
+  const length = heavyData.length;
+  const first = heavyData[0];
+
+  // heavyData может быть собран сборщиком мусора
+
+  return {
+    getLength: function() {
+      return length; // Только число
+    },
+    getFirst: function() {
+      return first; // Только первый элемент
+    }
+  };
+}

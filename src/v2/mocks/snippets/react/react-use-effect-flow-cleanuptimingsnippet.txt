@@ -1,0 +1,45 @@
+
+// Детальное понимание момента вызова cleanup
+
+function DetailedFlow({ id }) {
+  console.log('RENDER started')
+
+  useEffect(() => {
+    console.log('EFFECT: setup for id =', id)
+
+    return () => {
+      console.log('CLEANUP: cleaning up id =', id)
+    }
+  }, [id])
+
+  console.log('RENDER ended')
+
+  return <div>ID: {id}</div>
+}
+
+/*
+СЦЕНАРИЙ 1: Монтирование (id = 1)
+----------------------------------
+RENDER started
+RENDER ended
+[DOM обновился, браузер отрисовал]
+EFFECT: setup for id = 1
+
+СЦЕНАРИЙ 2: Обновление (id меняется с 1 на 2)
+----------------------------------------------
+RENDER started
+RENDER ended
+[DOM обновился, браузер отрисовал]
+CLEANUP: cleaning up id = 1  ← старый cleanup!
+EFFECT: setup for id = 2      ← новый setup!
+
+СЦЕНАРИЙ 3: Размонтирование
+----------------------------
+[Компонент удаляется]
+CLEANUP: cleaning up id = 2  ← финальный cleanup
+
+КРИТИЧЕСКИ ВАЖНО:
+- Cleanup вызывается ПОСЛЕ отрисовки DOM
+- Cleanup получает значения из ПРЕДЫДУЩЕГО рендера (замыкание!)
+- Cleanup вызывается ПЕРЕД новым эффектом
+*/

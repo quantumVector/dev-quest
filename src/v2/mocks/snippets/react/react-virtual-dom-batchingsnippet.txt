@@ -1,0 +1,96 @@
+
+// Батчинг обновлений - ключевая оптимизация Virtual DOM
+
+// Проблема: множественные setState
+
+// ❌ Без батчинга (наивный подход):
+function handleClick() {
+  setCount(count + 1);     // Render 1
+  setName('John');         // Render 2
+  setActive(true);         // Render 3
+  // Итого: 3 рендера, 3 обновления DOM
+}
+
+// ✅ React автоматически батчит в event handlers:
+function handleClick() {
+  setCount(count + 1);     // Запланировано
+  setName('John');         // Запланировано
+  setActive(true);         // Запланировано
+  // React: "Соберу все изменения и сделаю 1 рендер"
+  // Итого: 1 рендер, 1 обновление DOM
+}
+
+// Как это работает:
+
+// 1. React создает очередь обновлений
+const updateQueue = [];
+
+function setState(newState) {
+  updateQueue.push(newState);
+
+  // Планируем flush в конце event loop
+  if (!isFlushScheduled) {
+    isFlushScheduled = true;
+    queueMicrotask(flushUpdates);
+  }
+}
+
+// 2. В конце текущей задачи React применяет все обновления
+function flushUpdates() {
+  const oldState = currentState;
+  const newState = updateQueue.reduce(
+    (state, update) => ({ ...state, ...update }),
+    oldState
+  );
+
+  // Один рендер со всеми изменениями
+  render(newState);
+
+  updateQueue = [];
+  isFlushScheduled = false;
+}
+
+// React 18: Automatic Batching везде!
+
+// ✅ В асинхронном коде тоже батчинг:
+async function fetchData() {
+  const data = await fetch('/api/data');
+
+  setLoading(false);    // Запланировано
+  setData(data);        // Запланировано
+  setError(null);       // Запланировано
+  // React 18: автоматический батчинг! 1 рендер
+
+  // React 17: 3 рендера (нужен был unstable_batchedUpdates)
+}
+
+// ✅ В setTimeout тоже батчинг:
+function delayedUpdate() {
+  setTimeout(() => {
+    setCount(1);        // Запланировано
+    setName('Test');    // Запланировано
+    // React 18: 1 рендер
+    // React 17: 2 рендера
+  }, 1000);
+}
+
+// Отключение батчинга (редко нужно):
+import { flushSync } from 'react-dom';
+
+function handleClick() {
+  flushSync(() => {
+    setCount(count + 1);
+  });
+  // Форсированный синхронный рендер
+
+  flushSync(() => {
+    setName('John');
+  });
+  // Еще один форсированный рендер
+}
+
+// Преимущества батчинга:
+// 1. Меньше рендеров (производительность)
+// 2. Согласованное состояние (нет промежуточных состояний)
+// 3. Меньше обновлений DOM (быстрее)
+// 4. Предсказуемое поведение

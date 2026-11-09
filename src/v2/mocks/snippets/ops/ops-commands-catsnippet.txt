@@ -1,0 +1,65 @@
+
+# cat - concatenate and display files
+# Чтение и объединение файлов
+
+# Вывод содержимого файла
+cat package.json
+# Показывает весь файл
+
+# Объединение нескольких файлов
+cat file1.txt file2.txt file3.txt
+# Выводит все файлы подряд
+
+# Создание файла через cat
+cat > newfile.txt
+# Вводим текст, Ctrl+D для сохранения
+
+# Добавление в файл
+cat >> existingfile.txt
+# Добавляет введенный текст в конец
+
+# Нумерация строк
+cat -n script.js
+#  1  const express = require('express')
+#  2  const app = express()
+#  3  app.listen(3000)
+
+# Показ непечатаемых символов
+cat -A file.txt
+# $ в конце строк, ^I для табов
+
+# Удаление пустых строк
+cat -s file.txt
+
+# Практические примеры
+
+# Просмотр логов
+cat /var/log/nginx/error.log
+
+# Чтение конфига
+cat /etc/nginx/nginx.conf
+
+# Объединение частей файла
+cat part1.sql part2.sql part3.sql > complete.sql
+
+# Вывод с подсветкой синтаксиса (с помощью bat)
+bat package.json  # современная альтернатива cat
+
+# Просмотр первых строк большого файла
+cat large-file.txt | head -n 20
+
+# Просмотр последних строк
+cat application.log | tail -n 50
+
+# Поиск в файле
+cat server.js | grep "express"
+
+# Создание Docker Compose файла
+cat > docker-compose.yml << EOF
+version: '3.8'
+services:
+  web:
+    image: nginx
+    ports:
+      - "80:80"
+EOF

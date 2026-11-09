@@ -1,0 +1,39 @@
+
+// ❌ ПЛОХО - Закрыто для расширения
+const Button = ({ type, onClick, children }) => {
+  if (type === 'primary') {
+    return (
+      <button
+        className="bg-blue-500 text-white px-4 py-2"
+        onClick={onClick}
+      >
+        {children}
+      </button>
+    )
+  }
+
+  if (type === 'secondary') {
+    return (
+      <button
+        className="bg-gray-500 text-white px-4 py-2"
+        onClick={onClick}
+      >
+        {children}
+      </button>
+    )
+  }
+
+  if (type === 'danger') {
+    return (
+      <button
+        className="bg-red-500 text-white px-4 py-2"
+        onClick={onClick}
+      >
+        {children}
+      </button>
+    )
+  }
+
+  // Чтобы добавить новый тип, нужно изменять компонент
+  return <button onClick={onClick}>{children}</button>
+}

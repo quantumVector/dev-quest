@@ -1,0 +1,109 @@
+
+// CLS - Cumulative Layout Shift
+// Измеряет визуальную стабильность страницы
+
+// Хорошие значения:
+// ✅ Отлично: < 0.1
+// ⚠️  Требует улучшения: 0.1 - 0.25
+// ❌ Плохо: > 0.25
+
+// Расчет: Layout Shift Score = Impact Fraction × Distance Fraction
+// Impact Fraction - % viewport, затронутого сдвигом
+// Distance Fraction - расстояние сдвига / размер viewport
+
+// Как улучшить CLS:
+
+// 1. Резервируйте место для изображений и видео
+// ❌ Плохо
+<img src="image.jpg" alt="Image">
+
+// ✅ Хорошо - указываем размеры
+<img
+  src="image.jpg"
+  alt="Image"
+  width="800"
+  height="600"
+  style="max-width: 100%; height: auto;"
+>
+
+// ✅ Еще лучше - aspect-ratio
+<img
+  src="image.jpg"
+  alt="Image"
+  style="aspect-ratio: 16/9; width: 100%;"
+>
+
+// 2. Резервируйте место для динамического контента
+// ❌ Плохо - высота определяется контентом
+.ad-container {
+background: #f0f0f0;
+}
+
+// ✅ Хорошо - фиксированная высота или min-height
+.ad-container {
+min-height: 250px;
+background: #f0f0f0;
+}
+
+// 3. Избегайте вставки контента над существующим
+// ❌ Плохо - баннер вставляется сверху
+<div class="banner">Важное объявление!</div>
+<main>Контент страницы...</main>
+
+// ✅ Хорошо - баннер с position: fixed
+<div class="banner" style="position: fixed; top: 0; z-index: 1000;">
+Важное объявление!
+</div>
+<main style="margin-top: 50px;">Контент страницы...</main>
+
+// 4. Используйте transform вместо изменения размеров
+// ❌ Плохо
+.expanding-card {
+transition: height 0.3s;
+}
+.expanding-card.open {
+height: 400px;
+}
+
+// ✅ Хорошо - используем transform
+.expanding-card {
+height: 200px;
+transform-origin: top;
+transition: transform 0.3s;
+}
+.expanding-card.open {
+transform: scaleY(2);
+}
+
+// 5. Предзагружайте шрифты и используйте font-display
+<link
+  rel="preload"
+  href="fonts/custom-font.woff2"
+  as="font"
+  type="font/woff2"
+  crossorigin
+>
+
+<style>
+@font-face {
+  font-family: 'CustomFont';
+  src: url('fonts/custom-font.woff2') format('woff2');
+  /* Избегаем FOIT (Flash of Invisible Text) */
+  font-display: swap;
+}
+</style>
+
+// 6. Скелетоны для загружаемого контента
+function ArticleCard({ loading, data }) {
+if (loading) {
+return (
+<div className="skeleton" style={{ height: '300px' }}>
+<div className="skeleton-title"></div>
+<div className="skeleton-text"></div>
+<div className="skeleton-text"></div>
+</div>
+);
+}
+
+return <div className="article">{data}</div>;
+}

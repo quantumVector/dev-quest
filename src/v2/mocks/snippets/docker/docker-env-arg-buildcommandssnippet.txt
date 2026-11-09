@@ -1,0 +1,15 @@
+
+# Передача ARG при сборке
+docker build --build-arg NODE_ENV=development .
+docker build --build-arg API_URL=https://dev-api.com .
+docker build --build-arg BUILD_VERSION=1.2.3 .
+
+# Несколько ARG одновременно
+docker build   --build-arg NODE_ENV=staging   --build-arg API_URL=https://staging-api.com   --build-arg BUILD_VERSION=$(git rev-parse --short HEAD)   -t my-app:staging .
+
+# Передача ENV при запуске контейнера
+docker run -e NODE_ENV=production my-app
+docker run -e DATABASE_URL=postgres://prod-db:5432/app my-app
+
+# Файл с переменными окружения
+docker run --env-file .env.production my-app

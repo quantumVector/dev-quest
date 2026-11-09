@@ -1,0 +1,41 @@
+
+# docker-compose.yml для разработки и продакшена
+version: '3.8'
+
+services:
+  # React SPA (статические файлы)
+  react-app:
+    build:
+      context: ./react-app
+      dockerfile: Dockerfile
+      target: production  # Используем конкретную стадию
+    ports:
+      - "80:80"
+    restart: unless-stopped
+
+  # Next.js SSR (серверное приложение)
+  nextjs-app:
+    build:
+      context: ./nextjs-app
+      dockerfile: Dockerfile
+      target: runner
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+
+  # Для разработки Next.js
+  nextjs-dev:
+    build:
+      context: ./nextjs-app
+      dockerfile: Dockerfile
+      target: deps  # Только зависимости для dev режима
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./nextjs-app:/app
+      - /app/node_modules
+    command: npm run dev
+    environment:
+      - NODE_ENV=development

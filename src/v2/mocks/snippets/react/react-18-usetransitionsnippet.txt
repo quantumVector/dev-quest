@@ -1,0 +1,60 @@
+
+// useTransition - для неотложных обновлений UI
+import { useState, useTransition } from 'react';
+
+function SearchResults() {
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState([]);
+  const [isPending, startTransition] = useTransition();
+
+  const handleSearch = (e) => {
+    const value = e.target.value;
+
+    // Отложка input - выполняется мгновенно (высокий приоритет)
+    setQuery(value);
+
+    // Обновление результатов - может быть прервано (низкий приоритет)
+    startTransition(() => {
+      // Фильтрация большого массива данных
+      const filtered = heavyFilterOperation(allData, value);
+      setResults(filtered);
+    });
+  };
+
+  return (
+    <div>
+      {/* Input всегда реагирует мгновенно */}
+      <input value={query} onChange={handleSearch} />
+
+      {/* Индикатор загрузки для отложенного обновления */}
+      {isPending && <Spinner />}
+
+      {/* Результаты обновляются с низким приоритетом */}
+      <ResultsList results={results} />
+    </div>
+  );
+}
+
+// Сравнение с debounce/throttle
+function WithDebounce() {
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState([]);
+
+  // Проблема: input лагает, задержка искусственная
+  const debouncedSearch = useMemo(
+    () => debounce((value) => {
+      const filtered = heavyFilterOperation(allData, value);
+      setResults(filtered);
+    }, 300),
+    []
+  );
+
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    setQuery(value);
+    debouncedSearch(value); // 300ms задержка всегда
+  };
+
+  // useTransition лучше - нет фиксированной задержки,
+  // реагирует на загрузку системы динамически
+}

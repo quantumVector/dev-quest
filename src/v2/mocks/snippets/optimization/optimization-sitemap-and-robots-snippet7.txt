@@ -1,0 +1,63 @@
+
+// Генерация sitemap в Node.js/Next.js
+
+import { SitemapStream, streamToPromise } from 'sitemap'
+import { createWriteStream } from 'fs'
+
+async function generateSitemap() {
+  const sitemap = new SitemapStream({ hostname: 'https://example.com' })
+  const writeStream = createWriteStream('./public/sitemap.xml')
+
+  sitemap.pipe(writeStream)
+
+  // Статические страницы
+  sitemap.write({
+    url: '/',
+    changefreq: 'daily',
+    priority: 1.0,
+    lastmod: new Date().toISOString()
+  })
+
+  // Динамические страницы из базы данных
+  const posts = await fetchPosts()
+  posts.forEach(post => {
+    sitemap.write({
+      url: `/blog/${post.slug}`,
+      changefreq: 'weekly',
+      priority: 0.7,
+      lastmod: post.updatedAt
+    })
+  })
+
+  sitemap.end()
+  await streamToPromise(sitemap)
+}
+
+// Next.js API route: pages/api/sitemap.xml.ts
+export default async function handler(req, res) {
+  const sitemap = new SitemapStream({ hostname: 'https://example.com' })
+
+  const pages = [
+    { url: '/', changefreq: 'daily', priority: 1.0 },
+    { url: '/about', changefreq: 'monthly', priority: 0.8 },
+  ]
+
+  pages.forEach(page => sitemap.write(page))
+
+  const posts = await fetchPosts()
+  posts.forEach(post => {
+    sitemap.write({
+      url: `/blog/${post.slug}`,
+      lastmod: post.updatedAt,
+      priority: 0.7
+    })
+  })
+
+  sitemap.end()
+
+  const sitemapOutput = await streamToPromise(sitemap)
+
+  res.setHeader('Content-Type', 'application/xml')
+  res.write(sitemapOutput)
+  res.end()
+}

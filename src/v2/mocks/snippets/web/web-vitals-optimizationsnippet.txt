@@ -1,0 +1,170 @@
+
+// Комплексная стратегия оптимизации Web Vitals
+
+// 1. Аудит текущего состояния
+// - Запустить Lighthouse в DevTools
+// - Проверить PageSpeed Insights
+// - Собрать данные RUM за неделю
+// - Определить проблемные страницы
+
+// 2. Приоритизация проблем
+const priorities = {
+critical: [
+'LCP > 4s',
+'CLS > 0.25',
+'INP > 500ms'
+],
+high: [
+'LCP 2.5-4s',
+'CLS 0.1-0.25',
+'INP 200-500ms'
+],
+medium: [
+'TTFB > 800ms',
+'FCP > 3s',
+'TBT > 300ms'
+]
+};
+
+// 3. Quick wins для LCP
+// a) Оптимизация изображений
+// - Используйте AVIF/WebP с fallback
+// - Правильные размеры и srcset
+// - loading="eager" для LCP изображения
+// - fetchpriority="high" для критичных ресурсов
+
+// b) Preload критичных ресурсов
+<head>
+<link rel="preload" as="image" href="/hero.jpg" fetchpriority="high">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://cdn.example.com">
+</head>
+
+// c) Оптимизация шрифтов
+<link
+  rel="preload"
+  href="/fonts/font.woff2"
+  as="font"
+  type="font/woff2"
+  crossorigin
+>
+<style>
+@font-face {
+  font-family: 'CustomFont';
+  src: url('/fonts/font.woff2') format('woff2');
+  font-display: swap; /* Или optional для LCP текста */
+}
+</style>
+
+// 4. Quick wins для CLS
+// a) Размеры для всех медиа
+<img src="image.jpg" width="800" height="600" alt="Image">
+<video width="640" height="360" poster="poster.jpg">
+<source src="video.mp4" type="video/mp4">
+</video>
+
+// b) Резервирование пространства
+.ad-slot {
+min-height: 250px;
+background: #f0f0f0;
+}
+
+.skeleton-loader {
+height: 300px;
+background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+animation: shimmer 1.5s infinite;
+}
+
+// c) Избегайте динамических баннеров
+.cookie-banner {
+position: fixed;
+bottom: 0;
+left: 0;
+right: 0;
+/* Не сдвигает контент */
+}
+
+// 5. Quick wins для INP
+// a) Разделение длинных задач
+async function processLargeDataset(data) {
+const chunkSize = 100;
+
+for (let i = 0; i < data.length; i += chunkSize) {
+const chunk = data.slice(i, i + chunkSize);
+await processChunk(chunk);
+
+// Отдаем управление браузеру
+await new Promise(resolve => setTimeout(resolve, 0));
+}
+}
+
+// b) Дебаунс и троттлинг
+import { debounce, throttle } from 'lodash';
+
+const handleSearch = debounce((query) => {
+performSearch(query);
+}, 300);
+
+const handleScroll = throttle(() => {
+updateScrollPosition();
+}, 100);
+
+// c) Code splitting
+// Ленивая загрузка компонентов
+const HeavyComponent = lazy(() => import('./HeavyComponent'));
+
+// Динамический импорт
+button.addEventListener('click', async () => {
+const module = await import('./heavy-module.js');
+module.doSomething();
+});
+
+// 6. Мониторинг и алерты
+class WebVitalsMonitor {
+constructor() {
+this.thresholds = {
+lcp: { good: 2500, poor: 4000 },
+inp: { good: 200, poor: 500 },
+cls: { good: 0.1, poor: 0.25 }
+};
+}
+
+check(metric) {
+const threshold = this.thresholds[metric.name.toLowerCase()];
+
+if (metric.value > threshold.poor) {
+this.alert('critical', metric);
+} else if (metric.value > threshold.good) {
+this.alert('warning', metric);
+}
+}
+
+alert(level, metric) {
+// Отправка в систему мониторинга
+console.error(`[${level.toUpperCase()}] ${metric.name}: ${metric.value}`);
+
+// Можно интегрировать с Sentry, Datadog и т.д.
+if (window.Sentry) {
+Sentry.captureMessage(`Poor ${metric.name}`, {
+level: level,
+extra: metric
+});
+}
+}
+}
+
+const monitor = new WebVitalsMonitor();
+onLCP((metric) => monitor.check(metric));
+onINP((metric) => monitor.check(metric));
+onCLS((metric) => monitor.check(metric));
+
+// 7. A/B тестирование оптимизаций
+function trackExperiment(metric) {
+const variant = getExperimentVariant(); // 'control' или 'test'
+
+sendToAnalytics({
+...metric,
+experiment: 'image-optimization',
+variant: variant
+});
+}

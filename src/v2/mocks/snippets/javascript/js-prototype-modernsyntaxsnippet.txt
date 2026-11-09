@@ -1,0 +1,35 @@
+
+// Современный синтаксис классов (ES6+) - это синтаксический сахар над прототипами
+
+class Animal {
+  constructor(name) {
+    this.name = name;
+  }
+
+  eat() {
+    return `${this.name} ест`;
+  }
+}
+
+class Dog extends Animal {
+  constructor(name, breed) {
+    super(name); // Вызов родительского конструктора
+    this.breed = breed;
+  }
+
+  bark() {
+    return `${this.name} лает`;
+  }
+}
+
+const dog = new Dog('Рекс', 'Лабрадор');
+
+// Под капотом это всё те же прототипы!
+console.log(dog instanceof Dog); // true
+console.log(dog instanceof Animal); // true
+console.log(Dog.prototype.isPrototypeOf(dog)); // true
+console.log(Animal.prototype.isPrototypeOf(dog)); // true
+
+// Методы находятся в прототипах
+console.log(dog.hasOwnProperty('bark')); // false
+console.log(Dog.prototype.hasOwnProperty('bark')); // true

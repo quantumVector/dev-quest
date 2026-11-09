@@ -1,0 +1,78 @@
+
+// =====================================
+// СРАВНЕНИЕ С ДРУГИМИ ПОДХОДАМИ
+// =====================================
+
+// 1. ResizeObserver vs window.resize
+// ❌ window.resize - только размер окна
+window.addEventListener('resize', () => {
+const width = element.offsetWidth
+console.log('Window resized, element width:', width)
+})
+
+// ✅ ResizeObserver - размер конкретного элемента
+const resizeObserver = new ResizeObserver((entries) => {
+const width = entries[0].contentRect.width
+console.log('Element resized:', width)
+})
+resizeObserver.observe(element)
+
+// 2. ResizeObserver vs MutationObserver
+// MutationObserver НЕ отслеживает изменения размеров
+const mutationObserver = new MutationObserver((mutations) => {
+// Не сработает при изменении размера!
+console.log('DOM changed, but size?')
+})
+
+mutationObserver.observe(element, {
+attributes: true,
+childList: true,
+subtree: true
+})
+
+// 3. ResizeObserver vs polling
+// ❌ Polling - неэффективно
+setInterval(() => {
+const newWidth = element.offsetWidth
+if (newWidth !== lastWidth) {
+console.log('Size changed via polling')
+lastWidth = newWidth
+}
+}, 100) // Каждые 100ms!
+
+// ✅ ResizeObserver - эффективно, срабатывает только при изменении
+const efficientObserver = new ResizeObserver((entries) => {
+console.log('Size actually changed!')
+})
+
+// 4. ResizeObserver vs matchMedia (для viewport)
+// matchMedia - только для viewport размеров
+const mediaQuery = window.matchMedia('(min-width: 768px)')
+
+mediaQuery.addEventListener('change', (e) => {
+if (e.matches) {
+console.log('Viewport >= 768px')
+}
+})
+
+// ResizeObserver - для элементов (Container Queries в CSS)
+const containerObserver = new ResizeObserver((entries) => {
+const width = entries[0].contentRect.width
+if (width >= 768) {
+console.log('Element >= 768px')
+}
+})
+
+// 5. Производительность: ResizeObserver vs getBoundingClientRect
+// ❌ Постоянный getBoundingClientRect вызывает reflow
+function checkSize() {
+const rect = element.getBoundingClientRect() // Reflow!
+console.log('Size:', rect.width, rect.height)
+requestAnimationFrame(checkSize)
+}
+
+// ✅ ResizeObserver оптимизирован браузером
+const optimizedObserver = new ResizeObserver((entries) => {
+// Батчится браузером, без лишних reflow
+console.log('Size:', entries[0].contentRect.width)
+})

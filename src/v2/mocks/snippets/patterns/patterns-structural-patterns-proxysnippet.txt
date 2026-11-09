@@ -1,0 +1,79 @@
+
+// PROXY - контроль доступа к объекту
+
+// Реальный сервис
+class ExpensiveDataService {
+  loadData() {
+    console.log('Loading expensive data...');
+    // Симуляция тяжелой операции
+    return { data: 'Heavy data', size: '100MB' };
+  }
+}
+
+// Прокси с ленивой инициализацией
+class LazyDataServiceProxy {
+  private realService: ExpensiveDataService | null = null;
+
+  loadData() {
+    // Создаем реальный объект только при первом обращении
+    if (!this.realService) {
+      console.log('Initializing real service...');
+      this.realService = new ExpensiveDataService();
+    }
+
+    return this.realService.loadData();
+  }
+}
+
+// Прокси с кэшированием
+class CachingProxy {
+  private realService = new ExpensiveDataService();
+  private cache: any = null;
+  private cacheExpiry: number = 0;
+
+  loadData() {
+    const now = Date.now();
+
+    if (this.cache && now < this.cacheExpiry) {
+      console.log('Returning cached data');
+      return this.cache;
+    }
+
+    console.log('Cache expired, loading fresh data');
+    this.cache = this.realService.loadData();
+    this.cacheExpiry = now + 60000; // 1 минута
+
+    return this.cache;
+  }
+}
+
+// Прокси с контролем доступа
+class AccessControlProxy {
+  private realService = new ExpensiveDataService();
+  private currentUser: { role: string };
+
+  constructor(user: { role: string }) {
+    this.currentUser = user;
+  }
+
+  loadData() {
+    if (this.currentUser.role !== 'admin') {
+      throw new Error('Access denied: insufficient permissions');
+    }
+
+    console.log('Access granted');
+    return this.realService.loadData();
+  }
+}
+
+// Использование
+const lazyProxy = new LazyDataServiceProxy();
+console.log('Proxy created, service not initialized yet');
+lazyProxy.loadData(); // Инициализация происходит здесь
+
+const cachingProxy = new CachingProxy();
+cachingProxy.loadData(); // Загрузка данных
+cachingProxy.loadData(); // Из кэша
+
+const accessProxy = new AccessControlProxy({ role: 'admin' });
+accessProxy.loadData(); // Успех

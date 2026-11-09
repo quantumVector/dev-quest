@@ -1,0 +1,56 @@
+
+# echo - вывод текста в терминал или файл
+# Основная команда для вывода и работы с переменными
+
+# Базовый вывод
+echo "Hello, World!"
+# Hello, World!
+
+# Вывод переменных окружения
+echo $HOME
+# /home/user
+
+echo $PATH
+# /usr/local/bin:/usr/bin:/bin
+
+# Перенаправление в файл
+echo "console.log('Hello')" > script.js
+# Создает файл с содержимым (перезаписывает)
+
+echo "console.log('World')" >> script.js
+# Добавляет в конец файла (append)
+
+# Специальные символы
+echo -e "Line 1\nLine 2\nLine 3"
+# Line 1
+# Line 2
+# Line 3
+
+# Без переноса строки
+echo -n "Loading..."
+# Курсор остается на той же строке
+
+# Вывод с переменными
+NAME="John"
+echo "Hello, $NAME!"
+# Hello, John!
+
+# Экранирование специальных символов
+echo 'Price: $100'  # Одинарные кавычки - литерально
+# Price: $100
+
+echo "Price: \$100"  # Двойные с экранированием
+# Price: $100
+
+# Использование в скриптах сборки
+echo "Building application..."
+npm run build
+echo "Build complete!"
+
+# Debug информация
+DEBUG=true
+if [ "$DEBUG" = true ]; then
+  echo "Debug mode enabled"
+  echo "Current directory: $(pwd)"
+  echo "User: $(whoami)"
+fi

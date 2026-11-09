@@ -1,0 +1,59 @@
+
+// Integration тестирование - проверка взаимодействия компонентов
+
+// API сервис
+class UserService {
+  async getUser(id) {
+    const response = await fetch(`/api/users/${id}`)
+    return response.json()
+  }
+
+  async updateUser(id, data) {
+    const response = await fetch(`/api/users/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    })
+    return response.json()
+  }
+}
+
+// Integration тест
+describe('UserService', () => {
+  let service
+
+  beforeEach(() => {
+    service = new UserService()
+    // Настройка mock API
+    global.fetch = jest.fn()
+  })
+
+  test('getUser retrieves and returns user data', async () => {
+    const mockUser = { id: 1, name: 'John' }
+
+    global.fetch.mockResolvedValueOnce({
+      json: async () => mockUser
+    })
+
+    const user = await service.getUser(1)
+
+    expect(fetch).toHaveBeenCalledWith('/api/users/1')
+    expect(user).toEqual(mockUser)
+  })
+
+  test('updateUser sends data and returns updated user', async () => {
+    const userData = { name: 'Jane' }
+    const updatedUser = { id: 1, name: 'Jane' }
+
+    global.fetch.mockResolvedValueOnce({
+      json: async () => updatedUser
+    })
+
+    const result = await service.updateUser(1, userData)
+
+    expect(fetch).toHaveBeenCalledWith('/api/users/1', {
+      method: 'PUT',
+      body: JSON.stringify(userData)
+    })
+    expect(result).toEqual(updatedUser)
+  })
+})

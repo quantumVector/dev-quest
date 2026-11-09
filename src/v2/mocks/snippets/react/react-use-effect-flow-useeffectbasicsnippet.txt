@@ -1,0 +1,23 @@
+
+// Функциональный компонент с useEffect
+function UserProfile({ userId }) {
+  const [user, setUser] = useState(null)
+
+  // useEffect объединяет три метода жизненного цикла
+  useEffect(() => {
+    console.log('Effect running')
+
+    // componentDidMount + componentDidUpdate
+    fetch(`/api/users/${userId}`)
+      .then(res => res.json())
+      .then(user => setUser(user))
+
+    // componentWillUnmount (cleanup)
+    return () => {
+      console.log('Cleanup running')
+      // Отменяем запросы, таймеры, подписки
+    }
+  }, [userId]) // Зависимости - когда перезапускать эффект
+
+  return <div>{user?.name}</div>
+}

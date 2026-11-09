@@ -1,0 +1,28 @@
+
+<!-- Базовые meta-теги для каждой страницы -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Title - заголовок страницы (обязательный) -->
+  <title>Заголовок страницы | Название сайта</title>
+
+  <!-- Description - краткое описание страницы -->
+  <meta name="description" content="Краткое описание содержимого страницы,
+    до 160 символов. Показывается в поисковой выдаче.">
+
+  <!-- Keywords - ключевые слова (устарел, но иногда используется) -->
+  <meta name="keywords" content="ключевое слово 1, ключевое слово 2, слово 3">
+
+  <!-- Robots - инструкции для поисковых роботов -->
+  <meta name="robots" content="index, follow">
+
+  <!-- Author - автор страницы -->
+  <meta name="author" content="Имя Автора">
+</head>
+<body>
+  <!-- Контент страницы -->
+</body>
+</html>

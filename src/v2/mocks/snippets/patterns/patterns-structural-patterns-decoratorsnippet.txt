@@ -1,0 +1,83 @@
+
+// DECORATOR - динамическое добавление функциональности
+
+// Базовый компонент
+interface DataService {
+  fetchData(): Promise<any>;
+}
+
+class BasicDataService implements DataService {
+  async fetchData() {
+    const response = await fetch('/api/data');
+    return response.json();
+  }
+}
+
+// Декораторы
+class CachingDecorator implements DataService {
+  private service: DataService;
+  private cache = new Map<string, any>();
+
+  constructor(service: DataService) {
+    this.service = service;
+  }
+
+  async fetchData() {
+    const cacheKey = 'data';
+
+    if (this.cache.has(cacheKey)) {
+      console.log('Returning cached data');
+      return this.cache.get(cacheKey);
+    }
+
+    const data = await this.service.fetchData();
+    this.cache.set(cacheKey, data);
+    return data;
+  }
+}
+
+class LoggingDecorator implements DataService {
+  private service: DataService;
+
+  constructor(service: DataService) {
+    this.service = service;
+  }
+
+  async fetchData() {
+    console.log('Fetching data...');
+    const startTime = Date.now();
+
+    const data = await this.service.fetchData();
+
+    const endTime = Date.now();
+    console.log(`Data fetched in ${endTime - startTime}ms`);
+
+    return data;
+  }
+}
+
+class ErrorHandlingDecorator implements DataService {
+  private service: DataService;
+
+  constructor(service: DataService) {
+    this.service = service;
+  }
+
+  async fetchData() {
+    try {
+      return await this.service.fetchData();
+    } catch (error) {
+      console.error('Failed to fetch data:', error);
+      return { error: 'Failed to load data' };
+    }
+  }
+}
+
+// Композиция декораторов
+let service: DataService = new BasicDataService();
+service = new CachingDecorator(service);
+service = new LoggingDecorator(service);
+service = new ErrorHandlingDecorator(service);
+
+// Теперь сервис имеет кэширование, логирование и обработку ошибок
+service.fetchData();

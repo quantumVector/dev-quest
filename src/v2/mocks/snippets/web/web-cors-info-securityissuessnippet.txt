@@ -1,0 +1,53 @@
+
+// Проблемы безопасности при неправильной настройке CORS
+
+// ❌ ОПАСНО: Разрешить все origins с credentials
+app.use(cors({
+  origin: '*',
+  credentials: true
+}))
+// Проблема: Любой сайт может читать приватные данные пользователя!
+
+// ❌ ОПАСНО: Отражение Origin без проверки
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', req.headers.origin)
+  res.header('Access-Control-Allow-Credentials', 'true')
+  next()
+})
+// Проблема: Атакующий сайт может украсть данные!
+
+// ❌ ОПАСНО: Слишком длинный Max-Age
+app.use(cors({
+  maxAge: 31536000 // 1 год
+}))
+// Проблема: Если настройки изменятся, браузеры будут кэшировать старые
+
+// ✅ БЕЗОПАСНО: Явный whitelist origins
+const ALLOWED_ORIGINS = [
+  'https://myapp.com',
+  'https://admin.myapp.com'
+]
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin
+
+  if (ALLOWED_ORIGINS.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin)
+    res.header('Access-Control-Allow-Credentials', 'true')
+  }
+
+  next()
+})
+
+// ✅ БЕЗОПАСНО: Валидация на основе regex
+const ORIGIN_PATTERN = /^https://([w-]+.)?myapp.com$/
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin
+
+  if (ORIGIN_PATTERN.test(origin)) {
+    res.header('Access-Control-Allow-Origin', origin)
+  }
+
+  next()
+})

@@ -1,0 +1,285 @@
+
+// =====================================
+// РАЗРЕШЕНИЕ КОНФЛИКТОВ
+// =====================================
+
+// 1. Last-Write-Wins (LWW) - побеждает последняя запись
+class CartSyncLWW {
+  constructor() {
+    this.cart = this.loadCart()
+    this.version = Date.now()
+    this.channel = new BroadcastChannel('cart-sync-lww')
+
+    this.channel.onmessage = this.handleMessage.bind(this)
+  }
+
+  loadCart() {
+    try {
+      const data = localStorage.getItem('cart-data')
+      if (data) {
+        const { cart, version } = JSON.parse(data)
+        this.version = version
+        return cart
+      }
+    } catch (error) {
+      console.error('Error loading cart:', error)
+    }
+    return []
+  }
+
+  saveCart(cart) {
+    const version = Date.now()
+    const data = { cart, version }
+
+    localStorage.setItem('cart-data', JSON.stringify(data))
+    this.cart = cart
+    this.version = version
+
+    // Отправляем с версией
+    this.channel.postMessage({
+      type: 'CART_UPDATED',
+      cart,
+      version
+    })
+  }
+
+  handleMessage(event) {
+    const { type, cart, version } = event.data
+
+    if (type === 'CART_UPDATED') {
+      // Принимаем только если версия новее
+      if (version > this.version) {
+        this.cart = cart
+        this.version = version
+        localStorage.setItem('cart-data', JSON.stringify({ cart, version }))
+        this.notifyListeners(cart)
+      }
+    }
+  }
+
+  addItem(item) {
+    const cart = [...this.cart, { ...item, id: Date.now() }]
+    this.saveCart(cart)
+  }
+
+  // ... остальные методы
+}
+
+// 2. Operation-based CRDT (Conflict-free Replicated Data Type)
+class CartSyncCRDT {
+  constructor(replicaId = Math.random().toString(36).substr(2, 9)) {
+    this.replicaId = replicaId
+    this.items = new Map() // itemId -> { data, operations }
+    this.operations = [] // Лог операций
+    this.channel = new BroadcastChannel('cart-sync-crdt')
+
+    this.loadState()
+    this.channel.onmessage = this.handleMessage.bind(this)
+  }
+
+  loadState() {
+    try {
+      const data = localStorage.getItem('cart-crdt')
+      if (data) {
+        const { items, operations } = JSON.parse(data)
+        this.items = new Map(items)
+        this.operations = operations
+      }
+    } catch (error) {
+      console.error('Error loading state:', error)
+    }
+  }
+
+  saveState() {
+    const state = {
+      items: Array.from(this.items.entries()),
+      operations: this.operations
+    }
+    localStorage.setItem('cart-crdt', JSON.stringify(state))
+  }
+
+  createOperation(type, payload) {
+    return {
+      type,
+      payload,
+      replicaId: this.replicaId,
+      timestamp: Date.now(),
+      id: `${this.replicaId}-${Date.now()}-${Math.random()}`
+    }
+  }
+
+  applyOperation(operation) {
+    switch (operation.type) {
+      case 'ADD_ITEM':
+        this.items.set(operation.payload.id, {
+          ...operation.payload,
+          operations: [operation]
+        })
+        break
+
+      case 'REMOVE_ITEM':
+        this.items.delete(operation.payload.itemId)
+        break
+
+      case 'UPDATE_QUANTITY': {
+        const item = this.items.get(operation.payload.itemId)
+        if (item) {
+          item.quantity = operation.payload.quantity
+          item.operations.push(operation)
+        }
+        break
+      }
+    }
+
+    this.operations.push(operation)
+    this.saveState()
+  }
+
+  addItem(item) {
+    const newItem = { ...item, id: Date.now() }
+    const operation = this.createOperation('ADD_ITEM', newItem)
+
+    this.applyOperation(operation)
+    this.channel.postMessage(operation)
+  }
+
+  removeItem(itemId) {
+    const operation = this.createOperation('REMOVE_ITEM', { itemId })
+
+    this.applyOperation(operation)
+    this.channel.postMessage(operation)
+  }
+
+  updateQuantity(itemId, quantity) {
+    const operation = this.createOperation('UPDATE_QUANTITY', {
+      itemId,
+      quantity
+    })
+
+    this.applyOperation(operation)
+    this.channel.postMessage(operation)
+  }
+
+  handleMessage(event) {
+    const operation = event.data
+
+    // Проверяем, не применяли ли мы уже эту операцию
+    const exists = this.operations.some(op => op.id === operation.id)
+
+    if (!exists) {
+      this.applyOperation(operation)
+      this.notifyListeners(this.getCart())
+    }
+  }
+
+  getCart() {
+    return Array.from(this.items.values())
+  }
+
+  // Разрешение конфликтов для одновременных обновлений количества
+  resolveQuantityConflict(itemId) {
+    const item = this.items.get(itemId)
+    if (!item || !item.operations) return
+
+    // Сортируем операции по timestamp
+    const sortedOps = item.operations.sort((a, b) =>
+      a.timestamp - b.timestamp
+    )
+
+    // Применяем операции в порядке timestamp
+    let finalQuantity = 0
+    for (const op of sortedOps) {
+      if (op.type === 'UPDATE_QUANTITY') {
+        finalQuantity = op.payload.quantity
+      }
+    }
+
+    item.quantity = finalQuantity
+  }
+}
+
+// 3. Merge strategy с приоритетами
+class CartSyncMerge {
+  constructor() {
+    this.cart = this.loadCart()
+    this.pendingChanges = new Map()
+    this.channel = new BroadcastChannel('cart-sync-merge')
+
+    this.channel.onmessage = this.handleMessage.bind(this)
+  }
+
+  loadCart() {
+    const data = localStorage.getItem('cart')
+    return data ? JSON.parse(data) : []
+  }
+
+  saveCart(cart) {
+    localStorage.setItem('cart', JSON.stringify(cart))
+    this.cart = cart
+  }
+
+  mergeChanges(remoteCart) {
+    const localMap = new Map(this.cart.map(item => [item.id, item]))
+    const remoteMap = new Map(remoteCart.map(item => [item.id, item]))
+    const merged = new Map()
+
+    // Проходим по локальным элементам
+    for (const [id, localItem] of localMap) {
+      const remoteItem = remoteMap.get(id)
+
+      if (!remoteItem) {
+        // Элемент есть только локально - оставляем
+        merged.set(id, localItem)
+      } else {
+        // Элемент есть в обеих версиях - мержим
+        const mergedItem = this.mergeItem(localItem, remoteItem)
+        merged.set(id, mergedItem)
+      }
+    }
+
+    // Добавляем элементы, которые есть только в remote
+    for (const [id, remoteItem] of remoteMap) {
+      if (!localMap.has(id)) {
+        merged.set(id, remoteItem)
+      }
+    }
+
+    return Array.from(merged.values())
+  }
+
+  mergeItem(local, remote) {
+    // Стратегия: берем максимальное количество
+    return {
+      ...local,
+      quantity: Math.max(local.quantity, remote.quantity),
+      lastModified: Math.max(
+        local.lastModified || 0,
+        remote.lastModified || 0
+      )
+    }
+  }
+
+  addItem(item) {
+    const newItem = {
+      ...item,
+      id: Date.now(),
+      lastModified: Date.now()
+    }
+
+    const cart = [...this.cart, newItem]
+    this.saveCart(cart)
+
+    this.channel.postMessage({
+      type: 'CART_UPDATED',
+      cart
+    })
+  }
+
+  handleMessage(event) {
+    if (event.data.type === 'CART_UPDATED') {
+      const mergedCart = this.mergeChanges(event.data.cart)
+      this.saveCart(mergedCart)
+      this.notifyListeners(mergedCart)
+    }
+  }
+}

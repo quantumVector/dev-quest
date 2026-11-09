@@ -1,0 +1,176 @@
+
+// =====================================
+// CORE WEB VITALS - полный мониторинг
+// =====================================
+
+class WebVitalsMonitor {
+  constructor() {
+    this.metrics = {
+      lcp: null,
+      fid: null,
+      cls: 0,
+      fcp: null,
+      ttfb: null
+    }
+
+    this.observers = []
+    this.initObservers()
+  }
+
+  initObservers() {
+    // 1. Largest Contentful Paint (LCP)
+    if ('PerformanceObserver' in window) {
+      const lcpObserver = new PerformanceObserver((list) => {
+        const entries = list.getEntries()
+        const lastEntry = entries[entries.length - 1]
+
+        this.metrics.lcp = {
+          value: lastEntry.startTime,
+          rating: this.getRating('lcp', lastEntry.startTime),
+          element: lastEntry.element,
+          url: lastEntry.url
+        }
+
+        this.reportMetric('LCP', this.metrics.lcp)
+      })
+
+      lcpObserver.observe({ type: 'largest-contentful-paint', buffered: true })
+      this.observers.push(lcpObserver)
+    }
+
+    // 2. First Input Delay (FID)
+    const fidObserver = new PerformanceObserver((list) => {
+      const entries = list.getEntries()
+      entries.forEach(entry => {
+        const fid = entry.processingStart - entry.startTime
+
+        this.metrics.fid = {
+          value: fid,
+          rating: this.getRating('fid', fid),
+          eventType: entry.name
+        }
+
+        this.reportMetric('FID', this.metrics.fid)
+      })
+    })
+
+    fidObserver.observe({ type: 'first-input', buffered: true })
+    this.observers.push(fidObserver)
+
+    // 3. Cumulative Layout Shift (CLS)
+    let clsValue = 0
+    const clsObserver = new PerformanceObserver((list) => {
+      list.getEntries().forEach(entry => {
+        if (!entry.hadRecentInput) {
+          clsValue += entry.value
+
+          this.metrics.cls = {
+            value: clsValue,
+            rating: this.getRating('cls', clsValue),
+            sources: entry.sources
+          }
+
+          this.reportMetric('CLS', this.metrics.cls)
+        }
+      })
+    })
+
+    clsObserver.observe({ type: 'layout-shift', buffered: true })
+    this.observers.push(clsObserver)
+
+    // 4. First Contentful Paint (FCP)
+    const fcpObserver = new PerformanceObserver((list) => {
+      list.getEntries().forEach(entry => {
+        if (entry.name === 'first-contentful-paint') {
+          this.metrics.fcp = {
+            value: entry.startTime,
+            rating: this.getRating('fcp', entry.startTime)
+          }
+
+          this.reportMetric('FCP', this.metrics.fcp)
+        }
+      })
+    })
+
+    fcpObserver.observe({ type: 'paint', buffered: true })
+    this.observers.push(fcpObserver)
+
+    // 5. Time to First Byte (TTFB)
+    const navObserver = new PerformanceObserver((list) => {
+      list.getEntries().forEach(entry => {
+        const ttfb = entry.responseStart - entry.requestStart
+
+        this.metrics.ttfb = {
+          value: ttfb,
+          rating: this.getRating('ttfb', ttfb)
+        }
+
+        this.reportMetric('TTFB', this.metrics.ttfb)
+      })
+    })
+
+    navObserver.observe({ type: 'navigation', buffered: true })
+    this.observers.push(navObserver)
+  }
+
+  getRating(metric, value) {
+    const thresholds = {
+      lcp: { good: 2500, poor: 4000 },
+      fid: { good: 100, poor: 300 },
+      cls: { good: 0.1, poor: 0.25 },
+      fcp: { good: 1800, poor: 3000 },
+      ttfb: { good: 800, poor: 1800 }
+    }
+
+    const threshold = thresholds[metric]
+
+    if (value <= threshold.good) return 'good'
+    if (value <= threshold.poor) return 'needs-improvement'
+    return 'poor'
+  }
+
+  reportMetric(name, data) {
+    console.log(`${name}:`, data)
+
+    // Отправка в аналитику
+    this.sendToAnalytics(name, data)
+  }
+
+  sendToAnalytics(name, data) {
+    // Google Analytics
+    if (typeof gtag !== 'undefined') {
+      gtag('event', name, {
+        value: Math.round(data.value),
+        metric_rating: data.rating,
+        event_category: 'Web Vitals'
+      })
+    }
+
+    // Собственная аналитика
+    if (navigator.sendBeacon) {
+      const blob = new Blob(
+        [JSON.stringify({ metric: name, ...data })],
+        { type: 'application/json' }
+      )
+      navigator.sendBeacon('/api/metrics', blob)
+    }
+  }
+
+  getMetrics() {
+    return this.metrics
+  }
+
+  disconnect() {
+    this.observers.forEach(observer => observer.disconnect())
+    this.observers = []
+  }
+}
+
+// Использование
+const monitor = new WebVitalsMonitor()
+
+// Получение метрик в любой момент
+console.log('Current metrics:', monitor.getMetrics())
+
+// Отключение мониторинга
+// monitor.disconnect()

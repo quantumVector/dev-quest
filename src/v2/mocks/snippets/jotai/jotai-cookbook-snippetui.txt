@@ -1,0 +1,30 @@
+
+import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
+
+const selectedUserIdAtom = atom<string | null>(null)
+const isUserModalOpenAtom = atom((get) => get(selectedUserIdAtom) !== null)
+
+const closeUserModalAtom = atom(null, (get, set) => {
+  set(selectedUserIdAtom, null)
+})
+
+function UserRow({ id, name }: { id: string; name: string }) {
+  const setSelectedUserId = useSetAtom(selectedUserIdAtom)
+
+  return <button onClick={() => setSelectedUserId(id)}>{name}</button>
+}
+
+function UserModal() {
+  const isOpen = useAtomValue(isUserModalOpenAtom)
+  const [selectedUserId] = useAtom(selectedUserIdAtom)
+  const close = useSetAtom(closeUserModalAtom)
+
+  if (!isOpen) return null
+
+  return (
+    <dialog open>
+      <p>User id: {selectedUserId}</p>
+      <button onClick={close}>Close</button>
+    </dialog>
+  )
+}

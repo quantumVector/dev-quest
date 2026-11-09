@@ -1,0 +1,19 @@
+
+# Комбинирование ENTRYPOINT + CMD
+FROM python:3.9-alpine
+
+# Устанавливаем зависимости во время сборки
+RUN pip install flask requests
+
+# Копируем скрипт
+COPY app.py /app.py
+
+# ENTRYPOINT - основная команда (неизменная)
+ENTRYPOINT ["python", "/app.py"]
+
+# CMD - параметры по умолчанию (можно переопределить)
+CMD ["--port", "5000"]
+
+# Запуск:
+# docker run image → python /app.py --port 5000
+# docker run image --port 8080 → python /app.py --port 8080

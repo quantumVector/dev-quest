@@ -1,0 +1,135 @@
+
+// Лучшие практики работы с JWT
+
+// 1. КОРОТКИЙ СРОК ЖИЗНИ ACCESS TOKEN
+const generateTokens = (user) => {
+  const accessToken = jwt.sign(
+    { userId: user.id },
+    SECRET_KEY,
+    { expiresIn: '15m' }  // ✅ 15 минут, не часы!
+  )
+
+  const refreshToken = jwt.sign(
+    { userId: user.id, type: 'refresh' },
+    REFRESH_SECRET,
+    { expiresIn: '7d' }   // ✅ 7 дней для refresh
+  )
+
+  return { accessToken, refreshToken }
+}
+
+// 2. МИНИМАЛЬНЫЙ PAYLOAD
+// ❌ ПЛОХО - слишком много данных
+const badPayload = {
+  userId: 123,
+  email: 'user@example.com',
+  firstName: 'John',
+  lastName: 'Doe',
+  avatar: 'base64-encoded-image-data...',  // Огромный размер!
+  preferences: { /* много настроек */ },
+  friends: [/* массив друзей */]
+}
+
+// ✅ ХОРОШО - только необходимое
+const goodPayload = {
+  sub: 123,           // User ID
+  role: 'user',       // Роль
+  iat: 1735603200,    // Issued at
+  exp: 1735604100     // Expires
+}
+
+// 3. ПРОВЕРКА ТИПА ТОКЕНА
+function verifyAccessToken(token) {
+  const decoded = jwt.verify(token, SECRET_KEY)
+
+  // ✅ Проверяем, что это именно access token
+  if (decoded.type === 'refresh') {
+    throw new Error('Refresh token used as access token')
+  }
+
+  return decoded
+}
+
+// 4. WHITELIST/BLACKLIST ДЛЯ ОТЗЫВА
+const Redis = require('redis')
+const redisClient = Redis.createClient()
+
+// Добавляем токен в blacklist при логауте
+async function logout(token) {
+  const decoded = jwt.decode(token)
+  const ttl = decoded.exp - Math.floor(Date.now() / 1000)
+
+  // Храним в Redis до истечения
+  await redisClient.setex(`blacklist:${token}`, ttl, 'true')
+}
+
+// Проверяем blacklist при аутентификации
+async function authenticateToken(req, res, next) {
+  const token = req.headers.authorization?.split(' ')[1]
+
+  // Проверяем blacklist
+  const isBlacklisted = await redisClient.get(`blacklist:${token}`)
+  if (isBlacklisted) {
+    return res.status(401).json({ error: 'Token revoked' })
+  }
+
+  jwt.verify(token, SECRET_KEY, (err, decoded) => {
+    if (err) return res.status(403).json({ error: 'Invalid token' })
+    req.user = decoded
+    next()
+  })
+}
+
+// 5. ЗАЩИТА ОТ ПОДМЕНЫ АЛГОРИТМА
+// ❌ УЯЗВИМО
+jwt.verify(token, publicKey)  // Атакующий может поменять alg на "none"
+
+// ✅ БЕЗОПАСНО - явно указываем алгоритм
+jwt.verify(token, publicKey, { algorithms: ['RS256'] })
+
+// 6. БЕЗОПАСНЫЕ СЕКРЕТНЫЕ КЛЮЧИ
+// ❌ ПЛОХО
+const SECRET_KEY = 'secret'
+
+// ✅ ХОРОШО - случайная строка 256+ бит
+const crypto = require('crypto')
+const SECRET_KEY = crypto.randomBytes(32).toString('hex')
+// Храните в переменных окружения!
+
+// 7. РОТАЦИЯ REFRESH ТОКЕНОВ
+async function refreshAccessToken(refreshToken) {
+  const decoded = jwt.verify(refreshToken, REFRESH_SECRET)
+
+  // Создаем новые токены
+  const newAccessToken = generateAccessToken(decoded.userId)
+  const newRefreshToken = generateRefreshToken(decoded.userId)
+
+  // ✅ Инвалидируем старый refresh token
+  await redisClient.setex(
+    `blacklist:${refreshToken}`,
+    7 * 24 * 60 * 60,
+    'true'
+  )
+
+  return { accessToken: newAccessToken, refreshToken: newRefreshToken }
+}
+
+// 8. RATE LIMITING НА КРИТИЧНЫХ ENDPOINT
+const rateLimit = require('express-rate-limit')
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,  // 15 минут
+  max: 5,                     // 5 попыток
+  message: 'Too many login attempts'
+})
+
+app.post('/auth/login', loginLimiter, login)
+
+// 9. HTTPS ONLY
+// ✅ Всегда используйте HTTPS в production
+app.use((req, res, next) => {
+  if (process.env.NODE_ENV === 'production' && !req.secure) {
+    return res.redirect('https://' + req.headers.host + req.url)
+  }
+  next()
+})

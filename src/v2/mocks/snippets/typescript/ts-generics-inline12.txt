@@ -1,0 +1,2 @@
+// any внутри generic
+function bad<T>(x: T): any // ❌ Теряем типы

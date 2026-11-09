@@ -1,0 +1,45 @@
+
+// ADAPTER - адаптация интерфейсов
+
+// Старая библиотека
+class OldLogger {
+  logMessage(message: string) {
+    console.log(`[OLD] ${message}`);
+  }
+}
+
+// Новый интерфейс логирования
+interface ModernLogger {
+  log(level: string, message: string): void;
+  error(message: string): void;
+  warn(message: string): void;
+}
+
+// Адаптер для старой библиотеки
+class LoggerAdapter implements ModernLogger {
+  private oldLogger: OldLogger;
+
+  constructor(oldLogger: OldLogger) {
+    this.oldLogger = oldLogger;
+  }
+
+  log(level: string, message: string): void {
+    this.oldLogger.logMessage(`[${level}] ${message}`);
+  }
+
+  error(message: string): void {
+    this.oldLogger.logMessage(`[ERROR] ${message}`);
+  }
+
+  warn(message: string): void {
+    this.oldLogger.logMessage(`[WARN] ${message}`);
+  }
+}
+
+// Использование
+const oldLogger = new OldLogger();
+const adapter = new LoggerAdapter(oldLogger);
+
+adapter.log('INFO', 'Application started');
+adapter.error('Failed to load data');
+adapter.warn('Deprecated API usage');

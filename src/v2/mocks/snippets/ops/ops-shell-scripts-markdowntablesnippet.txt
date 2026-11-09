@@ -1,0 +1,287 @@
+
+#!/bin/bash
+
+# =====================================
+# РЕШЕНИЕ ЗАДАЧИ: MARKDOWN TABLE
+# =====================================
+
+# Функция создания таблицы
+create_markdown_table() {
+    local rows=${1:-5}  # По умолчанию 5
+    local cols=${2:-5}  # По умолчанию 5
+    local output_file="table.md"
+
+    # Валидация аргументов
+    if ! [[ "$rows" =~ ^[0-9]+$ ]] || ! [[ "$cols" =~ ^[0-9]+$ ]]; then
+        echo "Error: Arguments must be numbers"
+        return 1
+    fi
+
+    if [ "$rows" -le 0 ] || [ "$cols" -le 0 ]; then
+        echo "Error: Arguments must be positive"
+        return 1
+    fi
+
+    # Очистка файла
+    > "$output_file"
+
+    # Заголовок таблицы
+    for ((c=1; c<=cols; c++)); do
+        echo -n "| Col $c " >> "$output_file"
+    done
+    echo "|" >> "$output_file"
+
+    # Разделитель
+    for ((c=1; c<=cols; c++)); do
+        echo -n "| --- " >> "$output_file"
+    done
+    echo "|" >> "$output_file"
+
+    # Строки данных
+    for ((r=1; r<=rows; r++)); do
+        for ((c=1; c<=cols; c++)); do
+            echo -n "| R${r}C${c} " >> "$output_file"
+        done
+        echo "|" >> "$output_file"
+    done
+
+    echo "Table ${rows}x${cols} created in $output_file"
+}
+
+# Использование
+create_markdown_table "$@"
+
+# =====================================
+# АЛЬТЕРНАТИВНАЯ ВЕРСИЯ С КРАСИВЫМ ФОРМАТИРОВАНИЕМ
+# =====================================
+
+create_pretty_table() {
+    local rows=${1:-5}
+    local cols=${2:-5}
+    local output_file="table.md"
+
+    # Валидация
+    if ! [[ "$rows" =~ ^[0-9]+$ ]] || ! [[ "$cols" =~ ^[0-9]+$ ]]; then
+        echo "Error: Arguments must be numbers" >&2
+        exit 1
+    fi
+
+    # Начало файла
+    {
+        echo "# Markdown Table ${rows}x${cols}"
+        echo ""
+
+        # Заголовок
+        printf "|"
+        for ((c=1; c<=cols; c++)); do
+            printf " Column %-2d |" "$c"
+        done
+        printf "\n"
+
+        # Разделитель
+        printf "|"
+        for ((c=1; c<=cols; c++)); do
+            printf " --------- |"
+        done
+        printf "\n"
+
+        # Строки
+        for ((r=1; r<=rows; r++)); do
+            printf "|"
+            for ((c=1; c<=cols; c++)); do
+                printf " R%dC%-6d |" "$r" "$c"
+            done
+            printf "\n"
+        done
+
+    } > "$output_file"
+
+    echo "✓ Pretty table ${rows}x${cols} created in $output_file"
+}
+
+# =====================================
+# ВЕРСИЯ С ОПЦИЯМИ
+# =====================================
+
+#!/bin/bash
+
+# Значения по умолчанию
+ROWS=5
+COLS=5
+OUTPUT="table.md"
+HEADER_PREFIX="Column"
+CELL_PREFIX="Cell"
+PRETTY=false
+
+# Функция помощи
+show_help() {
+    cat << EOF
+Usage: $0 [OPTIONS] [ROWS] [COLS]
+
+Create a Markdown table with specified dimensions.
+
+Options:
+  -o, --output FILE     Output file (default: table.md)
+  -h, --header PREFIX   Header prefix (default: Column)
+  -c, --cell PREFIX     Cell prefix (default: Cell)
+  -p, --pretty          Pretty formatting
+  --help                Show this help
+
+Arguments:
+  ROWS                  Number of rows (default: 5)
+  COLS                  Number of columns (default: 5)
+
+Examples:
+  $0                    Create 5x5 table
+  $0 10 3               Create 10x3 table
+  $0 -p 8 8            Create pretty 8x8 table
+  $0 -o output.md 6 4  Create 6x4 table in output.md
+EOF
+}
+
+# Парсинг опций
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -o|--output)
+            OUTPUT="$2"
+            shift 2
+            ;;
+        -h|--header)
+            HEADER_PREFIX="$2"
+            shift 2
+            ;;
+        -c|--cell)
+            CELL_PREFIX="$2"
+            shift 2
+            ;;
+        -p|--pretty)
+            PRETTY=true
+            shift
+            ;;
+        --help)
+            show_help
+            exit 0
+            ;;
+        -*)
+            echo "Unknown option: $1"
+            show_help
+            exit 1
+            ;;
+        *)
+            if [[ -z "$ROWS_SET" ]]; then
+                ROWS=$1
+                ROWS_SET=true
+            elif [[ -z "$COLS_SET" ]]; then
+                COLS=$1
+                COLS_SET=true
+            else
+                echo "Too many arguments"
+                show_help
+                exit 1
+            fi
+            shift
+            ;;
+    esac
+done
+
+# Валидация
+if ! [[ "$ROWS" =~ ^[0-9]+$ ]] || ! [[ "$COLS" =~ ^[0-9]+$ ]]; then
+    echo "Error: ROWS and COLS must be positive integers"
+    exit 1
+fi
+
+if [ "$ROWS" -le 0 ] || [ "$COLS" -le 0 ]; then
+    echo "Error: ROWS and COLS must be greater than 0"
+    exit 1
+fi
+
+# Создание таблицы
+create_table() {
+    {
+        # Заголовок
+        printf "|"
+        for ((c=1; c<=COLS; c++)); do
+            if [ "$PRETTY" = true ]; then
+                printf " %-10s |" "$HEADER_PREFIX $c"
+            else
+                printf " %s %d |" "$HEADER_PREFIX" "$c"
+            fi
+        done
+        printf "\n"
+
+        # Разделитель
+        printf "|"
+        for ((c=1; c<=COLS; c++)); do
+            if [ "$PRETTY" = true ]; then
+                printf " ---------- |"
+            else
+                printf " --- |"
+            fi
+        done
+        printf "\n"
+
+        # Строки
+        for ((r=1; r<=ROWS; r++)); do
+            printf "|"
+            for ((c=1; c<=COLS; c++)); do
+                if [ "$PRETTY" = true ]; then
+                    printf " %-10s |" "$CELL_PREFIX R${r}C${c}"
+                else
+                    printf " %s R${r}C${c} |" "$CELL_PREFIX"
+                fi
+            done
+            printf "\n"
+        done
+    } > "$OUTPUT"
+}
+
+create_table
+
+echo "✓ Table ${ROWS}x${COLS} created in $OUTPUT"
+
+# =====================================
+# ИНТЕРАКТИВНАЯ ВЕРСИЯ
+# =====================================
+
+#!/bin/bash
+
+# Интерактивный режим
+interactive_mode() {
+    echo "=== Markdown Table Generator ==="
+    echo ""
+
+    # Запрос строк
+    read -p "Enter number of rows (default: 5): " rows
+    rows=${rows:-5}
+
+    # Запрос столбцов
+    read -p "Enter number of columns (default: 5): " cols
+    cols=${cols:-5}
+
+    # Запрос имени файла
+    read -p "Enter output filename (default: table.md): " output
+    output=${output:-table.md}
+
+    # Подтверждение
+    echo ""
+    echo "Creating table:"
+    echo "  Rows: $rows"
+    echo "  Columns: $cols"
+    echo "  Output: $output"
+    echo ""
+    read -p "Continue? (y/n): " confirm
+
+    if [[ "$confirm" != "y" ]]; then
+        echo "Cancelled"
+        exit 0
+    fi
+
+    create_markdown_table "$rows" "$cols" "$output"
+}
+
+# Если нет аргументов, запускаем интерактивный режим
+if [ $# -eq 0 ]; then
+    interactive_mode
+else
+    create_markdown_table "$@"
+fi

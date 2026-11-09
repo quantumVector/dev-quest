@@ -1,0 +1,67 @@
+
+// ⚖️ БАЛАНС ПРИНЦИПОВ - когда они конфликтуют
+
+// Ситуация 1: DRY vs KISS
+// Иногда небольшое дублирование проще, чем абстракция
+
+// Плохая абстракция (сложная для понимания)
+function processData(data, config) {
+  return config.steps.reduce((result, step) => {
+    return step.transform(result, step.params);
+  }, data);
+}
+
+// Простое дублирование (понятнее)
+function processUserData(data) {
+  return data.map(item => ({ ...item, type: 'user' }));
+}
+
+function processOrderData(data) {
+  return data.map(item => ({ ...item, type: 'order' }));
+}
+
+// Ситуация 2: YAGNI vs DRY
+// Не создавайте абстракции "на будущее"
+
+// ❌ Преждевременная абстракция
+function createEntity(type, data) {
+  // Поддерживаем 10 типов, используем только 2
+  const factories = {
+    user: UserFactory,
+    order: OrderFactory,
+    product: ProductFactory,
+    // ... еще 7 неиспользуемых типов
+  };
+  return factories[type].create(data);
+}
+
+// ✅ Добавляем по мере необходимости
+function createUser(data) {
+  return new User(data);
+}
+
+function createOrder(data) {
+  return new Order(data);
+}
+// Добавим createProduct, когда понадобится
+
+// Ситуация 3: KISS vs масштабируемость
+// Начните с простого, усложняйте при необходимости
+
+// Простое решение для старта
+const config = {
+  apiUrl: 'https://api.example.com',
+  timeout: 5000
+};
+
+// Усложняем только когда действительно нужно
+class ConfigManager {
+  constructor() {
+    this.configs = new Map();
+    this.env = process.env.NODE_ENV;
+  }
+
+  get(key) {
+    return this.configs.get(`${this.env}.${key}`);
+  }
+}

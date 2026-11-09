@@ -1,0 +1,14 @@
+
+<!-- Современные форматы с fallback -->
+<picture>
+  <source srcset="photo.avif" type="image/avif">
+  <source srcset="photo.webp" type="image/webp">
+  <img src="photo.jpg" alt="Фотография">
+</picture>
+
+<!-- Art Direction: разные кадрировки для разных экранов -->
+<picture>
+  <source media="(min-width: 768px)" srcset="landscape-wide.jpg">
+  <source media="(min-width: 480px)" srcset="landscape-medium.jpg">
+  <img src="portrait-mobile.jpg" alt="Пейзаж">
+</picture>

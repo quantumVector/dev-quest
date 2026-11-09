@@ -1,0 +1,131 @@
+
+// Проблемы и решения при использовании SSR
+
+// ═══════════════════════════════════════════════════════════
+// ПРОБЛЕМА 1: Browser APIs недоступны на сервере
+// ═══════════════════════════════════════════════════════════
+
+// ❌ ПЛОХО
+function BadComponent() {
+// window, document, localStorage не существуют на сервере!
+const width = window.innerWidth
+const stored = localStorage.getItem('user')
+
+return <div>Width: {width}</div>
+}
+
+// ✅ ХОРОШО
+function GoodComponent() {
+const [width, setWidth] = useState(0)
+
+useEffect(() => {
+// Выполняется ТОЛЬКО на клиенте
+setWidth(window.innerWidth)
+
+const handleResize = () => setWidth(window.innerWidth)
+window.addEventListener('resize', handleResize)
+return () => window.removeEventListener('resize', handleResize)
+}, [])
+
+return <div>Width: {width || 'Loading...'}</div>
+}
+
+// ═══════════════════════════════════════════════════════════
+// ПРОБЛЕМА 2: Hydration Mismatch
+// ═══════════════════════════════════════════════════════════
+
+// ❌ ПЛОХО - разные данные на сервере и клиенте
+function BadTimestamp() {
+return <div>{new Date().toISOString()}</div>
+}
+
+// ✅ ХОРОШО - синхронизированные данные
+function GoodTimestamp({ timestamp }) {
+return <div>{timestamp}</div>
+}
+
+// Или используйте suppressHydrationWarning
+function ClientOnlyTimestamp() {
+return (
+<div suppressHydrationWarning>
+{typeof window !== 'undefined' && new Date().toISOString()}
+</div>
+)
+}
+
+// ═══════════════════════════════════════════════════════════
+// ПРОБЛЕМА 3: Медленный TTFB из-за API запросов
+// ═══════════════════════════════════════════════════════════
+
+// ❌ ПЛОХО - последовательные запросы
+async function SlowPage() {
+const user = await fetchUser()        // 500ms
+const posts = await fetchPosts()      // 700ms
+const comments = await fetchComments() // 400ms
+// Итого: 1600ms TTFB
+}
+
+// ✅ ХОРОШО - параллельные запросы
+async function FastPage() {
+const [user, posts, comments] = await Promise.all([
+fetchUser(),
+fetchPosts(),
+fetchComments()
+])
+// Итого: 700ms TTFB (максимальный из запросов)
+}
+
+// ═══════════════════════════════════════════════════════════
+// ПРОБЛЕМА 4: Стейт менеджмент (Redux, Zustand)
+// ═══════════════════════════════════════════════════════════
+
+// Необходимо синхронизировать store между сервером и клиентом
+
+// Next.js + Redux Toolkit
+import { configureStore } from '@reduxjs/toolkit'
+
+export function makeStore(preloadedState) {
+return configureStore({
+reducer: rootReducer,
+preloadedState // Данные с сервера
+})
+}
+
+// Server Component
+async function ServerPage() {
+const data = await fetchData()
+
+// Создаем store с данными
+const store = makeStore({ user: data })
+
+return (
+<Provider store={store}>
+<ClientPage />
+</Provider>
+)
+}
+
+// ═══════════════════════════════════════════════════════════
+// ПРОБЛЕМА 5: Memory Leaks на сервере
+// ═══════════════════════════════════════════════════════════
+
+// ❌ ПЛОХО - таймеры не очищаются
+function LeakyComponent() {
+useEffect(() => {
+const interval = setInterval(() => {
+console.log('tick')
+}, 1000)
+// Забыли cleanup!
+}, [])
+}
+
+// ✅ ХОРОШО - cleanup функция
+function SafeComponent() {
+useEffect(() => {
+const interval = setInterval(() => {
+console.log('tick')
+}, 1000)
+
+return () => clearInterval(interval)
+}, [])
+}

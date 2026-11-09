@@ -1,0 +1,71 @@
+
+// BFF сервер (Node.js + Express)
+import express from 'express'
+import axios from 'axios'
+
+const app = express()
+
+// Агрегация данных для дашборда
+app.get('/api/dashboard/:userId', async (req, res) => {
+  const { userId } = req.params
+
+  try {
+    // BFF делает параллельные запросы к микросервисам
+    const [user, posts, friends, notifications, stats] = await Promise.all([
+      // Запрос к сервису пользователей
+      axios.get(`http://users-service/users/${userId}`),
+
+      // Запрос к сервису постов
+      axios.get(`http://posts-service/posts?userId=${userId}&limit=10`),
+
+      // Запрос к социальному сервису
+      axios.get(`http://social-service/friends/${userId}?limit=5`),
+
+      // Запрос к сервису уведомлений
+      axios.get(`http://notifications-service/notifications/${userId}?unread=true`),
+
+      // Запрос к сервису аналитики
+      axios.get(`http://analytics-service/stats/${userId}`)
+    ])
+
+    // Трансформация и агрегация данных
+    const dashboard = {
+      user: {
+        id: user.data.id,
+        name: user.data.name,
+        avatar: user.data.avatar,
+        email: user.data.email
+      },
+      posts: posts.data.items.map(post => ({
+        id: post.id,
+        title: post.title,
+        excerpt: post.content.substring(0, 100),
+        createdAt: post.createdAt
+      })),
+      friends: friends.data.items.map(friend => ({
+        id: friend.id,
+        name: friend.name,
+        avatar: friend.avatar,
+        online: friend.status === 'online'
+      })),
+      notifications: {
+        count: notifications.data.total,
+        recent: notifications.data.items.slice(0, 3)
+      },
+      stats: {
+        postsCount: stats.data.postsCount,
+        followersCount: stats.data.followersCount,
+        likesReceived: stats.data.likesReceived
+      }
+    }
+
+    res.json(dashboard)
+  } catch (error) {
+    console.error('Error aggregating dashboard data:', error)
+    res.status(500).json({ error: 'Failed to load dashboard' })
+  }
+})
+
+app.listen(3000, () => {
+  console.log('BFF server running on port 3000')
+})

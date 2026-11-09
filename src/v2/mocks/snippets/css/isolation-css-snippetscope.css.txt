@@ -1,0 +1,11 @@
+
+/* Нативная изоляция без сборщиков — Chrome 118+ */
+@scope (.card) {
+  .title { color: #333; font-size: 1.5rem; }
+  .button { background: #007bff; }
+}
+
+/* С ограничением области (limits) */
+@scope (.card) to (.nested-card) {
+  .title { color: red; } /* Не применится внутри .nested-card */
+}

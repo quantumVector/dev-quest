@@ -1,0 +1,39 @@
+
+// =====================================
+// PERFORMANCEOBSERVER - основы
+// =====================================
+
+// 1. Создание PerformanceObserver
+const observer = new PerformanceObserver((list, obs) => {
+  // list - PerformanceObserverEntryList
+  // obs - сам observer
+
+  // Получаем все записи
+  const entries = list.getEntries()
+
+  entries.forEach(entry => {
+    console.log('Тип:', entry.entryType)
+    console.log('Имя:', entry.name)
+    console.log('Длительность:', entry.duration)
+    console.log('Время начала:', entry.startTime)
+  })
+})
+
+// 2. Подписка на типы метрик
+observer.observe({
+  entryTypes: ['navigation', 'resource', 'measure']
+})
+
+// 3. Отписка от наблюдения
+observer.disconnect()
+
+// 4. Получение буфера (накопленные метрики до подписки)
+observer.observe({
+  type: 'resource',
+  buffered: true  // Получить все предыдущие записи
+})
+
+// 5. Проверка поддержки типов
+const supportedTypes = PerformanceObserver.supportedEntryTypes
+console.log('Поддерживаемые типы:', supportedTypes)
+// ['navigation', 'resource', 'mark', 'measure', 'paint', ...]

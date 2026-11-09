@@ -1,0 +1,17 @@
+
+const user = {};
+
+// writable: false - свойство только для чтения
+Object.defineProperty(user, 'name', {
+  value: "Alice",
+  writable: false,
+  enumerable: true,
+  configurable: true
+});
+
+user.name = "Bob"; // игнорируется
+console.log(user.name); // "Alice"
+
+// В строгом режиме будет TypeError
+"use strict";
+user.name = "Bob"; // TypeError: Cannot assign to read only property

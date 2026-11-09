@@ -1,0 +1,67 @@
+
+// ==========================================
+// АТРИБУТЫ COOKIE И ИХ ВЛИЯНИЕ
+// ==========================================
+
+// 1. expires - дата истечения (устаревший подход)
+const expires = new Date('2025-12-31T23:59:59')
+document.cookie = `oldStyle=value; expires=${expires.toUTCString()}`
+// Удаляется после указанной даты
+
+// 2. Max-Age - время жизни в секундах (современный подход)
+document.cookie = "modern=value; max-age=3600" // 1 час
+document.cookie = "session=value" // Session cookie - удалится при закрытии браузера
+document.cookie = "persistent=value; max-age=31536000" // 1 год
+
+// 3. Path - ограничение по URL пути
+document.cookie = "global=value; path=/" // Доступна везде
+document.cookie = "admin=value; path=/admin" // Только /admin/*
+document.cookie = "blog=value; path=/blog" // Только /blog/*
+
+// Примеры доступности:
+// Cookie: "data=123; path=/admin"
+// ✅ Доступна: /admin, /admin/users, /admin/settings
+// ❌ Недоступна: /, /blog, /user
+
+// 4. Domain - ограничение по домену
+document.cookie = "sub=value; domain=.example.com" // Все поддомены
+document.cookie = "main=value; domain=example.com" // Только example.com
+document.cookie = "nosub=value" // Только текущий хост
+
+// Примеры:
+// Cookie: "data=123; domain=.example.com"
+// ✅ Доступна: example.com, api.example.com, blog.example.com
+// Cookie: "data=123" (без domain)
+// ✅ Доступна: только на example.com
+// ❌ Недоступна: api.example.com
+
+// 5. Secure - только HTTPS
+document.cookie = "sensitive=value; secure"
+// ✅ Передается: https://example.com
+// ❌ НЕ передается: http://example.com
+// ⚠️ Обязательно для токенов и сессий!
+
+// 6. HttpOnly - недоступна из JavaScript (только сервер!)
+// Устанавливается только через HTTP заголовок Set-Cookie
+// ✅ Защита от XSS атак
+// ❌ JavaScript не может прочитать или изменить
+// Сервер:
+res.cookie('sessionToken', 'abc', { httpOnly: true })
+// Клиент:
+console.log(document.cookie) // sessionToken НЕ будет в списке!
+
+// 7. SameSite - защита от CSRF
+// Strict - самый строгий
+document.cookie = "strict=value; SameSite=Strict"
+// ✅ Отправляется: переход внутри сайта
+// ❌ НЕ отправляется: переход с другого сайта (даже по прямой ссылке!)
+
+// Lax - сбалансированный (по умолчанию в современных браузерах)
+document.cookie = "lax=value; SameSite=Lax"
+// ✅ Отправляется: переход по ссылке (GET), внутри сайта
+// ❌ НЕ отправляется: POST запросы с других сайтов, Ajax, iframe
+
+// None - без ограничений (требует Secure!)
+document.cookie = "cross=value; SameSite=None; Secure"
+// ✅ Отправляется: везде, включая cross-site запросы
+// ⚠️ Должен быть установлен Secure (HTTPS)

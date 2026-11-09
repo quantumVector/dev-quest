@@ -1,0 +1,25 @@
+
+// Опережающие и ретроспективные проверки
+
+// Позитивная опережающая проверка (?=...)
+const followedBy = /\d+(?=px)/;    // цифры, за которыми следует "px"
+console.log("100px 200em".match(followedBy)); // ["100"]
+
+// Негативная опережающая проверка (?!...)
+const notFollowedBy = /\d+(?!px)/; // цифры, за которыми НЕ следует "px"
+console.log("100px 200em".match(notFollowedBy)); // ["200"]
+
+// Позитивная ретроспективная проверка (?<=...)
+const precededBy = /(?<=\$)\d+/;   // цифры, перед которыми стоит "$"
+console.log("$100 €200".match(precededBy)); // ["100"]
+
+// Негативная ретроспективная проверка (?<!...)
+const notPrecededBy = /(?<!\$)\d+/; // цифры, перед которыми НЕ стоит "$"
+console.log("$100 €200".match(notPrecededBy)); // ["200"]
+
+// Практический пример: пароль
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+// Минимум 8 символов, есть строчная, заглавная, цифра и спецсимвол
+
+console.log(passwordRegex.test("Password123!")); // true
+console.log(passwordRegex.test("password"));     // false

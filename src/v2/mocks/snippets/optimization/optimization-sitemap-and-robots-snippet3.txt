@@ -1,0 +1,49 @@
+
+<!-- Специализированные sitemap -->
+
+<!-- Image Sitemap -->
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://example.com/gallery</loc>
+    <image:image>
+      <image:loc>https://example.com/images/photo1.jpg</image:loc>
+      <image:title>Заголовок изображения</image:title>
+      <image:caption>Описание изображения</image:caption>
+    </image:image>
+  </url>
+</urlset>
+
+<!-- Video Sitemap -->
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+  <url>
+    <loc>https://example.com/videos</loc>
+    <video:video>
+      <video:thumbnail_loc>https://example.com/thumb.jpg</video:thumbnail_loc>
+      <video:title>Заголовок видео</video:title>
+      <video:description>Описание видео</video:description>
+      <video:content_loc>https://example.com/video.mp4</video:content_loc>
+      <video:duration>600</video:duration>
+    </video:video>
+  </url>
+</urlset>
+
+<!-- News Sitemap -->
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
+  <url>
+    <loc>https://example.com/news/article</loc>
+    <news:news>
+      <news:publication>
+        <news:name>Example News</news:name>
+        <news:language>ru</news:language>
+      </news:publication>
+      <news:publication_date>2025-02-05T10:00:00Z</news:publication_date>
+      <news:title>Заголовок новости</news:title>
+    </news:news>
+  </url>
+</urlset>

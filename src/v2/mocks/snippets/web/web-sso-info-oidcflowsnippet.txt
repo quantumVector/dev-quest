@@ -1,0 +1,162 @@
+
+// OpenID Connect (OIDC) - современный протокол SSO поверх OAuth 2.0
+
+// 1. Настройка OIDC клиента
+const oidcConfig = {
+  client_id: 'my-web-app',
+  redirect_uri: 'https://myapp.com/callback',
+  response_type: 'code', // Authorization Code Flow
+  scope: 'openid profile email',
+  authority: 'https://auth.example.com'
+}
+
+// 2. Инициация авторизации
+const initiateOIDCLogin = () => {
+  const state = generateRandomState()
+  const nonce = generateRandomNonce()
+
+  // Сохраняем state для защиты от CSRF
+  sessionStorage.setItem('oidc_state', state)
+  sessionStorage.setItem('oidc_nonce', nonce)
+
+  const params = new URLSearchParams({
+    client_id: oidcConfig.client_id,
+    redirect_uri: oidcConfig.redirect_uri,
+    response_type: oidcConfig.response_type,
+    scope: oidcConfig.scope,
+    state: state,
+    nonce: nonce
+  })
+
+  window.location.href =
+    `${oidcConfig.authority}/authorize?${params}`
+}
+
+// 3. Обработка callback после авторизации
+const handleOIDCCallback = async () => {
+  const urlParams = new URLSearchParams(window.location.search)
+  const code = urlParams.get('code')
+  const state = urlParams.get('state')
+
+  // Проверяем state (защита от CSRF)
+  const savedState = sessionStorage.getItem('oidc_state')
+  if (state !== savedState) {
+    throw new Error('Invalid state parameter')
+  }
+
+  // Обмениваем authorization code на токены
+  const tokens = await exchangeCodeForTokens(code)
+
+  return tokens
+}
+
+// 4. Обмен code на токены
+const exchangeCodeForTokens = async (code) => {
+  const response = await fetch(`${oidcConfig.authority}/token`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: new URLSearchParams({
+      grant_type: 'authorization_code',
+      code: code,
+      redirect_uri: oidcConfig.redirect_uri,
+      client_id: oidcConfig.client_id,
+      client_secret: process.env.CLIENT_SECRET // В production через backend
+    })
+  })
+
+  const tokens = await response.json()
+
+  // Валидируем ID Token
+  const user = await validateIDToken(tokens.id_token)
+
+  // Сохраняем токены
+  localStorage.setItem('access_token', tokens.access_token)
+  localStorage.setItem('refresh_token', tokens.refresh_token)
+  localStorage.setItem('id_token', tokens.id_token)
+
+  return { user, tokens }
+}
+
+// 5. Валидация ID Token (JWT)
+const validateIDToken = async (idToken) => {
+  const decoded = decodeJWT(idToken)
+
+  // Проверка nonce
+  const savedNonce = sessionStorage.getItem('oidc_nonce')
+  if (decoded.nonce !== savedNonce) {
+    throw new Error('Invalid nonce')
+  }
+
+  // Проверка issuer
+  if (decoded.iss !== oidcConfig.authority) {
+    throw new Error('Invalid issuer')
+  }
+
+  // Проверка audience
+  if (decoded.aud !== oidcConfig.client_id) {
+    throw new Error('Invalid audience')
+  }
+
+  // Проверка срока действия
+  if (decoded.exp < Date.now() / 1000) {
+    throw new Error('Token expired')
+  }
+
+  // Проверка подписи
+  const isValid = await verifyJWTSignature(idToken)
+  if (!isValid) {
+    throw new Error('Invalid signature')
+  }
+
+  return {
+    id: decoded.sub,
+    email: decoded.email,
+    name: decoded.name,
+    picture: decoded.picture
+  }
+}
+
+// 6. Использование Access Token для API запросов
+const callProtectedAPI = async (endpoint) => {
+  const accessToken = localStorage.getItem('access_token')
+
+  const response = await fetch(`https://api.example.com${endpoint}`, {
+    headers: {
+      'Authorization': `Bearer ${accessToken}`
+    }
+  })
+
+  if (response.status === 401) {
+    // Токен истек → используем refresh token
+    await refreshAccessToken()
+    return callProtectedAPI(endpoint) // Повторяем запрос
+  }
+
+  return response.json()
+}
+
+// 7. Обновление Access Token через Refresh Token
+const refreshAccessToken = async () => {
+  const refreshToken = localStorage.getItem('refresh_token')
+
+  const response = await fetch(`${oidcConfig.authority}/token`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: new URLSearchParams({
+      grant_type: 'refresh_token',
+      refresh_token: refreshToken,
+      client_id: oidcConfig.client_id
+    })
+  })
+
+  const tokens = await response.json()
+
+  localStorage.setItem('access_token', tokens.access_token)
+  if (tokens.refresh_token) {
+    localStorage.setItem('refresh_token', tokens.refresh_token)
+  }
+}

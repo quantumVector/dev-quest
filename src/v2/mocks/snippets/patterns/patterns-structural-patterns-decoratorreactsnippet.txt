@@ -1,0 +1,67 @@
+
+// Decorator в React - HOC (Higher-Order Components)
+
+// Базовый компонент
+interface UserProfileProps {
+  user: { name: string; email: string };
+}
+
+function UserProfile({ user }: UserProfileProps) {
+  return (
+    <div>
+      <h2>{user.name}</h2>
+      <p>{user.email}</p>
+    </div>
+  );
+}
+
+// Декоратор для загрузки данных
+function withDataFetching<P extends object>(
+  Component: React.ComponentType<P>,
+  fetchData: () => Promise<any>
+) {
+  return function WithDataFetching(props: Omit<P, 'user'>) {
+    const [data, setData] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+      fetchData()
+        .then(setData)
+        .finally(() => setLoading(false));
+    }, []);
+
+    if (loading) return <div>Loading...</div>;
+    if (!data) return <div>No data</div>;
+
+    return <Component {...(props as P)} user={data} />;
+  };
+}
+
+// Декоратор для аналитики
+function withAnalytics<P extends object>(
+  Component: React.ComponentType<P>
+) {
+  return function WithAnalytics(props: P) {
+    useEffect(() => {
+      console.log('Component mounted:', Component.name);
+
+      return () => {
+        console.log('Component unmounted:', Component.name);
+      };
+    }, []);
+
+    return <Component {...props} />;
+  };
+}
+
+// Композиция декораторов
+const fetchUser = () => fetch('/api/user').then(r => r.json());
+
+const EnhancedUserProfile = withAnalytics(
+  withDataFetching(UserProfile, fetchUser)
+);
+
+// Использование
+function App() {
+  return <EnhancedUserProfile />;
+}

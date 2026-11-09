@@ -1,0 +1,108 @@
+
+// =====================================
+// СРАВНЕНИЕ FETCH VS XMLHTTPREQUEST
+// =====================================
+
+// Одна и та же задача разными способами
+
+// 1. Простой GET запрос
+// --- Fetch ---
+fetch('/api/users')
+  .then(response => response.json())
+  .then(data => console.log(data))
+  .catch(error => console.error(error))
+
+// --- XMLHttpRequest ---
+const xhr = new XMLHttpRequest()
+xhr.open('GET', '/api/users')
+xhr.onload = () => {
+  if (xhr.status === 200) {
+    console.log(JSON.parse(xhr.responseText))
+  }
+}
+xhr.onerror = () => console.error('Error')
+xhr.send()
+
+// 2. POST запрос с JSON
+// --- Fetch ---
+fetch('/api/users', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ name: 'John' })
+})
+  .then(response => response.json())
+
+// --- XMLHttpRequest ---
+const xhr = new XMLHttpRequest()
+xhr.open('POST', '/api/users')
+xhr.setRequestHeader('Content-Type', 'application/json')
+xhr.onload = () => console.log(JSON.parse(xhr.responseText))
+xhr.send(JSON.stringify({ name: 'John' }))
+
+// 3. Загрузка файла с прогрессом
+// --- Fetch (НЕТ upload progress) ---
+fetch('/upload', {
+  method: 'POST',
+  body: formData
+})
+  .then(response => response.json())
+// ❌ Невозможно отследить прогресс отправки
+
+// --- XMLHttpRequest (ЕСТЬ upload progress) ---
+const xhr = new XMLHttpRequest()
+xhr.upload.onprogress = (e) => {
+  const percent = (e.loaded / e.total) * 100
+  console.log(`Загружено: ${percent}%`)
+}
+xhr.open('POST', '/upload')
+xhr.send(formData)
+
+// 4. Отмена запроса
+// --- Fetch ---
+const controller = new AbortController()
+fetch('/data', { signal: controller.signal })
+controller.abort()  // Отмена
+
+// --- XMLHttpRequest ---
+const xhr = new XMLHttpRequest()
+xhr.open('GET', '/data')
+xhr.send()
+xhr.abort()  // Отмена
+
+// 5. Timeout
+// --- Fetch ---
+const controller = new AbortController()
+setTimeout(() => controller.abort(), 5000)
+fetch('/data', { signal: controller.signal })
+
+// --- XMLHttpRequest ---
+const xhr = new XMLHttpRequest()
+xhr.timeout = 5000
+xhr.ontimeout = () => console.log('Timeout')
+xhr.open('GET', '/data')
+xhr.send()
+
+// 6. Прогресс скачивания
+// --- Fetch ---
+const response = await fetch('/large-file')
+const reader = response.body.getReader()
+const contentLength = +response.headers.get('Content-Length')
+
+let receivedLength = 0
+while (true) {
+  const { done, value } = await reader.read()
+  if (done) break
+  receivedLength += value.length
+  console.log(`Downloaded: ${(receivedLength / contentLength * 100).toFixed(2)}%`)
+}
+
+// --- XMLHttpRequest ---
+const xhr = new XMLHttpRequest()
+xhr.onprogress = (e) => {
+  if (e.lengthComputable) {
+    const percent = (e.loaded / e.total) * 100
+    console.log(`Downloaded: ${percent.toFixed(2)}%`)
+  }
+}
+xhr.open('GET', '/large-file')
+xhr.send()

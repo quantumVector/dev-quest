@@ -1,0 +1,88 @@
+
+// Реальный пример: Dashboard с множественными вычислениями
+
+import { useMemo, useState } from 'react';
+
+function SalesDashboard({ salesData, dateRange }) {
+  const [selectedCategory, setSelectedCategory] = useState('all');
+
+  // 1. Фильтрация по дате
+  const dateFilteredData = useMemo(() => {
+    return salesData.filter(sale => {
+      const saleDate = new Date(sale.date);
+      return saleDate >= dateRange.start && saleDate <= dateRange.end;
+    });
+  }, [salesData, dateRange]);
+
+  // 2. Фильтрация по категории
+  const categoryFilteredData = useMemo(() => {
+    if (selectedCategory === 'all') return dateFilteredData;
+    return dateFilteredData.filter(sale =>
+      sale.category === selectedCategory
+    );
+  }, [dateFilteredData, selectedCategory]);
+
+  // 3. Вычисление метрик
+  const metrics = useMemo(() => {
+    const revenue = categoryFilteredData.reduce(
+      (sum, sale) => sum + sale.amount, 0
+    );
+
+    const avgTransaction = revenue / categoryFilteredData.length || 0;
+
+    const topProduct = categoryFilteredData.reduce((top, sale) => {
+      if (!top || sale.amount > top.amount) return sale;
+      return top;
+    }, null);
+
+    return {
+      revenue,
+      transactions: categoryFilteredData.length,
+      avgTransaction,
+      topProduct
+    };
+  }, [categoryFilteredData]);
+
+  // 4. Группировка по дням для графика
+  const chartData = useMemo(() => {
+    const grouped = categoryFilteredData.reduce((acc, sale) => {
+      const day = sale.date.split('T')[0];
+      if (!acc[day]) {
+        acc[day] = { date: day, revenue: 0, count: 0 };
+      }
+      acc[day].revenue += sale.amount;
+      acc[day].count += 1;
+      return acc;
+    }, {});
+
+    return Object.values(grouped).sort((a, b) =>
+      new Date(a.date) - new Date(b.date)
+    );
+  }, [categoryFilteredData]);
+
+  // 5. Список категорий для фильтра
+  const categories = useMemo(() => {
+    const uniqueCategories = new Set(
+      salesData.map(sale => sale.category)
+    );
+    return ['all', ...Array.from(uniqueCategories)];
+  }, [salesData]);
+
+  return (
+    <div className="dashboard">
+      <CategoryFilter
+        categories={categories}
+        selected={selectedCategory}
+        onChange={setSelectedCategory}
+      />
+
+      <MetricsPanel metrics={metrics} />
+
+      <RevenueChart data={chartData} />
+
+      <TransactionsList
+        transactions={categoryFilteredData.slice(0, 10)}
+      />
+    </div>
+  );
+}

@@ -1,0 +1,84 @@
+
+// PROTOTYPE - клонирование объектов
+
+// Пример: клонирование компонентов дашборда
+interface Widget {
+  clone(): Widget;
+  render(): string;
+}
+
+class ChartWidget implements Widget {
+  constructor(
+    public title: string,
+    public type: string,
+    public data: number[],
+    public config: Record<string, any>
+  ) {}
+
+  clone(): ChartWidget {
+    // Глубокое клонирование
+    return new ChartWidget(
+      this.title,
+      this.type,
+      [...this.data],
+      { ...this.config }
+    );
+  }
+
+  render(): string {
+    return `Chart: ${this.title} (${this.type})`;
+  }
+}
+
+// Прототипы виджетов
+const widgetPrototypes = {
+  lineChart: new ChartWidget(
+    'Line Chart',
+    'line',
+    [],
+    { legend: true, grid: true }
+  ),
+  barChart: new ChartWidget(
+    'Bar Chart',
+    'bar',
+    [],
+    { legend: false, grid: true }
+  ),
+};
+
+// Создание новых виджетов клонированием
+const salesChart = widgetPrototypes.lineChart.clone();
+salesChart.title = 'Sales Overview';
+salesChart.data = [100, 200, 150, 300];
+
+const revenueChart = widgetPrototypes.barChart.clone();
+revenueChart.title = 'Monthly Revenue';
+revenueChart.data = [1000, 2000, 1500];
+
+// React: клонирование элементов
+import React from 'react';
+
+function Tooltip({ children, content }: Props) {
+  // Клонируем дочерний элемент с добавлением пропсов
+  return React.cloneElement(children, {
+    'data-tooltip': content,
+    onMouseEnter: handleMouseEnter,
+    onMouseLeave: handleMouseLeave,
+  });
+}
+
+// Использование
+<Tooltip content="Click to save">
+  <button>Save</button>
+</Tooltip>
+
+// structuredClone для глубокого копирования
+const original = {
+  id: 1,
+  user: { name: 'John', settings: { theme: 'dark' } },
+  tags: ['admin', 'user'],
+};
+
+const deepCopy = structuredClone(original);
+deepCopy.user.settings.theme = 'light';
+console.log(original.user.settings.theme); // 'dark' - оригинал не изменился

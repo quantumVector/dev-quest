@@ -1,0 +1,111 @@
+
+// =====================================
+// 3. ARROW FUNCTION (ES6+)
+// =====================================
+
+// Базовый синтаксис
+const greet = (name) => {
+  return "Привет, " + name + "!";
+};
+
+// Краткий синтаксис для одного выражения
+const greetShort = name => `Привет, ${name}!`;
+
+// Без параметров
+const sayHello = () => "Привет!";
+
+// Один параметр (скобки необязательны)
+const double = x => x * 2;
+
+// Несколько параметров
+const add = (a, b) => a + b;
+
+// Возврат объекта (нужны скобки)
+const createUser = (name, age) => ({ name, age });
+
+// Более сложная логика
+const processData = (data) => {
+  const filtered = data.filter(item => item > 0);
+  const doubled = filtered.map(item => item * 2);
+  return doubled;
+};
+
+// НЕТ собственного this
+const obj = {
+  name: "Объект",
+
+  // Обычная функция - this ссылается на obj
+  regularMethod: function() {
+    console.log("Regular this:", this.name); // "Объект"
+
+    // Стрелочная функция внутри - наследует this
+    const arrowInside = () => {
+      console.log("Arrow inside this:", this.name); // "Объект"
+    };
+    arrowInside();
+  },
+
+  // Стрелочная функция как метод - this ссылается на window/undefined
+  arrowMethod: () => {
+    console.log("Arrow method this:", this.name); // undefined
+  }
+};
+
+obj.regularMethod();
+obj.arrowMethod();
+
+// НЕТ arguments объекта
+const regularFunc = function() {
+  console.log("Regular arguments:", arguments); // Есть arguments
+};
+
+const arrowFunc = (...args) => {
+  console.log("Arrow args:", args); // Используем rest параметры
+};
+
+regularFunc(1, 2, 3);
+arrowFunc(1, 2, 3);
+
+// НЕ можут быть конструкторами
+const RegularConstructor = function(name) {
+  this.name = name;
+};
+
+const ArrowConstructor = (name) => {
+  this.name = name;
+};
+
+const regular = new RegularConstructor("Работает"); // ✅
+// const arrow = new ArrowConstructor("Ошибка"); // ❌ TypeError
+
+// Полезны для callback'ов
+const numbers = [1, 2, 3, 4, 5];
+
+// Длинный способ
+const doubled1 = numbers.map(function(num) {
+  return num * 2;
+});
+
+// Короткий способ со стрелочными функциями
+const doubled2 = numbers.map(num => num * 2);
+
+console.log(doubled1); // [2, 4, 6, 8, 10]
+console.log(doubled2); // [2, 4, 6, 8, 10]
+
+// Цепочки методов с arrow functions
+const result = [1, 2, 3, 4, 5]
+  .filter(x => x > 2)
+  .map(x => x * 2)
+  .reduce((acc, x) => acc + x, 0);
+
+console.log(result); // 18
+
+// Async arrow functions
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    return await response.json();
+  } catch (error) {
+    console.error('Ошибка:', error);
+  }
+};

@@ -1,0 +1,73 @@
+
+// Визуализация жизненного цикла лексического окружения
+console.log("=== Жизненный цикл лексического окружения ===");
+
+function demonstrateLifecycle() {
+  console.log("\n📋 Этап 1: ОПРЕДЕЛЕНИЕ функции");
+  console.log("   - Создается объект функции");
+  console.log("   - Запоминается внешняя область видимости (где функция определена)");
+  console.log("   - Лексическое окружение ещё НЕ создано!");
+
+  function innerFunction(param) {
+    console.log("\n🏗️  Этап 2: СОЗДАНИЕ лексического окружения (при вызове)");
+    console.log("   - Создается Environment Record");
+    console.log("   - Устанавливается Outer Reference");
+    console.log("   - Происходит hoisting");
+    console.log("   - param =", param);
+
+    console.log("\n⚡ Этап 3: ВЫПОЛНЕНИЕ кода");
+    console.log("   - Инициализируются переменные");
+    console.log("   - Выполняется логика функции");
+
+    var localVar = "Локальная переменная";
+    console.log("   - localVar =", localVar);
+
+    return function closure() {
+      console.log("\n🔗 Этап 4: ЗАМЫКАНИЕ");
+      console.log("   - Внутренняя функция сохраняет ссылку на внешнее окружение");
+      console.log("   - param из родительской области:", param);
+      console.log("   - localVar из родительской области:", localVar);
+    };
+  }
+
+  console.log("\n📦 Возвращаем innerFunction (определена, окружение НЕ создано)");
+  return innerFunction;
+}
+
+console.log("=== Демонстрация ===");
+console.log("1. Определяем demonstrateLifecycle");
+
+const getInnerFunction = demonstrateLifecycle();
+console.log("2. Получили innerFunction, её окружение ещё НЕ создано");
+
+const closure = getInnerFunction("test-param");
+console.log("3. Вызвали innerFunction - создалось лексическое окружение");
+
+closure();
+console.log("4. Вызвали замыкание - создалось новое лексическое окружение");
+
+console.log("\n🗑️  Этап 5: СБОРКА МУСОРА");
+console.log("   - Лексическое окружение удаляется, когда на него нет ссылок");
+console.log("   - Замыкания могут сохранять окружение в памяти");
+console.log("   - Важно избегать циклических ссылок!");
+
+// Демонстрация того, что каждый вызов создает новое окружение
+console.log("\n=== Каждый вызов = новое окружение ===");
+
+function createUniqueEnvironment(id) {
+  const environmentId = Math.random().toString(36).substr(2, 9);
+  console.log(`Создаем окружение ${id} с ID: ${environmentId}`);
+
+  return function showEnvironment() {
+    console.log(`  Окружение ${id} (ID: ${environmentId}) все еще существует`);
+  };
+}
+
+const env1 = createUniqueEnvironment("A"); // Лексическое окружение A
+const env2 = createUniqueEnvironment("B"); // Лексическое окружение B
+const env3 = createUniqueEnvironment("C"); // Лексическое окружение C
+
+console.log("\nВызываем функции из разных окружений:");
+env1(); // Используется окружение A
+env2(); // Используется окружение B
+env3(); // Используется окружение C

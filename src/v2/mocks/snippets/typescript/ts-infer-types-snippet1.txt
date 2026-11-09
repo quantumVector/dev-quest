@@ -1,0 +1,87 @@
+
+// =====================================
+// ОСНОВЫ INFER TYPES
+// =====================================
+
+// Infer Types используются ТОЛЬКО внутри условных типов (conditional types)
+// для автоматического извлечения типов из других типов
+
+// 1. Базовый синтаксис
+// T extends Pattern ? TrueType : FalseType
+// где Pattern может содержать infer для извлечения типа
+
+// Пример: извлечение типа возвращаемого значения функции
+type ReturnType<T> = T extends (...args: any[]) => infer R ? R : never
+
+// Как это работает:
+// - T extends (...args: any[]) => infer R - проверяем, является ли T функцией
+// - infer R - если да, то TypeScript автоматически выводит тип возвращаемого значения
+// - ? R : never - если это функция, возвращаем выведенный тип R, иначе never
+
+function getUserName(): string {
+  return "Alice"
+}
+
+function getUserAge(): number {
+  return 25
+}
+
+type UserNameType = ReturnType<typeof getUserName>  // string
+type UserAgeType = ReturnType<typeof getUserAge>    // number
+
+// 2. Извлечение типов параметров функции
+type Parameters<T> = T extends (...args: infer P) => any ? P : never
+
+function createUser(name: string, age: number, active: boolean) {
+  return { name, age, active }
+}
+
+type CreateUserParams = Parameters<typeof createUser>
+// [name: string, age: number, active: boolean]
+
+// Доступ к конкретным параметрам
+type FirstParam = CreateUserParams[0]   // string
+type SecondParam = CreateUserParams[1]  // number
+type ThirdParam = CreateUserParams[2]   // boolean
+
+// 3. Извлечение первого параметра
+type FirstParameter<T> = T extends (arg: infer P, ...args: any[]) => any
+  ? P
+  : never
+
+type FirstArgOfCreateUser = FirstParameter<typeof createUser>  // string
+
+// 4. Извлечение последнего параметра (сложнее)
+type LastParameter<T> = T extends (...args: [...any[], infer L]) => any
+  ? L
+  : never
+
+type LastArgOfCreateUser = LastParameter<typeof createUser>  // boolean
+
+// 5. Извлечение типа элемента массива
+type ArrayElement<T> = T extends (infer E)[] ? E : never
+
+type Numbers = number[]
+type NumberElement = ArrayElement<Numbers>  // number
+
+type Strings = Array<string>
+type StringElement = ArrayElement<Strings>  // string
+
+const mixedArray = [1, "hello", true] as const
+type MixedElement = ArrayElement<typeof mixedArray>  // 1 | "hello" | true
+
+// 6. Извлечение типа промиса
+type UnwrapPromise<T> = T extends Promise<infer U> ? U : T
+
+type AsyncNumber = Promise<number>
+type SyncNumber = UnwrapPromise<AsyncNumber>  // number
+
+type NotPromise = string
+type StillString = UnwrapPromise<NotPromise>  // string (не изменился)
+
+async function fetchUser(): Promise<{ name: string; age: number }> {
+  return { name: "Bob", age: 30 }
+}
+
+type FetchUserResult = UnwrapPromise<ReturnType<typeof fetchUser>>
+// { name: string; age: number }

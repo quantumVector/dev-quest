@@ -1,0 +1,48 @@
+
+// useId - генерация уникальных ID для accessibility
+import { useId } from 'react';
+
+function FormField({ label, type = 'text' }) {
+  // Генерирует уникальный ID
+  const id = useId();
+
+  return (
+    <div>
+      <label htmlFor={id}>{label}</label>
+      <input id={id} type={type} />
+    </div>
+  );
+}
+
+// Использование в форме
+function RegistrationForm() {
+  return (
+    <form>
+      {/* Каждое поле получит уникальный ID */}
+      <FormField label="Имя" />
+      <FormField label="Email" type="email" />
+      <FormField label="Пароль" type="password" />
+    </form>
+  );
+}
+
+// Множественные связанные элементы
+function AccessibleComponent() {
+  const id = useId();
+
+  return (
+    <div>
+      <label htmlFor={`${id}-input`}>Описание</label>
+      <input
+        id={`${id}-input`}
+        aria-describedby={`${id}-hint`}
+      />
+      <span id={`${id}-hint`}>
+        Введите подробное описание
+      </span>
+    </div>
+  );
+}
+
+// SSR - useId работает одинаково на сервере и клиенте!
+// Гарантирует совпадение ID при гидратации

@@ -1,0 +1,40 @@
+
+// Well-known символы - встроенные символы для кастомизации поведения
+
+// Symbol.iterator - делает объект итерируемым
+const myIterable = {
+  data: [1, 2, 3],
+  [Symbol.iterator]() {
+    let index = 0;
+    return {
+      next: () => {
+        if (index < this.data.length) {
+          return { value: this.data[index++], done: false };
+        }
+        return { done: true };
+      }
+    };
+  }
+};
+
+for (const item of myIterable) {
+  console.log(item); // 1, 2, 3
+}
+
+// Symbol.toStringTag - кастомизация Object.prototype.toString
+class MyClass {
+  get [Symbol.toStringTag]() {
+    return 'MyClass';
+  }
+}
+
+console.log(Object.prototype.toString.call(new MyClass())); // [object MyClass]
+
+// Symbol.hasInstance - кастомизация instanceof
+class MyArray {
+  static [Symbol.hasInstance](instance) {
+    return Array.isArray(instance);
+  }
+}
+
+console.log([] instanceof MyArray); // true

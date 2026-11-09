@@ -1,0 +1,111 @@
+
+// Основы обработки событий в React
+
+// 1. Объявление обработчика события
+function Button() {
+  // Функция-обработчик
+  function handleClick() {
+    console.log('Кнопка нажата!');
+  }
+
+  // Передача функции как пропса
+  return <button onClick={handleClick}>Нажми меня</button>;
+}
+
+// 2. Inline обработчик (не рекомендуется для сложной логики)
+function InlineButton() {
+  return (
+    <button onClick={() => console.log('Клик!')}>
+      Inline обработчик
+    </button>
+  );
+}
+
+// 3. Обработчик с параметрами
+function ButtonWithParams() {
+  function handleClick(id, event) {
+    console.log('ID:', id);
+    console.log('Event:', event);
+  }
+
+  // Способ 1: Arrow function
+  return (
+    <button onClick={(e) => handleClick(42, e)}>
+      С параметрами (arrow)
+    </button>
+  );
+}
+
+// Способ 2: bind
+function ButtonWithBind() {
+  function handleClick(id, event) {
+    console.log('ID:', id, 'Event:', event);
+  }
+
+  return (
+    <button onClick={handleClick.bind(null, 42)}>
+      С параметрами (bind)
+    </button>
+  );
+}
+
+// 4. Множественные обработчики
+function MultipleHandlers() {
+  function handleMouseEnter() {
+    console.log('Мышь вошла');
+  }
+
+  function handleMouseLeave() {
+    console.log('Мышь вышла');
+  }
+
+  function handleClick() {
+    console.log('Клик');
+  }
+
+  return (
+    <button
+      onClick={handleClick}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      Множественные события
+    </button>
+  );
+}
+
+// 5. Предотвращение действия по умолчанию
+function Form() {
+  function handleSubmit(event) {
+    event.preventDefault(); // Отменяем отправку формы
+    console.log('Форма отправлена через JavaScript');
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input type="text" />
+      <button type="submit">Отправить</button>
+    </form>
+  );
+}
+
+// 6. Остановка всплытия
+function NestedButtons() {
+  function handleParentClick() {
+    console.log('Клик на родителе');
+  }
+
+  function handleChildClick(event) {
+    event.stopPropagation(); // Останавливаем всплытие
+    console.log('Клик на потомке');
+  }
+
+  return (
+    <div onClick={handleParentClick}>
+      Родитель
+      <button onClick={handleChildClick}>
+        Потомок (не всплывает)
+      </button>
+    </div>
+  );
+}

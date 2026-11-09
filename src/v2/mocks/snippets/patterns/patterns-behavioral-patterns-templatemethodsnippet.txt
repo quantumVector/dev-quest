@@ -1,0 +1,123 @@
+
+// TEMPLATE METHOD - Шаблон алгоритма
+
+// Абстрактный класс с шаблонным методом
+class DataFetcher {
+  // Шаблонный метод - определяет алгоритм
+  async fetchData(url) {
+    this.beforeFetch()
+
+    try {
+      const data = await this.fetch(url)
+      const processed = this.processData(data)
+      this.afterFetch(processed)
+      return processed
+    } catch (error) {
+      this.handleError(error)
+      throw error
+    }
+  }
+
+  // Хуки, которые можно переопределить
+  beforeFetch() {}
+  afterFetch(data) {}
+  handleError(error) {
+    console.error('Fetch error:', error)
+  }
+
+  // Абстрактные методы (должны быть реализованы)
+  async fetch(url) {
+    throw new Error('fetch() must be implemented')
+  }
+
+  processData(data) {
+    throw new Error('processData() must be implemented')
+  }
+}
+
+// Конкретные реализации
+class UserDataFetcher extends DataFetcher {
+  beforeFetch() {
+    console.log('Fetching users...')
+  }
+
+  async fetch(url) {
+    const response = await fetch(url)
+    return response.json()
+  }
+
+  processData(data) {
+    // Добавляем полное имя
+    return data.map(user => ({
+      ...user,
+      fullName: `${user.firstName} ${user.lastName}`
+    }))
+  }
+
+  afterFetch(data) {
+    console.log(`Fetched ${data.length} users`)
+  }
+}
+
+class ProductDataFetcher extends DataFetcher {
+  beforeFetch() {
+    console.log('Fetching products...')
+  }
+
+  async fetch(url) {
+    const response = await fetch(url)
+    return response.json()
+  }
+
+  processData(data) {
+    // Фильтруем только доступные продукты
+    return data.filter(product => product.inStock)
+  }
+
+  afterFetch(data) {
+    console.log(`Fetched ${data.length} products in stock`)
+  }
+
+  handleError(error) {
+    console.error('Product fetch failed:', error)
+    // Отправляем уведомление в Sentry
+  }
+}
+
+// React: Hook с Template Method
+function useDataFetcher(FetcherClass) {
+  const [data, setData] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+
+  const fetcher = useMemo(() => new FetcherClass(), [FetcherClass])
+
+  const fetchData = async (url) => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      const result = await fetcher.fetchData(url)
+      setData(result)
+      return result
+    } catch (err) {
+      setError(err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return { data, loading, error, fetchData }
+}
+
+// Использование
+function UsersList() {
+  const { data: users, loading, fetchData } = useDataFetcher(UserDataFetcher)
+
+  useEffect(() => {
+    fetchData('/api/users')
+  }, [])
+
+  if (loading) return <Spinner />
+  return <div>{users?.map(user => <div key={user.id}>{user.fullName}</div>)}</div>
+}

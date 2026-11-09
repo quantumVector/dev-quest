@@ -1,0 +1,124 @@
+
+// =====================================
+// ПРАКТИЧЕСКИЕ ПРИМЕРЫ INFER
+// =====================================
+
+// 1. Извлечение типа из объекта по ключу
+type PropType<T, K extends keyof T> = T extends { [key in K]: infer P }
+  ? P
+  : never
+
+interface User {
+  name: string
+  age: number
+  email: string
+}
+
+type UserName = PropType<User, 'name'>  // string
+type UserAge = PropType<User, 'age'>    // number
+
+// 2. Flatten - "распаковка" вложенных массивов
+type Flatten<T> = T extends (infer U)[]
+  ? U extends (infer V)[]
+    ? V
+    : U
+  : T
+
+type OneDimensional = Flatten<number[]>      // number
+type TwoDimensional = Flatten<number[][]>    // number
+type NotArray = Flatten<string>              // string
+
+// 3. DeepFlatten - рекурсивная "распаковка"
+type DeepFlatten<T> = T extends (infer U)[]
+  ? DeepFlatten<U>
+  : T
+
+type Deep1 = DeepFlatten<number[][][]>  // number
+type Deep2 = DeepFlatten<string[][][][]>  // string
+
+// 4. Извлечение типов из кортежа
+type TupleToUnion<T> = T extends (infer E)[] ? E : never
+
+type Numbers = [1, 2, 3, 4, 5]
+type NumberUnion = TupleToUnion<Numbers>  // 1 | 2 | 3 | 4 | 5
+
+type Mixed = [string, number, boolean]
+type MixedUnion = TupleToUnion<Mixed>  // string | number | boolean
+
+// 5. Извлечение типа конструктора
+type ConstructorParameters<T> = T extends new (...args: infer P) => any
+  ? P
+  : never
+
+type InstanceType<T> = T extends new (...args: any[]) => infer R
+  ? R
+  : never
+
+class Person {
+  constructor(public name: string, public age: number) {}
+}
+
+type PersonParams = ConstructorParameters<typeof Person>  // [name: string, age: number]
+type PersonInstance = InstanceType<typeof Person>         // Person
+
+// 6. Извлечение типа из getter'а
+type GetterType<T> = T extends { get(): infer R } ? R : never
+
+const numberGetter = {
+  get(): number {
+    return 42
+  }
+}
+
+type NumberFromGetter = GetterType<typeof numberGetter>  // number
+
+// 7. Извлечение типа события из обработчика
+type EventType<T> = T extends (event: infer E) => void ? E : never
+
+type MouseEventHandler = (event: MouseEvent) => void
+type ExtractedMouseEvent = EventType<MouseEventHandler>  // MouseEvent
+
+type KeyboardEventHandler = (event: KeyboardEvent) => void
+type ExtractedKeyboardEvent = EventType<KeyboardEventHandler>  // KeyboardEvent
+
+// 8. Извлечение типа из Promise.all
+type UnwrapPromiseArray<T> = T extends Promise<infer U>[]
+  ? U[]
+  : T extends [Promise<infer U>, ...infer Rest]
+    ? [U, ...UnwrapPromiseArray<Rest>]
+    : T
+
+type PromiseArray = [Promise<string>, Promise<number>, Promise<boolean>]
+type UnwrappedArray = UnwrapPromiseArray<PromiseArray>
+// [string, number, boolean]
+
+// 9. Извлечение типа из React компонента
+type ComponentProps<T> = T extends React.ComponentType<infer P> ? P : never
+
+// Пример с функциональным компонентом
+interface ButtonProps {
+  label: string
+  onClick: () => void
+  disabled?: boolean
+}
+
+const Button: React.FC<ButtonProps> = ({ label, onClick, disabled }) => (
+  <button onClick={onClick} disabled={disabled}>
+    {label}
+  </button>
+)
+
+type ExtractedButtonProps = ComponentProps<typeof Button>  // ButtonProps
+
+// 10. Извлечение типа из Redux action
+type ActionPayload<T> = T extends { type: string; payload: infer P }
+  ? P
+  : never
+
+type LoginAction = {
+  type: 'LOGIN'
+  payload: { username: string; password: string }
+}
+
+type LoginPayload = ActionPayload<LoginAction>
+// { username: string; password: string }

@@ -1,0 +1,86 @@
+
+// Action Creators - функции для создания действий
+
+// Синхронные действия
+const TodoActions = {
+  addTodo(text) {
+    return {
+      type: 'TODO_ADD',
+      payload: {
+        id: Date.now(),
+        text,
+        completed: false
+      }
+    }
+  },
+
+  toggleTodo(id) {
+    return {
+      type: 'TODO_TOGGLE',
+      payload: { id }
+    }
+  },
+
+  deleteTodo(id) {
+    return {
+      type: 'TODO_DELETE',
+      payload: { id }
+    }
+  }
+}
+
+// Асинхронные действия через thunk-подобный паттерн
+const AsyncActions = {
+  // Action Creator возвращает функцию
+  loadTodos() {
+    return (dispatch) => {
+      // Отправляем действие начала загрузки
+      dispatch({
+        type: 'TODOS_LOAD_START'
+      })
+
+      // Асинхронная операция
+      fetch('/api/todos')
+        .then(response => response.json())
+        .then(todos => {
+          // Отправляем действие успешной загрузки
+          dispatch({
+            type: 'TODOS_LOAD_SUCCESS',
+            payload: { todos }
+          })
+        })
+        .catch(error => {
+          // Отправляем действие ошибки
+          dispatch({
+            type: 'TODOS_LOAD_ERROR',
+            payload: { error: error.message }
+          })
+        })
+    }
+  },
+
+  saveTodo(todo) {
+    return (dispatch) => {
+      dispatch({ type: 'TODO_SAVE_START', payload: { id: todo.id } })
+
+      fetch(`/api/todos/${todo.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(todo)
+      })
+        .then(response => response.json())
+        .then(savedTodo => {
+          dispatch({
+            type: 'TODO_SAVE_SUCCESS',
+            payload: { todo: savedTodo }
+          })
+        })
+        .catch(error => {
+          dispatch({
+            type: 'TODO_SAVE_ERROR',
+            payload: { id: todo.id, error: error.message }
+          })
+        })
+    }
+  }
+}

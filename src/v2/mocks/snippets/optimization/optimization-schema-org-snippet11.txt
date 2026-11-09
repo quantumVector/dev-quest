@@ -1,0 +1,56 @@
+
+// TypeScript типы для Schema.org
+import { Thing, Article, Product, BreadcrumbList } from 'schema-dts';
+
+// Утилита для создания типизированной разметки
+function createSchemaMarkup<T extends Thing>(schema: T): string {
+return JSON.stringify({
+'@context': 'https://schema.org',
+...schema
+});
+}
+
+// Пример использования
+const articleSchema = createSchemaMarkup<Article>({
+  '@type': 'Article',
+  headline: 'Заголовок статьи',
+  datePublished: '2025-02-04T08:00:00+00:00',
+  author: {
+  '@type': 'Person',
+  name: 'Автор'
+  }
+  });
+
+  // Валидация обязательных полей
+  interface RequiredArticleFields {
+  headline: string;
+  datePublished: string;
+  author: {
+  name: string;
+  };
+  publisher: {
+  name: string;
+  logo: string;
+  };
+  }
+
+  function createArticleSchema(fields: RequiredArticleFields): Article {
+  return {
+  '@type': 'Article',
+  headline: fields.headline,
+  datePublished: fields.datePublished,
+  author: {
+  '@type': 'Person',
+  name: fields.author.name
+  },
+  publisher: {
+  '@type': 'Organization',
+  name: fields.publisher.name,
+  logo: {
+  '@type': 'ImageObject',
+  url: fields.publisher.logo
+  }
+  }
+  };
+  }
+  

@@ -1,0 +1,50 @@
+
+// useMemo для сохранения ссылочного равенства
+
+function ParentComponent() {
+  const [count, setCount] = useState(0);
+  const [text, setText] = useState('');
+
+  // ❌ Без useMemo - новый объект каждый раз
+  const config = {
+    theme: 'dark',
+    language: 'ru',
+    maxItems: 100
+  };
+
+  // ✅ С useMemo - тот же объект при неизменных зависимостях
+  const memoizedConfig = useMemo(() => ({
+    theme: 'dark',
+    language: 'ru',
+    maxItems: 100
+  }), []); // Пустой массив - создается только один раз
+
+  return (
+    <div>
+      <button onClick={() => setCount(count + 1)}>
+        Count: {count}
+      </button>
+      <input
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+      />
+
+      {/* Без useMemo: ChildComponent ре-рендерится всегда */}
+      <ChildComponent config={config} />
+
+      {/* С useMemo: ChildComponent НЕ ре-рендерится если config не изменился */}
+      <OptimizedChild config={memoizedConfig} />
+    </div>
+  );
+}
+
+// Мемоизированный дочерний компонент
+const ChildComponent = React.memo(({ config }) => {
+  console.log('ChildComponent rendered');
+  return <div>Theme: {config.theme}</div>;
+});
+
+const OptimizedChild = React.memo(({ config }) => {
+  console.log('OptimizedChild rendered');
+  return <div>Theme: {config.theme}</div>;
+});

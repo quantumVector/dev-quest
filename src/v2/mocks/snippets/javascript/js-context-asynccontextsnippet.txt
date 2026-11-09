@@ -1,0 +1,42 @@
+
+// Контекст в асинхронном коде
+const obj = {
+    name: 'Асинхронный объект',
+
+    // Проблема с setTimeout
+    problemMethod: function() {
+        console.log(this.name); // 'Асинхронный объект'
+
+        setTimeout(function() {
+            console.log(this.name); // undefined (this = Window/global)
+        }, 100);
+    },
+
+    // Решение 1: стрелочная функция
+    solutionArrow: function() {
+        console.log(this.name); // 'Асинхронный объект'
+
+        setTimeout(() => {
+            console.log(this.name); // 'Асинхронный объект'
+        }, 100);
+    },
+
+    // Решение 2: bind
+    solutionBind: function() {
+        console.log(this.name); // 'Асинхронный объект'
+
+        setTimeout(function() {
+            console.log(this.name); // 'Асинхронный объект'
+        }.bind(this), 100);
+    },
+
+    // Promise и async/await
+    asyncMethod: async function() {
+        console.log(this.name); // 'Асинхронный объект'
+
+        const result = await Promise.resolve('Данные');
+        console.log(this.name); // 'Асинхронный объект' (сохраняется!)
+
+        return result;
+    }
+};

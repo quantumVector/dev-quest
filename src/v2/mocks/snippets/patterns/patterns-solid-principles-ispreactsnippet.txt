@@ -1,0 +1,68 @@
+
+// ISP в React компонентах
+
+// ❌ ПЛОХО - Компонент требует слишком много пропсов
+interface UserCardProps {
+  user: User
+  onEdit: () => void
+  onDelete: () => void
+  onShare: () => void
+  onExport: () => void
+  onPrint: () => void
+  showAvatar: boolean
+  showBio: boolean
+  showStats: boolean
+  showActions: boolean
+  theme: 'light' | 'dark'
+}
+
+// ✅ ПРАВИЛЬНО - Разделенные интерфейсы
+interface UserDisplayProps {
+  user: User
+  showAvatar?: boolean
+  showBio?: boolean
+}
+
+interface UserActionsProps {
+  onEdit?: () => void
+  onDelete?: () => void
+}
+
+interface UserExportProps {
+  onShare?: () => void
+  onExport?: () => void
+  onPrint?: () => void
+}
+
+// Композиция через компоненты
+const UserCard = ({ user }: { user: User }) => (
+  <div>
+    <UserDisplay user={user} showAvatar showBio />
+  </div>
+)
+
+const EditableUserCard = ({
+  user,
+  onEdit,
+  onDelete
+}: { user: User } & UserActionsProps) => (
+  <div>
+    <UserDisplay user={user} showAvatar showBio />
+    <UserActions onEdit={onEdit} onDelete={onDelete} />
+  </div>
+)
+
+const FullUserCard = ({
+  user,
+  ...actions
+}: { user: User } & UserActionsProps & UserExportProps) => (
+  <div>
+    <UserDisplay user={user} showAvatar showBio />
+    <UserActions onEdit={actions.onEdit} onDelete={actions.onDelete} />
+    <UserExport
+      onShare={actions.onShare}
+      onExport={actions.onExport}
+      onPrint={actions.onPrint}
+    />
+  </div>
+)

@@ -1,0 +1,53 @@
+
+# Специальные случаи и лучшие практики robots.txt
+
+# === ОБРАБОТКА ПАРАМЕТРОВ URL ===
+# Игнорировать параметры сортировки и фильтрации
+User-agent: *
+Disallow: /*?sort=
+Disallow: /*?filter=
+Disallow: /*&page=
+Allow: /*?*$  # Разрешить если нет параметров выше
+
+# === ЗАЩИТА ОТ ПАРСИНГА ===
+# Блокировка известных скраперов
+User-agent: wget
+User-agent: HTTrack
+User-agent: EmailCollector
+Disallow: /
+
+# === МОБИЛЬНЫЕ ВЕРСИИ ===
+# Если есть отдельная мобильная версия
+User-agent: *
+Disallow: /m/
+# Указать в head: <link rel="alternate" media="only screen and (max-width: 640px)" href="https://m.example.com/">
+
+# === A/B ТЕСТИРОВАНИЕ ===
+# Запретить индексацию вариантов тестов
+User-agent: *
+Disallow: /*?variant=
+Disallow: /ab-test/
+
+# === ПАГИНАЦИЯ ===
+# Разрешить первую страницу, ограничить остальные
+User-agent: *
+Allow: /blog/
+Allow: /blog/page/1
+Disallow: /blog/page/
+
+# === AJAX/API ENDPOINTS ===
+User-agent: *
+Disallow: /api/
+Allow: /api/public/
+Disallow: /*.json$
+Disallow: /xhr/
+
+# === ДУБЛИКАТЫ КОНТЕНТА ===
+# Если есть версии для печати
+Disallow: /print/
+Disallow: /*?print=1
+
+# Если есть параметры отслеживания
+Disallow: /*?utm_
+Disallow: /*?ref=
+Disallow: /*?source=

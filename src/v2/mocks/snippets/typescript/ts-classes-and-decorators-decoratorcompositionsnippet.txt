@@ -1,0 +1,53 @@
+
+// Композиция декораторов и порядок выполнения
+
+function first() {
+  console.log('first(): factory evaluated')
+  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+    console.log('first(): called')
+  }
+}
+
+function second() {
+  console.log('second(): factory evaluated')
+  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+    console.log('second(): called')
+  }
+}
+
+class Example {
+  @first()
+  @second()
+  method() {}
+}
+
+// Вывод:
+// "first(): factory evaluated"
+// "second(): factory evaluated"
+// "second(): called"
+// "first(): called"
+
+// Правило: фабрики выполняются сверху вниз,
+// декораторы применяются снизу вверх
+
+// Практический пример композиции
+function compose(...decorators: MethodDecorator[]) {
+  return function (
+    target: any,
+    propertyKey: string,
+    descriptor: PropertyDescriptor
+  ) {
+    // Применяем декораторы в обратном порядке
+    for (let i = decorators.length - 1; i >= 0; i--) {
+      const decorator = decorators[i]
+      decorator(target, propertyKey, descriptor)
+    }
+  }
+}
+
+class Service {
+  @compose(log, validate, memoize)
+  getData(id: number) {
+    return { id, data: 'some data' }
+  }
+}

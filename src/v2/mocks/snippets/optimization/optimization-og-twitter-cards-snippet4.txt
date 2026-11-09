@@ -1,0 +1,45 @@
+
+<!-- Полный набор мета-тегов для всех платформ -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Основные мета-теги -->
+  <title>Заголовок страницы - Сайт</title>
+  <meta name="description" content="Описание страницы для поисковых систем">
+  <link rel="canonical" href="https://example.com/page">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://example.com/page">
+  <meta property="og:title" content="Заголовок для Facebook">
+  <meta property="og:description" content="Описание для Facebook">
+  <meta property="og:image" content="https://example.com/images/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Описание изображения">
+  <meta property="og:site_name" content="Название сайта">
+  <meta property="og:locale" content="ru_RU">
+  <meta property="article:author" content="https://example.com/author">
+  <meta property="article:published_time" content="2025-02-03T10:00:00Z">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@username">
+  <meta name="twitter:creator" content="@author">
+  <meta name="twitter:title" content="Заголовок для Twitter">
+  <meta name="twitter:description" content="Описание для Twitter">
+  <meta name="twitter:image" content="https://example.com/images/twitter-image.jpg">
+  <meta name="twitter:image:alt" content="Описание изображения">
+
+  <!-- Альтернативные изображения -->
+  <meta property="og:image" content="https://example.com/images/og-square.jpg">
+  <meta property="og:image:width" content="1080">
+  <meta property="og:image:height" content="1080">
+</head>
+<body>
+  <!-- Контент страницы -->
+</body>
+</html>

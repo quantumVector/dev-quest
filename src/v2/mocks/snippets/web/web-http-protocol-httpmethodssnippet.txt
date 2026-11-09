@@ -1,0 +1,103 @@
+
+// =====================================
+// ОСНОВНЫЕ HTTP МЕТОДЫ
+// =====================================
+
+// 1. GET - получение данных
+// Безопасный, идемпотентный, кэшируемый
+GET /api/users/123 HTTP/1.1
+Host: api.example.com
+
+// JavaScript fetch
+fetch('https://api.example.com/users/123')
+  .then(response => response.json())
+  .then(data => console.log(data))
+
+// 2. POST - создание нового ресурса
+// НЕ идемпотентный, НЕ кэшируемый
+POST /api/users HTTP/1.1
+Host: api.example.com
+Content-Type: application/json
+
+{"name": "John Doe", "email": "john@example.com"}
+
+// JavaScript fetch
+fetch('https://api.example.com/users', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    name: 'John Doe',
+    email: 'john@example.com'
+  })
+})
+
+// 3. PUT - полное обновление ресурса
+// Идемпотентный, НЕ кэшируемый
+PUT /api/users/123 HTTP/1.1
+Host: api.example.com
+Content-Type: application/json
+
+{"id": 123, "name": "John Smith", "email": "john.smith@example.com"}
+
+// JavaScript fetch
+fetch('https://api.example.com/users/123', {
+  method: 'PUT',
+  headers: {'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    id: 123,
+    name: 'John Smith',
+    email: 'john.smith@example.com'
+  })
+})
+
+// 4. PATCH - частичное обновление ресурса
+// НЕ идемпотентный, НЕ кэшируемый
+PATCH /api/users/123 HTTP/1.1
+Host: api.example.com
+Content-Type: application/json
+
+{"email": "newemail@example.com"}
+
+// JavaScript fetch
+fetch('https://api.example.com/users/123', {
+  method: 'PATCH',
+  headers: {'Content-Type': 'application/json'},
+  body: JSON.stringify({email: 'newemail@example.com'})
+})
+
+// 5. DELETE - удаление ресурса
+// Идемпотентный, НЕ кэшируемый
+DELETE /api/users/123 HTTP/1.1
+Host: api.example.com
+
+// JavaScript fetch
+fetch('https://api.example.com/users/123', {
+  method: 'DELETE'
+})
+
+// 6. HEAD - метаданные без тела ответа
+// Используется для проверки существования ресурса
+HEAD /api/users/123 HTTP/1.1
+Host: api.example.com
+
+// JavaScript fetch
+fetch('https://api.example.com/users/123', {
+  method: 'HEAD'
+}).then(response => {
+  console.log('Exists:', response.ok)
+  console.log('Content-Type:', response.headers.get('Content-Type'))
+})
+
+// 7. OPTIONS - доступные методы для ресурса
+// Используется в CORS preflight запросах
+OPTIONS /api/users HTTP/1.1
+Host: api.example.com
+Origin: https://myapp.com
+
+// Ответ:
+HTTP/1.1 200 OK
+Allow: GET, POST, PUT, DELETE, OPTIONS
+Access-Control-Allow-Methods: GET, POST, PUT, DELETE
+Access-Control-Allow-Origin: https://myapp.com

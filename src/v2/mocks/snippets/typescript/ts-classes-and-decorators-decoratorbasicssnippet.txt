@@ -1,0 +1,45 @@
+
+// Декораторы - это функции, которые модифицируют классы, методы, свойства
+
+// tsconfig.json должен содержать:
+// {
+//   "compilerOptions": {
+//     "experimentalDecorators": true,
+//     "emitDecoratorMetadata": true
+//   }
+// }
+
+// Декоратор класса
+function sealed(constructor: Function) {
+  Object.seal(constructor)
+  Object.seal(constructor.prototype)
+}
+
+@sealed
+class BugReport {
+  type = 'report'
+  title: string
+
+  constructor(title: string) {
+    this.title = title
+  }
+}
+
+// Декоратор с параметрами (фабрика декораторов)
+function component(options: { selector: string; template: string }) {
+  return function (constructor: Function) {
+    console.log(`Component created with selector: ${options.selector}`)
+    // Можно добавить метаданные к классу
+    Object.defineProperty(constructor, 'selector', {
+      value: options.selector
+    })
+  }
+}
+
+@component({
+  selector: 'app-user',
+  template: '<div>User Component</div>'
+})
+class UserComponent {
+  name = 'User'
+}

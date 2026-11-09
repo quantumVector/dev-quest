@@ -1,0 +1,18 @@
+
+/* FLEXBOX: Центрирование элемента */
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* GRID: Центрирование элемента */
+.grid-center {
+  display: grid;
+  place-items: center;
+  height: 100vh;
+}
+
+/* Flexbox проще для простого центрирования */
+/* Grid лучше когда центрируемый элемент - часть сложного макета */

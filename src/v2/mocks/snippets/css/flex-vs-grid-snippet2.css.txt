@@ -1,0 +1,19 @@
+
+/* GRID - двумерная система (строки И столбцы одновременно) */
+.page-layout {
+  display: grid;
+  grid-template-areas:
+    "header header header"
+    "sidebar main aside"
+    "footer footer footer";
+  grid-template-columns: 200px 1fr 150px;
+  grid-template-rows: 60px 1fr 40px;
+  gap: 10px;
+  min-height: 100vh;
+}
+
+.header { grid-area: header; }
+.sidebar { grid-area: sidebar; }
+.main { grid-area: main; }
+.aside { grid-area: aside; }
+.footer { grid-area: footer; }

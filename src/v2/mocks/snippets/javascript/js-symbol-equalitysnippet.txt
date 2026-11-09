@@ -1,0 +1,16 @@
+
+// ❌ Символы НИКОГДА не равны друг другу
+const id1 = Symbol("id");
+const id2 = Symbol("id");
+
+console.log(id1 == id2);   // false
+console.log(id1 === id2);  // false
+
+// ✅ Символы равны только самим себе
+const mySymbol = Symbol("test");
+console.log(mySymbol === mySymbol); // true
+
+// ✅ Глобальные символы - исключение
+const global1 = Symbol.for("key");
+const global2 = Symbol.for("key");
+console.log(global1 === global2); // true

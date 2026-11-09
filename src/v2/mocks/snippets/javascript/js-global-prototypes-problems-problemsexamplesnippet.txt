@@ -1,0 +1,34 @@
+
+// Проблема 1: Загрязнение глобального пространства
+const obj = {name: "John", age: 30};
+
+// isEmpty теперь появляется везде!
+for (let key in obj) {
+  console.log(key); // "name", "age", "isEmpty" <- лишний метод!
+}
+
+// Проблема 2: Конфликты с библиотеками
+// Библиотека A добавляет метод
+Array.prototype.remove = function(item) {
+  const index = this.indexOf(item);
+  if (index > -1) this.splice(index, 1);
+  return this;
+}
+
+// Библиотека B добавляет другой метод с тем же именем
+Array.prototype.remove = function(predicate) {
+  return this.filter(x => !predicate(x));
+}
+
+// Какой метод будет использоваться? Конфликт!
+
+// Проблема 3: Влияние на встроенные методы
+const myArray = [1, 2, 3];
+console.log(myArray.map); // function - встроенный метод
+
+// Случайно перезаписали встроенный метод!
+Array.prototype.map = function() {
+  return "Oops! Broke everything!";
+}
+
+console.log(myArray.map(x => x * 2)); // "Oops! Broke everything!"

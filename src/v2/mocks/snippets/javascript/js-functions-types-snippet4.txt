@@ -1,0 +1,219 @@
+
+// =====================================
+// 4. СРАВНЕНИЕ И ПРАКТИЧЕСКИЕ ПРИМЕРЫ
+// =====================================
+
+// 1. HOISTING - Поднятие функций
+console.log("=== HOISTING ===");
+
+// Function Declaration - поднимается полностью
+console.log(declaredFunc()); // "Я поднялась!" - работает
+
+function declaredFunc() {
+  return "Я поднялась!";
+}
+
+// Function Expression - поднимается только переменная
+console.log(typeof expressedFunc); // undefined
+// console.log(expressedFunc()); // TypeError
+
+var expressedFunc = function() {
+  return "Я не поднялась!";
+};
+
+// Arrow Function - также как Function Expression
+console.log(typeof arrowFunc); // undefined
+// console.log(arrowFunc()); // TypeError
+
+var arrowFunc = () => "Я тоже не поднялась!";
+
+// 2. THIS CONTEXT
+console.log("=== THIS CONTEXT ===");
+
+const contextObj = {
+  name: "Тестовый объект",
+
+  // Function Declaration/Expression - динамический this
+  regularMethod: function() {
+    console.log("Regular method this:", this.name);
+
+    // Вложенная обычная функция теряет контекст
+    function nested() {
+      console.log("Nested function this:", this.name); // undefined
+    }
+    nested();
+
+    // Стрелочная функция наследует контекст
+    const nestedArrow = () => {
+      console.log("Nested arrow this:", this.name); // "Тестовый объект"
+    };
+    nestedArrow();
+  },
+
+  // Arrow Function - лексический this (от внешней области)
+  arrowMethod: () => {
+    console.log("Arrow method this:", this.name); // undefined
+  }
+};
+
+contextObj.regularMethod();
+contextObj.arrowMethod();
+
+// 3. ARGUMENTS OBJECT
+console.log("=== ARGUMENTS ===");
+
+function regularWithArgs() {
+  console.log("Regular arguments:", arguments);
+  console.log("Первый аргумент:", arguments[0]);
+}
+
+const arrowWithArgs = (...args) => {
+  console.log("Arrow rest params:", args);
+  console.log("Первый аргумент:", args[0]);
+};
+
+regularWithArgs(1, 2, 3);
+arrowWithArgs(1, 2, 3);
+
+// 4. КОНСТРУКТОРЫ
+console.log("=== CONSTRUCTORS ===");
+
+// Function Declaration/Expression могут быть конструкторами
+function PersonRegular(name, age) {
+  this.name = name;
+  this.age = age;
+  this.greet = function() {
+    return `Меня зовут ${this.name}, мне ${this.age} лет`;
+  };
+}
+
+const FunctionExprConstructor = function(name, age) {
+  this.name = name;
+  this.age = age;
+};
+
+// Arrow Functions НЕ могут быть конструкторами
+const ArrowConstructor = (name, age) => {
+  this.name = name;
+  this.age = age;
+};
+
+const person1 = new PersonRegular("Анна", 25);
+const person2 = new FunctionExprConstructor("Иван", 30);
+// const person3 = new ArrowConstructor("Ошибка", 35); // TypeError
+
+console.log(person1.greet());
+
+// 5. МЕТОДЫ ОБЪЕКТОВ
+console.log("=== METHODS ===");
+
+const calculator = {
+  value: 0,
+
+  // Обычный метод - правильный this
+  add: function(num) {
+    this.value += num;
+    return this;
+  },
+
+  // Стрелочный метод - неправильный this
+  subtract: (num) => {
+    // this.value не определен!
+    console.log("Arrow method this:", this);
+    return this;
+  },
+
+  // ES6 краткий синтаксис метода
+  multiply(num) {
+    this.value *= num;
+    return this;
+  },
+
+  // Геттер
+  get result() {
+    return this.value;
+  }
+};
+
+calculator.add(10).multiply(2);
+console.log(calculator.result); // 20
+
+// 6. EVENT HANDLERS
+console.log("=== EVENT HANDLERS ===");
+
+class ButtonHandler {
+  constructor() {
+    this.clickCount = 0;
+  }
+
+  // Обычный метод - теряет контекст в event handler
+  regularHandler() {
+    this.clickCount++;
+    console.log("Клики:", this.clickCount);
+  }
+
+  // Стрелочный метод - сохраняет контекст
+  arrowHandler = () => {
+    this.clickCount++;
+    console.log("Клики:", this.clickCount);
+  }
+
+  // Метод с bind
+  boundHandler() {
+    this.clickCount++;
+    console.log("Клики:", this.clickCount);
+  }
+}
+
+const handler = new ButtonHandler();
+
+// Симуляция event listeners
+// button.addEventListener('click', handler.regularHandler); // this будет button
+// button.addEventListener('click', handler.arrowHandler); // this остается handler
+// button.addEventListener('click', handler.boundHandler.bind(handler)); // bind this
+
+// 7. CALLBACK FUNCTIONS
+console.log("=== CALLBACKS ===");
+
+const users = [
+  { name: "Анна", age: 25 },
+  { name: "Иван", age: 30 },
+  { name: "Петр", age: 35 }
+];
+
+// Function Expression в качестве callback
+const adults1 = users.filter(function(user) {
+  return user.age >= 30;
+});
+
+// Arrow Function в качестве callback (предпочтительнее)
+const adults2 = users.filter(user => user.age >= 30);
+
+console.log("Adults 1:", adults1);
+console.log("Adults 2:", adults2);
+
+// 8. PERFORMANCE
+console.log("=== PERFORMANCE ===");
+
+// Function Declaration - создается один раз
+function performanceTest1() {
+  return "Declaration";
+}
+
+// Function Expression - создается при каждом выполнении (если в цикле)
+for (let i = 0; i < 1000000; i++) {
+  // Медленно - создается новая функция каждый раз
+  const slowFunc = function() {
+    return "Expression";
+  };
+}
+
+// Лучше вынести из цикла
+const fastFunc = function() {
+  return "Expression";
+};
+
+for (let i = 0; i < 1000000; i++) {
+  // Быстро - используется существующая функция
+  fastFunc();
+}

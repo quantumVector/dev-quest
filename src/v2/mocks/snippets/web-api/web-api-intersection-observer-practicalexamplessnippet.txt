@@ -1,0 +1,298 @@
+
+// =====================================
+// ПРАКТИЧЕСКИЕ ПРИМЕРЫ
+// =====================================
+
+// 1. Ленивая загрузка изображений
+class LazyImageLoader {
+  constructor() {
+    this.observer = new IntersectionObserver(
+      this.handleIntersection.bind(this),
+      {
+        rootMargin: '50px',
+        threshold: 0.01
+      }
+    )
+
+    this.images = document.querySelectorAll('img[data-src]')
+    this.images.forEach(img => this.observer.observe(img))
+  }
+
+  handleIntersection(entries) {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const img = entry.target
+
+        // Загружаем изображение
+        img.src = img.dataset.src
+
+        // Опционально: srcset для responsive
+        if (img.dataset.srcset) {
+          img.srcset = img.dataset.srcset
+        }
+
+        // Добавляем класс для fade-in анимации
+        img.classList.add('loaded')
+
+        // Удаляем placeholder после загрузки
+        img.onload = () => {
+          img.classList.remove('loading')
+        }
+
+        // Прекращаем наблюдение
+        this.observer.unobserve(img)
+      }
+    })
+  }
+}
+
+// HTML: <img data-src="image.jpg" data-srcset="image-2x.jpg 2x" class="loading">
+
+// 2. Автовоспроизведение видео
+class VideoAutoplay {
+  constructor() {
+    this.observer = new IntersectionObserver(
+      this.handleIntersection.bind(this),
+      {
+        threshold: 0.5 // Играть, когда видно 50% видео
+      }
+    )
+
+    this.videos = document.querySelectorAll('video[data-autoplay]')
+    this.videos.forEach(video => this.observer.observe(video))
+  }
+
+  handleIntersection(entries) {
+    entries.forEach(entry => {
+      const video = entry.target
+
+      if (entry.isIntersecting) {
+        video.play().catch(err => {
+          console.log('Autoplay prevented:', err)
+        })
+      } else {
+        video.pause()
+      }
+    })
+  }
+}
+
+// 3. Аналитика - отслеживание просмотров
+class ViewTracking {
+  constructor() {
+    this.tracked = new Set()
+
+    this.observer = new IntersectionObserver(
+      this.handleIntersection.bind(this),
+      {
+        threshold: 0.5, // Считаем просмотренным при 50% видимости
+        rootMargin: '0px'
+      }
+    )
+
+    this.trackableElements = document.querySelectorAll('[data-track-view]')
+    this.trackableElements.forEach(el => this.observer.observe(el))
+  }
+
+  handleIntersection(entries) {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const element = entry.target
+        const trackId = element.dataset.trackView
+
+        // Отслеживаем только один раз
+        if (!this.tracked.has(trackId)) {
+          this.tracked.add(trackId)
+          this.sendAnalytics(trackId, entry)
+
+          // Прекращаем наблюдение
+          this.observer.unobserve(element)
+        }
+      }
+    })
+  }
+
+  sendAnalytics(trackId, entry) {
+    const data = {
+      id: trackId,
+      timestamp: Date.now(),
+      visibilityRatio: entry.intersectionRatio,
+      elementPosition: {
+        top: entry.boundingClientRect.top,
+        bottom: entry.boundingClientRect.bottom
+      }
+    }
+
+    // Отправляем данные
+    navigator.sendBeacon('/analytics/view', JSON.stringify(data))
+    console.log('View tracked:', trackId)
+  }
+}
+
+// HTML: <div data-track-view="article-123">Content</div>
+
+// 4. "Read more" для длинных статей
+class ReadMoreObserver {
+  constructor() {
+    this.observer = new IntersectionObserver(
+      this.handleIntersection.bind(this),
+      {
+        threshold: 0,
+        rootMargin: '0px 0px -80% 0px' // Триггер в нижней части viewport
+      }
+    )
+
+    this.articles = document.querySelectorAll('article[data-read-more]')
+    this.articles.forEach(article => {
+      // Создаем маркер в конце статьи
+      const marker = document.createElement('div')
+      marker.className = 'read-more-marker'
+      article.appendChild(marker)
+
+      this.observer.observe(marker)
+    })
+  }
+
+  handleIntersection(entries) {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const article = entry.target.closest('article')
+        this.loadMoreContent(article)
+
+        // Останавливаем наблюдение
+        this.observer.unobserve(entry.target)
+      }
+    })
+  }
+
+  async loadMoreContent(article) {
+    const nextUrl = article.dataset.readMore
+
+    try {
+      const response = await fetch(nextUrl)
+      const html = await response.text()
+
+      // Вставляем новый контент
+      const tempDiv = document.createElement('div')
+      tempDiv.innerHTML = html
+
+      article.appendChild(tempDiv.firstElementChild)
+
+    } catch (error) {
+      console.error('Failed to load more content:', error)
+    }
+  }
+}
+
+// 5. Параллакс эффект на скролле
+class ParallaxObserver {
+  constructor() {
+    this.observer = new IntersectionObserver(
+      this.handleIntersection.bind(this),
+      {
+        threshold: Array.from({ length: 101 }, (_, i) => i / 100)
+      }
+    )
+
+    this.parallaxElements = document.querySelectorAll('[data-parallax]')
+    this.parallaxElements.forEach(el => this.observer.observe(el))
+  }
+
+  handleIntersection(entries) {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const element = entry.target
+        const speed = parseFloat(element.dataset.parallax) || 0.5
+
+        // Рассчитываем смещение на основе видимости
+        const offset = (1 - entry.intersectionRatio) * 100 * speed
+
+        element.style.transform = `translateY(${offset}px)`
+      }
+    })
+  }
+}
+
+// HTML: <div data-parallax="0.5">Content</div>
+
+// 6. Sticky header с изменением стилей
+class StickyHeaderObserver {
+  constructor() {
+    this.header = document.querySelector('header')
+
+    // Создаем sentinel элемент
+    this.sentinel = document.createElement('div')
+    this.sentinel.style.height = '1px'
+    this.sentinel.style.position = 'absolute'
+    this.sentinel.style.top = '0'
+    document.body.prepend(this.sentinel)
+
+    this.observer = new IntersectionObserver(
+      this.handleIntersection.bind(this),
+      {
+        threshold: [0, 1],
+        rootMargin: '0px'
+      }
+    )
+
+    this.observer.observe(this.sentinel)
+  }
+
+  handleIntersection(entries) {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) {
+        // Пользователь проскроллил вниз
+        this.header.classList.add('sticky')
+        this.header.classList.add('scrolled')
+      } else {
+        // Вернулись наверх
+        this.header.classList.remove('scrolled')
+      }
+    })
+  }
+}
+
+// 7. Предзагрузка контента следующей страницы
+class NextPagePrefetch {
+  constructor() {
+    this.observer = new IntersectionObserver(
+      this.handleIntersection.bind(this),
+      {
+        rootMargin: '500px', // Загружаем за 500px
+        threshold: 0
+      }
+    )
+
+    this.nextPageLink = document.querySelector('a[rel="next"]')
+    if (this.nextPageLink) {
+      this.observer.observe(this.nextPageLink)
+    }
+  }
+
+  async handleIntersection(entries) {
+    entries.forEach(async (entry) => {
+      if (entry.isIntersecting) {
+        const url = entry.target.href
+
+        // Предзагружаем HTML
+        const link = document.createElement('link')
+        link.rel = 'prefetch'
+        link.href = url
+        document.head.appendChild(link)
+
+        // Или загружаем и кэшируем
+        try {
+          const response = await fetch(url)
+          const html = await response.text()
+          sessionStorage.setItem(url, html)
+          console.log('Next page prefetched')
+        } catch (error) {
+          console.error('Prefetch failed:', error)
+        }
+
+        // Останавливаем наблюдение
+        this.observer.unobserve(entry.target)
+      }
+    })
+  }
+}

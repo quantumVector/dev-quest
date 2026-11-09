@@ -1,0 +1,1 @@
+type T<X> = [X] extends [Y] ? A : B

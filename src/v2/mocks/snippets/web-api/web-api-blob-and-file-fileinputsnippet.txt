@@ -1,0 +1,43 @@
+
+// =====================================
+// РАБОТА С <input type="file">
+// =====================================
+
+// HTML: <input type="file" id="fileInput" multiple accept="image/*">
+
+const fileInput = document.getElementById('fileInput')
+
+// Обработка выбора файлов
+fileInput.addEventListener('change', async (event) => {
+  const files = event.target.files  // FileList объект
+
+  console.log('Количество файлов:', files.length)
+
+  // FileList не массив, но итерируемый
+  for (const file of files) {
+    console.log('Имя:', file.name)
+    console.log('Размер:', file.size, 'байт')
+    console.log('Тип:', file.type)
+    console.log('Изменен:', new Date(file.lastModified))
+
+    // Чтение содержимого
+    const content = await file.text()
+    console.log('Содержимое:', content)
+  }
+
+  // Преобразование FileList в массив
+  const filesArray = Array.from(files)
+  // или
+  const filesArray2 = [...files]
+
+  // Фильтрация файлов
+  const imageFiles = filesArray.filter(file => file.type.startsWith('image/'))
+
+  // Сортировка по размеру
+  const sortedFiles = filesArray.sort((a, b) => a.size - b.size)
+})
+
+// Программный клик на input
+const openFileDialog = () => {
+  fileInput.click()
+}

@@ -1,0 +1,62 @@
+
+// JSX с компонентами
+
+// Пользовательские компоненты начинаются с заглавной буквы!
+function Welcome({ name }) {
+  return <h1>Привет, {name}!</h1>;
+}
+
+// Использование
+const app = <Welcome name="Иван" />;
+
+// Компилируется в:
+const app = React.createElement(Welcome, { name: 'Иван' });
+
+// Вложенные компоненты
+function App() {
+  return (
+    <div>
+      <Welcome name="Иван" />
+      <Welcome name="Мария" />
+      <Welcome name="Пётр" />
+    </div>
+  );
+}
+
+// Передача children
+function Card({ title, children }) {
+  return (
+    <div className="card">
+      <h2>{title}</h2>
+      <div className="card-body">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// Использование с children
+const card = (
+  <Card title="Заголовок">
+    <p>Это контент карточки</p>
+    <button>Нажми меня</button>
+  </Card>
+);
+
+// Spread оператор для props
+const props = {
+  firstName: 'Иван',
+  lastName: 'Петров',
+  age: 30
+};
+
+const user = <UserProfile {...props} />;
+
+// Это то же самое что:
+const user = (
+  <UserProfile
+    firstName="Иван"
+    lastName="Петров"
+    age={30}
+  />
+);

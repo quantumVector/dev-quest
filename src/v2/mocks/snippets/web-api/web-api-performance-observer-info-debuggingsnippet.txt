@@ -1,0 +1,295 @@
+
+// =====================================
+// ОТЛАДКА И ДИАГНОСТИКА
+// =====================================
+
+// 1. Визуализация метрик в консоли
+class PerformanceDebugger {
+  constructor() {
+    this.metrics = {
+      navigation: [],
+      resources: [],
+      paints: [],
+      webVitals: {}
+    }
+
+    this.init()
+  }
+
+  init() {
+    // Все типы метрик
+    const allTypes = PerformanceObserver.supportedEntryTypes || []
+
+    allTypes.forEach(type => {
+      try {
+        const observer = new PerformanceObserver((list) => {
+          list.getEntries().forEach(entry => {
+            this.processEntry(entry)
+          })
+        })
+
+        observer.observe({ type, buffered: true })
+      } catch (e) {
+        // Игнорируем неподдерживаемые типы
+      }
+    })
+  }
+
+  processEntry(entry) {
+    // Группировка по типам
+    switch (entry.entryType) {
+      case 'navigation':
+        this.metrics.navigation.push(entry)
+        this.printNavigation(entry)
+        break
+
+      case 'resource':
+        this.metrics.resources.push(entry)
+        if (entry.duration > 500) {
+          this.printSlowResource(entry)
+        }
+        break
+
+      case 'paint':
+        this.metrics.paints.push(entry)
+        this.printPaint(entry)
+        break
+
+      case 'largest-contentful-paint':
+        this.metrics.webVitals.lcp = entry
+        this.printLCP(entry)
+        break
+
+      case 'first-input':
+        this.metrics.webVitals.fid = entry
+        this.printFID(entry)
+        break
+
+      case 'layout-shift':
+        if (!entry.hadRecentInput) {
+          this.printCLS(entry)
+        }
+        break
+    }
+  }
+
+  printNavigation(entry) {
+    console.group('📊 Navigation Performance')
+    console.table({
+      'DNS Lookup': `${(entry.domainLookupEnd - entry.domainLookupStart).toFixed(2)}ms`,
+      'TCP Connection': `${(entry.connectEnd - entry.connectStart).toFixed(2)}ms`,
+      'Request Time': `${(entry.responseStart - entry.requestStart).toFixed(2)}ms`,
+      'Response Time': `${(entry.responseEnd - entry.responseStart).toFixed(2)}ms`,
+      'DOM Interactive': `${entry.domInteractive.toFixed(2)}ms`,
+      'DOM Complete': `${entry.domComplete.toFixed(2)}ms`,
+      'Load Event': `${(entry.loadEventEnd - entry.loadEventStart).toFixed(2)}ms`,
+      'Total Load Time': `${entry.loadEventEnd.toFixed(2)}ms`
+    })
+    console.groupEnd()
+  }
+
+  printSlowResource(entry) {
+    console.warn('🐌 Slow Resource Detected')
+    console.table({
+      'URL': entry.name,
+      'Type': entry.initiatorType,
+      'Duration': `${entry.duration.toFixed(2)}ms`,
+      'Size': `${(entry.transferSize / 1024).toFixed(2)} KB`,
+      'Cached': entry.transferSize === 0 ? 'Yes' : 'No'
+    })
+  }
+
+  printPaint(entry) {
+    const icon = entry.name === 'first-paint' ? '🎨' : '🖼️'
+    console.log(`${icon} ${entry.name}: ${entry.startTime.toFixed(2)}ms`)
+  }
+
+  printLCP(entry) {
+    const rating = entry.startTime < 2500 ? '✅' : entry.startTime < 4000 ? '⚠️' : '❌'
+    console.log(`${rating} LCP: ${entry.startTime.toFixed(2)}ms`)
+    if (entry.element) {
+      console.log('Element:', entry.element)
+    }
+  }
+
+  printFID(entry) {
+    const fid = entry.processingStart - entry.startTime
+    const rating = fid < 100 ? '✅' : fid < 300 ? '⚠️' : '❌'
+    console.log(`${rating} FID: ${fid.toFixed(2)}ms`)
+  }
+
+  printCLS(entry) {
+    const rating = entry.value < 0.1 ? '✅' : entry.value < 0.25 ? '⚠️' : '❌'
+    console.log(`${rating} CLS: ${entry.value.toFixed(4)}`)
+  }
+
+  getSummary() {
+    return {
+      totalResources: this.metrics.resources.length,
+      slowResources: this.metrics.resources.filter(r => r.duration > 500).length,
+      cacheHitRate: this.calculateCacheHitRate(),
+      webVitals: this.metrics.webVitals
+    }
+  }
+
+  calculateCacheHitRate() {
+    const cached = this.metrics.resources.filter(r => r.transferSize === 0).length
+    const total = this.metrics.resources.length
+    return total > 0 ? (cached / total * 100).toFixed(2) + '%' : 'N/A'
+  }
+}
+
+// Использование
+const debugger = new PerformanceDebugger()
+
+// Через некоторое время выводим сводку
+setTimeout(() => {
+  console.log('Performance Summary:', debugger.getSummary())
+}, 10000)
+
+// 2. DevTools интеграция
+class PerformanceDevTools {
+  static async captureProfile(duration = 5000) {
+    console.log('Starting performance capture...')
+
+    const entries = []
+
+    const observer = new PerformanceObserver((list) => {
+      entries.push(...list.getEntries())
+    })
+
+    // Наблюдаем за всеми поддерживаемыми типами
+    const types = PerformanceObserver.supportedEntryTypes
+    types.forEach(type => {
+      try {
+        observer.observe({ type, buffered: true })
+      } catch (e) {
+        // Игнорируем
+      }
+    })
+
+    await new Promise(resolve => setTimeout(resolve, duration))
+
+    observer.disconnect()
+
+    console.log(`Captured ${entries.length} performance entries`)
+
+    return this.generateReport(entries)
+  }
+
+  static generateReport(entries) {
+    const report = {
+      summary: {
+        totalEntries: entries.length,
+        byType: {}
+      },
+      timeline: [],
+      recommendations: []
+    }
+
+    // Группировка по типам
+    entries.forEach(entry => {
+      if (!report.summary.byType[entry.entryType]) {
+        report.summary.byType[entry.entryType] = 0
+      }
+      report.summary.byType[entry.entryType]++
+
+      report.timeline.push({
+        type: entry.entryType,
+        name: entry.name,
+        start: entry.startTime,
+        duration: entry.duration
+      })
+    })
+
+    // Анализ и рекомендации
+    const slowResources = entries.filter(
+      e => e.entryType === 'resource' && e.duration > 1000
+    )
+
+    if (slowResources.length > 0) {
+      report.recommendations.push({
+        issue: 'Slow Resources',
+        count: slowResources.length,
+        suggestion: 'Optimize or lazy-load large resources'
+      })
+    }
+
+    return report
+  }
+
+  static exportReport(report) {
+    const blob = new Blob([JSON.stringify(report, null, 2)], {
+      type: 'application/json'
+    })
+
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `performance-report-${Date.now()}.json`
+    a.click()
+
+    URL.revokeObjectURL(url)
+  }
+}
+
+// Использование
+// PerformanceDevTools.captureProfile(10000).then(report => {
+//   console.log('Performance Report:', report)
+//   PerformanceDevTools.exportReport(report)
+// })
+
+// 3. A/B тестирование производительности
+class PerformanceABTest {
+  constructor(variant) {
+    this.variant = variant // 'A' or 'B'
+    this.metrics = {}
+
+    this.init()
+  }
+
+  init() {
+    const observer = new PerformanceObserver((list) => {
+      list.getEntries().forEach(entry => {
+        // Сохраняем метрики для варианта
+        if (!this.metrics[entry.entryType]) {
+          this.metrics[entry.entryType] = []
+        }
+
+        this.metrics[entry.entryType].push({
+          name: entry.name,
+          duration: entry.duration,
+          startTime: entry.startTime,
+          variant: this.variant
+        })
+      })
+    })
+
+    try {
+      observer.observe({ entryTypes: ['navigation', 'resource', 'paint'] })
+    } catch (e) {
+      console.error('Failed to start AB test observer:', e)
+    }
+  }
+
+  sendResults() {
+    // Отправка результатов A/B теста
+    fetch('/api/ab-test/performance', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        variant: this.variant,
+        metrics: this.metrics,
+        timestamp: Date.now()
+      })
+    })
+  }
+}
+
+// Использование
+const variant = Math.random() < 0.5 ? 'A' : 'B'
+const abTest = new PerformanceABTest(variant)
+
+window.addEventListener('beforeunload', () => {
+  abTest.sendResults()
+})

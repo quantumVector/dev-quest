@@ -1,0 +1,50 @@
+
+// ❌ НАРУШЕНИЕ KISS - излишняя сложность
+class UserValidator {
+  constructor() {
+    this.validationStrategies = new Map();
+    this.validationChain = [];
+    this.errorHandlers = [];
+  }
+
+  registerStrategy(name, strategy) {
+    this.validationStrategies.set(name, strategy);
+    return this;
+  }
+
+  addToChain(strategyName) {
+    this.validationChain.push(strategyName);
+    return this;
+  }
+
+  validate(user) {
+    const context = { user, errors: [] };
+
+    for (const strategyName of this.validationChain) {
+      const strategy = this.validationStrategies.get(strategyName);
+
+      try {
+        const result = strategy.execute(context);
+
+        if (!result.valid) {
+          context.errors.push(...result.errors);
+
+          for (const handler of this.errorHandlers) {
+            handler.handle(context);
+          }
+        }
+      } catch (error) {
+        // Error handling...
+      }
+    }
+
+    return context.errors.length === 0;
+  }
+}
+
+// Использование требует глубокого понимания паттернов
+const validator = new UserValidator()
+  .registerStrategy('email', new EmailValidationStrategy())
+  .registerStrategy('age', new AgeValidationStrategy())
+  .addToChain('email')
+  .addToChain('age');

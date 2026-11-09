@@ -1,0 +1,132 @@
+
+// Пагинация с генераторами
+function* paginate(array, pageSize) {
+  for (let i = 0; i < array.length; i += pageSize) {
+    yield array.slice(i, i + pageSize)
+  }
+}
+
+const data = Array.from({ length: 23 }, (_, i) => `item-${i}`)
+for (const page of paginate(data, 5)) {
+  console.log('Страница:', page)
+}
+
+// Ленивая фильтрация
+function* lazyFilter(iterable, predicate) {
+  for (const item of iterable) {
+    if (predicate(item)) {
+      yield item
+    }
+  }
+}
+
+function* lazyMap(iterable, mapper) {
+  for (const item of iterable) {
+    yield mapper(item)
+  }
+}
+
+// Цепочка операций без создания промежуточных массивов
+const numbers = function* () {
+  for (let i = 1; i <= 1000000; i++) {
+    yield i
+  }
+}
+
+const result = lazyMap(
+  lazyFilter(numbers(), x => x % 2 === 0),
+  x => x * x
+)
+
+// Берем первые 5 результатов
+const firstFive = takeN(result, 5)
+console.log(firstFive) // [4, 16, 36, 64, 100]
+
+// Обработка событий с генераторами
+class EventProcessor {
+  constructor() {
+    this.events = []
+  }
+
+  *processEvents() {
+    while (true) {
+      if (this.events.length === 0) {
+        // Ждем события
+        yield null
+      } else {
+        const event = this.events.shift()
+        yield this.handleEvent(event)
+      }
+    }
+  }
+
+  handleEvent(event) {
+    return `Обработано: ${event.type} в ${new Date(event.timestamp)}`
+  }
+
+  addEvent(type, data = {}) {
+    this.events.push({
+      type,
+      data,
+      timestamp: Date.now()
+    })
+  }
+}
+
+const processor = new EventProcessor()
+const eventGenerator = processor.processEvents()
+
+processor.addEvent('click', { x: 100, y: 200 })
+processor.addEvent('keydown', { key: 'Enter' })
+
+console.log(eventGenerator.next().value) // Обработано: click...
+console.log(eventGenerator.next().value) // Обработано: keydown...
+console.log(eventGenerator.next().value) // null (нет событий)
+
+// Retry механизм с генераторами
+async function* retryWithBackoff(fn, maxRetries = 3, baseDelay = 1000) {
+  let attempt = 0
+
+  while (attempt < maxRetries) {
+    try {
+      const result = await fn()
+      yield { success: true, result, attempt }
+      return
+    } catch (error) {
+      attempt++
+      const delay = baseDelay * Math.pow(2, attempt - 1)
+
+      yield {
+        success: false,
+        error: error.message,
+        attempt,
+        nextRetryIn: delay
+      }
+
+      if (attempt < maxRetries) {
+        await new Promise(resolve => setTimeout(resolve, delay))
+      }
+    }
+  }
+
+  yield { success: false, error: 'Max retries exceeded', attempt }
+}
+
+// Использование retry
+async function unreliableAPI() {
+  if (Math.random() < 0.7) {
+    throw new Error('API временно недоступен')
+  }
+  return { data: 'Успешный ответ' }
+}
+
+async function testRetry() {
+  for await (const result of retryWithBackoff(unreliableAPI, 3, 500)) {
+    if (result.success) {
+      console.log('Успех:', result.result)
+      break
+    } else {
+      console.log(`Попытка ${result.attempt}: ${result.error}`)
+    }
+  }
+}

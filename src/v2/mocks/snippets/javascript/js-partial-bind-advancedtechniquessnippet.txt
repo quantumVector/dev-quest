@@ -1,0 +1,65 @@
+
+// ПРОДВИНУТЫЕ ТЕХНИКИ
+
+// 1. Частичное применение справа (правостороннее)
+function rightBind(fn, ...rightArgs) {
+  return function(...leftArgs) {
+    return fn.apply(this, [...leftArgs, ...rightArgs]);
+  };
+}
+
+function divide(a, b, precision = 2) {
+  return (a / b).toFixed(precision);
+}
+
+const divideWithPrecision3 = rightBind(divide, 3);
+console.log(divideWithPrecision3(10, 3)); // "3.333"
+
+// 2. Каррирование (currying)
+function curry(fn) {
+  return function curried(...args) {
+    if (args.length >= fn.length) {
+      return fn.apply(this, args);
+    }
+
+    return function(...nextArgs) {
+      return curried.apply(this, [...args, ...nextArgs]);
+    };
+  };
+}
+
+const add = (a, b, c) => a + b + c;
+const curriedAdd = curry(add);
+
+const add5 = curriedAdd(5);
+const add5and3 = add5(3);
+console.log(add5and3(2)); // 5 + 3 + 2 = 10
+
+// 3. Мемоизация с bind
+function memoize(fn) {
+  const cache = new Map();
+
+  return function(...args) {
+    const key = JSON.stringify(args);
+
+    if (cache.has(key)) {
+      console.log('Cache hit!');
+      return cache.get(key);
+    }
+
+    const result = fn.apply(this, args);
+    cache.set(key, result);
+    return result;
+  };
+}
+
+function expensiveOperation(a, b) {
+  console.log('Computing...');
+  return a * b + Math.random(); // Имитируем сложные вычисления
+}
+
+const memoizedOp = memoize(expensiveOperation);
+const boundMemoizedOp = memoizedOp.bind(null, 5); // Частично применяем первый аргумент
+
+console.log(boundMemoizedOp(3)); // Computing... 15.xyz
+console.log(boundMemoizedOp(3)); // Cache hit! 15.xyz

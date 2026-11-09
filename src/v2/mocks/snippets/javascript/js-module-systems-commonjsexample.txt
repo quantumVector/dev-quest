@@ -1,0 +1,68 @@
+
+// =======================================
+// COMMONJS - Node.js модули
+// =======================================
+
+// math.js - экспорт функций
+function add(a, b) {
+  return a + b;
+}
+
+function subtract(a, b) {
+  return a - b;
+}
+
+const PI = 3.14159;
+
+// Экспорт через module.exports
+module.exports = {
+  add,
+  subtract,
+  PI
+};
+
+// Альтернативный способ экспорта
+exports.multiply = function(a, b) {
+  return a * b;
+};
+
+exports.divide = function(a, b) {
+  if (b === 0) throw new Error('Division by zero');
+  return a / b;
+};
+
+// calculator.js - импорт модулей
+const math = require('./math');           // Импорт всего модуля
+const { add, PI } = require('./math');    // Деструктуризация
+const fs = require('fs');                 // Встроенный модуль Node.js
+const _ = require('lodash');              // npm модуль
+
+console.log(math.add(5, 3));             // 8
+console.log(add(10, 2));                 // 12
+console.log(PI);                         // 3.14159
+
+// Условный импорт
+if (process.env.NODE_ENV === 'development') {
+  const devTools = require('./dev-tools');
+  devTools.enableLogging();
+}
+
+// Кэширование модулей - модуль загружается один раз
+console.log(require('./math') === require('./math')); // true
+
+// Циклические зависимости
+// a.js
+console.log('a starting');
+exports.done = false;
+const b = require('./b.js');
+console.log('in a, b.done =', b.done);
+exports.done = true;
+console.log('a done');
+
+// b.js
+console.log('b starting');
+exports.done = false;
+const a = require('./a.js');
+console.log('in b, a.done =', a.done);
+exports.done = true;
+console.log('b done');

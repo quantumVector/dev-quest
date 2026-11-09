@@ -1,0 +1,193 @@
+
+// =====================================
+// ПРОДВИНУТЫЕ MAPPED TYPES
+// =====================================
+
+// 1. Prefix - добавить префикс ко всем ключам
+type Prefix<T, P extends string> = {
+  [K in keyof T as `${P}${string & K}`]: T[K]
+}
+
+interface Config {
+  host: string
+  port: number
+  secure: boolean
+}
+
+type DatabaseConfig = Prefix<Config, 'db_'>
+// Результат:
+// {
+//   db_host: string
+//   db_port: number
+//   db_secure: boolean
+// }
+
+const dbConfig: DatabaseConfig = {
+  db_host: 'localhost',
+  db_port: 5432,
+  db_secure: true
+}
+
+// 2. Suffix - добавить суффикс ко всем ключам
+type Suffix<T, S extends string> = {
+  [K in keyof T as `${string & K}${S}`]: T[K]
+}
+
+type ConfigEnv = Suffix<Config, '_ENV'>
+// Результат:
+// {
+//   host_ENV: string
+//   port_ENV: number
+//   secure_ENV: boolean
+// }
+
+// 3. Getters - создать геттеры для всех свойств
+type Getters<T> = {
+  [K in keyof T as `get${Capitalize<string & K>}`]: () => T[K]
+}
+
+interface State {
+  count: number
+  name: string
+  active: boolean
+}
+
+type StateGetters = Getters<State>
+// Результат:
+// {
+//   getCount: () => number
+//   getName: () => string
+//   getActive: () => boolean
+// }
+
+const stateGetters: StateGetters = {
+  getCount: () => 42,
+  getName: () => 'Test',
+  getActive: () => true
+}
+
+// 4. Setters - создать сеттеры для всех свойств
+type Setters<T> = {
+  [K in keyof T as `set${Capitalize<string & K>}`]: (value: T[K]) => void
+}
+
+type StateSetters = Setters<State>
+// Результат:
+// {
+//   setCount: (value: number) => void
+//   setName: (value: string) => void
+//   setActive: (value: boolean) => void
+// }
+
+// 5. GettersAndSetters - комбинация геттеров и сеттеров
+type GettersAndSetters<T> = Getters<T> & Setters<T>
+
+type StateAccessors = GettersAndSetters<State>
+
+const stateAccessors: StateAccessors = {
+  getCount: () => 0,
+  setCount: (value: number) => {},
+  getName: () => '',
+  setName: (value: string) => {},
+  getActive: () => false,
+  setActive: (value: boolean) => {}
+}
+
+// 6. Proxify - обернуть все значения в Proxy-подобную структуру
+type Proxify<T> = {
+  [P in keyof T]: {
+    get(): T[P]
+    set(value: T[P]): void
+  }
+}
+
+type ProxifiedState = Proxify<State>
+// Результат:
+// {
+//   count: { get(): number; set(value: number): void }
+//   name: { get(): string; set(value: string): void }
+//   active: { get(): boolean; set(value: boolean): void }
+// }
+
+// 7. RemoveReadonly - убрать readonly со всех свойств
+type RemoveReadonly<T> = {
+  -readonly [P in keyof T]: T[P]
+}
+
+type ReadonlyConfig = {
+  readonly apiKey: string
+  readonly timeout: number
+}
+
+type MutableConfig = RemoveReadonly<ReadonlyConfig>
+
+const config: MutableConfig = {
+  apiKey: 'key123',
+  timeout: 5000
+}
+config.apiKey = 'newkey'  // ✅ OK
+
+// 8. DeepReadonly - рекурсивный readonly
+type DeepReadonly<T> = {
+  readonly [P in keyof T]: T[P] extends object
+    ? DeepReadonly<T[P]>
+    : T[P]
+}
+
+interface NestedData {
+  user: {
+    profile: {
+      name: string
+      age: number
+    }
+  }
+}
+
+type ImmutableData = DeepReadonly<NestedData>
+// Все вложенные объекты тоже readonly
+
+// 9. NonNullableProperties - убрать null/undefined из всех свойств
+type NonNullableProperties<T> = {
+  [P in keyof T]: NonNullable<T[P]>
+}
+
+interface NullableUser {
+  id: number | null
+  name: string | undefined
+  email: string | null | undefined
+}
+
+type DefiniteUser = NonNullableProperties<NullableUser>
+// Результат:
+// {
+//   id: number
+//   name: string
+//   email: string
+// }
+
+// 10. FilterByType - выбрать только свойства определенного типа
+type FilterByType<T, U> = {
+  [P in keyof T as T[P] extends U ? P : never]: T[P]
+}
+
+interface MixedTypes {
+  id: number
+  name: string
+  age: number
+  active: boolean
+  description: string
+}
+
+type StringProperties = FilterByType<MixedTypes, string>
+// Результат:
+// {
+//   name: string
+//   description: string
+// }
+
+type NumberProperties = FilterByType<MixedTypes, number>
+// Результат:
+// {
+//   id: number
+//   age: number
+// }

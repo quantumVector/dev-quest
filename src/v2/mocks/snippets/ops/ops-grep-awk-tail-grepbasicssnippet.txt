@@ -1,0 +1,53 @@
+
+# grep - Global Regular Expression Print
+# Поиск текста в файлах
+
+# Базовый поиск
+grep "error" application.log
+# Ищет строки со словом "error"
+
+# Игнорирование регистра
+grep -i "error" application.log
+# Найдет: ERROR, Error, error
+
+# Инверсия поиска (строки БЕЗ паттерна)
+grep -v "debug" application.log
+# Все строки кроме содержащих "debug"
+
+# Подсчет совпадений
+grep -c "GET" access.log
+# Возвращает число строк с "GET"
+
+# Показать номера строк
+grep -n "TODO" src/index.js
+# 15: // TODO: refactor this
+# 42: // TODO: add tests
+
+# Рекурсивный поиск
+grep -r "useState" src/
+# Ищет во всех файлах директории
+
+# Только имена файлов
+grep -l "import React" src/*.js
+# Список файлов, содержащих паттерн
+
+# Контекст вокруг совпадения
+grep -A 3 "Error:" app.log    # 3 строки ПОСЛЕ
+grep -B 2 "Error:" app.log    # 2 строки ДО
+grep -C 2 "Error:" app.log    # 2 строки ДО и ПОСЛЕ
+
+# Несколько паттернов
+grep -e "error" -e "warning" -e "critical" app.log
+
+# Регулярные выражения
+grep "^Error" app.log          # Начинается с Error
+grep "error$" app.log          # Заканчивается на error
+grep "error.*critical" app.log # error и потом critical
+
+# Поиск целых слов
+grep -w "app" config.json
+# Найдет "app", но не "application"
+
+# Цветной вывод
+grep --color=auto "error" app.log
+# Подсвечивает найденный текст

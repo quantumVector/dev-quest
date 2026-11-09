@@ -1,0 +1,237 @@
+
+// =====================================
+// CONDITIONAL MAPPED TYPES
+// =====================================
+
+// 1. Optionalize - сделать определенные свойства необязательными
+type Optionalize<T, K extends keyof T> = {
+  [P in keyof T]: P extends K ? T[P] | undefined : T[P]
+}
+
+// Или лучше:
+type Optionalize2<T, K extends keyof T> =
+  Omit<T, K> & Partial<Pick<T, K>>
+
+interface FormData {
+  username: string
+  email: string
+  age: number
+  bio: string
+}
+
+// Делаем age и bio необязательными
+type OptionalForm = Optionalize2<FormData, 'age' | 'bio'>
+// Результат:
+// {
+//   username: string
+//   email: string
+//   age?: number
+//   bio?: string
+// }
+
+const form: OptionalForm = {
+  username: 'john',
+  email: 'john@example.com'
+  // age и bio необязательны
+}
+
+// 2. PickByValueType - выбрать свойства по типу значения
+type PickByValueType<T, V> = Pick<
+  T,
+  { [K in keyof T]: T[K] extends V ? K : never }[keyof T]
+>
+
+interface Product {
+  id: number
+  name: string
+  price: number
+  description: string
+  inStock: boolean
+  quantity: number
+}
+
+type StringFields = PickByValueType<Product, string>
+// Результат:
+// {
+//   name: string
+//   description: string
+// }
+
+type NumberFields = PickByValueType<Product, number>
+// Результат:
+// {
+//   id: number
+//   price: number
+//   quantity: number
+// }
+
+// 3. OmitByValueType - исключить свойства по типу значения
+type OmitByValueType<T, V> = Pick<
+  T,
+  { [K in keyof T]: T[K] extends V ? never : K }[keyof T]
+>
+
+type NonStringFields = OmitByValueType<Product, string>
+// Результат:
+// {
+//   id: number
+//   price: number
+//   inStock: boolean
+//   quantity: number
+// }
+
+// 4. ConditionalPick - выбрать по условию
+type ConditionalPick<T, Condition> = {
+  [K in keyof T as (T[K] extends Condition ? K : never)]: T[K]
+}
+
+interface User {
+  id: number
+  name: string
+  email: string
+  age: number
+  isActive: boolean
+  metadata: object
+}
+
+// Только примитивы (string | number | boolean)
+type Primitives = ConditionalPick<User, string | number | boolean>
+
+// 5. FunctionProperties - только функции
+type FunctionProperties<T> = {
+  [K in keyof T as T[K] extends Function ? K : never]: T[K]
+}
+
+interface Component {
+  name: string
+  render(): void
+  update(): void
+  data: object
+  destroy(): void
+}
+
+type ComponentMethods = FunctionProperties<Component>
+// Результат:
+// {
+//   render: () => void
+//   update: () => void
+//   destroy: () => void
+// }
+
+// 6. PromisifyAll - обернуть все методы в Promise
+type PromisifyAll<T> = {
+  [K in keyof T]: T[K] extends (...args: infer A) => infer R
+    ? (...args: A) => Promise<R>
+    : T[K]
+}
+
+interface API {
+  getUser(id: number): User
+  updateUser(id: number, data: Partial<User>): User
+  deleteUser(id: number): boolean
+}
+
+type AsyncAPI = PromisifyAll<API>
+// Результат:
+// {
+//   getUser: (id: number) => Promise<User>
+//   updateUser: (id: number, data: Partial<User>) => Promise<User>
+//   deleteUser: (id: number) => Promise<boolean>
+// }
+
+// 7. DeepPartial - рекурсивный Partial
+type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends object
+    ? DeepPartial<T[P]>
+    : T[P]
+}
+
+interface Config {
+  database: {
+    host: string
+    port: number
+    credentials: {
+      username: string
+      password: string
+    }
+  }
+  cache: {
+    enabled: boolean
+    ttl: number
+  }
+}
+
+type PartialConfig = DeepPartial<Config>
+// Все вложенные объекты тоже опциональны
+
+const partialConfig: PartialConfig = {
+  database: {
+    host: 'localhost'
+    // port и credentials необязательны
+  }
+  // cache необязателен
+}
+
+// 8. Merge - объединение типов
+type Merge<T, U> = {
+  [K in keyof T | keyof U]: K extends keyof U
+    ? U[K]
+    : K extends keyof T
+    ? T[K]
+    : never
+}
+
+interface Base {
+  id: number
+  created: Date
+}
+
+interface Extended {
+  name: string
+  updated: Date
+}
+
+type Combined = Merge<Base, Extended>
+// Результат:
+// {
+//   id: number
+//   created: Date
+//   name: string
+//   updated: Date
+// }
+
+// 9. Diff - различия между типами
+type Diff<T, U> = Pick<T, Exclude<keyof T, keyof U>>
+
+interface Old {
+  id: number
+  name: string
+  legacy: string
+  deprecated: boolean
+}
+
+interface New {
+  id: number
+  name: string
+  version: number
+}
+
+type RemovedFields = Diff<Old, New>
+// Результат:
+// {
+//   legacy: string
+//   deprecated: boolean
+// }
+
+// 10. UnionToIntersection - union в intersection (продвинутое)
+type UnionToIntersection<U> =
+  (U extends any ? (k: U) => void : never) extends
+  ((k: infer I) => void) ? I : never
+
+type A = { a: number }
+type B = { b: string }
+type C = { c: boolean }
+
+type Union = A | B | C
+type Intersection = UnionToIntersection<Union>
+// Результат: A & B & C = { a: number; b: string; c: boolean }

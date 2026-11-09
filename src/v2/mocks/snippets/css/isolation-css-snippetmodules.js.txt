@@ -1,0 +1,11 @@
+
+/* Button.module.css */
+.button { padding: 12px 24px; border: none; border-radius: 4px; }
+.primary { background: #007bff; color: white; }
+
+// Button.jsx
+import styles from './Button.module.css';
+const Button = ({ variant = 'primary', children }) => (
+  <button className={`${styles.button} ${styles[variant]}`}>{children}</button>
+);
+// Результат в DOM: class="Button_button__3xKL2 Button_primary__2kF9x"

@@ -1,0 +1,22 @@
+
+// let и const НЕ всплывают (технически всплывают, но в TDZ)
+console.log(x); // ReferenceError: Cannot access 'x' before initialization
+let x = 5;
+
+console.log(y); // ReferenceError: Cannot access 'y' before initialization
+const y = 10;
+
+// Temporal Dead Zone (TDZ)
+function example() {
+  console.log(a); // undefined (var)
+  console.log(b); // ReferenceError (let в TDZ)
+
+  var a = 1;
+  let b = 2;
+}
+
+// Блочная область видимости
+{
+  console.log(z); // ReferenceError
+  let z = 3;
+}

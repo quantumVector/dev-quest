@@ -1,0 +1,85 @@
+
+// DIP в React через Context и кастомные хуки
+
+// Абстракция
+interface StorageService {
+  get<T>(key: string): T | null
+  set<T>(key: string, value: T): void
+  remove(key: string): void
+}
+
+// Реализации
+class LocalStorageService implements StorageService {
+  get<T>(key: string): T | null {
+    const item = localStorage.getItem(key)
+    return item ? JSON.parse(item) : null
+  }
+
+  set<T>(key: string, value: T): void {
+    localStorage.setItem(key, JSON.stringify(value))
+  }
+
+  remove(key: string): void {
+    localStorage.removeItem(key)
+  }
+}
+
+class MemoryStorageService implements StorageService {
+  private storage = new Map<string, any>()
+
+  get<T>(key: string): T | null {
+    return this.storage.get(key) ?? null
+  }
+
+  set<T>(key: string, value: T): void {
+    this.storage.set(key, value)
+  }
+
+  remove(key: string): void {
+    this.storage.delete(key)
+  }
+}
+
+// DI через Context
+const StorageContext = createContext<StorageService | null>(null)
+
+export const StorageProvider = ({
+  storage,
+  children
+}: {
+  storage: StorageService
+  children: React.ReactNode
+}) => (
+  <StorageContext.Provider value={storage}>
+    {children}
+  </StorageContext.Provider>
+)
+
+// Хук для использования хранилища
+export const useStorage = () => {
+  const storage = useContext(StorageContext)
+  if (!storage) {
+    throw new Error('useStorage must be used within StorageProvider')
+  }
+  return storage
+}
+
+// Использование
+const App = () => (
+  <StorageProvider storage={new LocalStorageService()}>
+    <UserSettings />
+  </StorageProvider>
+)
+
+// Компонент зависит от абстракции, а не конкретной реализации
+const UserSettings = () => {
+  const storage = useStorage()
+  const [theme, setTheme] = useState(() => storage.get('theme') ?? 'light')
+
+  const handleThemeChange = (newTheme: string) => {
+    setTheme(newTheme)
+    storage.set('theme', newTheme)
+  }
+
+  return <ThemeSelector value={theme} onChange={handleThemeChange} />
+}

@@ -1,0 +1,31 @@
+
+// Symbol.asyncIterator - для асинхронной итерации
+
+const asyncIterable = {
+  data: ['a', 'b', 'c'],
+
+  [Symbol.asyncIterator]() {
+    let index = 0
+    const data = this.data
+
+    return {
+      async next() {
+        if (index < data.length) {
+          // Симулируем асинхронную операцию
+          await new Promise(resolve => setTimeout(resolve, 100))
+          return { value: data[index++], done: false }
+        }
+        return { done: true }
+      }
+    }
+  }
+}
+
+// Использование с for await...of
+async function iterate() {
+  for await (const value of asyncIterable) {
+    console.log(value) // 'a', 'b', 'c' с задержкой
+  }
+}
+
+iterate()

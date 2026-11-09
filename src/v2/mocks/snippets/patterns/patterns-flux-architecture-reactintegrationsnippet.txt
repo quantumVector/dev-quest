@@ -1,0 +1,111 @@
+
+// Интеграция Flux с React
+
+import React, { Component } from 'react'
+
+// Container Component - подключается к Store
+class TodoContainer extends Component {
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      todos: todoStore.getTodos(),
+      statistics: statisticsStore.getStatistics()
+    }
+
+    // Привязываем методы
+    this.onChange = this.onChange.bind(this)
+  }
+
+  componentDidMount() {
+    // Подписываемся на изменения Store
+    todoStore.addListener(this.onChange)
+    statisticsStore.addListener(this.onChange)
+  }
+
+  componentWillUnmount() {
+    // Отписываемся при размонтировании
+    todoStore.removeListener(this.onChange)
+    statisticsStore.removeListener(this.onChange)
+  }
+
+  onChange() {
+    // Обновляем состояние компонента при изменении Store
+    this.setState({
+      todos: todoStore.getTodos(),
+      statistics: statisticsStore.getStatistics()
+    })
+  }
+
+  handleAddTodo = (text) => {
+    // Создаем и отправляем действие
+    const action = TodoActions.addTodo(text)
+    dispatcher.dispatch(action)
+  }
+
+  handleToggleTodo = (id) => {
+    const action = TodoActions.toggleTodo(id)
+    dispatcher.dispatch(action)
+  }
+
+  render() {
+    return (
+      <div>
+        <TodoList
+          todos={this.state.todos}
+          onToggle={this.handleToggleTodo}
+        />
+        <TodoForm onAdd={this.handleAddTodo} />
+        <Statistics stats={this.state.statistics} />
+      </div>
+    )
+  }
+}
+
+// Presentational Component - чистый UI
+const TodoList = ({ todos, onToggle }) => (
+  <ul>
+    {todos.map(todo => (
+      <li
+        key={todo.id}
+        onClick={() => onToggle(todo.id)}
+        style={{
+          textDecoration: todo.completed ? 'line-through' : 'none'
+        }}
+      >
+        {todo.text}
+      </li>
+    ))}
+  </ul>
+)
+
+const TodoForm = ({ onAdd }) => {
+  const [text, setText] = React.useState('')
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    if (text.trim()) {
+      onAdd(text)
+      setText('')
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder="Add todo..."
+      />
+      <button type="submit">Add</button>
+    </form>
+  )
+}
+
+const Statistics = ({ stats }) => (
+  <div>
+    <p>Total: {stats.total}</p>
+    <p>Completed: {stats.completed}</p>
+    <p>Progress: {stats.percentage.toFixed(0)}%</p>
+  </div>
+)

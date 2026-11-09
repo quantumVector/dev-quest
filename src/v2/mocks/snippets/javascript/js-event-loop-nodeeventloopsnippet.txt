@@ -1,0 +1,35 @@
+
+// Event Loop в Node.js (отличается от браузера!)
+const fs = require('fs');
+
+console.log('Start');
+
+// Timer phase
+setTimeout(() => console.log('Timer 1'), 0);
+setImmediate(() => console.log('Immediate 1'));
+
+// I/O phase
+fs.readFile(__filename, () => {
+  console.log('I/O callback');
+
+  setTimeout(() => console.log('Timer in I/O'), 0);
+  setImmediate(() => console.log('Immediate in I/O'));
+
+  process.nextTick(() => console.log('nextTick in I/O'));
+});
+
+// Microtasks
+Promise.resolve().then(() => console.log('Promise 1'));
+process.nextTick(() => console.log('nextTick 1'));
+
+console.log('End');
+
+// Node.js phases:
+// 1. Timer phase (setTimeout, setInterval)
+// 2. Pending callbacks phase
+// 3. Idle, prepare phase
+// 4. Poll phase (I/O)
+// 5. Check phase (setImmediate)
+// 6. Close callbacks phase
+
+// process.nextTick и Promise имеют приоритет между фазами

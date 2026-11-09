@@ -1,0 +1,31 @@
+
+// Демонстрация Call Stack
+function first() {
+  console.log('First function start');
+  second();
+  console.log('First function end');
+}
+
+function second() {
+  console.log('Second function start');
+  third();
+  console.log('Second function end');
+}
+
+function third() {
+  console.log('Third function');
+}
+
+console.log('Global start');
+first();
+console.log('Global end');
+
+// Call Stack в процессе выполнения:
+// 1. [global]
+// 2. [global, first]
+// 3. [global, first, second]
+// 4. [global, first, second, third]
+// 5. [global, first, second] (third завершен)
+// 6. [global, first] (second завершен)
+// 7. [global] (first завершен)
+// 8. [] (global завершен)

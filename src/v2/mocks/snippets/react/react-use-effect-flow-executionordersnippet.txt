@@ -1,0 +1,54 @@
+
+// Порядок выполнения нескольких эффектов
+
+function MultipleEffects({ prop }) {
+  const [state1, setState1] = useState(0)
+  const [state2, setState2] = useState(0)
+
+  console.log('1. RENDER')
+
+  useEffect(() => {
+    console.log('2. Effect A - setup')
+    return () => console.log('3. Effect A - cleanup')
+  }, [prop])
+
+  useEffect(() => {
+    console.log('4. Effect B - setup')
+    return () => console.log('5. Effect B - cleanup')
+  }, [state1])
+
+  useEffect(() => {
+    console.log('6. Effect C - setup')
+    return () => console.log('7. Effect C - cleanup')
+  }, [state2])
+
+  return <div>Content</div>
+}
+
+/*
+ПЕРВЫЙ РЕНДЕР (монтирование):
+1. RENDER
+[DOM обновился, браузер отрисовал]
+2. Effect A - setup
+4. Effect B - setup
+6. Effect C - setup
+
+ОБНОВЛЕНИЕ (prop изменился, state1 изменился):
+1. RENDER
+[DOM обновился, браузер отрисовал]
+3. Effect A - cleanup  ← cleanup от предыдущего
+5. Effect B - cleanup  ← cleanup от предыдущего
+2. Effect A - setup    ← новый setup
+4. Effect B - setup    ← новый setup
+(Effect C не перезапускается - state2 не изменился)
+
+РАЗМОНТИРОВАНИЕ:
+3. Effect A - cleanup
+5. Effect B - cleanup
+7. Effect C - cleanup
+
+ВАЖНО:
+- Эффекты выполняются в порядке объявления
+- Cleanup выполняются в том же порядке
+- Cleanup ВСЕГДА перед новым setup
+*/

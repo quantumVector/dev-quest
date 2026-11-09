@@ -1,0 +1,18 @@
+
+# ✅ ПРАВИЛЬНО - оптимальное кэширование
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Шаг 1: Копируем только файлы зависимостей
+COPY package*.json ./
+
+# Шаг 2: Устанавливаем зависимости (кэшируется!)
+RUN npm ci --only=production
+
+# Шаг 3: Копируем исходный код (в последнюю очередь)
+COPY src/ ./src/
+COPY public/ ./public/
+
+EXPOSE 3000
+CMD ["npm", "start"]

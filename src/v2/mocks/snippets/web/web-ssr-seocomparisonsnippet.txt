@@ -1,0 +1,53 @@
+
+<!-- SEO: CSR vs SSR -->
+
+<!-- ❌ CSR - поисковик видит пустую страницу -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My App</title>
+</head>
+<body>
+<div id="root"></div>
+<!-- Googlebot ждет JS, но не всегда выполняет -->
+<script src="bundle.js"></script>
+</body>
+</html>
+
+<!-- ✅ SSR - поисковик видит полный контент -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <title>Купить iPhone 15 Pro - лучшая цена в России</title>
+  <meta name="description" content="iPhone 15 Pro от 89 990₽. Официальная гарантия Apple. Быстрая доставка по Москве и России.">
+  <meta property="og:title" content="iPhone 15 Pro - My Store">
+  <meta property="og:image" content="https://example.com/iphone-15-pro.jpg">
+  <link rel="canonical" href="https://example.com/products/iphone-15-pro">
+
+  <!-- Структурированные данные для Google -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": "iPhone 15 Pro",
+      "price": "89990",
+      "priceCurrency": "RUB",
+      "availability": "https://schema.org/InStock",
+      "image": "https://example.com/iphone-15-pro.jpg"
+    }
+  </script>
+</head>
+<body>
+<div id="root">
+  <article>
+    <h1>iPhone 15 Pro</h1>
+    <img src="/iphone-15-pro.jpg" alt="iPhone 15 Pro фото">
+    <p>Революционный чип A17 Pro. Титановый корпус...</p>
+    <div class="price">89 990 ₽</div>
+    <button>Купить</button>
+  </article>
+</div>
+</body>
+</html>
+
+<!-- Googlebot индексирует контент СРАЗУ -->

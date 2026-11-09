@@ -1,0 +1,66 @@
+
+// =====================================
+// ОГРАНИЧЕНИЯ FETCH API
+// =====================================
+
+// ❌ 1. НЕТ прогресса загрузки (upload progress)
+async function uploadWithFetch(file) {
+  const response = await fetch('/upload', {
+    method: 'POST',
+    body: file
+  })
+
+  // ❌ Невозможно отследить прогресс ОТПРАВКИ
+  // Fetch не предоставляет событий для прогресса upload
+
+  return response.json()
+}
+
+// ✅ Прогресс СКАЧИВАНИЯ есть (через ReadableStream)
+async function downloadWithProgress(url) {
+  const response = await fetch(url)
+  const reader = response.body.getReader()
+  const contentLength = +response.headers.get('Content-Length')
+
+  let receivedLength = 0
+  const chunks = []
+
+  while (true) {
+    const { done, value } = await reader.read()
+
+    if (done) break
+
+    chunks.push(value)
+    receivedLength += value.length
+
+    const progress = (receivedLength / contentLength) * 100
+    console.log(`Downloaded: ${progress.toFixed(2)}%`)
+  }
+
+  return new Blob(chunks)
+}
+
+// ❌ 2. НЕТ синхронных запросов
+// Fetch всегда асинхронный!
+// const response = fetch(url)  // ❌ Вернет Promise, а не данные
+
+// ❌ 3. НЕТ событий onprogress, onload, onerror
+// Только then/catch или async/await
+
+// ❌ 4. НЕТ возможности отправить запрос в событии unload
+window.addEventListener('beforeunload', (e) => {
+  // ❌ Fetch может не успеть выполниться
+  fetch('/analytics', {
+    method: 'POST',
+    body: JSON.stringify({ event: 'page_close' })
+  })
+  // Браузер может прервать запрос при закрытии страницы
+})
+
+// ✅ Для unload используйте navigator.sendBeacon
+window.addEventListener('beforeunload', () => {
+  navigator.sendBeacon('/analytics', JSON.stringify({ event: 'page_close' }))
+})
+
+// ❌ 5. Невозможно получить прогресс загрузки файла на сервер
+// (только прогресс скачивания с сервера)

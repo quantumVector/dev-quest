@@ -1,0 +1,87 @@
+
+# Практические примеры для фронтенд/бэкенд разработки
+
+# 1. Проверка окружения перед запуском
+pwd
+echo "Current directory: $(pwd)"
+echo "Node version: $(node -v)"
+echo "NPM version: $(npm -v)"
+ls -la package.json
+
+# 2. Очистка и установка зависимостей
+echo "Cleaning node_modules..."
+rm -rf node_modules package-lock.json
+echo "Installing dependencies..."
+npm install | tee install.log
+
+# 3. Анализ размера проекта
+echo "Project size analysis:"
+du -sh .
+du -sh node_modules
+ls -lh dist/bundle.js
+
+# 4. Поиск проблем в коде
+echo "Searching for console.logs..."
+grep -r "console.log" src/ | wc -l
+echo "Searching for debugger statements..."
+grep -r "debugger" src/ | wc -l
+
+# 5. Мониторинг логов приложения
+tail -f logs/app.log | grep "ERROR" --color
+
+# 6. Резервное копирование перед деплоем
+echo "Creating backup..."
+BACKUP_DIR="backup-$(date +%Y%m%d-%H%M%S)"
+mkdir -p $BACKUP_DIR
+cat package.json > $BACKUP_DIR/package.json
+ls -la $BACKUP_DIR
+
+# 7. Проверка портов
+echo "Checking if port 3000 is in use..."
+lsof -i :3000 | grep LISTEN
+
+# 8. Анализ git изменений
+echo "Modified files:"
+git status | grep "modified:"
+echo "Number of changed files:"
+git status --short | wc -l
+
+# 9. Быстрая документация
+cat > README.md << EOF
+# Project Name
+
+## Installation
+```bash
+npm install
+```
+
+## Usage
+```bash
+npm start
+```
+EOF
+echo "README.md created"
+
+# 10. Очистка Docker
+echo "Docker cleanup..."
+docker ps -a | grep "Exited" | awk '{print $1}' | xargs docker rm
+docker images | grep "none" | awk '{print $3}' | xargs docker rmi
+
+# 11. Мониторинг производительности
+echo "=== System Info ===" | tee system-info.txt
+pwd >> system-info.txt
+date >> system-info.txt
+df -h >> system-info.txt
+free -h >> system-info.txt
+
+# 12. CI/CD скрипты
+#!/bin/bash
+echo "Starting CI pipeline..."
+echo "Step 1: Linting"
+npm run lint | tee lint.log
+echo "Step 2: Testing"
+npm test | tee test.log
+echo "Step 3: Building"
+npm run build | tee build.log
+echo "Pipeline complete. Check logs:"
+ls -lh *.log

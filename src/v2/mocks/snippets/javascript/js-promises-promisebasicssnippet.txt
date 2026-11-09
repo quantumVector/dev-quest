@@ -1,0 +1,28 @@
+
+// Создание промиса
+const myPromise = new Promise((resolve, reject) => {
+  const success = Math.random() > 0.5
+
+  setTimeout(() => {
+    if (success) {
+      resolve('Операция успешна!')
+    } else {
+      reject(new Error('Произошла ошибка'))
+    }
+  }, 1000)
+})
+
+// Использование промиса
+myPromise
+  .then(result => {
+    console.log('Успех:', result)
+  })
+  .catch(error => {
+    console.error('Ошибка:', error.message)
+  })
+  .finally(() => {
+    console.log('Операция завершена')
+  })
+
+// Промис всегда находится в одном из трех состояний:
+console.log('Начальное состояние:', myPromise) // Promise { <pending> }

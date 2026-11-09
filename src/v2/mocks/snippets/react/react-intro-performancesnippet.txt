@@ -1,0 +1,70 @@
+
+// Оптимизация производительности React
+
+import React, { memo, useMemo, useCallback } from 'react';
+
+// 1. React.memo - мемоизация компонента
+const ExpensiveComponent = memo(({ data, onAction }) => {
+  console.log('Рендер ExpensiveComponent');
+
+  return (
+    <div>
+      <h3>{data.title}</h3>
+      <button onClick={onAction}>Действие</button>
+    </div>
+  );
+});
+
+// 2. useMemo - мемоизация вычислений
+function DataList({ items, filter }) {
+  // Фильтрация выполняется только при изменении items или filter
+  const filteredItems = useMemo(() => {
+    console.log('Вычисление фильтрованного списка');
+    return items.filter(item => item.category === filter);
+  }, [items, filter]);
+
+  return (
+    <ul>
+      {filteredItems.map(item => (
+        <li key={item.id}>{item.name}</li>
+      ))}
+    </ul>
+  );
+}
+
+// 3. useCallback - мемоизация функций
+function TodoList({ todos }) {
+  const [count, setCount] = React.useState(0);
+
+  // Функция не пересоздаётся при изменении count
+  const handleToggle = useCallback((id) => {
+    console.log('Toggle todo:', id);
+    // ... логика
+  }, []); // Пустой массив зависимостей
+
+  return (
+    <div>
+      <p>Рендеров: {count}</p>
+      <button onClick={() => setCount(c => c + 1)}>+</button>
+
+      {todos.map(todo => (
+        <ExpensiveComponent
+          key={todo.id}
+          data={todo}
+          onAction={() => handleToggle(todo.id)}
+        />
+      ))}
+    </div>
+  );
+}
+
+// 4. Ленивая загрузка компонентов
+const HeavyComponent = React.lazy(() => import('./HeavyComponent'));
+
+function App() {
+  return (
+    <React.Suspense fallback={<div>Загрузка...</div>}>
+      <HeavyComponent />
+    </React.Suspense>
+  );
+}

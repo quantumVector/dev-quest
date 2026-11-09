@@ -1,0 +1,26 @@
+
+// Стек выполнения (Call Stack) и контексты
+function first() {
+    console.log('1. Начало first()');
+    second();
+    console.log('5. Конец first()');
+}
+
+function second() {
+    console.log('2. Начало second()');
+    third();
+    console.log('4. Конец second()');
+}
+
+function third() {
+    console.log('3. Выполнение third()');
+}
+
+first();
+
+// Стек выполнения:
+// 1. Global Execution Context
+// 2. first() Execution Context
+// 3. second() Execution Context
+// 4. third() Execution Context
+// Затем контексты удаляются в обратном порядке

@@ -1,0 +1,15 @@
+
+// ❌ Без CORS - браузер блокирует запрос
+// Сайт https://myapp.com пытается сделать запрос на https://api.example.com
+
+fetch('https://api.example.com/users')
+  .then(response => response.json())
+  .catch(error => {
+    // CORS error: No 'Access-Control-Allow-Origin' header
+    console.error('Blocked by CORS:', error)
+  })
+
+// Браузер блокирует, потому что:
+// - Разные домены: myapp.com ≠ api.example.com
+// - Нет разрешающих CORS заголовков от сервера
+// - Политика Same-Origin Policy (SOP) защищает пользователя

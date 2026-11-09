@@ -1,0 +1,275 @@
+
+// =====================================
+// ОПТИМИЗАЦИИ INFINITY SCROLL
+// =====================================
+
+// 1. ВИРТУАЛИЗАЦИЯ списка (для больших списков)
+class VirtualizedInfiniteScroll {
+  constructor(container, itemHeight, visibleCount) {
+    this.container = container
+    this.itemHeight = itemHeight
+    this.visibleCount = visibleCount
+    this.allItems = []
+    this.scrollTop = 0
+
+    this.setupVirtualization()
+    this.setupInfiniteScroll()
+  }
+
+  setupVirtualization() {
+    this.container.addEventListener('scroll', () => {
+      this.scrollTop = this.container.scrollTop
+      this.render()
+    })
+  }
+
+  render() {
+    const startIndex = Math.floor(this.scrollTop / this.itemHeight)
+    const endIndex = startIndex + this.visibleCount
+
+    const visibleItems = this.allItems.slice(startIndex, endIndex)
+
+    // Рендерим только видимые элементы
+    this.container.innerHTML = ''
+    this.container.style.height = `${this.allItems.length * this.itemHeight}px`
+
+    const offset = startIndex * this.itemHeight
+    const fragment = document.createDocumentFragment()
+
+    visibleItems.forEach((item, index) => {
+      const element = this.createItemElement(item)
+      element.style.position = 'absolute'
+      element.style.top = `${offset + index * this.itemHeight}px`
+      fragment.appendChild(element)
+    })
+
+    this.container.appendChild(fragment)
+  }
+
+  addItems(newItems) {
+    this.allItems.push(...newItems)
+    this.render()
+  }
+}
+
+// 2. ДЕБАУНС для частых пересечений
+class DebouncedInfiniteScroll {
+  constructor(container, delay = 300) {
+    this.container = container
+    this.delay = delay
+    this.timeoutId = null
+
+    const observer = new IntersectionObserver(
+      this.debouncedCallback.bind(this),
+      { rootMargin: '100px' }
+    )
+
+    observer.observe(this.sentinel)
+  }
+
+  debouncedCallback(entries) {
+    clearTimeout(this.timeoutId)
+
+    this.timeoutId = setTimeout(() => {
+      if (entries[0].isIntersecting) {
+        this.loadMore()
+      }
+    }, this.delay)
+  }
+}
+
+// 3. БАТЧИНГ запросов (загрузка нескольких страниц)
+class BatchedInfiniteScroll {
+  async loadMore() {
+    this.loading = true
+
+    try {
+      // Загружаем сразу 3 страницы
+      const promises = [
+        this.fetchData(this.page),
+        this.fetchData(this.page + 1),
+        this.fetchData(this.page + 2)
+      ]
+
+      const results = await Promise.all(promises)
+      const allItems = results.flat()
+
+      if (allItems.length === 0) {
+        this.hasMore = false
+        return
+      }
+
+      this.renderItems(allItems)
+      this.page += 3
+
+    } catch (error) {
+      console.error(error)
+    } finally {
+      this.loading = false
+    }
+  }
+}
+
+// 4. ПРЕДЗАГРУЗКА данных (prefetching)
+class PrefetchingInfiniteScroll {
+  constructor(container) {
+    this.container = container
+    this.page = 1
+    this.cache = new Map()
+
+    // Предзагружаем следующую страницу
+    this.prefetchNext()
+
+    const observer = new IntersectionObserver(
+      this.handleIntersection.bind(this),
+      { rootMargin: '200px' }
+    )
+
+    observer.observe(this.sentinel)
+  }
+
+  async prefetchNext() {
+    if (!this.cache.has(this.page + 1)) {
+      const data = await this.fetchData(this.page + 1)
+      this.cache.set(this.page + 1, data)
+    }
+  }
+
+  async loadMore() {
+    // Используем закэшированные данные
+    let data = this.cache.get(this.page)
+
+    if (!data) {
+      data = await this.fetchData(this.page)
+    }
+
+    this.renderItems(data)
+    this.cache.delete(this.page)
+    this.page++
+
+    // Предзагружаем следующую
+    this.prefetchNext()
+  }
+}
+
+// 5. ЛЕНИВАЯ ЗАГРУЗКА изображений внутри элементов
+class LazyImageInfiniteScroll {
+  constructor(container) {
+    this.container = container
+
+    // Observer для самого скролла
+    this.scrollObserver = new IntersectionObserver(
+      this.handleScroll.bind(this),
+      { rootMargin: '100px' }
+    )
+
+    // Отдельный Observer для изображений
+    this.imageObserver = new IntersectionObserver(
+      this.handleImageIntersection.bind(this),
+      { rootMargin: '50px' }
+    )
+
+    this.scrollObserver.observe(this.sentinel)
+  }
+
+  renderItems(items) {
+    items.forEach(item => {
+      const element = this.createItemElement(item)
+      const img = element.querySelector('img')
+
+      if (img) {
+        // Сохраняем реальный src в data-атрибуте
+        img.dataset.src = img.src
+        img.src = 'placeholder.jpg'
+
+        // Наблюдаем за изображением
+        this.imageObserver.observe(img)
+      }
+
+      this.container.insertBefore(element, this.sentinel)
+    })
+  }
+
+  handleImageIntersection(entries) {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const img = entry.target
+        img.src = img.dataset.src
+
+        // Прекращаем наблюдение за загруженным изображением
+        this.imageObserver.unobserve(img)
+      }
+    })
+  }
+}
+
+// 6. ОТМЕНА запросов при быстром скролле
+class CancellableInfiniteScroll {
+  constructor(container) {
+    this.container = container
+    this.abortController = null
+
+    const observer = new IntersectionObserver(
+      this.handleIntersection.bind(this),
+      { rootMargin: '100px' }
+    )
+
+    observer.observe(this.sentinel)
+  }
+
+  async loadMore() {
+    // Отменяем предыдущий запрос
+    if (this.abortController) {
+      this.abortController.abort()
+    }
+
+    this.abortController = new AbortController()
+
+    try {
+      const response = await fetch(
+        `/api/items?page=${this.page}`,
+        { signal: this.abortController.signal }
+      )
+
+      const data = await response.json()
+      this.renderItems(data)
+      this.page++
+
+    } catch (error) {
+      if (error.name === 'AbortError') {
+        console.log('Request was cancelled')
+      } else {
+        console.error(error)
+      }
+    }
+  }
+}
+
+// 7. СКЕЛЕТОН-ЗАГРУЗЧИКИ для лучшего UX
+class SkeletonInfiniteScroll {
+  showLoader() {
+    const skeletons = Array.from({ length: 5 }, () =>
+      this.createSkeletonElement()
+    )
+
+    skeletons.forEach(skeleton => {
+      this.container.insertBefore(skeleton, this.sentinel)
+    })
+  }
+
+  createSkeletonElement() {
+    const div = document.createElement('div')
+    div.className = 'skeleton-item'
+    div.innerHTML = `
+      <div class="skeleton-avatar"></div>
+      <div class="skeleton-text"></div>
+      <div class="skeleton-text short"></div>
+    `
+    return div
+  }
+
+  hideLoader() {
+    const skeletons = this.container.querySelectorAll('.skeleton-item')
+    skeletons.forEach(skeleton => skeleton.remove())
+  }
+}

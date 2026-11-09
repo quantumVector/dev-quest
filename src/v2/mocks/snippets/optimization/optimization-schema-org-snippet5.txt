@@ -1,0 +1,23 @@
+
+<!-- Organization разметка -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Tech Company",
+  "url": "https://example.com",
+  "logo": "https://example.com/logo.png",
+  "contactPoint": [{
+    "@type": "ContactPoint",
+    "telephone": "+7-495-123-45-67",
+    "contactType": "customer service",
+    "areaServed": "RU",
+    "availableLanguage": ["Russian", "English"]
+  }],
+  "sameAs": [
+    "https://www.facebook.com/techcompany",
+    "https://twitter.com/techcompany",
+    "https://www.linkedin.com/company/techcompany"
+  ]
+}
+</script>

@@ -1,0 +1,247 @@
+
+# ===================================================================
+# ТЕСТИРОВАНИЕ И ОТЛАДКА sed КОМАНД
+# ===================================================================
+
+# 1. ТЕСТИРОВАНИЕ НА МАЛЕНЬКОМ ПРИМЕРЕ
+# ===================================================================
+
+# Создаем тестовый файл
+cat > test.nix << 'EOF'
+{ config, lib, pkgs, ... }:
+{
+  imports = [
+    ../profiles/headless.nix
+    ./ec2-data.nix
+  ];
+
+  services.openssh.settings.PermitRootLogin = "prohibit-password";
+
+  systemd.services.fetch-ec2-metadata = {
+    wantedBy = [ "multi-user.target" ];
+    after = ["network-online.target"];
+    path = [ pkgs.curl ];
+    script = builtins.readFile ./ec2-metadata-fetcher.sh;
+    serviceConfig.Type = "oneshot";
+    serviceConfig.StandardOutput = "journal+console";
+  };
+}
+EOF
+
+# 2. ПОСТЕПЕННОЕ ТЕСТИРОВАНИЕ
+# ===================================================================
+
+# Шаг 1: Проверить адресацию блока imports
+sed -n '/imports = \[/,/\];/p' test.nix
+# Должно показать только блок imports
+
+# Шаг 2: Проверить вставку (без изменения файла)
+sed '/imports = \[/,/\];/{
+  /\];/i\
+  ./custom.nix
+}' test.nix
+
+# Шаг 3: Проверить замену PermitRootLogin
+sed -n 's/\(services\.openssh\.settings\.PermitRootLogin = \)"prohibit-password"/\1"true"/p' test.nix
+# -n + p = показать только измененные строки
+
+# Шаг 4: Проверить удаление serviceConfig
+sed -n '/systemd\.services\.fetch-ec2-metadata = {/,/};/{
+  /serviceConfig\./d
+  p
+}' test.nix
+
+# 3. ИСПОЛЬЗОВАНИЕ DIFF ДЛЯ ПРОВЕРКИ
+# ===================================================================
+
+# Создаем модифицированную версию
+sed -E '
+/imports = \[/,/\];/ {
+    /\];/ i\
+    ./custom.nix
+}
+s/(services\.openssh\.settings\.PermitRootLogin = )"[^"]*"/\1"true"/
+/systemd\.services\.fetch-ec2-metadata = \{/,/^[[:space:]]*\};/ {
+    /serviceConfig\.(Type|StandardOutput)/d
+}
+' test.nix > test-modified.nix
+
+# Смотрим что изменилось
+diff -u test.nix test-modified.nix
+
+# Ожидаемый вывод:
+# --- test.nix
+# +++ test-modified.nix
+# @@ -3,10 +3,11 @@
+#   imports = [
+#     ../profiles/headless.nix
+#     ./ec2-data.nix
+# +    ./custom.nix
+#   ];
+#
+# -  services.openssh.settings.PermitRootLogin = "prohibit-password";
+# +  services.openssh.settings.PermitRootLogin = "true";
+#
+#   systemd.services.fetch-ec2-metadata = {
+#     wantedBy = [ "multi-user.target" ];
+# @@ -14,7 +15,5 @@
+#     path = [ pkgs.curl ];
+#     script = builtins.readFile ./ec2-metadata-fetcher.sh;
+# -    serviceConfig.Type = "oneshot";
+# -    serviceConfig.StandardOutput = "journal+console";
+#   };
+# }
+
+# 4. ОТЛАДКА СЛОЖНЫХ КОМАНД
+# ===================================================================
+
+# Добавить verbose вывод (GNU sed)
+sed --debug -E 'команды' file
+
+# Показать что sed делает на каждом шаге
+sed -n '
+/pattern/{
+  p
+  q
+}' file
+
+# Использовать l команду для показа спецсимволов
+sed -n 'l' file
+# Показывает \n, \t и другие невидимые символы
+
+# 5. ТИПИЧНЫЕ ПРОБЛЕМЫ И РЕШЕНИЯ
+# ===================================================================
+
+# Проблема 1: Не работает i, a, c
+# Причина: После команды нужен \ и новая строка
+
+# ❌ Неправильно:
+sed '/pattern/i New line' file
+
+# ✅ Правильно:
+sed '/pattern/i\
+New line' file
+
+# Или в одну строку (GNU sed):
+sed '/pattern/i New line' file  # работает только в GNU sed
+
+# -------------------------------------------------------------------
+
+# Проблема 2: Экранирование точек
+# Причина: . в regex означает "любой символ"
+
+# ❌ Неправильно:
+sed 's/file.txt/file.log/' file
+# Совпадет с "fileXtxt"
+
+# ✅ Правильно:
+sed 's/file\.txt/file.log/' file
+
+# -------------------------------------------------------------------
+
+# Проблема 3: Жадность regex
+# По умолчанию .* жадный (максимальное совпадение)
+
+echo '<tag>text</tag>' | sed 's/<.*>/REPLACED/'
+# Вывод: REPLACED (удалило ВСЁ между первым < и последним >)
+
+# Решение: использовать [^>]*
+echo '<tag>text</tag>' | sed 's/<[^>]*>/REPLACED/g'
+# Вывод: REPLACEDtext</tag> (только первый тег)
+
+# -------------------------------------------------------------------
+
+# Проблема 4: In-place редактирование не работает с пустым расширением
+
+# ❌ Неправильно (MacOS):
+sed -i 's/old/new/' file
+
+# ✅ Правильно (MacOS):
+sed -i '' 's/old/new/' file
+# Пустые кавычки после -i
+
+# ✅ Linux (GNU sed):
+sed -i 's/old/new/' file
+# Работает без расширения
+
+# Кроссплатформенное решение:
+sed -i.bak 's/old/new/' file && rm file.bak
+
+# -------------------------------------------------------------------
+
+# Проблема 5: Специальные символы в replacement
+
+# Если replacement содержит &, нужно экранировать
+sed 's/old/\&new/' file
+# Заменит old на &new (буквально)
+
+# Если replacement содержит /, используйте другой разделитель
+sed 's|/path/old|/path/new|' file
+
+# 6. ВАЛИДАЦИЯ РЕЗУЛЬТАТА
+# ===================================================================
+
+# Проверить синтаксис Nix файла (если установлен nix)
+nix-instantiate --parse test-modified.nix
+
+# Или просто проверить парность скобок
+awk '{
+  for(i=1;i<=length($0);i++){
+    c=substr($0,i,1)
+    if(c=="{") level++
+    if(c=="}") level--
+  }
+}
+END {
+  if(level==0) print "OK"
+  else print "Error: unbalanced braces"
+}' test-modified.nix
+
+# 7. АВТОМАТИЧЕСКОЕ ТЕСТИРОВАНИЕ
+# ===================================================================
+
+cat > test-sed-script.sh << 'EOF'
+#!/bin/bash
+
+# Цвета для вывода
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+# Тест 1: imports содержит ./custom.nix
+if grep -q "./custom.nix" test-modified.nix; then
+    echo -e "${GREEN}✓${NC} Test 1 passed: ./custom.nix added to imports"
+else
+    echo -e "${RED}✗${NC} Test 1 failed: ./custom.nix not found"
+    exit 1
+fi
+
+# Тест 2: PermitRootLogin = "true"
+if grep -q 'PermitRootLogin = "true"' test-modified.nix; then
+    echo -e "${GREEN}✓${NC} Test 2 passed: PermitRootLogin changed to true"
+else
+    echo -e "${RED}✗${NC} Test 2 failed: PermitRootLogin not true"
+    exit 1
+fi
+
+# Тест 3: serviceConfig.Type удален
+if grep -q 'serviceConfig.Type' test-modified.nix; then
+    echo -e "${RED}✗${NC} Test 3 failed: serviceConfig.Type still present"
+    exit 1
+else
+    echo -e "${GREEN}✓${NC} Test 3 passed: serviceConfig.Type removed"
+fi
+
+# Тест 4: serviceConfig.StandardOutput удален
+if grep -q 'serviceConfig.StandardOutput' test-modified.nix; then
+    echo -e "${RED}✗${NC} Test 4 failed: serviceConfig.StandardOutput still present"
+    exit 1
+else
+    echo -e "${GREEN}✓${NC} Test 4 passed: serviceConfig.StandardOutput removed"
+fi
+
+echo -e "\n${GREEN}All tests passed!${NC}"
+EOF
+
+chmod +x test-sed-script.sh
+./test-sed-script.sh

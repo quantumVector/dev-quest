@@ -1,0 +1,25 @@
+
+// ✅ Чистая функция - детерминированная, без побочных эффектов
+const add = (a, b) => a + b;
+console.log(add(2, 3)); // 5
+console.log(add(2, 3)); // 5 - всегда одинаковый результат
+
+const multiply = (arr, factor) => arr.map(x => x * factor);
+console.log(multiply([1, 2, 3], 2)); // [2, 4, 6]
+
+// ❌ Нечистая функция - зависит от внешнего состояния
+let counter = 0;
+const incrementCounter = () => {
+  counter++; // Побочный эффект - изменение внешней переменной
+  return counter;
+}
+
+// ❌ Нечистая функция - недетерминированная
+const getRandomNumber = () => Math.random(); // Разные результаты
+const getCurrentTime = () => new Date(); // Зависит от времени
+
+// ❌ Нечистая функция - мутирует аргумент
+const addToArray = (arr, item) => {
+  arr.push(item); // Изменяет оригинальный массив
+  return arr;
+}

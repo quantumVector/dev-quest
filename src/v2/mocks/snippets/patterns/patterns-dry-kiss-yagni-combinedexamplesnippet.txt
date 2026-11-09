@@ -1,0 +1,50 @@
+
+// 🎯 КОМБИНАЦИЯ ВСЕХ ТРЕХ ПРИНЦИПОВ
+
+// ❌ ПЛОХО: нарушаем все принципы
+function processUserOrder(user, order) {
+  // Нарушение DRY - повторяем проверку возраста
+  if (user.age < 18) {
+    throw new Error('User must be 18 or older');
+  }
+
+  // Нарушение KISS - излишняя сложность
+  const discountCalculator = new DiscountCalculatorFactory()
+    .createCalculator('standard')
+    .withStrategy(new MembershipDiscountStrategy())
+    .withFallback(new DefaultDiscountStrategy());
+
+  // Нарушение YAGNI - функциональность "на будущее"
+  const auditLogger = new AuditLogger();
+  auditLogger.logOrderCreation(order);
+  auditLogger.logUserActivity(user);
+  auditLogger.generateReport();
+
+  return order;
+}
+
+// ✅ ХОРОШО: следуем всем принципам
+function processOrder(user, order) {
+  // DRY: используем общую функцию валидации
+  validateAge(user, 18);
+
+  // KISS: простое вычисление скидки
+  order.discount = calculateDiscount(order.total, user);
+
+  // YAGNI: только необходимая функциональность
+  order.finalPrice = order.total - order.discount;
+
+  return order;
+}
+
+// Вспомогательные функции (DRY)
+function validateAge(user, minAge) {
+  if (user.age < minAge) {
+    throw new Error(`User must be ${minAge} or older`);
+  }
+}
+
+function calculateDiscount(amount, user) {
+  const rate = user.isPremium ? 0.2 : 0.1;
+  return amount * rate;
+}

@@ -1,0 +1,108 @@
+
+// Продвинутые концепции
+
+// 1. Мемоизация
+function memoize(fn) {
+  const cache = new Map();
+
+  return function(...args) {
+    const key = JSON.stringify(args);
+
+    if (cache.has(key)) {
+      console.log("Из кэша:", key);
+      return cache.get(key);
+    }
+
+    const result = fn.apply(this, args);
+    cache.set(key, result);
+    return result;
+  };
+}
+
+const expensiveOperation = memoize((n) => {
+  console.log("Вычисляем для:", n);
+  return n * n * n;
+});
+
+console.log(expensiveOperation(5)); // Вычисляем для: 5, результат: 125
+console.log(expensiveOperation(5)); // Из кэша: [5], результат: 125
+
+// 2. Throttle и Debounce
+function throttle(func, limit) {
+  let inThrottle;
+  return function(...args) {
+    if (!inThrottle) {
+      func.apply(this, args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
+  };
+}
+
+function debounce(func, delay) {
+  let timeoutId;
+  return function(...args) {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func.apply(this, args), delay);
+  };
+}
+
+// Использование
+const throttledScroll = throttle(() => {
+  console.log("Scroll event throttled");
+}, 100);
+
+const debouncedSearch = debounce((query) => {
+  console.log("Поиск:", query);
+}, 300);
+
+// 3. Partial Application (Частичное применение)
+function partial(fn, ...presetArgs) {
+  return function(...laterArgs) {
+    return fn(...presetArgs, ...laterArgs);
+  };
+}
+
+function multiply(a, b, c) {
+  return a * b * c;
+}
+
+const double = partial(multiply, 2);
+const quadruple = partial(multiply, 2, 2);
+
+console.log(double(3, 4)); // 2 * 3 * 4 = 24
+console.log(quadruple(5)); // 2 * 2 * 5 = 20
+
+// 4. Currying (Каррирование)
+function curry(fn) {
+  return function curried(...args) {
+    if (args.length >= fn.length) {
+      return fn.apply(this, args);
+    } else {
+      return function(...args2) {
+        return curried.apply(this, args.concat(args2));
+      };
+    }
+  };
+}
+
+const curriedMultiply = curry((a, b, c) => a * b * c);
+
+console.log(curriedMultiply(2)(3)(4)); // 24
+console.log(curriedMultiply(2, 3)(4)); // 24
+console.log(curriedMultiply(2)(3, 4)); // 24
+
+// 5. Function Pipe
+function pipe(...functions) {
+  return function(value) {
+    return functions.reduce((acc, fn) => fn(acc), value);
+  };
+}
+
+const processNumber = pipe(
+  x => x + 1,
+  x => x * 2,
+  x => x - 3
+);
+
+console.log(processNumber(5)); // ((5 + 1) * 2) - 3 = 9

@@ -1,0 +1,22 @@
+
+# CMD - команда по умолчанию при запуске контейнера
+FROM node:18-alpine
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+
+# CMD - может быть переопределена при запуске
+CMD ["npm", "start"]
+
+# Форматы CMD:
+# Exec форма (рекомендуется)
+CMD ["executable", "param1", "param2"]
+
+# Shell форма
+CMD command param1 param2
+
+# Параметры для ENTRYPOINT
+CMD ["param1", "param2"]

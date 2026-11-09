@@ -1,0 +1,114 @@
+
+// =====================================
+// INFER KEYWORD - вывод типов
+// =====================================
+
+// 1. Базовое использование infer
+// infer позволяет "извлечь" тип из другого типа
+
+// Получение типа возвращаемого значения функции
+type ReturnType<T> = T extends (...args: any[]) => infer R ? R : never
+
+type Func = () => string
+type R1 = ReturnType<Func>  // string
+
+type AsyncFunc = () => Promise<number>
+type R2 = ReturnType<AsyncFunc>  // Promise<number>
+
+// 2. Получение типов параметров функции
+type Parameters<T> = T extends (...args: infer P) => any ? P : never
+
+type Func2 = (a: string, b: number) => void
+type P1 = Parameters<Func2>  // [a: string, b: number]
+
+// 3. Получение типа первого параметра
+type FirstParameter<T> = T extends (arg: infer P, ...args: any[]) => any ? P : never
+
+type Func3 = (name: string, age: number) => void
+type F1 = FirstParameter<Func3>  // string
+
+// 4. Распаковка Promise
+type Awaited<T> = T extends Promise<infer U> ? U : T
+
+type P2 = Awaited<Promise<string>>    // string
+type P3 = Awaited<Promise<number[]>>  // number[]
+type P4 = Awaited<boolean>            // boolean
+
+// Рекурсивная версия для вложенных Promise
+type DeepAwaited<T> = T extends Promise<infer U>
+  ? DeepAwaited<U>
+  : T
+
+type P5 = DeepAwaited<Promise<Promise<string>>>  // string
+
+// 5. Извлечение типа элемента массива
+type ArrayElement<T> = T extends (infer E)[] ? E : never
+
+type E1 = ArrayElement<string[]>           // string
+type E2 = ArrayElement<{ id: number }[]>   // { id: number }
+type E3 = ArrayElement<number>             // never
+
+// 6. Извлечение типа из readonly массива
+type ReadonlyArrayElement<T> =
+  T extends readonly (infer E)[] ? E : never
+
+type E4 = ReadonlyArrayElement<readonly string[]>  // string
+
+// 7. Извлечение типа из tuple
+type TupleToUnion<T> = T extends (infer E)[] ? E : never
+
+type T1 = TupleToUnion<[string, number, boolean]>
+// string | number | boolean
+
+// 8. Извлечение типов из объекта
+type PropertyType<T, K extends keyof T> = T[K]
+
+// Извлечение всех типов свойств
+type ValueOf<T> = T[keyof T]
+
+type User = {
+  id: number
+  name: string
+  active: boolean
+}
+
+type UserValue = ValueOf<User>  // number | string | boolean
+
+// 9. Извлечение конструктора класса
+type ConstructorParameters<T> =
+  T extends new (...args: infer P) => any ? P : never
+
+class MyClass {
+  constructor(name: string, age: number) {}
+}
+
+type C1 = ConstructorParameters<typeof MyClass>  // [name: string, age: number]
+
+// 10. Извлечение типа экземпляра класса
+type InstanceType<T> =
+  T extends new (...args: any[]) => infer R ? R : never
+
+type I1 = InstanceType<typeof MyClass>  // MyClass
+
+// 11. Сложный пример - извлечение обработчика событий
+type EventHandler<T> =
+  T extends { addEventListener(event: string, handler: infer H): void }
+    ? H
+    : never
+
+interface CustomEventTarget {
+  addEventListener(event: string, handler: (e: Event) => void): void
+}
+
+type Handler = EventHandler<CustomEventTarget>
+// (e: Event) => void
+
+// 12. Извлечение типа из функции getter
+type GetterReturnType<T> =
+  T extends { get(): infer R } ? R : never
+
+interface StringGetter {
+  get(): string
+}
+
+type G1 = GetterReturnType<StringGetter>  // string

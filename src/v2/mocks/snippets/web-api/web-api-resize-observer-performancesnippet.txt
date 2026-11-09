@@ -1,0 +1,203 @@
+
+// =====================================
+// ПРОИЗВОДИТЕЛЬНОСТЬ И ОПТИМИЗАЦИЯ
+// =====================================
+
+// 1. Throttling для частых изменений
+function throttle(func, limit) {
+  let inThrottle
+  return function(...args) {
+    if (!inThrottle) {
+      func.apply(this, args)
+      inThrottle = true
+      setTimeout(() => inThrottle = false, limit)
+    }
+  }
+}
+
+const throttledHandler = throttle((entry) => {
+  console.log('Throttled resize:', entry.contentRect.width)
+}, 100)
+
+const throttledObserver = new ResizeObserver((entries) => {
+  entries.forEach(throttledHandler)
+})
+
+// 2. requestAnimationFrame для плавности
+let rafId = null
+
+const rafObserver = new ResizeObserver((entries) => {
+  if (rafId) {
+    cancelAnimationFrame(rafId)
+  }
+
+  rafId = requestAnimationFrame(() => {
+    entries.forEach(entry => {
+      console.log('RAF resize:', entry.contentRect.width)
+      // Обновление DOM
+    })
+    rafId = null
+  })
+})
+
+// 3. Батчинг обновлений
+class BatchedResizeObserver {
+  constructor(callback, delay = 16) {
+    this.callback = callback
+    this.delay = delay
+    this.pending = new Map()
+    this.timeoutId = null
+
+    this.observer = new ResizeObserver(this.handleResize.bind(this))
+  }
+
+  observe(element) {
+    this.observer.observe(element)
+  }
+
+  handleResize(entries) {
+    // Собираем все изменения
+    entries.forEach(entry => {
+      this.pending.set(entry.target, entry)
+    })
+
+    // Откладываем обработку
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId)
+    }
+
+    this.timeoutId = setTimeout(() => {
+      // Обрабатываем все накопленные изменения
+      const batchedEntries = Array.from(this.pending.values())
+      this.callback(batchedEntries)
+      this.pending.clear()
+    }, this.delay)
+  }
+}
+
+// Использование
+const batchedObserver = new BatchedResizeObserver((entries) => {
+  console.log('Batched resize for', entries.length, 'elements')
+  // Единовременная обработка всех изменений
+})
+
+// 4. Условное наблюдение (только когда нужно)
+class ConditionalResizeObserver {
+  constructor(callback) {
+    this.callback = callback
+    this.observer = null
+    this.elements = new Set()
+    this.isActive = false
+  }
+
+  observe(element) {
+    this.elements.add(element)
+    if (this.isActive && this.observer) {
+      this.observer.observe(element)
+    }
+  }
+
+  start() {
+    if (!this.observer) {
+      this.observer = new ResizeObserver(this.callback)
+    }
+
+    this.isActive = true
+    this.elements.forEach(el => this.observer.observe(el))
+  }
+
+  stop() {
+    this.isActive = false
+    if (this.observer) {
+      this.observer.disconnect()
+    }
+  }
+}
+
+// Использование: активируем только когда sidebar открыт
+const conditionalObserver = new ConditionalResizeObserver((entries) => {
+  console.log('Conditional resize')
+})
+
+document.querySelector('.sidebar-toggle').addEventListener('click', (e) => {
+  if (e.target.checked) {
+    conditionalObserver.start()
+  } else {
+    conditionalObserver.stop()
+  }
+})
+
+// 5. Мониторинг производительности
+class PerformanceMonitoringObserver {
+  constructor(callback) {
+    this.callback = callback
+    this.metrics = {
+      totalCalls: 0,
+      totalTime: 0,
+      maxTime: 0,
+      avgTime: 0
+    }
+
+    this.observer = new ResizeObserver(this.handleResize.bind(this))
+  }
+
+  observe(element) {
+    this.observer.observe(element)
+  }
+
+  handleResize(entries) {
+    const startTime = performance.now()
+
+    this.callback(entries)
+
+    const duration = performance.now() - startTime
+
+    // Обновляем метрики
+    this.metrics.totalCalls++
+    this.metrics.totalTime += duration
+    this.metrics.maxTime = Math.max(this.metrics.maxTime, duration)
+    this.metrics.avgTime = this.metrics.totalTime / this.metrics.totalCalls
+
+    // Предупреждение о медленных обработчиках
+    if (duration > 16) {
+      console.warn(`Slow ResizeObserver callback: ${duration.toFixed(2)}ms`)
+    }
+  }
+
+  getMetrics() {
+    return { ...this.metrics }
+  }
+}
+
+// 6. Отложенная инициализация (lazy initialization)
+class LazyResizeObserver {
+  constructor(callback) {
+    this.callback = callback
+    this.observer = null
+    this.pendingElements = []
+  }
+
+  observe(element) {
+    if (!this.observer) {
+      this.pendingElements.push(element)
+
+      // Инициализируем при первом использовании
+      requestIdleCallback(() => {
+        this.init()
+      })
+    } else {
+      this.observer.observe(element)
+    }
+  }
+
+  init() {
+    this.observer = new ResizeObserver(this.callback)
+
+    // Наблюдаем за отложенными элементами
+    this.pendingElements.forEach(el => {
+      this.observer.observe(el)
+    })
+
+    this.pendingElements = []
+  }
+}

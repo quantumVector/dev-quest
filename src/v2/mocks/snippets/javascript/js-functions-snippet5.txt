@@ -1,0 +1,73 @@
+
+// Функции высшего порядка (Higher-Order Functions)
+
+// Функция, которая принимает другую функцию как параметр
+function processArray(array, callback) {
+  const result = [];
+  for (let i = 0; i < array.length; i++) {
+    result.push(callback(array[i], i));
+  }
+  return result;
+}
+
+const numbers = [1, 2, 3, 4, 5];
+const doubled = processArray(numbers, x => x * 2);
+console.log(doubled); // [2, 4, 6, 8, 10]
+
+// Функция, которая возвращает другую функцию
+function createMultiplier(factor) {
+  return function(number) {
+    return number * factor;
+  };
+}
+
+const double = createMultiplier(2);
+const triple = createMultiplier(3);
+
+console.log(double(5)); // 10
+console.log(triple(5)); // 15
+
+// Композиция функций
+const add = (x) => (y) => x + y;
+const multiply = (x) => (y) => x * y;
+
+const addThenMultiply = (x, y, z) => multiply(z)(add(x)(y));
+console.log(addThenMultiply(2, 3, 4)); // (2 + 3) * 4 = 20
+
+// Функция compose
+function compose(...functions) {
+  return function(value) {
+    return functions.reduceRight((acc, fn) => fn(acc), value);
+  };
+}
+
+const addOne = x => x + 1;
+const multiplyByTwo = x => x * 2;
+const square = x => x * x;
+
+const transform = compose(square, multiplyByTwo, addOne);
+console.log(transform(3)); // ((3 + 1) * 2)² = 64
+
+// Практические примеры высших порядков
+const users = [
+  { name: "Анна", age: 25, active: true },
+  { name: "Боб", age: 30, active: false },
+  { name: "Карл", age: 35, active: true }
+];
+
+// Цепочка функций высшего порядка
+const activeUserNames = users
+  .filter(user => user.active)
+  .map(user => user.name)
+  .sort();
+
+console.log(activeUserNames); // ["Анна", "Карл"]
+
+// Кастомная функция map
+Array.prototype.customMap = function(callback) {
+  const result = [];
+  for (let i = 0; i < this.length; i++) {
+    result.push(callback(this[i], i, this));
+  }
+  return result;
+};

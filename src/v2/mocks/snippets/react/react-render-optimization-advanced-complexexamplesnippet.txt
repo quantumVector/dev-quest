@@ -1,0 +1,117 @@
+
+// Комплексный пример всех оптимизаций
+
+import { useState, useMemo, useCallback, memo } from 'react'
+
+// 1. Мемоизированный компонент с тяжелыми вычислениями
+const ExpensiveChart = memo(function ExpensiveChart({ data, config }) {
+  // Тяжелая обработка данных
+  const processedData = useMemo(() => {
+    console.log('Processing chart data...')
+    return data.map(item => ({
+      ...item,
+      computed: expensiveCalculation(item)
+    }))
+  }, [data])
+
+  // Опции графика
+  const chartOptions = useMemo(() => ({
+    responsive: true,
+    scales: config.scales,
+    plugins: config.plugins
+  }), [config.scales, config.plugins])
+
+  return <Chart data={processedData} options={chartOptions} />
+})
+
+// 2. Родительский компонент
+function Dashboard() {
+  const [filter, setFilter] = useState('all')
+  const [data, setData] = useState([])
+  const [searchTerm, setSearchTerm] = useState('')
+
+  // Фильтрация данных
+  const filteredData = useMemo(() => {
+    console.log('Filtering data...')
+    return data.filter(item => {
+      const matchesFilter = filter === 'all' || item.category === filter
+      const matchesSearch = item.name.includes(searchTerm)
+      return matchesFilter && matchesSearch
+    })
+  }, [data, filter, searchTerm])
+
+  // Конфигурация графика (стабильная ссылка)
+  const chartConfig = useMemo(() => ({
+    scales: { y: { beginAtZero: true } },
+    plugins: { legend: { display: true } }
+  }), []) // Пустой массив - конфиг статичен
+
+  // Обработчики с useCallback
+  const handleFilterChange = useCallback((newFilter) => {
+    setFilter(newFilter)
+  }, [])
+
+  const handleSearch = useCallback((term) => {
+    setSearchTerm(term)
+  }, [])
+
+  const handleRefresh = useCallback(() => {
+    setData(fetchData())
+  }, [])
+
+  return (
+    <div className="dashboard">
+      <Filters
+        filter={filter}
+        onFilterChange={handleFilterChange}
+      />
+
+      <SearchBar
+        value={searchTerm}
+        onChange={handleSearch}
+      />
+
+      <ExpensiveChart
+        data={filteredData}
+        config={chartConfig}
+      />
+
+      <RefreshButton onClick={handleRefresh} />
+    </div>
+  )
+}
+
+// 3. Мемоизированные дочерние компоненты
+const Filters = memo(function Filters({ filter, onFilterChange }) {
+  console.log('Filters rendered')
+  return (
+    <div className="filters">
+      {['all', 'active', 'completed'].map(f => (
+        <button
+          key={f}
+          onClick={() => onFilterChange(f)}
+          className={filter === f ? 'active' : ''}
+        >
+          {f}
+        </button>
+      ))}
+    </div>
+  )
+})
+
+const SearchBar = memo(function SearchBar({ value, onChange }) {
+  console.log('SearchBar rendered')
+  return (
+    <input
+      type="text"
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      placeholder="Search..."
+    />
+  )
+})
+
+const RefreshButton = memo(function RefreshButton({ onClick }) {
+  console.log('RefreshButton rendered')
+  return <button onClick={onClick}>Refresh</button>
+})

@@ -1,0 +1,192 @@
+
+// =====================================
+// GENERICS VS ЯВНЫЕ ТИПЫ
+// =====================================
+
+// 1. Когда использовать Generics
+// ✅ ХОРОШО - переиспользуемая логика
+function identity<T>(value: T): T {
+  return value
+}
+
+const num = identity(42)       // number
+const str = identity('hello')  // string
+
+// ❌ ПЛОХО - излишняя сложность для простого случая
+function addNumbers<T extends number>(a: T, b: T): number {
+  return a + b  // Зачем generic если всегда number?
+}
+
+// ✅ ЛУЧШЕ - явный тип
+function addNumbers(a: number, b: number): number {
+  return a + b
+}
+
+// 2. Generics для коллекций
+// ✅ ХОРОШО
+function first<T>(arr: T[]): T | undefined {
+  return arr[0]
+}
+
+// ❌ ПЛОХО - потеря типа
+function first(arr: any[]): any {
+  return arr[0]
+}
+
+// 3. Когда НЕ использовать Generics
+// ❌ ПЛОХО - избыточная абстракция
+function getUserName<T extends { name: string }>(user: T): string {
+  return user.name
+}
+
+// ✅ ЛУЧШЕ - явный интерфейс
+interface HasName {
+  name: string
+}
+
+function getUserName(user: HasName): string {
+  return user.name
+}
+
+// 4. Generics для API ответов
+// ✅ ХОРОШО - переиспользуемая структура
+interface ApiResponse<T> {
+  data: T
+  status: number
+  message: string
+}
+
+async function fetchUser(): Promise<ApiResponse<User>> {
+  // ...
+}
+
+async function fetchPosts(): Promise<ApiResponse<Post[]>> {
+  // ...
+}
+
+// ❌ ПЛОХО - дублирование
+interface UserApiResponse {
+  data: User
+  status: number
+  message: string
+}
+
+interface PostsApiResponse {
+  data: Post[]
+  status: number
+  message: string
+}
+
+// 5. Generics для React компонентов
+// ✅ ХОРОШО - гибкий компонент списка
+interface ListProps<T> {
+  items: T[]
+  renderItem: (item: T) => React.ReactNode
+  keyExtractor: (item: T) => string | number
+}
+
+function List<T>({ items, renderItem, keyExtractor }: ListProps<T>) {
+  return (
+    <ul>
+      {items.map(item => (
+        <li key={keyExtractor(item)}>
+          {renderItem(item)}
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+// Использование с разными типами
+<List
+  items={users}
+  renderItem={user => <div>{user.name}</div>}
+  keyExtractor={user => user.id}
+/>
+
+<List
+  items={products}
+  renderItem={product => <div>{product.title}</div>}
+  keyExtractor={product => product.id}
+/>
+
+// 6. Когда явные типы лучше
+// ✅ ХОРОШО - специфичный случай
+interface ButtonProps {
+  variant: 'primary' | 'secondary' | 'danger'
+  size: 'small' | 'medium' | 'large'
+  onClick: () => void
+  children: React.ReactNode
+}
+
+// ❌ ПЛОХО - излишняя гибкость
+interface ButtonProps<V, S> {
+  variant: V
+  size: S
+  onClick: () => void
+  children: React.ReactNode
+}
+
+// 7. Generics для типизации HOC
+// ✅ ХОРОШО
+function withLoading<P extends object>(
+  Component: React.ComponentType<P>
+): React.ComponentType<P & { isLoading: boolean }> {
+  return (props) => {
+    if (props.isLoading) {
+      return <div>Loading...</div>
+    }
+    return <Component {...props as P} />
+  }
+}
+
+// 8. Баланс между гибкостью и простотой
+// ❌ СЛИШКОМ ГИБКО - сложно понять
+function process<
+  T extends Record<string, any>,
+  K extends keyof T,
+  R extends T[K]
+>(
+  obj: T,
+  key: K,
+  transform: (value: T[K]) => R
+): R {
+  return transform(obj[key])
+}
+
+// ✅ ДОСТАТОЧНО ГИБКО - легко понять
+function transformProperty<T, R>(
+  obj: T,
+  key: keyof T,
+  transform: (value: T[keyof T]) => R
+): R {
+  return transform(obj[key])
+}
+
+// 9. Когда использовать default типы
+// ✅ ХОРОШО - разумный дефолт
+interface Container<T = string> {
+  value: T
+}
+
+const stringContainer: Container = { value: 'hello' }  // Container<string>
+const numberContainer: Container<number> = { value: 42 }
+
+// 10. Правило: "Используй Generic когда тип передается через функцию"
+// ✅ ПРАВИЛЬНО - тип "течет" через функцию
+function map<T, U>(arr: T[], fn: (item: T) => U): U[] {
+  return arr.map(fn)
+}
+
+const numbers = [1, 2, 3]
+const strings = map(numbers, n => String(n))  // string[]
+
+// ❌ НЕПРАВИЛЬНО - тип не используется
+function logMessage<T>(message: string): void {
+  console.log(message)  // T нигде не используется
+}
+
+// ✅ ЛУЧШЕ
+function logMessage(message: string): void {
+  console.log(message)
+}

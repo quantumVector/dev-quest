@@ -1,0 +1,29 @@
+
+#!/bin/bash
+# Шебанг (shebang) - указывает интерпретатор
+
+# Комментарии начинаются с #
+
+# Простая команда
+echo "Hello, World!"
+
+# Несколько команд на одной строке
+echo "First"; echo "Second"
+
+# Перенос длинной команды
+echo "This is a very long command" \
+     "that spans multiple lines"
+
+# Команды в подоболочке
+result=$(date +%Y-%m-%d)
+echo "Today is: $result"
+
+# Устаревший синтаксис (избегайте)
+result=`date +%Y-%m-%d`
+
+# Условное выполнение
+command1 && echo "Success"  # Выполнится, если command1 успешна
+command2 || echo "Failed"   # Выполнится, если command2 провалилась
+
+# Последовательное выполнение
+npm install && npm run build && npm start

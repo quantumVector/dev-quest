@@ -1,0 +1,145 @@
+
+// Best practices и чек-лист
+
+/**
+* РАЗМЕРЫ ИЗОБРАЖЕНИЙ
+*/
+const OG_IMAGE_RECOMMENDATIONS = {
+facebook: {
+recommended: { width: 1200, height: 630 },
+minimum: { width: 600, height: 315 },
+ratio: '1.91:1',
+format: 'JPG или PNG',
+maxSize: '8 MB'
+},
+twitter: {
+summary: { width: 120, height: 120, ratio: '1:1' },
+summaryLargeImage: { width: 1200, height: 628, ratio: '1.91:1' },
+format: 'JPG, PNG, WEBP, GIF',
+maxSize: '5 MB'
+},
+linkedin: {
+recommended: { width: 1200, height: 627 },
+ratio: '1.91:1',
+format: 'JPG или PNG',
+maxSize: '5 MB'
+}
+};
+
+/**
+* ДЛИНА ТЕКСТА
+*/
+const TEXT_LENGTH_LIMITS = {
+title: {
+facebook: 60, // символов
+twitter: 70,
+linkedin: 70
+},
+description: {
+facebook: 200,
+twitter: 200,
+linkedin: 256
+}
+};
+
+/**
+* ЧЕК-ЛИСТ ДЛЯ ПРОВЕРКИ
+*/
+const OG_CHECKLIST = [
+// Обязательные теги
+'✓ og:title',
+'✓ og:type',
+'✓ og:image',
+'✓ og:url',
+
+// Рекомендуемые теги
+'✓ og:description',
+'✓ og:site_name',
+'✓ og:locale',
+
+// Изображение
+'✓ og:image:width',
+'✓ og:image:height',
+'✓ og:image:alt',
+'✓ Абсолютный URL для изображения',
+'✓ HTTPS для изображения',
+'✓ Размер изображения 1200x630',
+
+// Twitter
+'✓ twitter:card',
+'✓ twitter:site',
+'✓ twitter:creator (для статей)',
+
+// Дополнительно
+'✓ Каноническая ссылка (canonical)',
+'✓ Мобильная версия изображения',
+'✓ Альтернативные изображения (квадрат для Instagram)',
+];
+
+/**
+* ЧАСТЫЕ ОШИБКИ
+*/
+const COMMON_MISTAKES = {
+'Относительные URL для изображений': {
+wrong: '<meta property="og:image" content="/image.jpg">',
+correct: '<meta property="og:image" content="https://example.com/image.jpg">'
+},
+
+'HTTP вместо HTTPS': {
+wrong: '<meta property="og:image" content="http://example.com/image.jpg">',
+correct: '<meta property="og:image" content="https://example.com/image.jpg">'
+},
+
+'Дублирование og:title и title': {
+note: 'og:title может отличаться от <title> - оптимизируйте для соцсетей'
+  },
+
+  'Отсутствие og:image:alt': {
+  note: 'Важно для доступности и SEO'
+  },
+
+  'Слишком маленькое изображение': {
+  note: 'Минимум 600x315px, рекомендуется 1200x630px'
+  },
+
+  'Забыли протестировать': {
+  note: 'Всегда проверяйте через Facebook Debugger и Twitter Card Validator'
+  }
+  };
+
+  /**
+  * ПОЛЕЗНЫЕ ИНСТРУМЕНТЫ
+  */
+  const USEFUL_TOOLS = [
+  {
+  name: 'Facebook Sharing Debugger',
+  url: 'https://developers.facebook.com/tools/debug/',
+  purpose: 'Проверка OG тегов, очистка кеша Facebook'
+  },
+  {
+  name: 'Twitter Card Validator',
+  url: 'https://cards-dev.twitter.com/validator',
+  purpose: 'Валидация Twitter Cards'
+  },
+  {
+  name: 'LinkedIn Post Inspector',
+  url: 'https://www.linkedin.com/post-inspector/',
+  purpose: 'Проверка для LinkedIn'
+  },
+  {
+  name: 'OpenGraph.xyz',
+  url: 'https://www.opengraph.xyz/',
+  purpose: 'Быстрая проверка OG тегов'
+  },
+  {
+  name: 'metatags.io',
+  url: 'https://metatags.io/',
+  purpose: 'Генератор и превью мета-тегов'
+  },
+  {
+  name: 'Cloudinary',
+  url: 'https://cloudinary.com/',
+  purpose: 'Автоматическая оптимизация изображений'
+  }
+  ];
+  

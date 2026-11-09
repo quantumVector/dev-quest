@@ -1,0 +1,454 @@
+
+// =====================================
+// ПРАКТИЧЕСКИЕ ПРИМЕРЫ
+// =====================================
+
+// 1. Чат-приложение с WebSocket
+class ChatClient {
+  constructor(url) {
+    this.ws = new WebSocket(url)
+    this.messageHandlers = []
+
+    this.ws.onopen = () => {
+      console.log('Подключено к чату')
+      this.authenticate()
+    }
+
+    this.ws.onmessage = (event) => {
+      const message = JSON.parse(event.data)
+      this.handleMessage(message)
+    }
+
+    this.ws.onclose = () => {
+      console.log('Отключено от чата')
+      this.reconnect()
+    }
+  }
+
+  authenticate() {
+    this.send({
+      type: 'auth',
+      token: localStorage.getItem('authToken')
+    })
+  }
+
+  send(data) {
+    if (this.ws.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify(data))
+    }
+  }
+
+  sendMessage(text, roomId) {
+    this.send({
+      type: 'message',
+      roomId: roomId,
+      text: text,
+      timestamp: Date.now()
+    })
+  }
+
+  joinRoom(roomId) {
+    this.send({
+      type: 'join',
+      roomId: roomId
+    })
+  }
+
+  leaveRoom(roomId) {
+    this.send({
+      type: 'leave',
+      roomId: roomId
+    })
+  }
+
+  handleMessage(message) {
+    switch (message.type) {
+      case 'message':
+        this.displayMessage(message)
+        break
+      case 'userJoined':
+        this.showUserJoined(message.username)
+        break
+      case 'userLeft':
+        this.showUserLeft(message.username)
+        break
+      case 'typing':
+        this.showTypingIndicator(message.username)
+        break
+    }
+
+    this.messageHandlers.forEach(handler => handler(message))
+  }
+
+  onMessage(handler) {
+    this.messageHandlers.push(handler)
+  }
+
+  displayMessage(message) {
+    const div = document.createElement('div')
+    div.className = 'message'
+    div.innerHTML = `
+      <span class="username">${message.username}</span>
+      <span class="text">${message.text}</span>
+      <span class="time">${new Date(message.timestamp).toLocaleTimeString()}</span>
+    `
+    document.getElementById('messages').appendChild(div)
+  }
+
+  showUserJoined(username) {
+    console.log(`${username} присоединился`)
+  }
+
+  showUserLeft(username) {
+    console.log(`${username} вышел`)
+  }
+
+  showTypingIndicator(username) {
+    console.log(`${username} печатает...`)
+  }
+
+  reconnect() {
+    setTimeout(() => {
+      console.log('Переподключение...')
+      this.ws = new WebSocket(this.ws.url)
+    }, 3000)
+  }
+}
+
+// Использование
+const chat = new ChatClient('ws://localhost:3000/chat')
+
+chat.onMessage((message) => {
+  console.log('Новое сообщение:', message)
+})
+
+chat.joinRoom('general')
+chat.sendMessage('Hello everyone!', 'general')
+
+// 2. Уведомления в реальном времени (EventSource)
+class NotificationClient {
+  constructor(url) {
+    this.eventSource = new EventSource(url)
+    this.notifications = []
+
+    this.eventSource.addEventListener('notification', (event) => {
+      const notification = JSON.parse(event.data)
+      this.handleNotification(notification)
+    })
+
+    this.eventSource.addEventListener('badge', (event) => {
+      const badge = JSON.parse(event.data)
+      this.updateBadge(badge.count)
+    })
+  }
+
+  handleNotification(notification) {
+    this.notifications.push(notification)
+    this.showNotification(notification)
+    this.playSound()
+  }
+
+  showNotification(notification) {
+    // Browser Notification API
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification(notification.title, {
+        body: notification.message,
+        icon: notification.icon,
+        badge: notification.badge
+      })
+    }
+
+    // UI уведомление
+    const div = document.createElement('div')
+    div.className = 'notification toast'
+    div.innerHTML = `
+      <div class="notification-title">${notification.title}</div>
+      <div class="notification-message">${notification.message}</div>
+    `
+    document.body.appendChild(div)
+
+    setTimeout(() => div.remove(), 5000)
+  }
+
+  updateBadge(count) {
+    const badge = document.getElementById('notification-badge')
+    if (badge) {
+      badge.textContent = count
+      badge.style.display = count > 0 ? 'block' : 'none'
+    }
+  }
+
+  playSound() {
+    const audio = new Audio('/sounds/notification.mp3')
+    audio.play().catch(err => console.log('Audio play failed:', err))
+  }
+
+  markAsRead(notificationId) {
+    fetch(`/api/notifications/${notificationId}/read`, {
+      method: 'POST'
+    })
+  }
+
+  close() {
+    this.eventSource.close()
+  }
+}
+
+// Использование
+const notificationClient = new NotificationClient('/api/notifications/stream')
+
+// 3. Live Dashboard (мониторинг метрик)
+class DashboardClient {
+  constructor(url) {
+    this.eventSource = new EventSource(url)
+    this.charts = new Map()
+
+    this.eventSource.addEventListener('metric', (event) => {
+      const metric = JSON.parse(event.data)
+      this.updateMetric(metric)
+    })
+
+    this.eventSource.addEventListener('alert', (event) => {
+      const alert = JSON.parse(event.data)
+      this.showAlert(alert)
+    })
+  }
+
+  updateMetric(metric) {
+    const { name, value, timestamp } = metric
+
+    // Обновляем график
+    if (this.charts.has(name)) {
+      const chart = this.charts.get(name)
+      chart.addDataPoint(value, timestamp)
+    }
+
+    // Обновляем значение в UI
+    const element = document.getElementById(`metric-${name}`)
+    if (element) {
+      element.textContent = value
+
+      // Добавляем анимацию при изменении
+      element.classList.add('updated')
+      setTimeout(() => element.classList.remove('updated'), 300)
+    }
+  }
+
+  showAlert(alert) {
+    const severity = alert.severity // 'info', 'warning', 'error'
+
+    const div = document.createElement('div')
+    div.className = `alert alert-${severity}`
+    div.innerHTML = `
+      <div class="alert-title">${alert.title}</div>
+      <div class="alert-message">${alert.message}</div>
+      <div class="alert-time">${new Date(alert.timestamp).toLocaleString()}</div>
+    `
+
+    document.getElementById('alerts').prepend(div)
+
+    // Звук для критических алертов
+    if (severity === 'error') {
+      this.playAlertSound()
+    }
+  }
+
+  playAlertSound() {
+    const audio = new Audio('/sounds/alert.mp3')
+    audio.play()
+  }
+}
+
+// 4. Collaborative editing (совместное редактирование)
+class CollaborativeEditor {
+  constructor(documentId, wsUrl) {
+    this.documentId = documentId
+    this.ws = new WebSocket(wsUrl)
+    this.editor = document.getElementById('editor')
+    this.isTyping = false
+    this.typingTimeout = null
+
+    this.ws.onopen = () => {
+      this.ws.send(JSON.stringify({
+        type: 'join',
+        documentId: this.documentId
+      }))
+    }
+
+    this.ws.onmessage = (event) => {
+      const message = JSON.parse(event.data)
+      this.handleMessage(message)
+    }
+
+    // Отслеживаем изменения в редакторе
+    this.editor.addEventListener('input', (e) => {
+      this.handleInput(e)
+    })
+  }
+
+  handleInput(e) {
+    const change = {
+      type: 'edit',
+      documentId: this.documentId,
+      position: this.getCaretPosition(),
+      text: e.target.value,
+      timestamp: Date.now()
+    }
+
+    this.ws.send(JSON.stringify(change))
+
+    // Индикатор печати
+    if (!this.isTyping) {
+      this.isTyping = true
+      this.ws.send(JSON.stringify({
+        type: 'startTyping',
+        documentId: this.documentId
+      }))
+    }
+
+    clearTimeout(this.typingTimeout)
+    this.typingTimeout = setTimeout(() => {
+      this.isTyping = false
+      this.ws.send(JSON.stringify({
+        type: 'stopTyping',
+        documentId: this.documentId
+      }))
+    }, 1000)
+  }
+
+  handleMessage(message) {
+    switch (message.type) {
+      case 'edit':
+        this.applyEdit(message)
+        break
+      case 'userJoined':
+        this.showUserJoined(message.user)
+        break
+      case 'userLeft':
+        this.showUserLeft(message.user)
+        break
+      case 'startTyping':
+        this.showTyping(message.user)
+        break
+      case 'stopTyping':
+        this.hideTyping(message.user)
+        break
+    }
+  }
+
+  applyEdit(edit) {
+    // Применяем изменения от другого пользователя
+    // Сохраняем позицию курсора
+    const currentPosition = this.getCaretPosition()
+
+    this.editor.value = edit.text
+
+    // Восстанавливаем позицию курсора
+    this.setCaretPosition(currentPosition)
+  }
+
+  getCaretPosition() {
+    return this.editor.selectionStart
+  }
+
+  setCaretPosition(position) {
+    this.editor.setSelectionRange(position, position)
+  }
+
+  showUserJoined(user) {
+    console.log(`${user.name} присоединился к редактированию`)
+  }
+
+  showUserLeft(user) {
+    console.log(`${user.name} покинул редактирование`)
+  }
+
+  showTyping(user) {
+    const indicator = document.getElementById('typing-indicator')
+    indicator.textContent = `${user.name} печатает...`
+    indicator.style.display = 'block'
+  }
+
+  hideTyping(user) {
+    const indicator = document.getElementById('typing-indicator')
+    indicator.style.display = 'none'
+  }
+}
+
+// 5. Прогресс длительной операции (EventSource)
+class ProgressTracker {
+  constructor(taskId, url) {
+    this.taskId = taskId
+    this.eventSource = new EventSource(`${url}?taskId=${taskId}`)
+
+    this.eventSource.addEventListener('progress', (event) => {
+      const progress = JSON.parse(event.data)
+      this.updateProgress(progress)
+    })
+
+    this.eventSource.addEventListener('complete', (event) => {
+      const result = JSON.parse(event.data)
+      this.handleComplete(result)
+    })
+
+    this.eventSource.addEventListener('error', (event) => {
+      const error = JSON.parse(event.data)
+      this.handleError(error)
+    })
+  }
+
+  updateProgress(progress) {
+    const { percent, status, currentStep, totalSteps } = progress
+
+    // Обновляем progress bar
+    const progressBar = document.getElementById('progress-bar')
+    progressBar.style.width = `${percent}%`
+    progressBar.textContent = `${Math.round(percent)}%`
+
+    // Обновляем статус
+    const statusEl = document.getElementById('status')
+    statusEl.textContent = status
+
+    // Обновляем шаги
+    const stepsEl = document.getElementById('steps')
+    stepsEl.textContent = `Шаг ${currentStep} из ${totalSteps}`
+  }
+
+  handleComplete(result) {
+    console.log('Задача завершена:', result)
+
+    // Показываем успех
+    const progressBar = document.getElementById('progress-bar')
+    progressBar.classList.add('complete')
+
+    const statusEl = document.getElementById('status')
+    statusEl.textContent = 'Завершено!'
+
+    // Закрываем соединение
+    this.eventSource.close()
+  }
+
+  handleError(error) {
+    console.error('Ошибка выполнения:', error)
+
+    const progressBar = document.getElementById('progress-bar')
+    progressBar.classList.add('error')
+
+    const statusEl = document.getElementById('status')
+    statusEl.textContent = `Ошибка: ${error.message}`
+
+    this.eventSource.close()
+  }
+}
+
+// Использование
+// Запуск задачи
+fetch('/api/tasks', {
+  method: 'POST',
+  body: JSON.stringify({ type: 'process-video' })
+})
+  .then(res => res.json())
+  .then(data => {
+    // Отслеживаем прогресс
+    new ProgressTracker(data.taskId, '/api/tasks/progress')
+  })

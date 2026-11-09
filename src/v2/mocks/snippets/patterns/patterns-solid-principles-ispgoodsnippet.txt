@@ -1,0 +1,61 @@
+
+// ✅ ПРАВИЛЬНО - Разделенные интерфейсы
+
+// Базовые CRUD операции
+interface CrudOperations<T> {
+  create(data: T): Promise<void>
+  read(id: string): Promise<T>
+  update(id: string, data: T): Promise<void>
+  delete(id: string): Promise<void>
+}
+
+// Экспорт данных
+interface DataExporter {
+  exportToCSV(): Promise<string>
+  exportToJSON(): Promise<string>
+}
+
+// Импорт данных
+interface DataImporter {
+  importFromCSV(data: string): Promise<void>
+  importFromJSON(data: string): Promise<void>
+}
+
+// Кэширование
+interface Cacheable {
+  clearCache(): void
+  getCacheStats(): CacheStats
+}
+
+// Валидация
+interface Validator<T> {
+  validate(data: T): boolean
+  sanitize(data: T): T
+}
+
+// Теперь каждый класс реализует только нужные интерфейсы
+class UserService implements CrudOperations<User>, Cacheable {
+  async create(data: User) { /* ... */ }
+  async read(id: string) { /* ... */ }
+  async update(id: string, data: User) { /* ... */ }
+  async delete(id: string) { /* ... */ }
+  clearCache() { /* ... */ }
+  getCacheStats() { /* ... */ }
+}
+
+class UserValidator implements Validator<User> {
+  validate(data: User) {
+    return !!data.email && !!data.name
+  }
+  sanitize(data: User) {
+    return {
+      ...data,
+      email: data.email.toLowerCase().trim()
+    }
+  }
+}
+
+class ReportExporter implements DataExporter {
+  async exportToCSV() { /* ... */ }
+  async exportToJSON() { /* ... */ }
+}

@@ -1,0 +1,90 @@
+
+// =====================================
+// HTTP ЗАГОЛОВКИ (HEADERS)
+// =====================================
+
+// ЗАГОЛОВКИ ЗАПРОСА (Request Headers)
+
+// 1. Общие заголовки
+Host: api.example.com              // Обязательный в HTTP/1.1
+User-Agent: Mozilla/5.0...         // Информация о клиенте
+Accept: application/json           // Ожидаемый формат ответа
+Accept-Language: en-US,ru;q=0.9    // Предпочитаемый язык
+Accept-Encoding: gzip, deflate, br // Поддерживаемые сжатия
+
+// 2. Авторизация
+Authorization: Bearer eyJhbGci...  // JWT токен
+Authorization: Basic dXNlcjpwYXNz // Basic auth (base64)
+Cookie: session_id=abc123          // Куки сессии
+
+// 3. Контент
+Content-Type: application/json     // Тип отправляемых данных
+Content-Length: 348                // Размер тела в байтах
+Content-Encoding: gzip             // Сжатие контента
+
+// 4. Кэширование
+Cache-Control: no-cache            // Не использовать кэш
+If-None-Match: "686897696a7c..."  // ETag для условного запроса
+If-Modified-Since: Wed, 21 Oct 2024 07:28:00 GMT
+
+// 5. CORS
+Origin: https://myapp.com          // Источник запроса
+Access-Control-Request-Method: POST
+Access-Control-Request-Headers: Content-Type
+
+// 6. Дополнительные
+Referer: https://previous-page.com // Откуда пришел пользователь
+X-Requested-With: XMLHttpRequest   // AJAX запрос
+X-Forwarded-For: 203.0.113.195    // Реальный IP клиента
+
+// ЗАГОЛОВКИ ОТВЕТА (Response Headers)
+
+// 1. Контент
+Content-Type: application/json; charset=utf-8
+Content-Length: 1234
+Content-Encoding: gzip
+Content-Language: en
+
+// 2. Кэширование
+Cache-Control: max-age=3600, public
+ETag: "33a64df551425fcc55e4d42a148795d9f25f89d4"
+Expires: Wed, 21 Oct 2024 07:28:00 GMT
+Last-Modified: Wed, 21 Oct 2024 06:00:00 GMT
+
+// 3. CORS
+Access-Control-Allow-Origin: https://myapp.com
+Access-Control-Allow-Methods: GET, POST, PUT, DELETE
+Access-Control-Allow-Headers: Content-Type, Authorization
+Access-Control-Allow-Credentials: true
+Access-Control-Max-Age: 86400
+
+// 4. Безопасность
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+X-XSS-Protection: 1; mode=block
+Content-Security-Policy: default-src 'self'
+
+// 5. Куки
+Set-Cookie: session_id=abc123; HttpOnly; Secure; SameSite=Strict; Max-Age=3600
+
+// 6. Перенаправления
+Location: https://example.com/new-location
+
+// Пример в JavaScript
+fetch('https://api.example.com/users', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer your-token',
+    'Accept': 'application/json',
+    'Accept-Language': 'ru-RU',
+    'X-Custom-Header': 'custom-value'
+  },
+  body: JSON.stringify({name: 'John'})
+}).then(response => {
+  // Чтение заголовков ответа
+  console.log('Content-Type:', response.headers.get('Content-Type'))
+  console.log('Cache-Control:', response.headers.get('Cache-Control'))
+  console.log('All headers:', [...response.headers.entries()])
+})

@@ -1,0 +1,30 @@
+
+/* НЕВОЗМОЖНО заменить: Flexbox для одномерных задач */
+
+/* 1. Распределение пространства между элементами */
+.space-between-flex {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Grid НЕ МОЖЕТ этого сделать так же элегантно */
+.space-between-grid {
+  display: grid;
+  grid-template-columns: auto 1fr auto; /* Сложнее и менее гибко */
+}
+
+/* 2. Автоматическое заполнение по содержимому */
+.auto-width-items {
+  display: flex;
+  gap: 10px;
+}
+
+.item {
+  flex: 0 0 auto; /* Размер по содержимому */
+}
+
+/* 3. Вертикальное выравнивание в строке */
+.vertical-align-mixed {
+  display: flex;
+  align-items: baseline; /* baseline, center, stretch */
+}

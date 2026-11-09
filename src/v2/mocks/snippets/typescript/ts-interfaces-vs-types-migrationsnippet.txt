@@ -1,0 +1,150 @@
+
+// =====================================
+// МИГРАЦИЯ МЕЖДУ INTERFACE И TYPE
+// =====================================
+
+// Сценарий 1: Interface → Type (когда нужны union/intersection)
+
+// Было - Interface
+interface User {
+  id: number
+  name: string
+  email: string
+}
+
+interface Admin extends User {
+  permissions: string[]
+}
+
+// Стало - Type с union
+type User = {
+  id: number
+  name: string
+  email: string
+}
+
+type Role = 'admin' | 'user' | 'guest'
+
+type Admin = User & {
+  role: 'admin'
+  permissions: string[]
+}
+
+type Guest = User & {
+  role: 'guest'
+}
+
+type UserType = Admin | Guest  // Union невозможен с Interface
+
+// Сценарий 2: Type → Interface (для библиотеки/API)
+
+// Было - Type
+type ApiResponse<T> = {
+  data: T
+  status: number
+  message?: string
+}
+
+// Стало - Interface для публичного API
+interface ApiResponse<T> {
+  data: T
+  status: number
+  message?: string
+}
+
+// Пользователи библиотеки могут расширять
+declare module 'my-library' {
+  interface ApiResponse<T> {
+    // Добавляем кастомное поле через declaration merging
+    customField?: string
+  }
+}
+
+// Сценарий 3: Миграция сложных типов
+
+// Было - сложный Type
+type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends object
+    ? DeepPartial<T[P]>
+    : T[P]
+}
+
+type UpdateUser = DeepPartial<User>
+
+// Стало - Interface + Utility Types
+interface UpdateUser extends Partial<User> {
+  // Для сложных трансформаций Type остается лучшим выбором
+}
+
+// Если нужна глубокая рекурсия - Type неизбежен
+type DeepReadonly<T> = {
+  readonly [P in keyof T]: T[P] extends object
+    ? DeepReadonly<T[P]>
+    : T[P]
+}
+
+// Сценарий 4: Постепенная миграция
+
+// Шаг 1: Type как base
+type UserBase = {
+  id: number
+  name: string
+}
+
+// Шаг 2: Interface расширяет Type
+interface User extends UserBase {
+  email: string
+  createdAt: Date
+}
+
+// Шаг 3: Постепенно переносим в Interface
+interface User {
+  id: number
+  name: string
+  email: string
+  createdAt: Date
+}
+
+// Сценарий 5: Комбинирование для гибкости
+
+// Type для union/primitive
+type ID = string | number
+type Status = 'active' | 'inactive'
+
+// Interface для структур
+interface Entity {
+  id: ID
+  status: Status
+  createdAt: Date
+}
+
+// Лучшее из обоих миров
+interface User extends Entity {
+  name: string
+  email: string
+}
+
+// Сценарий 6: Миграция legacy кода
+
+// Legacy - все Type
+type OldUser = {
+  id: number
+  name: string
+}
+
+type OldAdmin = OldUser & {
+  permissions: string[]
+}
+
+// Новый код - Interface для объектов
+interface User {
+  id: number
+  name: string
+}
+
+interface Admin extends User {
+  permissions: string[]
+}
+
+// Переходный период - совместимость
+type LegacyUser = User  // Алиас для совместимости

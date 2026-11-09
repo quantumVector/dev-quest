@@ -1,0 +1,141 @@
+
+// ===== Полная сборка для выполнения заданий =====
+
+// 1. CacheContext.jsx (задание 1)
+import { createContext, useContext, useRef, useState, useCallback } from 'react';
+
+const CacheContext = createContext(null);
+
+export function CacheProvider({ children }) {
+  const cache       = useRef({});
+  const subscribers = useRef({});
+
+  const getEntry = useCallback((key) => cache.current[key] ?? null, []);
+
+  const setEntry = useCallback((key, entry) => {
+    cache.current[key] = entry;
+    subscribers.current[key]?.forEach(fn => fn());
+  }, []);
+
+  const subscribe = useCallback((key, fn) => {
+    if (!subscribers.current[key]) subscribers.current[key] = new Set();
+    subscribers.current[key].add(fn);
+    return () => subscribers.current[key].delete(fn);
+  }, []);
+
+  return (
+    <CacheContext.Provider value={{ getEntry, setEntry, subscribe }}>
+      {children}
+    </CacheContext.Provider>
+  );
+}
+
+export const useCache = () => useContext(CacheContext);
+
+// 2. useCustomQuery.js (задания 2, 3, 6)
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useCache } from './CacheContext';
+
+export function useCustomQuery({ queryKey, queryFn, staleTime = 0 }) {
+  const cacheKey    = Array.isArray(queryKey) ? queryKey.join('|') : queryKey;
+  const { getEntry, setEntry, subscribe } = useCache();
+  const [, forceUpdate] = useState(0);
+  const keyRef = useRef(cacheKey);
+  keyRef.current = cacheKey;
+
+  const fetchData = useCallback(async () => {
+    const key      = keyRef.current;
+    const existing = getEntry(key);
+    const isStale  = !existing?.updatedAt
+      || Date.now() - existing.updatedAt > staleTime;
+
+    if (existing?.status === 'success' && !isStale) return;
+    if (existing?.status === 'loading') return;
+
+    setEntry(key, { ...existing, status: 'loading', error: null });
+
+    try {
+      const data = await queryFn();
+      setEntry(key, { data, status: 'success', error: null, updatedAt: Date.now() });
+    } catch (error) {
+      setEntry(key, { data: existing?.data ?? null, status: 'error', error, updatedAt: existing?.updatedAt ?? null });
+    }
+  }, [cacheKey, queryFn, staleTime, getEntry, setEntry]);
+
+  useEffect(() => {
+    const unsub = subscribe(cacheKey, () => forceUpdate(n => n + 1));
+    fetchData();
+    return unsub;
+  }, [cacheKey, fetchData, subscribe]);
+
+  // Ревалидация по фокусу окна (задание 6)
+  useEffect(() => {
+    const onFocus = () => {
+      const entry   = getEntry(cacheKey);
+      const isStale = !entry?.updatedAt || Date.now() - entry.updatedAt > staleTime;
+      if (isStale) fetchData();
+    };
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [cacheKey, staleTime, fetchData, getEntry]);
+
+  const entry = getEntry(cacheKey);
+  return {
+    data:      entry?.data    ?? null,
+    isLoading: entry?.status === 'loading',
+    isError:   entry?.status === 'error',
+    error:     entry?.error   ?? null,
+    refetch:   fetchData,
+  };
+}
+
+// 3. App.jsx — два компонента, один кэш (задания 4, 5)
+import { CacheProvider } from './CacheContext';
+import { useCustomQuery } from './useCustomQuery';
+
+const fetchUsers = () =>
+  fetch('https://jsonplaceholder.typicode.com/users')
+    .then(r => r.json());
+
+// Компонент А — список пользователей
+function UserList() {
+  const { data, isLoading, isError } = useCustomQuery({
+    queryKey: ['users'],
+    queryFn: fetchUsers,
+    staleTime: 30_000, // 30 секунд
+  });
+
+  if (isLoading) return <p>Загрузка...</p>;
+  if (isError)   return <p>Ошибка загрузки</p>;
+
+  return (
+    <ul>
+      {data?.map(user => <li key={user.id}>{user.name}</li>)}
+    </ul>
+  );
+}
+
+// Компонент Б — счётчик пользователей
+// Использует тот же ключ ['users'] → получает данные из кэша
+function UserCount() {
+  const { data, isLoading } = useCustomQuery({
+    queryKey: ['users'],
+    queryFn: fetchUsers,
+    staleTime: 30_000,
+  });
+
+  if (isLoading) return <p>...</p>;
+
+  return <p>Всего пользователей: {data?.length ?? 0}</p>;
+}
+
+// CacheProvider оборачивает всё приложение
+export default function App() {
+  return (
+    <CacheProvider>
+      <h1>My App</h1>
+      <UserCount />
+      <UserList />
+    </CacheProvider>
+  );
+}

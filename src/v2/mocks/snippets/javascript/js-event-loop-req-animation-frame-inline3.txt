@@ -1,0 +1,12 @@
+Promise.resolve().then(() => {
+  console.log('Micro 1');
+  return Promise.resolve();
+}).then(() => {
+  console.log('Micro 2');
+});
+
+queueMicrotask(() => {
+  console.log('Micro 3');
+});
+
+// Все выполнится подряд: Micro 1, Micro 2, Micro 3

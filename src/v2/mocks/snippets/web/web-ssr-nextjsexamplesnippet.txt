@@ -1,0 +1,42 @@
+
+// Next.js - SSR пример (App Router)
+// app/products/page.tsx
+
+import { ProductCard } from '@/components/ProductCard'
+
+// Функция выполняется на СЕРВЕРЕ
+async function getProducts() {
+const res = await fetch('https://api.example.com/products', {
+// ISR - Incremental Static Regeneration
+next: { revalidate: 60 } // Кэш на 60 секунд
+})
+
+if (!res.ok) throw new Error('Failed to fetch')
+return res.json()
+}
+
+// Server Component - рендерится только на сервере
+export default async function ProductsPage() {
+// await работает напрямую, без useEffect!
+const products = await getProducts()
+
+return (
+<div>
+<h1>Products</h1>
+{products.map(product => (
+<ProductCard key={product.id} {...product} />
+))}
+</div>
+)
+}
+
+// Генерация метаданных на сервере
+export async function generateMetadata() {
+return {
+title: 'Products - My Store',
+description: 'Browse our amazing products',
+openGraph: {
+images: ['/og-image.jpg']
+}
+}
+}

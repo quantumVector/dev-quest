@@ -1,0 +1,39 @@
+
+// PREFLIGHT ЗАПРОСЫ - с предварительной проверкой
+
+// Preflight нужен когда:
+// 1. Методы: PUT, DELETE, PATCH, или любые кроме GET/HEAD/POST
+// 2. Кастомные заголовки (Authorization, X-Custom-Header)
+// 3. Content-Type: application/json (не в списке простых)
+
+// Пример запроса, требующего preflight:
+fetch('https://api.example.com/users', {
+  method: 'DELETE',
+  headers: {
+    'Authorization': 'Bearer token123',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({ id: 1 })
+})
+
+// ШАГ 1: Браузер отправляет OPTIONS запрос (preflight)
+// OPTIONS /users HTTP/1.1
+// Host: api.example.com
+// Origin: https://myapp.com
+// Access-Control-Request-Method: DELETE
+// Access-Control-Request-Headers: authorization, content-type
+
+// ШАГ 2: Сервер отвечает на preflight
+// HTTP/1.1 204 No Content
+// Access-Control-Allow-Origin: https://myapp.com
+// Access-Control-Allow-Methods: DELETE, GET, POST, PUT
+// Access-Control-Allow-Headers: authorization, content-type
+// Access-Control-Max-Age: 86400
+
+// ШАГ 3: Если preflight успешен, браузер отправляет основной запрос
+// DELETE /users HTTP/1.1
+// Host: api.example.com
+// Origin: https://myapp.com
+// Authorization: Bearer token123
+// Content-Type: application/json
+// {"id": 1}

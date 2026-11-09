@@ -1,0 +1,101 @@
+
+// =====================================
+// ОТСЛЕЖИВАНИЕ НЕСКОЛЬКИХ ЭЛЕМЕНТОВ
+// =====================================
+
+// 1. Один observer для нескольких элементов
+const observer = new ResizeObserver((entries) => {
+  entries.forEach(entry => {
+    const element = entry.target
+    const width = entry.contentRect.width
+    const height = entry.contentRect.height
+
+    console.log(`Element ${element.id}: ${width}x${height}`)
+
+    // Разная логика для разных элементов
+    if (element.classList.contains('sidebar')) {
+      handleSidebarResize(width, height)
+    } else if (element.classList.contains('main-content')) {
+      handleMainContentResize(width, height)
+    }
+  })
+})
+
+// Наблюдение за несколькими элементами
+const sidebar = document.querySelector('.sidebar')
+const mainContent = document.querySelector('.main-content')
+const footer = document.querySelector('.footer')
+
+observer.observe(sidebar)
+observer.observe(mainContent)
+observer.observe(footer)
+
+// 2. Map для хранения callback'ов для каждого элемента
+const elementCallbacks = new Map()
+
+const multiElementObserver = new ResizeObserver((entries) => {
+  entries.forEach(entry => {
+    const callback = elementCallbacks.get(entry.target)
+    if (callback) {
+      callback(entry)
+    }
+  })
+})
+
+// Регистрация элементов с индивидуальными callback
+function observeElement(element, callback) {
+  elementCallbacks.set(element, callback)
+  multiElementObserver.observe(element)
+}
+
+// Использование
+observeElement(sidebar, (entry) => {
+  console.log('Sidebar resized:', entry.contentRect.width)
+})
+
+observeElement(mainContent, (entry) => {
+  console.log('Main content resized:', entry.contentRect.height)
+})
+
+// 3. Класс для управления наблюдением
+class ElementResizeManager {
+  constructor() {
+    this.observer = new ResizeObserver(this.handleResize.bind(this))
+    this.elements = new Map()
+  }
+
+  observe(element, callback, options = {}) {
+    this.elements.set(element, { callback, options })
+    this.observer.observe(element, options)
+  }
+
+  unobserve(element) {
+    this.elements.delete(element)
+    this.observer.unobserve(element)
+  }
+
+  handleResize(entries) {
+    entries.forEach(entry => {
+      const data = this.elements.get(entry.target)
+      if (data && data.callback) {
+        data.callback(entry, data.options)
+      }
+    })
+  }
+
+  disconnect() {
+    this.observer.disconnect()
+    this.elements.clear()
+  }
+}
+
+// Использование класса
+const resizeManager = new ElementResizeManager()
+
+resizeManager.observe(sidebar, (entry) => {
+  console.log('Sidebar:', entry.contentRect.width)
+})
+
+resizeManager.observe(mainContent, (entry) => {
+  console.log('Main:', entry.contentRect.height)
+}, { box: 'border-box' })

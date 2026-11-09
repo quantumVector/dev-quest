@@ -1,0 +1,144 @@
+
+// Важность key в React для эффективного reconciliation
+
+// ❌ Плохо: нет key или key = index
+function BadList({ items }) {
+  return (
+    <ul>
+      {items.map((item, index) => (
+        <li key={index}>{item.text}</li>
+        // ⚠️ Используя index как key, React не понимает,
+        // что элементы переместились
+      ))}
+    </ul>
+  );
+}
+
+// Сценарий: удаление первого элемента
+// Было: ['A', 'B', 'C']
+// Стало: ['B', 'C']
+
+// React видит (с key=index):
+// index 0: 'A' → 'B' (UPDATE text)
+// index 1: 'B' → 'C' (UPDATE text)
+// index 2: 'C' → удален (REMOVE node)
+// Итого: 2 обновления текста + 1 удаление = 3 операции
+
+// ✅ Хорошо: стабильный уникальный key
+function GoodList({ items }) {
+  return (
+    <ul>
+      {items.map(item => (
+        <li key={item.id}>{item.text}</li>
+        // ✅ Уникальный и стабильный key
+      ))}
+    </ul>
+  );
+}
+
+// React видит (с key=id):
+// key='A': найден, не изменился (SKIP)
+// key='B': найден, переместился на позицию 0 (MOVE)
+// key='C': найден, переместился на позицию 1 (MOVE)
+// Итого: 0 обновлений текста + 2 перемещения (cheap!)
+
+// Проблемы без правильных key:
+
+// 1. Потеря состояния компонента
+function ItemWithState({ item }) {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div>
+      <button onClick={() => setExpanded(!expanded)}>
+        {item.title}
+      </button>
+      {expanded && <div>{item.details}</div>}
+    </div>
+  );
+}
+
+// Без key: при пересортировке состояние "прыгает" на другие элементы
+// С key: состояние привязано к конкретному элементу
+
+// 2. Проблемы с анимациями
+function AnimatedItem({ item }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      {item.text}
+    </motion.div>
+  );
+}
+
+// Без key: анимация не работает корректно при пересортировке
+// С key: анимации применяются к правильным элементам
+
+// 3. Проблемы с controlled inputs
+function EditableItem({ item, onChange }) {
+  return (
+    <input
+      value={item.value}
+      onChange={e => onChange(item.id, e.target.value)}
+    />
+  );
+}
+
+// Без key: фокус теряется, курсор прыгает
+// С key: инпут работает правильно
+
+// Правила для key:
+const rules = {
+  ✅ DO: {
+    // Уникальный ID из данных
+    key: item.id,
+
+    // Комбинация полей для уникальности
+    key: `${item.category}-${item.id}`,
+
+    // Стабильный ID, не меняющийся между рендерами
+    key: item.uuid
+  },
+
+  ❌ DONT: {
+    // НЕ используйте индекс как key
+    key: index, // ❌
+
+    // НЕ используйте Math.random()
+    key: Math.random(), // ❌ Меняется каждый рендер!
+
+    // НЕ используйте Date.now()
+    key: Date.now(), // ❌ Меняется каждый рендер!
+
+    // НЕ используйте нестабильные значения
+    key: item.text // ❌ Может измениться
+  }
+};
+
+// Генерация ID, если данные без ID:
+import { nanoid } from 'nanoid';
+
+function TodoList() {
+  const [todos, setTodos] = useState([]);
+
+  const addTodo = (text) => {
+    setTodos([
+      ...todos,
+      {
+        id: nanoid(), // ✅ Генерируем стабильный уникальный ID
+        text
+      }
+    ]);
+  };
+
+  return (
+    <ul>
+      {todos.map(todo => (
+        <li key={todo.id}>{todo.text}</li>
+      ))}
+    </ul>
+  );
+}

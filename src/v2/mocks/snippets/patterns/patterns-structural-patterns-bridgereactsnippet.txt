@@ -1,0 +1,91 @@
+
+// Bridge в React - разделение UI и бизнес-логики
+
+// Реализация (API провайдеры)
+interface DataProvider {
+  fetchData(): Promise<any>;
+  updateData(data: any): Promise<void>;
+}
+
+class RESTProvider implements DataProvider {
+  async fetchData() {
+    const response = await fetch('/api/data');
+    return response.json();
+  }
+
+  async updateData(data: any) {
+    await fetch('/api/data', {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+  }
+}
+
+class GraphQLProvider implements DataProvider {
+  async fetchData() {
+    const query = '{ data { id name } }';
+    const response = await fetch('/graphql', {
+      method: 'POST',
+      body: JSON.stringify({ query })
+    });
+    return response.json();
+  }
+
+  async updateData(data: any) {
+    const mutation = `mutation { updateData(input: ...) }`;
+    await fetch('/graphql', {
+      method: 'POST',
+      body: JSON.stringify({ query: mutation })
+    });
+  }
+}
+
+class MockProvider implements DataProvider {
+  async fetchData() {
+    return { id: 1, name: 'Mock Data' };
+  }
+
+  async updateData(data: any) {
+    console.log('Mock update:', data);
+  }
+}
+
+// Абстракция (хук для работы с данными)
+function useData(provider: DataProvider) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    provider.fetchData()
+      .then(setData)
+      .finally(() => setLoading(false));
+  }, [provider]);
+
+  const update = async (newData: any) => {
+    await provider.updateData(newData);
+    setData(newData);
+  };
+
+  return { data, loading, update };
+}
+
+// Использование - легко переключаемся между провайдерами
+function App() {
+  // Меняем провайдер в зависимости от окружения
+  const provider = process.env.NODE_ENV === 'test'
+    ? new MockProvider()
+    : new RESTProvider();
+
+  const { data, loading, update } = useData(provider);
+
+  if (loading) return <div>Loading...</div>;
+
+  return (
+    <div>
+      <h1>{data?.name}</h1>
+      <button onClick={() => update({ ...data, name: 'Updated' })}>
+        Update
+      </button>
+    </div>
+  );
+}

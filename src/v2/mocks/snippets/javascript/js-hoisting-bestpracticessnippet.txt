@@ -1,0 +1,44 @@
+
+// Лучшие практики для избежания проблем с hoisting
+
+// ✅ Хорошо: используйте let/const
+function goodExample() {
+  // Объявляйте переменные в начале области видимости
+  let userName = "";
+  let isActive = false;
+  const MAX_USERS = 100;
+
+  // Функции можно объявлять где угодно (function declaration)
+  function processUser(user) {
+    return user.name.toUpperCase();
+  }
+
+  // Остальной код...
+}
+
+// ❌ Плохо: var может привести к неожиданному поведению
+function badExample() {
+  console.log(userName); // undefined
+
+  if (condition) {
+    var userName = "John"; // всплывает наверх функции
+  }
+
+  for (var i = 0; i < 5; i++) {
+    // i доступна за пределами цикла
+  }
+  console.log(i); // 5
+}
+
+// ✅ Современный подход: блочная область видимости
+function modernExample() {
+  if (condition) {
+    let userName = "John"; // только внутри блока
+    const userId = 123;   // только внутри блока
+  }
+
+  for (let i = 0; i < 5; i++) {
+    // i доступна только внутри цикла
+  }
+  // console.log(i); // ReferenceError
+}

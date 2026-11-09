@@ -1,0 +1,43 @@
+
+<!-- Vue.js: vue-meta или useHead -->
+
+<!-- Composition API с VueUse -->
+<script setup>
+import { useHead } from '@vueuse/head'
+import { computed } from 'vue'
+
+const props = defineProps({
+  product: Object
+})
+
+useHead({
+  title: computed(() => `${props.product.name} - купить | TechStore`),
+  meta: [
+    {
+      name: 'description',
+      content: computed(() =>
+        `Купите ${props.product.name}. ${props.product.description}`)
+    },
+    {
+      property: 'og:title',
+      content: computed(() => props.product.name)
+    },
+    {
+      property: 'og:image',
+      content: computed(() => props.product.image)
+    }
+  ],
+  link: [
+    {
+      rel: 'canonical',
+      href: computed(() => `https://example.com/products/${props.product.slug}`)
+    }
+  ]
+})
+</script>
+
+<template>
+  <div class="product-page">
+    <!-- Контент -->
+  </div>
+</template>

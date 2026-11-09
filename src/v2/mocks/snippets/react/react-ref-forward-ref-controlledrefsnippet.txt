@@ -1,0 +1,42 @@
+
+import { useState } from 'react';
+
+// Управляемый компонент (Controlled Component)
+function ControlledInput() {
+  const [value, setValue] = useState('');
+
+  // React контролирует значение через state
+  return (
+    <input
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+    />
+  );
+}
+
+// "Управляемый ref" - значение синхронизировано с state
+function ControlledRefExample() {
+  const [text, setText] = useState('');
+  const inputRef = useRef(null);
+
+  const handleChange = (e) => {
+    const newValue = e.target.value;
+    setText(newValue);
+
+    // Ref также обновляется, но через state
+    console.log('Current input:', inputRef.current.value);
+  };
+
+  return (
+    <input
+      ref={inputRef}
+      value={text}
+      onChange={handleChange}
+    />
+  );
+}
+
+// Преимущества:
+// - Полный контроль над значением
+// - Валидация в реальном времени
+// - Легко интегрируется с формами

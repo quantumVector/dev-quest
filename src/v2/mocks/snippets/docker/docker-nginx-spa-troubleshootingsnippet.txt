@@ -1,0 +1,23 @@
+
+# Типичные проблемы и решения
+
+# 1. Неправильный порядок location блоков
+location /api/ {
+  proxy_pass http://backend:3000;
+}
+location / {
+  try_files $uri $uri/ /index.html;
+}
+
+# 2. Проблемы с относительными путями
+<base href="/"> <!-- В index.html -->
+
+# 3. Кеширование index.html
+location = /index.html {
+  add_header Cache-Control "no-cache, no-store, must-revalidate";
+  try_files $uri =404;
+}
+
+# 4. Проверка конфигурации
+nginx -t  # Проверить синтаксис
+nginx -s reload  # Перезагрузить конфигурацию

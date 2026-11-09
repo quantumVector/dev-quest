@@ -1,0 +1,78 @@
+
+// Создание JWT на сервере (Node.js)
+
+const jwt = require('jsonwebtoken')
+
+// 1. Определяем секретный ключ (храните в переменных окружения!)
+const SECRET_KEY = process.env.JWT_SECRET || 'your-super-secret-key'
+
+// 2. Создаем payload с данными пользователя
+function generateAccessToken(user) {
+  const payload = {
+    sub: user.id,
+    email: user.email,
+    role: user.role,
+    name: user.name
+  }
+
+  // 3. Создаем токен с опциями
+  const token = jwt.sign(
+    payload,
+    SECRET_KEY,
+    {
+      expiresIn: '15m',           // Access token на 15 минут
+      issuer: 'api.myapp.com',
+      audience: 'myapp.com'
+    }
+  )
+
+  return token
+}
+
+// 4. Создаем refresh token (долгоживущий)
+function generateRefreshToken(user) {
+  const payload = {
+    sub: user.id,
+    type: 'refresh'
+  }
+
+  const refreshToken = jwt.sign(
+    payload,
+    SECRET_KEY,
+    {
+      expiresIn: '7d',  // Refresh token на 7 дней
+      issuer: 'api.myapp.com'
+    }
+  )
+
+  return refreshToken
+}
+
+// 5. Использование при авторизации
+async function login(req, res) {
+  const { email, password } = req.body
+
+  // Проверяем учетные данные
+  const user = await User.findOne({ email })
+  if (!user || !await user.comparePassword(password)) {
+    return res.status(401).json({ error: 'Invalid credentials' })
+  }
+
+  // Генерируем токены
+  const accessToken = generateAccessToken(user)
+  const refreshToken = generateRefreshToken(user)
+
+  // Сохраняем refresh token в БД (для возможности отзыва)
+  await RefreshToken.create({
+    userId: user.id,
+    token: refreshToken,
+    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+  })
+
+  // Отправляем токены клиенту
+  res.json({
+    accessToken,
+    refreshToken,
+    expiresIn: 900  // 15 минут в секундах
+  })
+}

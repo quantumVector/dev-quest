@@ -1,0 +1,26 @@
+
+// Осторожно! Изменение встроенных прототипов (Prototype Pollution)
+
+// ❌ ПЛОХО - изменение Object.prototype влияет на ВСЕ объекты
+Object.prototype.customMethod = function() {
+  return 'Я везде!';
+};
+
+const obj1 = {};
+const obj2 = { name: 'test' };
+
+console.log(obj1.customMethod()); // "Я везде!"
+console.log(obj2.customMethod()); // "Я везде!"
+
+// Удаляем для безопасности
+delete Object.prototype.customMethod;
+
+// ✅ ХОРОШО - создание собственных прототипов
+const MyPrototype = {
+  customMethod() {
+    return 'Только где нужно';
+  }
+};
+
+const safeObj = Object.create(MyPrototype);
+console.log(safeObj.customMethod()); // "Только где нужно"

@@ -1,0 +1,90 @@
+
+// Facade в React - упрощение работы с API и состоянием
+
+// Сложное API приложения
+class UserAPI {
+  fetchUser(id: string) { /* ... */ }
+  updateUser(id: string, data: any) { /* ... */ }
+}
+
+class PostsAPI {
+  fetchUserPosts(userId: string) { /* ... */ }
+  createPost(userId: string, content: string) { /* ... */ }
+}
+
+class NotificationAPI {
+  fetchNotifications(userId: string) { /* ... */ }
+  markAsRead(notificationId: string) { /* ... */ }
+}
+
+// Фасад для React
+function useUserData(userId: string) {
+  const [user, setUser] = useState(null);
+  const [posts, setPosts] = useState([]);
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const userAPI = useMemo(() => new UserAPI(), []);
+  const postsAPI = useMemo(() => new PostsAPI(), []);
+  const notificationAPI = useMemo(() => new NotificationAPI(), []);
+
+  useEffect(() => {
+    async function loadAllData() {
+      setLoading(true);
+      try {
+        // Фасад скрывает сложность параллельной загрузки
+        const [userData, userPosts, userNotifications] = await Promise.all([
+          userAPI.fetchUser(userId),
+          postsAPI.fetchUserPosts(userId),
+          notificationAPI.fetchNotifications(userId)
+        ]);
+
+        setUser(userData);
+        setPosts(userPosts);
+        setNotifications(userNotifications);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadAllData();
+  }, [userId]);
+
+  // Упрощенные методы для работы с данными
+  const createPost = async (content: string) => {
+    const newPost = await postsAPI.createPost(userId, content);
+    setPosts(prev => [newPost, ...prev]);
+  };
+
+  const markNotificationAsRead = async (id: string) => {
+    await notificationAPI.markAsRead(id);
+    setNotifications(prev =>
+      prev.map(n => n.id === id ? { ...n, read: true } : n)
+    );
+  };
+
+  return {
+    user,
+    posts,
+    notifications,
+    loading,
+    createPost,
+    markNotificationAsRead
+  };
+}
+
+// Простое использование в компоненте
+function UserDashboard({ userId }: { userId: string }) {
+  // Один хук вместо 3+ API вызовов
+  const { user, posts, notifications, loading, createPost } = useUserData(userId);
+
+  if (loading) return <div>Loading...</div>;
+
+  return (
+    <div>
+      <UserProfile user={user} />
+      <PostsList posts={posts} onCreatePost={createPost} />
+      <NotificationsList notifications={notifications} />
+    </div>
+  );
+}

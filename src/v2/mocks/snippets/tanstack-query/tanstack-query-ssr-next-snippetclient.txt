@@ -1,0 +1,30 @@
+
+// app/dashboard/dashboard-client.tsx
+'use client'
+
+import { useQuery } from '@tanstack/react-query'
+import { getPosts, getUsers, queryKeys } from '@/lib/api'
+
+export function DashboardClient() {
+  const usersQuery = useQuery({
+    queryKey: queryKeys.users,
+    queryFn: getUsers,
+  })
+
+  const postsQuery = useQuery({
+    queryKey: queryKeys.posts,
+    queryFn: getPosts,
+  })
+
+  if (usersQuery.isError || postsQuery.isError) {
+    return <p>Не удалось загрузить данные</p>
+  }
+
+  return (
+    <section>
+      <h1>Dashboard</h1>
+      <p>Users: {usersQuery.data?.length ?? 0}</p>
+      <p>Posts: {postsQuery.data?.length ?? 0}</p>
+    </section>
+  )
+}

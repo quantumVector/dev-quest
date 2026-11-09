@@ -1,0 +1,14 @@
+
+// ✅ РАБОТАЕТ - function declaration всплывает полностью
+console.log(sayHello()); // "Hello!"
+
+function sayHello() {
+  return "Hello!";
+}
+
+// ❌ НЕ РАБОТАЕТ - function expression не всплывает
+console.log(sayBye()); // TypeError: sayBye is not a function
+
+var sayBye = function() {
+  return "Bye!";
+};

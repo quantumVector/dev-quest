@@ -1,0 +1,60 @@
+
+// =====================================
+// БАЗОВЫЕ ТИПЫ ДАННЫХ В TYPESCRIPT
+// =====================================
+
+// 1. Примитивные типы
+let isDone: boolean = false
+let count: number = 42
+let price: number = 19.99
+let hex: number = 0xf00d
+let binary: number = 0b1010
+let octal: number = 0o744
+let bigNumber: bigint = 100n
+
+let userName: string = "John"
+let message: string = `Hello, ${userName}!`
+
+// 2. null и undefined
+let nothing: null = null
+let notDefined: undefined = undefined
+
+// По умолчанию null и undefined являются подтипами всех типов
+let num: number = undefined  // ошибка только при strictNullChecks
+let str: string = null       // ошибка только при strictNullChecks
+
+// 3. void - отсутствие типа (для функций без return)
+function logMessage(message: string): void {
+  console.log(message)
+  // нет return
+}
+
+// void переменные могут быть только undefined (при strictNullChecks)
+let unusable: void = undefined
+
+// 4. symbol - уникальные идентификаторы
+const sym1: symbol = Symbol("key")
+const sym2: symbol = Symbol("key")
+console.log(sym1 === sym2)  // false
+
+// 5. Массивы
+let numbers: number[] = [1, 2, 3, 4, 5]
+let strings: Array<string> = ["a", "b", "c"]
+
+// Многомерные массивы
+let matrix: number[][] = [
+  [1, 2, 3],
+  [4, 5, 6]
+]
+
+// 6. object - не примитивный тип
+let obj: object = { name: "John" }
+let obj2: object = [1, 2, 3]
+let obj3: object = new Date()
+
+// object vs Object vs {} - разница важна!
+declare function create(o: object): void
+create({ prop: 0 })  // OK
+create(null)         // ошибка
+create(42)           // ошибка
+create("string")     // ошибка

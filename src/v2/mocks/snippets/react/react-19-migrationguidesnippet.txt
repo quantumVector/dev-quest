@@ -1,0 +1,79 @@
+
+// Миграция с React 18 на React 19
+
+// 1. Обновление зависимостей
+// package.json
+{
+"dependencies": {
+"react": "^19.0.0",
+"react-dom": "^19.0.0"
+}
+}
+
+// 2. Удаление устаревших API
+// ❌ Удалить:
+import { render } from 'react-dom'
+render(<App />, document.getElementById('root'))
+
+// ✅ Использовать:
+import { createRoot } from 'react-dom/client'
+const root = createRoot(document.getElementById('root'))
+root.render(<App />)
+
+// 3. Замена react-helmet
+// ❌ Старый способ:
+import { Helmet } from 'react-helmet'
+
+function Page() {
+return (
+<>
+<Helmet>
+<title>My Page</title>
+</Helmet>
+<div>Content</div>
+</>
+)
+}
+
+// ✅ Новый способ:
+function Page() {
+return (
+<>
+<title>My Page</title>
+<div>Content</div>
+</>
+)
+}
+
+// 4. Упрощение форм
+// ❌ Старый способ:
+function Form() {
+const [loading, setLoading] = useState(false)
+const [error, setError] = useState(null)
+
+const handleSubmit = async (e) => {
+e.preventDefault()
+setLoading(true)
+try {
+// submit logic
+} catch (err) {
+setError(err)
+} finally {
+setLoading(false)
+}
+}
+
+return <form onSubmit={handleSubmit}>...</form>
+}
+
+// ✅ Новый способ:
+function Form() {
+const [error, submitAction, isPending] = useActionState(
+async (_, formData) => {
+// submit logic
+},
+null
+)
+
+return <form action={submitAction}>...</form>
+}

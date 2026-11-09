@@ -1,0 +1,65 @@
+
+// Утилита для генерации hreflang тегов
+interface Language {
+  code: string
+  region?: string
+  domain?: string
+}
+
+interface HreflangConfig {
+  languages: Language[]
+  pathname: string
+  baseUrl?: string
+  strategy: 'subdirectory' | 'subdomain' | 'domain'
+}
+
+function generateHreflangTags(config: HreflangConfig): string[] {
+  const { languages, pathname, baseUrl = 'https://example.com', strategy } = config
+  const tags: string[] = []
+
+  languages.forEach((lang) => {
+    let url: string
+    const hrefLang = lang.region ? `${lang.code}-${lang.region}` : lang.code
+
+    switch (strategy) {
+      case 'subdirectory':
+        url = `${baseUrl}/${lang.code}${pathname}`
+        break
+      case 'subdomain':
+        url = `https://${lang.code}.${baseUrl.replace('https://', '')}${pathname}`
+        break
+      case 'domain':
+        url = `${lang.domain}${pathname}`
+        break
+    }
+
+    tags.push(
+      `<link rel="alternate" hreflang="${hrefLang}" href="${url}">`
+    )
+  })
+
+  // Добавляем x-default
+  const defaultUrl = strategy === 'subdirectory'
+    ? `${baseUrl}/en${pathname}`
+    : `https://en.${baseUrl.replace('https://', '')}${pathname}`
+
+  tags.push(
+    `<link rel="alternate" hreflang="x-default" href="${defaultUrl}">`
+  )
+
+  return tags
+}
+
+// Использование
+const hreflangTags = generateHreflangTags({
+  languages: [
+    { code: 'en', region: 'US' },
+    { code: 'en', region: 'GB' },
+    { code: 'ru' },
+    { code: 'de' },
+  ],
+  pathname: '/products',
+  strategy: 'subdirectory'
+})
+
+console.log(hreflangTags.join('\n'))

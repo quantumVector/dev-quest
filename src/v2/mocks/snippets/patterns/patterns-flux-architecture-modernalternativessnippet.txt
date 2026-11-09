@@ -1,0 +1,133 @@
+
+// Современные альтернативы Flux
+
+// 1. Redux - упрощенный Flux
+import { createStore } from 'redux'
+
+// Reducer вместо Store
+const todoReducer = (state = { todos: [] }, action) => {
+  switch (action.type) {
+    case 'TODO_ADD':
+      return {
+        ...state,
+        todos: [...state.todos, action.payload]
+      }
+    case 'TODO_TOGGLE':
+      return {
+        ...state,
+        todos: state.todos.map(todo =>
+          todo.id === action.payload.id
+            ? { ...todo, completed: !todo.completed }
+            : todo
+        )
+      }
+    default:
+      return state
+  }
+}
+
+const store = createStore(todoReducer)
+
+// 2. MobX - реактивное состояние
+import { makeObservable, observable, action } from 'mobx'
+
+class TodoStore {
+  todos = []
+
+  constructor() {
+    makeObservable(this, {
+      todos: observable,
+      addTodo: action,
+      toggleTodo: action
+    })
+  }
+
+  addTodo(text) {
+    this.todos.push({
+      id: Date.now(),
+      text,
+      completed: false
+    })
+  }
+
+  toggleTodo(id) {
+    const todo = this.todos.find(t => t.id === id)
+    if (todo) todo.completed = !todo.completed
+  }
+}
+
+// 3. Zustand - минималистичный state manager
+import create from 'zustand'
+
+const useTodoStore = create((set) => ({
+  todos: [],
+
+  addTodo: (text) => set((state) => ({
+    todos: [...state.todos, {
+      id: Date.now(),
+      text,
+      completed: false
+    }]
+  })),
+
+  toggleTodo: (id) => set((state) => ({
+    todos: state.todos.map(todo =>
+      todo.id === id
+        ? { ...todo, completed: !todo.completed }
+        : todo
+    )
+  }))
+}))
+
+// 4. Jotai - атомарное состояние
+import { atom, useAtom } from 'jotai'
+
+const todosAtom = atom([])
+
+const addTodoAtom = atom(
+  null,
+  (get, set, text) => {
+    const todos = get(todosAtom)
+    set(todosAtom, [...todos, {
+      id: Date.now(),
+      text,
+      completed: false
+    }])
+  }
+)
+
+// 5. React Context + useReducer (встроенное)
+const TodoContext = React.createContext()
+
+function todoReducer(state, action) {
+  switch (action.type) {
+    case 'ADD_TODO':
+      return {
+        ...state,
+        todos: [...state.todos, action.payload]
+      }
+    case 'TOGGLE_TODO':
+      return {
+        ...state,
+        todos: state.todos.map(todo =>
+          todo.id === action.payload.id
+            ? { ...todo, completed: !todo.completed }
+            : todo
+        )
+      }
+    default:
+      return state
+  }
+}
+
+function TodoProvider({ children }) {
+  const [state, dispatch] = React.useReducer(todoReducer, {
+    todos: []
+  })
+
+  return (
+    <TodoContext.Provider value={{ state, dispatch }}>
+      {children}
+    </TodoContext.Provider>
+  )
+}

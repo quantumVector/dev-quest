@@ -1,0 +1,26 @@
+
+// Базовое использование useCallback
+
+import { useState, useCallback } from 'react';
+
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  // Без зависимостей - функция создается один раз
+  const handleIncrement = useCallback(() => {
+    setCount(prev => prev + 1); // Используем функциональное обновление
+  }, []);
+
+  // С зависимостями - пересоздается при изменении count
+  const handleIncrementByAmount = useCallback((amount) => {
+    setCount(count + amount); // count в зависимостях!
+  }, [count]); // При изменении count создается новая функция
+
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={handleIncrement}>+1</button>
+      <button onClick={() => handleIncrementByAmount(5)}>+5</button>
+    </div>
+  );
+}

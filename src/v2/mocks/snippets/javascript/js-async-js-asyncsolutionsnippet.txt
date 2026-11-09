@@ -1,0 +1,39 @@
+
+// ✅ Асинхронное решение - неблокирующее выполнение
+
+// Promise
+function fetchDataAsync() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ data: "Важные данные" })
+    }, 3000)
+  })
+}
+
+// Async/Await
+async function main() {
+  console.log("Начало выполнения")
+
+  // Запускаем асинхронную операцию
+  const dataPromise = fetchDataAsync()
+
+  // Можем выполнять другие задачи
+  console.log("Делаем другие задачи...")
+  updateUI()
+  handleUserInput()
+
+  // Ждем результат когда он нужен
+  const result = await dataPromise
+  console.log("Данные получены:", result)
+  console.log("Конец выполнения")
+}
+
+function updateUI() {
+  console.log("UI обновлен")
+}
+
+function handleUserInput() {
+  console.log("Обработан пользовательский ввод")
+}
+
+main()

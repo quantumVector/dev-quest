@@ -1,0 +1,243 @@
+
+// =====================================
+// ПРАКТИЧЕСКИЕ ПРИМЕРЫ
+// =====================================
+
+// 1. API Response типизация
+interface ApiResponse<T> {
+  data: T
+  status: number
+  message: string
+}
+
+interface User {
+  id: number
+  name: string
+  email: string
+}
+
+const fetchUser = async (id: number): Promise<ApiResponse<User>> => {
+  const response = await fetch(`/api/users/${id}`)
+  return response.json()
+}
+
+// 2. Event Handling с дискриминированными union
+type ButtonEvent = {
+  type: 'click'
+  x: number
+  y: number
+}
+
+type InputEvent = {
+  type: 'input'
+  value: string
+}
+
+type FormEvent = {
+  type: 'submit'
+  formData: FormData
+}
+
+type AppEvent = ButtonEvent | InputEvent | FormEvent
+
+const handleEvent = (event: AppEvent) => {
+  switch (event.type) {
+    case 'click':
+      console.log(`Clicked at ${event.x}, ${event.y}`)
+      break
+    case 'input':
+      console.log(`Input value: ${event.value}`)
+      break
+    case 'submit':
+      console.log('Form submitted', event.formData)
+      break
+  }
+}
+
+// 3. Redux-style State Management
+interface TodoState {
+  items: Todo[]
+  filter: 'all' | 'active' | 'completed'
+}
+
+type Todo = {
+  id: number
+  text: string
+  completed: boolean
+}
+
+type TodoAction =
+  | { type: 'ADD_TODO'; payload: { text: string } }
+  | { type: 'TOGGLE_TODO'; payload: { id: number } }
+  | { type: 'SET_FILTER'; payload: { filter: TodoState['filter'] } }
+
+const todoReducer = (
+  state: TodoState,
+  action: TodoAction
+): TodoState => {
+  switch (action.type) {
+    case 'ADD_TODO':
+      return {
+        ...state,
+        items: [
+          ...state.items,
+          {
+            id: Date.now(),
+            text: action.payload.text,
+            completed: false
+          }
+        ]
+      }
+    case 'TOGGLE_TODO':
+      return {
+        ...state,
+        items: state.items.map(item =>
+          item.id === action.payload.id
+            ? { ...item, completed: !item.completed }
+            : item
+        )
+      }
+    case 'SET_FILTER':
+      return {
+        ...state,
+        filter: action.payload.filter
+      }
+  }
+}
+
+// 4. Builder Pattern с типизацией
+class QueryBuilder {
+  private query: string = ''
+
+  select(...fields: string[]): this {
+    this.query += `SELECT ${fields.join(', ')} `
+    return this
+  }
+
+  from(table: string): this {
+    this.query += `FROM ${table} `
+    return this
+  }
+
+  where(condition: string): this {
+    this.query += `WHERE ${condition} `
+    return this
+  }
+
+  build(): string {
+    return this.query.trim()
+  }
+}
+
+const query = new QueryBuilder()
+  .select('id', 'name', 'email')
+  .from('users')
+  .where('age > 18')
+  .build()
+
+// 5. Generic Repository Pattern
+interface Repository<T> {
+  findAll(): Promise<T[]>
+  findById(id: number): Promise<T | null>
+  create(item: Omit<T, 'id'>): Promise<T>
+  update(id: number, item: Partial<T>): Promise<T>
+  delete(id: number): Promise<void>
+}
+
+class UserRepository implements Repository<User> {
+  async findAll(): Promise<User[]> {
+    // Implementation
+    return []
+  }
+
+  async findById(id: number): Promise<User | null> {
+    // Implementation
+    return null
+  }
+
+  async create(item: Omit<User, 'id'>): Promise<User> {
+    // Implementation
+    return { id: 1, ...item }
+  }
+
+  async update(id: number, item: Partial<User>): Promise<User> {
+    // Implementation
+    return { id, name: '', email: '', ...item }
+  }
+
+  async delete(id: number): Promise<void> {
+    // Implementation
+  }
+}
+
+// 6. React Component Props
+interface ButtonProps {
+  variant?: 'primary' | 'secondary' | 'danger'
+  size?: 'small' | 'medium' | 'large'
+  disabled?: boolean
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void
+  children: React.ReactNode
+}
+
+const Button: React.FC<ButtonProps> = ({
+  variant = 'primary',
+  size = 'medium',
+  disabled = false,
+  onClick,
+  children
+}) => {
+  return (
+    <button
+      className={`btn btn-${variant} btn-${size}`}
+      disabled={disabled}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  )
+}
+
+// 7. Validation Schema
+type ValidationRule<T> = (value: T) => string | null
+
+type ValidationSchema<T> = {
+  [K in keyof T]: ValidationRule<T[K]>[]
+}
+
+const userValidation: ValidationSchema<User> = {
+  id: [(value) => value <= 0 ? 'ID must be positive' : null],
+  name: [
+    (value) => !value ? 'Name is required' : null,
+    (value) => value.length < 3 ? 'Name too short' : null
+  ],
+  email: [
+    (value) => !value ? 'Email is required' : null,
+    (value) => !value.includes('@') ? 'Invalid email' : null
+  ]
+}
+
+// 8. Type Guards
+interface Cat {
+  type: 'cat'
+  meow(): void
+}
+
+interface Dog {
+  type: 'dog'
+  bark(): void
+}
+
+type Pet = Cat | Dog
+
+// Type guard функция
+const isCat = (pet: Pet): pet is Cat => {
+  return pet.type === 'cat'
+}
+
+const handlePet = (pet: Pet) => {
+  if (isCat(pet)) {
+    pet.meow()  // TypeScript знает, что это Cat
+  } else {
+    pet.bark()  // TypeScript знает, что это Dog
+  }
+}

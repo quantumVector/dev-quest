@@ -1,0 +1,26 @@
+
+<!-- hreflang - указание языковых и региональных версий -->
+
+<!-- Английская версия для США -->
+<link rel="alternate" hreflang="en-US"
+      href="https://example.com/en-us/products">
+
+<!-- Английская версия для UK -->
+<link rel="alternate" hreflang="en-GB"
+      href="https://example.com/en-gb/products">
+
+<!-- Русская версия -->
+<link rel="alternate" hreflang="ru"
+      href="https://example.com/ru/products">
+
+<!-- Немецкая версия -->
+<link rel="alternate" hreflang="de"
+      href="https://example.com/de/products">
+
+<!-- Версия по умолчанию (fallback) -->
+<link rel="alternate" hreflang="x-default"
+      href="https://example.com/en/products">
+
+<!-- Текущая страница тоже должна быть в списке -->
+<link rel="alternate" hreflang="ru"
+      href="https://example.com/ru/products">

@@ -1,0 +1,124 @@
+
+// Обработка ошибок и отказоустойчивость в BFF
+
+import CircuitBreaker from 'opossum'
+
+// Circuit Breaker для каждого микросервиса
+const userServiceBreaker = new CircuitBreaker(fetchUser, {
+  timeout: 3000,          // Таймаут 3 секунды
+  errorThresholdPercentage: 50,  // Открыть при 50% ошибок
+  resetTimeout: 30000     // Попытка восстановления через 30 сек
+})
+
+userServiceBreaker.fallback(() => {
+  // Fallback данные при отказе сервиса
+  return {
+    id: 'unknown',
+    name: 'User',
+    avatar: '/default-avatar.png'
+  }
+})
+
+// Обработка ошибок с graceful degradation
+app.get('/api/dashboard/:userId', async (req, res) => {
+  const { userId } = req.params
+  const errors = []
+
+  try {
+    // Используем Promise.allSettled вместо Promise.all
+    const results = await Promise.allSettled([
+      userServiceBreaker.fire(userId),
+      fetchUserPosts(userId).catch(e => {
+        errors.push({ service: 'posts', error: e.message })
+        return [] // Возвращаем пустой массив при ошибке
+      }),
+      fetchUserFriends(userId).catch(e => {
+        errors.push({ service: 'friends', error: e.message })
+        return []
+      }),
+      fetchNotifications(userId).catch(e => {
+        errors.push({ service: 'notifications', error: e.message })
+        return { count: 0, items: [] }
+      })
+    ])
+
+    const [userResult, posts, friends, notifications] = results.map(r =>
+      r.status === 'fulfilled' ? r.value : r.reason
+    )
+
+    // Возвращаем частичные данные даже при ошибках
+    res.json({
+      user: userResult,
+      posts,
+      friends,
+      notifications,
+      // Информируем клиента о проблемах
+      _metadata: {
+        partial: errors.length > 0,
+        errors: errors.length > 0 ? errors : undefined
+      }
+    })
+  } catch (error) {
+    console.error('Critical error:', error)
+    res.status(500).json({
+      error: 'Service temporarily unavailable',
+      message: 'Please try again later'
+    })
+  }
+})
+
+// Retry логика с экспоненциальной задержкой
+async function fetchWithRetry(fn, maxRetries = 3, baseDelay = 100) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      return await fn()
+    } catch (error) {
+      if (attempt === maxRetries - 1) throw error
+
+      const delay = baseDelay * Math.pow(2, attempt)
+      console.log(`Retry attempt ${attempt + 1} after ${delay}ms`)
+      await new Promise(resolve => setTimeout(resolve, delay))
+    }
+  }
+}
+
+// Использование
+app.get('/api/critical/:id', async (req, res) => {
+  try {
+    const data = await fetchWithRetry(
+      () => fetchCriticalData(req.params.id),
+      3,
+      200
+    )
+    res.json(data)
+  } catch (error) {
+    res.status(503).json({ error: 'Service unavailable' })
+  }
+})
+
+// Мониторинг и логирование
+app.use((req, res, next) => {
+  const start = Date.now()
+
+  res.on('finish', () => {
+    const duration = Date.now() - start
+
+    console.log({
+      method: req.method,
+      url: req.url,
+      status: res.statusCode,
+      duration: `${duration}ms`,
+      timestamp: new Date().toISOString()
+    })
+
+    // Метрики для мониторинга
+    metrics.recordRequest({
+      endpoint: req.route?.path,
+      method: req.method,
+      status: res.statusCode,
+      duration
+    })
+  })
+
+  next()
+})

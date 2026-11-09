@@ -1,0 +1,65 @@
+
+// React 17 - батчинг только в обработчиках событий
+function React17Component() {
+  const [count, setCount] = useState(0);
+  const [flag, setFlag] = useState(false);
+
+  const handleClick = () => {
+    setCount(c => c + 1); // Ре-рендер
+    setFlag(f => !f);     // Ре-рендер
+    // Итого: 2 ре-рендера
+  };
+
+  useEffect(() => {
+    fetch('/api').then(() => {
+      setCount(c => c + 1); // Ре-рендер
+      setFlag(f => !f);     // Ре-рендер
+      // В промисах НЕТ батчинга - 2 ре-рендера!
+    });
+  }, []);
+}
+
+// React 18 - автоматический батчинг везде!
+function React18Component() {
+  const [count, setCount] = useState(0);
+  const [flag, setFlag] = useState(false);
+
+  const handleClick = () => {
+    setCount(c => c + 1);
+    setFlag(f => !f);
+    // Только 1 ре-рендер - автоматический батчинг!
+  };
+
+  useEffect(() => {
+    fetch('/api').then(() => {
+      setCount(c => c + 1);
+      setFlag(f => !f);
+      // Теперь тоже 1 ре-рендер - батчинг в промисах!
+    });
+  }, []);
+
+  setTimeout(() => {
+    setCount(c => c + 1);
+    setFlag(f => !f);
+    // И в таймаутах батчинг работает!
+  }, 1000);
+}
+
+// Отключение автоматического батчинга (редко нужно)
+import { flushSync } from 'react-dom';
+
+function WithoutBatching() {
+  const [count, setCount] = useState(0);
+  const [flag, setFlag] = useState(false);
+
+  const handleClick = () => {
+    flushSync(() => {
+      setCount(c => c + 1); // Ре-рендер 1
+    });
+
+    flushSync(() => {
+      setFlag(f => !f);     // Ре-рендер 2
+    });
+    // Принудительно 2 отдельных ре-рендера
+  };
+}

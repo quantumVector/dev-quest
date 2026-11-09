@@ -1,0 +1,24 @@
+
+// JSX - JavaScript XML синтаксис
+
+// JSX код (синтаксический сахар)
+const element = <h1>Hello, World!</h1>;
+
+// Компилируется в обычный JavaScript:
+const element = React.createElement('h1', null, 'Hello, World!');
+
+// JSX позволяет писать UI как HTML, но это JavaScript!
+const name = 'Иван';
+const greeting = <h1>Привет, {name}!</h1>;
+
+// Можно использовать любые JavaScript выражения
+const user = {
+  firstName: 'Мария',
+  lastName: 'Петрова'
+};
+
+const element = (
+  <h1>
+    Здравствуйте, {user.firstName} {user.lastName}!
+  </h1>
+);

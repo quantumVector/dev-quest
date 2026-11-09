@@ -1,0 +1,51 @@
+
+// Декораторы параметров
+function required(
+  target: Object,
+  propertyKey: string | symbol,
+  parameterIndex: number
+) {
+  const existingRequiredParameters: number[] =
+    Reflect.getOwnMetadata('required', target, propertyKey) || []
+
+  existingRequiredParameters.push(parameterIndex)
+
+  Reflect.defineMetadata(
+    'required',
+    existingRequiredParameters,
+    target,
+    propertyKey
+  )
+}
+
+function validate(
+  target: any,
+  propertyKey: string,
+  descriptor: PropertyDescriptor
+) {
+  const method = descriptor.value
+
+  descriptor.value = function (...args: any[]) {
+    const requiredParameters: number[] =
+      Reflect.getOwnMetadata('required', target, propertyKey) || []
+
+    for (const parameterIndex of requiredParameters) {
+      if (args[parameterIndex] === undefined || args[parameterIndex] === null) {
+        throw new Error(`Parameter at index ${parameterIndex} is required`)
+      }
+    }
+
+    return method.apply(this, args)
+  }
+}
+
+class UserService {
+  @validate
+  createUser(@required name: string, age: number, @required email: string) {
+    return { name, age, email }
+  }
+}
+
+const service = new UserService()
+service.createUser('John', 30, 'john@example.com') // ✅ OK
+// service.createUser(null, 30, 'john@example.com') // ❌ Error!

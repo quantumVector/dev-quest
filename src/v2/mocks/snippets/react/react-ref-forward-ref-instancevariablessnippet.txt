@@ -1,0 +1,47 @@
+
+import { useRef, useState } from 'react';
+
+function VideoPlayer({ src }) {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const videoRef = useRef(null);
+
+  // Экземплярные переменные — данные, которые не должны вызывать ререндер
+  const playbackRateRef = useRef(1.0);
+  const lastPositionRef = useRef(0);
+
+  const handlePlay = () => {
+    const video = videoRef.current;
+    video.playbackRate = playbackRateRef.current;
+    video.currentTime = lastPositionRef.current;
+    video.play();
+    setIsPlaying(true);
+  };
+
+  const handlePause = () => {
+    const video = videoRef.current;
+    lastPositionRef.current = video.currentTime;
+    video.pause();
+    setIsPlaying(false);
+  };
+
+  const changeSpeed = (rate) => {
+    playbackRateRef.current = rate;
+    if (videoRef.current) {
+      videoRef.current.playbackRate = rate;
+    }
+  };
+
+  return (
+    <div>
+      <video ref={videoRef} src={src} />
+      <button onClick={isPlaying ? handlePause : handlePlay}>
+        {isPlaying ? 'Pause' : 'Play'}
+      </button>
+      <button onClick={() => changeSpeed(1.5)}>1.5x</button>
+      <button onClick={() => changeSpeed(2.0)}>2.0x</button>
+    </div>
+  );
+}
+
+// playbackRateRef и lastPositionRef — это как поля класса
+// Их изменение не вызывает ререндер, но значения сохраняются

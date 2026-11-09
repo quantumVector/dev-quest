@@ -1,0 +1,216 @@
+
+# ===================================================================
+# ДЕТАЛЬНОЕ ОБЪЯСНЕНИЕ МОДИФИКАЦИИ NIXOS CONFIG
+# ===================================================================
+
+# СТРУКТУРА ФАЙЛА amazon-image.nix
+# ===================================================================
+
+# Nix файл имеет структуру:
+{ config, lib, pkgs, ... }:     # Аргументы функции
+{                                # Начало атрибутов
+  imports = [                    # Список импортов
+    ../profiles/headless.nix
+    ./ec2-data.nix
+  ];
+
+  services.openssh.settings.PermitRootLogin = "prohibit-password";
+
+  systemd.services.fetch-ec2-metadata = {
+    wantedBy = [ "multi-user.target" ];
+    after = ["network-online.target"];
+    path = [ pkgs.curl ];
+    script = builtins.readFile ./ec2-metadata-fetcher.sh;
+    serviceConfig.Type = "oneshot";
+    serviceConfig.StandardOutput = "journal+console";
+  };
+}
+
+# ===================================================================
+# ЗАДАЧА 1: ДОБАВИТЬ ./custom.nix В IMPORTS
+# ===================================================================
+
+# Цель: получить
+imports = [
+  ../profiles/headless.nix
+  ./ec2-data.nix
+  ./custom.nix              # <-- ДОБАВИТЬ ЭТО
+];
+
+# Решение 1: Вставить перед закрывающей скобкой
+sed '/imports = \[/,/\];/ {
+    /\];/ i\
+    ./custom.nix
+}'
+
+# Разбор:
+# /imports = \[/     - найти начало блока imports
+#                      \[ - экранируем [, т.к. [ - спецсимвол regex
+# ,/\];/             - до строки с ];
+#                      \] - экранируем ]
+# {...}               - команды для этого диапазона
+# /\];/              - внутри диапазона найти ];
+# i\                 - вставить ПЕРЕД этой строкой
+# ./custom.nix        - эту строку
+
+# Решение 2: Добавить в конец списка
+sed '/imports = \[/,/\];/ {
+    /\];/ s|\];|  ./custom.nix\n  ];|
+}'
+
+# Разбор:
+# Все так же, но вместо i используем s (замену)
+# s|старое|новое|  - заменяем ]; на ./custom.nix\n  ];
+#                    \n - символ новой строки
+
+# Решение 3: С автоматическим отступом
+sed '/imports = \[/,/\];/ {
+    /\];/ {
+        i\
+    ./custom.nix
+    }
+}'
+
+# Важно: отступы в sed сохраняются как есть
+# Если нужен правильный отступ (2 пробела), добавляем их в строке
+
+# ===================================================================
+# ЗАДАЧА 2: ИЗМЕНИТЬ PermitRootLogin
+# ===================================================================
+
+# Было:
+services.openssh.settings.PermitRootLogin = "prohibit-password";
+
+# Нужно:
+services.openssh.settings.PermitRootLogin = "true";
+
+# Решение 1: Простая замена всей строки
+sed 's/services\.openssh\.settings\.PermitRootLogin = "prohibit-password";/services.openssh.settings.PermitRootLogin = "true";/'
+
+# Проблема: длинно и хрупко
+
+# Решение 2: Замена только значения (лучше)
+sed 's/\(services\.openssh\.settings\.PermitRootLogin = \)"prohibit-password"/\1"true"/'
+
+# Разбор:
+# \(                  - начало группы захвата (базовый regex)
+# services\.openssh   - экранируем точки (\.)
+# \.settings\.       - точки - метасимволы в regex
+# PermitRootLogin =
+# \)                  - конец группы захвата
+# "prohibit-password"  - старое значение
+# /                    - разделитель
+# \1                  - обратная ссылка на группу 1
+# "true"               - новое значение
+
+# С расширенным regex (проще):
+sed -E 's/(services\.openssh\.settings\.PermitRootLogin = )"prohibit-password"/\1"true"/'
+
+# Разбор:
+# -E                   - включить расширенный regex (ERE)
+# (...)                - группа (без экранирования)
+# \1                  - обратная ссылка
+
+# Решение 3: Самое гибкое (любое старое значение)
+sed -E 's/(services\.openssh\.settings\.PermitRootLogin = )"[^"]*"/\1"true"/'
+
+# [^"]*  - любые символы кроме кавычки (любое значение)
+
+# ===================================================================
+# ЗАДАЧА 3: УДАЛИТЬ ПОСЛЕДНИЕ 2 serviceConfig ИЗ БЛОКА
+# ===================================================================
+
+# Было:
+systemd.services.fetch-ec2-metadata = {
+  wantedBy = [ "multi-user.target" ];
+  after = ["network-online.target"];
+  path = [ pkgs.curl ];
+  script = builtins.readFile ./ec2-metadata-fetcher.sh;
+  serviceConfig.Type = "oneshot";              # <-- УДАЛИТЬ
+  serviceConfig.StandardOutput = "journal+console";  # <-- УДАЛИТЬ
+};
+
+# Нужно:
+systemd.services.fetch-ec2-metadata = {
+  wantedBy = [ "multi-user.target" ];
+  after = ["network-online.target"];
+  path = [ pkgs.curl ];
+  script = builtins.readFile ./ec2-metadata-fetcher.sh;
+};
+
+# Сложность: нужно удалить ВНЕ ЗАВИСИМОСТИ от порядка
+
+# Решение 1: Удалить конкретные строки
+sed '/systemd\.services\.fetch-ec2-metadata = {/,/^[[:space:]]*};/ {
+    /serviceConfig\.Type/d
+    /serviceConfig\.StandardOutput/d
+}'
+
+# Разбор:
+# /systemd\.services\.fetch-ec2-metadata = {/  - начало блока
+# ,/^[[:space:]]*};/                             - до };
+#     ^              - начало строки
+#     [[:space:]]*   - любое количество пробелов
+#     };             - закрывающая скобка
+# {...}                                          - команды
+# /serviceConfig\.Type/d                        - удалить строку с Type
+# /serviceConfig\.StandardOutput/d              - удалить строку с StandardOutput
+
+# Решение 2: С regex (более гибко)
+sed -E '/systemd\.services\.fetch-ec2-metadata = \{/,/^[[:space:]]*\};/ {
+    /serviceConfig\.(Type|StandardOutput)/d
+}'
+
+# Разбор:
+# -E                            - расширенный regex
+# (Type|StandardOutput)         - Type ИЛИ StandardOutput
+# d                             - удалить
+
+# Решение 3: Удалить ЛЮБЫЕ два последних serviceConfig
+# (Самый сложный вариант)
+
+# Используем hold space для сохранения строк
+sed '/systemd\.services\.fetch-ec2-metadata = {/,/};/{
+    # Если строка содержит serviceConfig
+    /serviceConfig\./{
+        H              # Добавить в hold space
+        d              # Удалить из pattern space
+    }
+    # Когда дошли до закрывающей скобки
+    /};/{
+        x              # Обменять hold и pattern space
+        # Удалить последние 2 строки из hold space
+        s/\(.*\n.*\n.*\n.*\)\n.*\n.*/\1/
+        p              # Печатать
+        x              # Вернуть обратно
+    }
+}'
+
+# Это сложно! Проще использовать решение 1 или 2.
+
+# ===================================================================
+# ПОЛНЫЙ РАБОЧИЙ ПРИМЕР
+# ===================================================================
+
+# Одна команда sed для всех задач:
+sed -E '
+# Задача 1: добавить ./custom.nix
+/imports = \[/,/\];/ {
+    /\];/ i\
+    ./custom.nix
+}
+
+# Задача 2: изменить PermitRootLogin
+s/(services\.openssh\.settings\.PermitRootLogin = )"[^"]*"/\1"true"/
+
+# Задача 3: удалить serviceConfig строки
+/systemd\.services\.fetch-ec2-metadata = \{/,/^[[:space:]]*\};/ {
+    /serviceConfig\.(Type|StandardOutput)/d
+}
+' amazon-image.nix > amazon-image-modified.nix
+
+# Важные моменты:
+# 1. -E для расширенного regex (проще синтаксис)
+# 2. Многострочный скрипт sed (удобно читать)
+# 3. Каждая задача - отдельный блок
+# 4. Результат в новый файл (безопасно)

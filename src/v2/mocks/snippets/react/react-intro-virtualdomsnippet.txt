@@ -1,0 +1,32 @@
+
+// Virtual DOM в действии
+
+// До обновления
+<div id="root">
+  <h1>Счётчик: 0</h1>
+  <button>Увеличить</button>
+</div>
+
+// После обновления (изменился только текст в h1)
+<div id="root">
+  <h1>Счётчик: 1</h1>  <!-- Только это обновится в реальном DOM -->
+  <button>Увеличить</button>
+</div>
+
+// React создаёт Virtual DOM дерево:
+const virtualTree = {
+  type: 'div',
+  props: { id: 'root' },
+  children: [
+    {
+      type: 'h1',
+      children: ['Счётчик: 1']  // Изменилось!
+    },
+    {
+      type: 'button',
+      children: ['Увеличить']  // Не изменилось
+    }
+  ]
+};
+
+// React делает diff и обновляет только изменённый узел

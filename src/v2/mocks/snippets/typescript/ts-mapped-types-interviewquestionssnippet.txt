@@ -1,0 +1,202 @@
+
+// =====================================
+// ВОПРОСЫ НА СОБЕСЕДОВАНИИ - РЕШЕНИЯ
+// =====================================
+
+// 1. Написать свой Pick
+type MyPick<T, K extends keyof T> = {
+  [P in K]: T[P]
+}
+
+// Тестирование
+interface TestUser {
+  id: number
+  name: string
+  email: string
+  age: number
+}
+
+type UserBasic = MyPick<TestUser, 'id' | 'name'>
+const user: UserBasic = {
+  id: 1,
+  name: 'John'
+  // email и age не нужны
+}
+
+// 2. Написать свой Omit
+type MyOmit<T, K extends keyof T> = {
+  [P in Exclude<keyof T, K>]: T[P]
+}
+
+// Альтернативная реализация
+type MyOmit2<T, K extends keyof T> = MyPick<T, Exclude<keyof T, K>>
+
+// Тестирование
+type UserWithoutAge = MyOmit<TestUser, 'age'>
+const userWithoutAge: UserWithoutAge = {
+  id: 1,
+  name: 'John',
+  email: 'john@example.com'
+  // age исключен
+}
+
+// 3. Написать DeepReadonly
+type DeepReadonly<T> = {
+  readonly [P in keyof T]: T[P] extends object
+    ? DeepReadonly<T[P]>
+    : T[P]
+}
+
+interface NestedObject {
+  user: {
+    profile: {
+      name: string
+      settings: {
+        theme: string
+      }
+    }
+  }
+}
+
+type ImmutableNested = DeepReadonly<NestedObject>
+// Все уровни вложенности readonly
+
+// 4. Написать тип, который делает опциональными только определенные поля
+type Optional<T, K extends keyof T> =
+  Omit<T, K> & Partial<Pick<T, K>>
+
+interface Form {
+  username: string
+  email: string
+  age: number
+  bio: string
+}
+
+type FormWithOptional = Optional<Form, 'age' | 'bio'>
+// username и email обязательны, age и bio опциональны
+
+// 5. Создать тип для всех геттеров объекта
+type Getters<T> = {
+  [K in keyof T as `get${Capitalize<string & K>}`]: () => T[K]
+}
+
+interface State {
+  count: number
+  name: string
+}
+
+type StateGetters = Getters<State>
+// { getCount: () => number; getName: () => string }
+
+// 6. Создать тип, который превращает методы в Promise
+type Promisify<T> = {
+  [K in keyof T]: T[K] extends (...args: infer A) => infer R
+    ? (...args: A) => Promise<R>
+    : T[K]
+}
+
+interface SyncAPI {
+  getUser(id: number): User
+  deleteUser(id: number): boolean
+}
+
+type AsyncAPI = Promisify<SyncAPI>
+// Все методы возвращают Promise
+
+// 7. Создать тип, который фильтрует свойства по типу
+type FilterByType<T, U> = {
+  [K in keyof T as T[K] extends U ? K : never]: T[K]
+}
+
+interface Mixed {
+  id: number
+  name: string
+  age: number
+  active: boolean
+}
+
+type OnlyNumbers = FilterByType<Mixed, number>
+// { id: number; age: number }
+
+// 8. Создать тип для конвертации snake_case в camelCase
+type SnakeToCamel<S extends string> =
+  S extends `${infer T}_${infer U}`
+    ? `${T}${Capitalize<SnakeToCamel<U>>}`
+    : S
+
+type CamelCaseKeys<T> = {
+  [K in keyof T as SnakeToCamel<string & K>]: T[K]
+}
+
+interface SnakeCase {
+  user_id: number
+  user_name: string
+  created_at: string
+}
+
+type CamelCased = CamelCaseKeys<SnakeCase>
+// { userId: number; userName: string; createdAt: string }
+
+// 9. Создать Merge тип
+type Merge<T, U> = {
+  [K in keyof T | keyof U]: K extends keyof U
+    ? U[K]
+    : K extends keyof T
+    ? T[K]
+    : never
+}
+
+interface A {
+  a: number
+  b: string
+}
+
+interface B {
+  b: boolean  // Переопределяет b из A
+  c: number
+}
+
+type AB = Merge<A, B>
+// { a: number; b: boolean; c: number }
+
+// 10. Создать тип который добавляет null ко всем свойствам
+type Nullable<T> = {
+  [K in keyof T]: T[K] | null
+}
+
+interface Data {
+  id: number
+  name: string
+}
+
+type NullableData = Nullable<Data>
+// { id: number | null; name: string | null }
+
+// 11. Создать тип для валидации формы
+type Validator<T> = {
+  [K in keyof T]: (value: T[K]) => boolean
+}
+
+interface LoginForm {
+  email: string
+  password: string
+}
+
+const validators: Validator<LoginForm> = {
+  email: (value) => value.includes('@'),
+  password: (value) => value.length >= 8
+}
+
+// 12. Создать тип который делает все функции необязательными
+type OptionalMethods<T> = {
+  [K in keyof T]: T[K] extends Function ? T[K] | undefined : T[K]
+}
+
+interface Component {
+  name: string
+  render(): void
+  update?(): void
+}
+
+type ComponentWithOptional = OptionalMethods<Component>
+// { name: string; render: (() => void) | undefined; update?: () => void }

@@ -1,0 +1,46 @@
+
+// Сложный пример с вложенными задачами
+console.log('Script start');
+
+setTimeout(() => {
+  console.log('setTimeout 1');
+  Promise.resolve().then(() => {
+    console.log('Promise in setTimeout 1');
+  });
+}, 0);
+
+Promise.resolve()
+  .then(() => {
+    console.log('Promise 1');
+    setTimeout(() => {
+      console.log('setTimeout in Promise 1');
+    }, 0);
+  })
+  .then(() => {
+    console.log('Promise 2');
+  });
+
+setTimeout(() => {
+  console.log('setTimeout 2');
+  Promise.resolve().then(() => {
+    console.log('Promise in setTimeout 2');
+  });
+}, 0);
+
+Promise.resolve().then(() => {
+  console.log('Promise 3');
+});
+
+console.log('Script end');
+
+// Пошаговое выполнение:
+// 1. Script start (синхронный)
+// 2. Script end (синхронный)
+// 3. Promise 1 (микрозадача)
+// 4. Promise 2 (микрозадача)
+// 5. Promise 3 (микрозадача)
+// 6. setTimeout 1 (макрозадача)
+// 7. Promise in setTimeout 1 (микрозадача от макрозадачи)
+// 8. setTimeout 2 (макрозадача)
+// 9. Promise in setTimeout 2 (микрозадача от макрозадачи)
+// 10. setTimeout in Promise 1 (макрозадача от микрозадачи)

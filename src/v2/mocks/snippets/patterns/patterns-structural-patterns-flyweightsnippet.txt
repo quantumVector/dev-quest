@@ -1,0 +1,89 @@
+
+// FLYWEIGHT - эффективное использование памяти
+
+// Внутреннее состояние (разделяемое)
+class TreeType {
+  constructor(
+    public name: string,
+    public color: string,
+    public texture: string
+  ) {}
+
+  draw(x: number, y: number) {
+    console.log(`Drawing ${this.name} tree at (${x}, ${y})`);
+    // Использует разделяемые ресурсы: color, texture
+  }
+}
+
+// Фабрика для переиспользования объектов
+class TreeFactory {
+  private static treeTypes = new Map<string, TreeType>();
+
+  static getTreeType(name: string, color: string, texture: string): TreeType {
+    const key = `${name}_${color}_${texture}`;
+
+    if (!this.treeTypes.has(key)) {
+      console.log(`Creating new tree type: ${key}`);
+      this.treeTypes.set(key, new TreeType(name, color, texture));
+    }
+
+    return this.treeTypes.get(key)!;
+  }
+
+  static getTotalTypes() {
+    return this.treeTypes.size;
+  }
+}
+
+// Внешнее состояние (уникальное для каждого объекта)
+class Tree {
+  constructor(
+    private x: number,
+    private y: number,
+    private treeType: TreeType
+  ) {}
+
+  draw() {
+    this.treeType.draw(this.x, this.y);
+  }
+}
+
+// Лес из тысяч деревьев
+class Forest {
+  private trees: Tree[] = [];
+
+  plantTree(x: number, y: number, name: string, color: string, texture: string) {
+    const type = TreeFactory.getTreeType(name, color, texture);
+    const tree = new Tree(x, y, type);
+    this.trees.push(tree);
+  }
+
+  draw() {
+    this.trees.forEach(tree => tree.draw());
+  }
+}
+
+// Использование
+const forest = new Forest();
+
+// Садим 10000 деревьев, но создаем только 3 типа!
+for (let i = 0; i < 10000; i++) {
+  const types = [
+    ['Oak', 'green', 'oak.png'],
+    ['Pine', 'dark-green', 'pine.png'],
+    ['Birch', 'white', 'birch.png']
+  ];
+
+  const [name, color, texture] = types[i % 3];
+  forest.plantTree(
+    Math.random() * 1000,
+    Math.random() * 1000,
+    name,
+    color,
+    texture
+  );
+}
+
+console.log(`Trees planted: 10000`);
+console.log(`Unique tree types: ${TreeFactory.getTotalTypes()}`); // 3
+forest.draw();

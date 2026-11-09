@@ -1,0 +1,33 @@
+
+# ===================================================================
+# ИСХОДНЫЙ ФАЙЛ amazon-image.nix
+# ===================================================================
+
+{ config, lib, pkgs, ... }:
+
+let
+  cfg = config.ec2;
+in
+{
+  imports = [
+    ../profiles/headless.nix
+    ./ec2-data.nix
+  ];
+
+  # ... другие опции ...
+
+  services.openssh.settings.PermitRootLogin = "prohibit-password";
+
+  # ... другие опции ...
+
+  systemd.services.fetch-ec2-metadata = {
+    wantedBy = [ "multi-user.target" ];
+    after = ["network-online.target"];
+    path = [ pkgs.curl ];
+    script = builtins.readFile ./ec2-metadata-fetcher.sh;
+    serviceConfig.Type = "oneshot";
+    serviceConfig.StandardOutput = "journal+console";
+  };
+
+  # ... остальной конфиг ...
+}

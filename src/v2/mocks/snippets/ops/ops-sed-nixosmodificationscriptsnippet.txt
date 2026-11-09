@@ -1,0 +1,179 @@
+
+#!/bin/bash
+
+# ===================================================================
+# Скрипт модификации amazon-image.nix
+# ===================================================================
+
+INPUT_FILE="amazon-image.nix"
+OUTPUT_FILE="amazon-image-modified.nix"
+BACKUP_FILE="amazon-image.nix.bak"
+
+# Создаем бэкап
+cp "$INPUT_FILE" "$BACKUP_FILE"
+
+# ===================================================================
+# ЗАДАЧА 1: Добавить "./custom.nix" в блок imports
+# ===================================================================
+
+# Метод 1: Простой (если imports всегда в начале файла)
+sed '/imports = \[/,/\];/{
+  /\];/i\
+    ./custom.nix
+}' "$INPUT_FILE" > temp1.nix
+
+# Метод 2: Более надежный (добавляем после последнего элемента)
+sed '/imports = \[/,/\];/{
+  /\];/{
+    i\
+    ./custom.nix
+  }
+}' "$INPUT_FILE" > temp1.nix
+
+# Метод 3: Добавить перед закрывающей скобкой
+sed '/imports = \[/,/\];/s|\];|  ./custom.nix\n  ];|' "$INPUT_FILE" > temp1.nix
+
+# ===================================================================
+# ЗАДАЧА 2: Заменить PermitRootLogin значение
+# ===================================================================
+
+# Простая замена всей строки
+sed 's/services\.openssh\.settings\.PermitRootLogin = "prohibit-password";/services.openssh.settings.PermitRootLogin = "true";/' temp1.nix > temp2.nix
+
+# Или с regex для гибкости
+sed 's/\(services\.openssh\.settings\.PermitRootLogin = \)"[^"]*"/\1"true"/' temp1.nix > temp2.nix
+
+# ===================================================================
+# ЗАДАЧА 3: Удалить последние 2 строки из systemd.services блока
+# ===================================================================
+
+# Это самая сложная часть, так как нужно:
+# 1. Найти блок systemd.services.fetch-ec2-metadata
+# 2. Найти последние два serviceConfig параметра
+# 3. Удалить их независимо от порядка
+
+# Метод 1: Удалить конкретные строки
+sed '/systemd\.services\.fetch-ec2-metadata = {/,/};/{
+  /serviceConfig\.Type = "oneshot";/d
+  /serviceConfig\.StandardOutput = "journal+console";/d
+}' temp2.nix > temp3.nix
+
+# Метод 2: Более универсальный (удалить любые 2 последних serviceConfig)
+sed '/systemd\.services\.fetch-ec2-metadata = {/,/};/{
+  /serviceConfig\./{
+    # Сохраняем в hold space
+    H
+    # Удаляем из pattern space
+    d
+  }
+  /};/{
+    # Перед закрывающей скобкой
+    # Достаем из hold space
+    x
+    # Удаляем последние 2 строки
+    s/\(.*\n.*\)\n.*\n.*/\1/
+    # Выводим обратно
+    p
+    # Очищаем hold space
+    x
+  }
+}' temp2.nix > temp3.nix
+
+# Метод 3: Самый надежный - обработка всего блока
+sed -E '/systemd\.services\.fetch-ec2-metadata = \{/,/^[[:space:]]*\};/{
+  # Удаляем строки с serviceConfig.Type и serviceConfig.StandardOutput
+  /serviceConfig\.(Type|StandardOutput)/d
+}' temp2.nix > temp3.nix
+
+# ===================================================================
+# ФИНАЛЬНЫЙ СКРИПТ - ВСЕ ВМЕСТЕ
+# ===================================================================
+
+cat > modify-nixos-config.sh << 'SCRIPT'
+#!/bin/bash
+
+set -euo pipefail
+
+INPUT_FILE="${1:-amazon-image.nix}"
+OUTPUT_FILE="${2:-amazon-image-modified.nix}"
+
+# Проверка существования файла
+if [[ ! -f "$INPUT_FILE" ]]; then
+    echo "Error: File $INPUT_FILE not found"
+    exit 1
+fi
+
+# Создаем временный файл
+TEMP_FILE=$(mktemp)
+
+# Цепочка sed команд
+sed -e '
+# 1. Добавляем ./custom.nix в imports
+/imports = \[/,/\];/ {
+    /\];/ i\
+    ./custom.nix
+}
+
+# 2. Меняем PermitRootLogin
+s/\(services\.openssh\.settings\.PermitRootLogin = \)"prohibit-password"/\1"true"/
+
+# 3. Удаляем последние два serviceConfig из fetch-ec2-metadata
+/systemd\.services\.fetch-ec2-metadata = {/,/^[[:space:]]*};/ {
+    /serviceConfig\.(Type|StandardOutput)/d
+}
+' "$INPUT_FILE" > "$TEMP_FILE"
+
+# Перемещаем результат
+mv "$TEMP_FILE" "$OUTPUT_FILE"
+
+echo "Modified configuration saved to $OUTPUT_FILE"
+echo "Original file: $INPUT_FILE"
+
+# Показываем diff
+if command -v diff &> /dev/null; then
+    echo ""
+    echo "Changes made:"
+    diff -u "$INPUT_FILE" "$OUTPUT_FILE" || true
+fi
+SCRIPT
+
+chmod +x modify-nixos-config.sh
+
+# ===================================================================
+# АЛЬТЕРНАТИВНЫЙ ПОДХОД - ПОШАГОВАЯ ОБРАБОТКА
+# ===================================================================
+
+cat > modify-nixos-step-by-step.sh << 'SCRIPT'
+#!/bin/bash
+
+set -euo pipefail
+
+INPUT_FILE="${1:-amazon-image.nix}"
+OUTPUT_FILE="${2:-amazon-image-modified.nix}"
+
+echo "Step 1: Adding ./custom.nix to imports..."
+sed '/imports = \[/,/\];/ {
+    /\];/ i\
+    ./custom.nix
+}' "$INPUT_FILE" > step1.nix
+
+echo "Step 2: Changing PermitRootLogin value..."
+sed 's/\(services\.openssh\.settings\.PermitRootLogin = \)"prohibit-password"/\1"true"/' step1.nix > step2.nix
+
+echo "Step 3: Removing serviceConfig lines from systemd.services..."
+sed '/systemd\.services\.fetch-ec2-metadata = {/,/^[[:space:]]*};/ {
+    /serviceConfig\.(Type|StandardOutput)/d
+}' step2.nix > "$OUTPUT_FILE"
+
+# Очистка временных файлов
+rm -f step1.nix step2.nix
+
+echo "✓ Modification complete: $OUTPUT_FILE"
+
+# Показываем результат
+echo ""
+echo "Preview of changes:"
+diff -u "$INPUT_FILE" "$OUTPUT_FILE" || true
+SCRIPT
+
+chmod +x modify-nixos-step-by-step.sh

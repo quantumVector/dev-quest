@@ -1,0 +1,74 @@
+
+// Возможности JSX
+
+// 1. Встраивание выражений JavaScript
+const price = 1000;
+const element = <div>Цена: {price * 1.2} руб</div>;
+
+// 2. Атрибуты (props)
+const image = <img src={user.avatarUrl} alt={user.name} />;
+
+// 3. className вместо class (зарезервированное слово)
+const box = <div className="container box-primary">Контент</div>;
+
+// 4. Стили как объекты
+const styled = (
+  <div style={{
+    backgroundColor: 'blue',
+    fontSize: '16px',
+    padding: '10px'
+  }}>
+    Стилизованный блок
+  </div>
+);
+
+// 5. camelCase для HTML атрибутов
+const input = (
+  <input
+    onChange={handleChange}
+    onKeyDown={handleKeyDown}
+    autoComplete="off"
+    tabIndex={1}
+  />
+);
+
+// 6. Самозакрывающиеся теги обязательны
+const correct = <img src="photo.jpg" />;
+const wrong = <img src="photo.jpg">;  // ❌ Ошибка!
+
+// 7. Условный рендеринг
+const message = (
+  <div>
+    {isLoggedIn ? (
+      <h1>Добро пожаловать!</h1>
+    ) : (
+      <h1>Пожалуйста, войдите</h1>
+    )}
+  </div>
+);
+
+// 8. Списки и key
+const items = ['Яблоко', 'Банан', 'Апельсин'];
+const list = (
+  <ul>
+    {items.map((item, index) => (
+      <li key={index}>{item}</li>
+    ))}
+  </ul>
+);
+
+// 9. Фрагменты для группировки без обертки
+const fragment = (
+  <>
+    <h1>Заголовок</h1>
+    <p>Параграф</p>
+  </>
+);
+
+// Или с ключом:
+const fragmentWithKey = (
+  <React.Fragment key={id}>
+    <h1>Заголовок</h1>
+    <p>Параграф</p>
+  </React.Fragment>
+);

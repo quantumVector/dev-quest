@@ -1,0 +1,48 @@
+
+// ========================================
+// ПРАКТИЧЕСКИЕ ПРИМЕРЫ ДЛЯ СОБЕСЕДОВАНИЯ
+// ========================================
+
+// Пример 1: Цикл с var
+for (var i = 0; i < 3; i++) {
+    setTimeout(() => {
+        console.log(i); // 3, 3, 3 (не 0, 1, 2!)
+    }, 100);
+}
+
+// Решение с let
+for (let j = 0; j < 3; j++) {
+    setTimeout(() => {
+        console.log(j); // 0, 1, 2
+    }, 100);
+}
+
+// Пример 2: Переопределение функций
+console.log(typeof myFunc); // 'function'
+
+var myFunc = 'not a function';
+console.log(typeof myFunc); // 'string'
+
+function myFunc() {
+    return 'I am function';
+}
+
+// Интерпретируется как:
+function myFunc() {
+    return 'I am function';
+}
+var myFunc; // undefined (но function уже объявлена)
+console.log(typeof myFunc); // 'function'
+myFunc = 'not a function';
+console.log(typeof myFunc); // 'string'
+
+// Пример 3: Вложенные области видимости
+function outer() {
+    console.log(inner); // ❌ ReferenceError с let
+    // console.log(inner); // undefined с var
+
+    if (true) {
+        let inner = 'let value';
+        // var inner = 'var value';
+    }
+}

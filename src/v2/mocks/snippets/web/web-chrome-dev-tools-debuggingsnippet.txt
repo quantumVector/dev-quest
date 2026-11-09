@@ -1,0 +1,38 @@
+
+// Продвинутые техники отладки
+
+// 1. Conditional Breakpoints
+// В DevTools: ПКМ на строке → Add conditional breakpoint
+// Условие: i === 50 || user.name === 'John'
+
+// 2. Logpoints вместо console.log
+// ПКМ на строке → Add logpoint
+// Выражение: 'User:', user.name, 'Age:', user.age
+
+// 3. XHR/Fetch Breakpoints
+// DevTools → Sources → XHR/fetch Breakpoints
+// Добавить: /api/users
+
+// 4. Event Listener Breakpoints
+// DevTools → Sources → Event Listener Breakpoints
+// Выбрать: Mouse → click
+
+// 5. Blackboxing для игнорирования библиотек
+// Settings → Blackboxing → Add pattern
+// Pattern: node_modules
+
+// 6. Local Overrides для тестирования изменений
+// DevTools → Sources → Overrides → Enable Local Overrides
+// Изменить файл → Сохранить → Перезагрузка сохраняет изменения
+
+// 7. Snippets для повторяющихся задач
+// DevTools → Sources → Snippets → New snippet
+// Пример: очистка всех cookies
+document.cookie.split(";").forEach(c => {
+  document.cookie = c.replace(/^ +/, "")
+    .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+});
+
+// 8. Copy() для копирования данных
+// В консоли: copy(largeObject)
+// Объект копируется в буфер обмена как JSON

@@ -1,0 +1,133 @@
+
+// Генерация изображений для Open Graph динамически
+// С использованием Vercel OG Image Generation
+
+// app/api/og/route.tsx (Next.js)
+import { ImageResponse } from 'next/og';
+
+export const runtime = 'edge';
+
+export async function GET(request: Request) {
+const { searchParams } = new URL(request.url);
+const title = searchParams.get('title') || 'Заголовок по умолчанию';
+const description = searchParams.get('description') || '';
+
+return new ImageResponse(
+(
+<div
+  style={{
+  height: '100%',
+width: '100%',
+display: 'flex',
+flexDirection: 'column',
+alignItems: 'center',
+justifyContent: 'center',
+backgroundColor: '#1a1a1a',
+backgroundImage: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+}}
+>
+<div
+  style={{
+  display: 'flex',
+flexDirection: 'column',
+padding: '60px',
+color: 'white',
+}}
+>
+<h1
+  style={{
+  fontSize: '72px',
+fontWeight: 'bold',
+margin: 0,
+marginBottom: '20px',
+}}
+>
+{title}
+</h1>
+{description && (
+<p
+  style={{
+  fontSize: '32px',
+opacity: 0.8,
+margin: 0,
+}}
+>
+{description}
+</p>
+)}
+</div>
+</div>
+),
+{
+width: 1200,
+height: 630,
+}
+);
+}
+
+// Использование в метаданных
+export const metadata = {
+openGraph: {
+images: [
+{
+url: '/api/og?title=Моя статья&description=Описание',
+width: 1200,
+height: 630,
+}
+],
+},
+};
+
+// Альтернатива: node-canvas для серверного рендеринга
+import { createCanvas, loadImage } from 'canvas';
+
+async function generateOGImage(
+title: string,
+description: string
+): Promise<Buffer> {
+const width = 1200;
+const height = 630;
+const canvas = createCanvas(width, height);
+const ctx = canvas.getContext('2d');
+
+// Фон с градиентом
+const gradient = ctx.createLinearGradient(0, 0, width, height);
+gradient.addColorStop(0, '#667eea');
+gradient.addColorStop(1, '#764ba2');
+ctx.fillStyle = gradient;
+ctx.fillRect(0, 0, width, height);
+
+// Заголовок
+ctx.fillStyle = '#ffffff';
+ctx.font = 'bold 72px Arial';
+ctx.textAlign = 'center';
+
+// Перенос текста на новую строку
+const maxWidth = width - 120;
+const words = title.split(' ');
+let line = '';
+let y = 250;
+
+words.forEach((word) => {
+const testLine = line + word + ' ';
+const metrics = ctx.measureText(testLine);
+
+if (metrics.width > maxWidth && line !== '') {
+ctx.fillText(line, width / 2, y);
+line = word + ' ';
+y += 80;
+} else {
+line = testLine;
+}
+});
+ctx.fillText(line, width / 2, y);
+
+// Описание
+if (description) {
+ctx.font = '32px Arial';
+ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+ctx.fillText(description, width / 2, y + 60);
+}
+
+return canvas.toBuffer('image/jpeg');
+}

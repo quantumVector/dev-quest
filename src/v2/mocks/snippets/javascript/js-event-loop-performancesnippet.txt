@@ -1,0 +1,59 @@
+
+// Влияние на производительность
+// ПЛОХО: блокировка Event Loop
+function heavyTask() {
+  const start = Date.now();
+  while (Date.now() - start < 1000) {
+    // Блокируем Event Loop на 1 секунду
+    // UI зависнет, события не обработаются
+  }
+  console.log('Heavy task done');
+}
+
+// ХОРОШО: разбиение на части
+function heavyTaskOptimized() {
+  let i = 0;
+  const total = 1000000;
+
+  function chunk() {
+    const start = Date.now();
+
+    // Обрабатываем небольшими порциями
+    while (i < total && Date.now() - start < 10) {
+      // какая-то работа
+      i++;
+    }
+
+    if (i < total) {
+      setTimeout(chunk, 0); // Отдаем контроль Event Loop
+    } else {
+      console.log('Heavy task done optimized');
+    }
+  }
+
+  chunk();
+}
+
+// СОВРЕМЕННО: использование Web Workers
+if (typeof Worker !== 'undefined') {
+  const worker = new Worker('heavy-task-worker.js');
+  worker.postMessage({ task: 'process', data: bigArray });
+  worker.onmessage = (e) => {
+    console.log('Result from worker:', e.data);
+  };
+}
+
+// Мониторинг Event Loop
+let lastTime = performance.now();
+function monitorEventLoop() {
+  const currentTime = performance.now();
+  const delay = currentTime - lastTime - 16; // ожидаем ~16ms для 60fps
+
+  if (delay > 5) {
+    console.warn(`Event Loop delay: ${delay.toFixed(2)}ms`);
+  }
+
+  lastTime = currentTime;
+  requestAnimationFrame(monitorEventLoop);
+}
+monitorEventLoop();

@@ -1,0 +1,17 @@
+
+/* Шаг 1: bridge.css — CSS-переменные как общий язык */
+:root {
+  --primary: #007bff;
+  --radius: 4px;
+}
+
+/* Шаг 2: новые компоненты сразу с изоляцией */
+/* Button.module.css */
+.button {
+  background: var(--primary);
+  border-radius: var(--radius);
+}
+
+/* Шаг 3: webpack — две системы рядом */
+{ test: /.module.css$/, use: ['style-loader', { loader: 'css-loader', options: { modules: true } }] }
+{ test: /(?<!.module).css$/, use: ['style-loader', 'css-loader'] }

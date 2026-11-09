@@ -1,0 +1,37 @@
+
+// Event Loop в браузере с DOM событиями
+const button = document.createElement('button');
+button.textContent = 'Click me';
+document.body.appendChild(button);
+
+button.addEventListener('click', () => {
+  console.log('Click handler start');
+
+  setTimeout(() => {
+    console.log('setTimeout in click');
+  }, 0);
+
+  Promise.resolve().then(() => {
+    console.log('Promise in click');
+  });
+
+  console.log('Click handler end');
+});
+
+// Симуляция клика
+setTimeout(() => {
+  console.log('Before click');
+  button.click();
+  console.log('After click');
+}, 100);
+
+// При клике:
+// Before click
+// Click handler start
+// Click handler end
+// After click
+// Promise in click
+// setTimeout in click
+
+// Рендеринг происходит между макрозадачами
+// Браузер может рендерить DOM изменения перед выполнением следующей макрозадачи

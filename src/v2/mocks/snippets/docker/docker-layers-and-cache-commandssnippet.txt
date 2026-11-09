@@ -1,0 +1,18 @@
+
+# Просмотр слоев образа
+docker history my-app:latest
+
+# Просмотр размера слоев
+docker images --format "table {{.Repository}}	{{.Tag}}	{{.Size}}"
+
+# Сборка с выводом информации о кэше
+docker build -t my-app . --progress=plain
+
+# Сборка без использования кэша
+docker build -t my-app . --no-cache
+
+# Просмотр кэша сборки
+docker system df
+
+# Очистка кэша сборки
+docker builder prune

@@ -1,0 +1,44 @@
+
+// Контекст this - самая частая тема на собеседованиях
+const obj = {
+    name: 'Объект',
+
+    // Обычная функция
+    regularMethod: function() {
+        console.log(this.name); // 'Объект'
+
+        // Проблема с вложенными функциями
+        function innerFunction() {
+            console.log(this.name); // undefined (this = undefined/Window)
+        }
+        innerFunction();
+
+        // Решение 1: сохранение контекста
+        const self = this;
+        function innerWithSelf() {
+            console.log(self.name); // 'Объект'
+        }
+        innerWithSelf();
+
+        // Решение 2: bind
+        function innerWithBind() {
+            console.log(this.name); // 'Объект'
+        }
+        innerWithBind.bind(this)();
+    },
+
+    // Стрелочная функция
+    arrowMethod: () => {
+        console.log(this.name); // undefined (наследует this из внешнего контекста)
+    },
+
+    // Стрелочная внутри обычной
+    mixedMethod: function() {
+        console.log(this.name); // 'Объект'
+
+        const arrowInside = () => {
+            console.log(this.name); // 'Объект' (наследует от mixedMethod)
+        };
+        arrowInside();
+    }
+};

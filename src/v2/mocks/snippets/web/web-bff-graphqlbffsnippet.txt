@@ -1,0 +1,110 @@
+
+// BFF с использованием GraphQL
+
+// GraphQL схема
+const typeDefs = `
+  type User {
+    id: ID!
+    name: String!
+    email: String!
+    avatar: String
+    posts: [Post!]!
+    friends: [User!]!
+  }
+
+  type Post {
+    id: ID!
+    title: String!
+    content: String!
+    author: User!
+    comments: [Comment!]!
+  }
+
+  type Comment {
+    id: ID!
+    text: String!
+    author: User!
+    createdAt: String!
+  }
+
+  type Query {
+    user(id: ID!): User
+    post(id: ID!): Post
+    dashboard(userId: ID!): Dashboard
+  }
+
+  type Dashboard {
+    user: User!
+    recentPosts: [Post!]!
+    onlineFriends: [User!]!
+    unreadNotifications: Int!
+  }
+`
+
+// GraphQL резолверы
+const resolvers = {
+  Query: {
+    user: async (_, { id }) => {
+      return await fetchUser(id)
+    },
+
+    dashboard: async (_, { userId }) => {
+      // Параллельные запросы к микросервисам
+      const [user, posts, friends, notifications] = await Promise.all([
+        fetchUser(userId),
+        fetchUserPosts(userId, { limit: 10 }),
+        fetchUserFriends(userId, { online: true }),
+        fetchUnreadNotifications(userId)
+      ])
+
+      return {
+        user,
+        recentPosts: posts,
+        onlineFriends: friends,
+        unreadNotifications: notifications.count
+      }
+    }
+  },
+
+  User: {
+    posts: async (user) => {
+      return await fetchUserPosts(user.id)
+    },
+    friends: async (user) => {
+      return await fetchUserFriends(user.id)
+    }
+  },
+
+  Post: {
+    author: async (post) => {
+      return await fetchUser(post.authorId)
+    },
+    comments: async (post) => {
+      return await fetchPostComments(post.id)
+    }
+  }
+}
+
+// Клиент запрашивает только нужные поля
+const DASHBOARD_QUERY = gql`
+  query GetDashboard($userId: ID!) {
+    dashboard(userId: $userId) {
+      user {
+        name
+        avatar
+      }
+      recentPosts {
+        id
+        title
+      }
+      onlineFriends {
+        id
+        name
+        avatar
+      }
+      unreadNotifications
+    }
+  }
+`
+
+// Нет over-fetching - получаем только запрошенные поля!

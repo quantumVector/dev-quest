@@ -1,0 +1,128 @@
+
+// =====================================
+// INFINITY SCROLL - РЕАЛИЗАЦИЯ
+// =====================================
+
+// ✅ ПРАВИЛЬНАЯ РЕАЛИЗАЦИЯ с IntersectionObserver
+
+class InfiniteScroll {
+  constructor(container, options = {}) {
+    this.container = container
+    this.page = 1
+    this.loading = false
+    this.hasMore = true
+
+    // Создаем sentinel элемент (маркер для отслеживания)
+    this.sentinel = document.createElement('div')
+    this.sentinel.className = 'sentinel'
+    this.container.appendChild(this.sentinel)
+
+    // Настройки Observer
+    const observerOptions = {
+      root: options.root || null,
+      rootMargin: options.rootMargin || '100px', // Загружаем заранее
+      threshold: options.threshold || 0.1
+    }
+
+    // Создаем Observer
+    this.observer = new IntersectionObserver(
+      this.handleIntersection.bind(this),
+      observerOptions
+    )
+
+    // Начинаем наблюдение
+    this.observer.observe(this.sentinel)
+  }
+
+  async handleIntersection(entries) {
+    const entry = entries[0]
+
+    // Проверяем: виден ли sentinel, не загружаем ли уже, есть ли еще данные
+    if (entry.isIntersecting && !this.loading && this.hasMore) {
+      await this.loadMore()
+    }
+  }
+
+  async loadMore() {
+    this.loading = true
+    this.showLoader()
+
+    try {
+      // Загружаем данные
+      const data = await this.fetchData(this.page)
+
+      if (data.length === 0) {
+        this.hasMore = false
+        this.observer.disconnect() // Останавливаем наблюдение
+        this.removeSentinel()
+        return
+      }
+
+      // Рендерим данные
+      this.renderItems(data)
+      this.page++
+
+    } catch (error) {
+      console.error('Ошибка загрузки:', error)
+      this.showError()
+    } finally {
+      this.loading = false
+      this.hideLoader()
+    }
+  }
+
+  async fetchData(page) {
+    const response = await fetch(`/api/items?page=${page}`)
+    return response.json()
+  }
+
+  renderItems(items) {
+    const fragment = document.createDocumentFragment()
+
+    items.forEach(item => {
+      const element = this.createItemElement(item)
+      fragment.appendChild(element)
+    })
+
+    // Вставляем перед sentinel
+    this.container.insertBefore(fragment, this.sentinel)
+  }
+
+  createItemElement(item) {
+    const div = document.createElement('div')
+    div.className = 'item'
+    div.textContent = item.title
+    return div
+  }
+
+  showLoader() {
+    this.sentinel.innerHTML = '<div class="loader">Загрузка...</div>'
+  }
+
+  hideLoader() {
+    this.sentinel.innerHTML = ''
+  }
+
+  showError() {
+    this.sentinel.innerHTML = '<div class="error">Ошибка загрузки</div>'
+  }
+
+  removeSentinel() {
+    this.sentinel.remove()
+  }
+
+  destroy() {
+    this.observer.disconnect()
+    this.removeSentinel()
+  }
+}
+
+// Использование
+const container = document.querySelector('.items-container')
+const infiniteScroll = new InfiniteScroll(container, {
+  rootMargin: '200px', // Загружаем за 200px до конца
+  threshold: 0.1
+})
+
+// Очистка при размонтировании
+// infiniteScroll.destroy()

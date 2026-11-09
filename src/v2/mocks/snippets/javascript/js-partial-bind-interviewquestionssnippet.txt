@@ -1,0 +1,53 @@
+
+// ТИПИЧНЫЕ ВОПРОСЫ НА СОБЕСЕДОВАНИИ
+
+// Вопрос 1: В чем разница между call, apply и bind?
+const obj = { value: 42 };
+
+function getValue(multiplier) {
+  return this.value * multiplier;
+}
+
+// call - вызывает сразу, аргументы отдельно
+console.log(getValue.call(obj, 2)); // 84
+
+// apply - вызывает сразу, аргументы массивом
+console.log(getValue.apply(obj, [2])); // 84
+
+// bind - возвращает новую функцию
+const boundGetValue = getValue.bind(obj, 2);
+console.log(boundGetValue()); // 84
+
+// Вопрос 2: Что выведет этот код?
+const module = {
+  x: 42,
+  getX: function() {
+    return this.x;
+  }
+};
+
+const unboundGetX = module.getX;
+console.log(unboundGetX()); // undefined (в строгом режиме) или значение из глобального контекста
+
+const boundGetX = unboundGetX.bind(module);
+console.log(boundGetX()); // 42
+
+// Вопрос 3: Создайте функцию, которая принимает функцию и возвращает ее версию с задержкой
+function delay(fn, ms) {
+  return function(...args) {
+    return new Promise(resolve => {
+      setTimeout(() => resolve(fn.apply(this, args)), ms);
+    });
+  };
+}
+
+function sayHello(name) {
+  return `Hello, ${name}!`;
+}
+
+const delayedHello = delay(sayHello, 1000);
+delayedHello('Alice').then(console.log); // "Hello, Alice!" через 1 секунду
+
+// Можно комбинировать с bind для частичного применения
+const delayedGreetAlice = delay(sayHello.bind(null, 'Alice'), 500);
+delayedGreetAlice().then(console.log); // "Hello, Alice!" через 0.5 секунды

@@ -1,0 +1,50 @@
+
+// Основной процесс OAuth 2.0 - Authorization Code Flow
+
+// Шаг 1: Пользователь нажимает "Войти через Google"
+// Приложение перенаправляет на Authorization Server
+
+const authUrl = 'https://accounts.google.com/o/oauth2/v2/auth'
+const params = new URLSearchParams({
+  client_id: 'YOUR_CLIENT_ID',
+  redirect_uri: 'https://your-app.com/callback',
+  response_type: 'code',                    // Запрашиваем authorization code
+  scope: 'openid email profile',            // Какие данные нужны
+  state: 'random_string_for_csrf_protection' // Защита от CSRF
+})
+
+// Redirect пользователя:
+window.location.href = `${authUrl}?${params}`
+
+// Шаг 2: Пользователь входит и дает разрешение
+// Google перенаправляет обратно: https://your-app.com/callback?code=AUTH_CODE&state=...
+
+// Шаг 3: Backend обменивает code на токены
+const tokenUrl = 'https://oauth2.googleapis.com/token'
+const response = await fetch(tokenUrl, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+  body: new URLSearchParams({
+    code: 'AUTH_CODE',
+    client_id: 'YOUR_CLIENT_ID',
+    client_secret: 'YOUR_CLIENT_SECRET',  // ⚠️ Только на backend!
+    redirect_uri: 'https://your-app.com/callback',
+    grant_type: 'authorization_code'
+  })
+})
+
+const tokens = await response.json()
+// {
+//   access_token: 'ya29.a0AfH6...',
+//   refresh_token: 'ya29.a0AfH6...',
+//   expires_in: 3600,
+//   token_type: 'Bearer',
+//   id_token: 'eyJhbGciOiJSUzI1NiIs...'
+// }
+
+// Шаг 4: Используем access_token для API запросов
+const userInfo = await fetch('https://www.googleapis.com/oauth2/v1/userinfo', {
+  headers: {
+    'Authorization': `Bearer ${tokens.access_token}`
+  }
+})

@@ -1,0 +1,43 @@
+
+// Наследование и абстрактные классы
+abstract class Animal {
+  constructor(public name: string) {}
+
+  // Абстрактный метод - должен быть реализован в наследниках
+  abstract makeSound(): string
+
+  // Обычный метод
+  move(distance: number): void {
+    console.log(`${this.name} moved ${distance} meters`)
+  }
+}
+
+// Нельзя создать экземпляр абстрактного класса
+// const animal = new Animal('Generic') // ❌ Ошибка!
+
+class Dog extends Animal {
+  constructor(name: string, public breed: string) {
+    super(name) // Вызов конструктора родителя
+  }
+
+  // Реализация абстрактного метода
+  makeSound(): string {
+    return 'Woof!'
+  }
+
+  // Переопределение метода родителя
+  override move(distance: number): void {
+    console.log('Running...')
+    super.move(distance) // Вызов метода родителя
+  }
+
+  // Собственный метод
+  fetch(): void {
+    console.log(`${this.name} is fetching!`)
+  }
+}
+
+const dog = new Dog('Buddy', 'Golden Retriever')
+console.log(dog.makeSound()) // "Woof!"
+dog.move(10) // "Running..." "Buddy moved 10 meters"
+dog.fetch() // "Buddy is fetching!"

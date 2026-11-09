@@ -1,0 +1,27 @@
+
+# =====================================
+# СРАВНЕНИЕ РАЗМЕРОВ ОБРАЗОВ
+# =====================================
+
+# БЕЗ multi-stage (React)
+FROM node:18
+WORKDIR /app
+COPY . .
+RUN npm ci && npm run build
+EXPOSE 3000
+CMD ["npx", "serve", "-s", "build"]
+# Размер: ~1.2GB (включает Node.js + все dev зависимости)
+
+# С multi-stage (React)
+FROM node:18-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+FROM nginx:alpine
+COPY --from=builder /app/build /usr/share/nginx/html
+# Размер: ~50MB (только Nginx + статические файлы)
+
+# Экономия: 1150MB (95% уменьшение!)

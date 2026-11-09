@@ -1,0 +1,45 @@
+
+# Практические примеры awk для разработки
+
+# 1. Анализ размера node_modules
+du -sh node_modules/* | awk '{print $1, $2}' | sort -h
+# Размеры пакетов, отсортированные
+
+# 2. Парсинг CSV файла
+awk -F',' '{print $1, $3}' users.csv
+# 1-я и 3-я колонки из CSV
+
+# 3. Вычисление среднего
+awk '{sum+=$1; count++} END {print sum/count}' numbers.txt
+
+# 4. Фильтрация логов по времени
+awk '$1 >= "09:00" && $1 <= "17:00"' access.log
+
+# 5. Подсчет HTTP методов
+awk '{print $6}' access.log | sort | uniq -c
+# GET, POST, DELETE и их количество
+
+# 6. Извлечение email из текста
+awk '/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/ {print $0}' contacts.txt
+
+# 7. Конвертация формата даты
+awk '{print $3"/"$2"/"$1}' dates.txt
+# Меняет формат даты
+
+# 8. Статистика по портам
+netstat -an | awk '/ESTABLISHED/ {print $4}' | awk -F: '{print $NF}' | sort | uniq -c
+
+# 9. Обработка JSON (простой)
+cat data.json | awk -F'"' '{print $4}'
+# Извлекает значения
+
+# 10. Создание SQL INSERT
+awk -F',' '{printf "INSERT INTO users VALUES (\'%s\', \'%s\');\n", $1, $2}' data.csv
+
+# 11. Мониторинг процессов
+ps aux | awk '$3 > 50 {print $11, $3"%"}'
+# Процессы с CPU > 50%
+
+# 12. Анализ package.json зависимостей
+cat package.json | grep ":" | awk -F'"' '{print $2, $4}'
+# Пакет и версия

@@ -1,0 +1,178 @@
+
+// =====================================
+// ВОПРОСЫ НА СОБЕСЕДОВАНИИ
+// =====================================
+
+// 1. Базовые вопросы
+
+// Q: Что такое Conditional Types?
+// A: Синтаксис T extends U ? X : Y, позволяющий выбирать тип на основе условия
+
+// Q: Как работает Flatten<T>?
+// A: Проверяет, является ли T массивом. Если да - возвращает тип элемента (T[number]),
+//    иначе возвращает сам тип T
+
+type Flatten<T> = T extends any[] ? T[number] : T
+
+// Q: Что такое infer?
+// A: Ключевое слово для извлечения (inference) типа из другого типа в условных типах
+
+// Q: Что такое дистрибутивность условных типов?
+// A: Автоматическое распределение union типов по условию.
+//    ToArray<A | B> = ToArray<A> | ToArray<B>
+
+// 2. Практические задачи
+
+// Задача 1: Реализуйте Readonly<T>
+type MyReadonly<T> = {
+  readonly [P in keyof T]: T[P]
+}
+
+// Задача 2: Реализуйте Pick<T, K>
+type MyPick<T, K extends keyof T> = {
+  [P in K]: T[P]
+}
+
+// Задача 3: Реализуйте Exclude<T, U>
+type MyExclude<T, U> = T extends U ? never : T
+
+// Задача 4: Реализуйте ReturnType<T>
+type MyReturnType<T extends (...args: any[]) => any> =
+  T extends (...args: any[]) => infer R ? R : never
+
+// Задача 5: Реализуйте Parameters<T>
+type MyParameters<T extends (...args: any[]) => any> =
+  T extends (...args: infer P) => any ? P : never
+
+// Задача 6: Получить первый элемент tuple
+type First<T extends any[]> = T extends [infer F, ...any[]] ? F : never
+
+type Test1 = First<[1, 2, 3]>      // 1
+type Test2 = First<['a', 'b']>     // 'a'
+type Test3 = First<[]>             // never
+
+// Задача 7: Получить последний элемент tuple
+type Last<T extends any[]> = T extends [...any[], infer L] ? L : never
+
+type Test4 = Last<[1, 2, 3]>       // 3
+type Test5 = Last<['a', 'b']>      // 'b'
+
+// Задача 8: Развернуть Promise
+type MyAwaited<T> = T extends Promise<infer U> ? MyAwaited<U> : T
+
+type Test6 = MyAwaited<Promise<string>>                    // string
+type Test7 = MyAwaited<Promise<Promise<number>>>           // number
+
+// Задача 9: If - условный тип
+type If<C extends boolean, T, F> = C extends true ? T : F
+
+type Test8 = If<true, 'a', 'b'>    // 'a'
+type Test9 = If<false, 'a', 'b'>   // 'b'
+
+// Задача 10: Concat - объединение tuple
+type Concat<T extends any[], U extends any[]> = [...T, ...U]
+
+type Test10 = Concat<[1, 2], [3, 4]>  // [1, 2, 3, 4]
+
+// Задача 11: Includes - проверка наличия в tuple
+type Includes<T extends any[], U> =
+  T extends [infer F, ...infer R]
+    ? Equal<F, U> extends true
+      ? true
+      : Includes<R, U>
+    : false
+
+// Вспомогательный тип для точного сравнения
+type Equal<X, Y> =
+  (<T>() => T extends X ? 1 : 2) extends
+  (<T>() => T extends Y ? 1 : 2) ? true : false
+
+type Test11 = Includes<[1, 2, 3], 2>       // true
+type Test12 = Includes<[1, 2, 3], 4>       // false
+
+// Задача 12: Push - добавление элемента в конец tuple
+type Push<T extends any[], U> = [...T, U]
+
+type Test13 = Push<[1, 2], 3>     // [1, 2, 3]
+
+// Задача 13: Unshift - добавление элемента в начало tuple
+type Unshift<T extends any[], U> = [U, ...T]
+
+type Test14 = Unshift<[1, 2], 0>  // [0, 1, 2]
+
+// Задача 14: Length - длина tuple
+type Length<T extends any[]> = T['length']
+
+type Test15 = Length<[1, 2, 3]>   // 3
+type Test16 = Length<[]>          // 0
+
+// 3. Сложные задачи
+
+// Задача 15: Deep Readonly
+type DeepReadonly<T> = {
+  readonly [P in keyof T]: T[P] extends object
+    ? T[P] extends Function
+      ? T[P]
+      : DeepReadonly<T[P]>
+    : T[P]
+}
+
+// Задача 16: Tuple to Union
+type TupleToUnion<T extends any[]> = T[number]
+
+type Test17 = TupleToUnion<[1, 2, 3]>  // 1 | 2 | 3
+
+// Задача 17: Chainable Options
+type Chainable<T = {}> = {
+  option<K extends string, V>(
+    key: K extends keyof T ? never : K,
+    value: V
+  ): Chainable<T & { [P in K]: V }>
+  get(): T
+}
+
+declare const config: Chainable
+
+const result = config
+  .option('foo', 123)
+  .option('bar', 'hello')
+  .option('baz', true)
+  .get()
+
+// result: { foo: number; bar: string; baz: boolean }
+
+// Задача 18: String to Union
+type StringToUnion<S extends string> =
+  S extends `${infer F}${infer R}`
+    ? F | StringToUnion<R>
+    : never
+
+type Test18 = StringToUnion<'hello'>  // 'h' | 'e' | 'l' | 'o'
+
+// Задача 19: Replace
+type Replace<
+  S extends string,
+  From extends string,
+  To extends string
+> = From extends ''
+  ? S
+  : S extends `${infer L}${From}${infer R}`
+    ? `${L}${To}${R}`
+    : S
+
+type Test19 = Replace<'hello world', 'world', 'TypeScript'>
+// 'hello TypeScript'
+
+// Задача 20: ReplaceAll
+type ReplaceAll<
+  S extends string,
+  From extends string,
+  To extends string
+> = From extends ''
+  ? S
+  : S extends `${infer L}${From}${infer R}`
+    ? `${L}${To}${ReplaceAll<R, From, To>}`
+    : S
+
+type Test20 = ReplaceAll<'foo foo foo', 'foo', 'bar'>
+// 'bar bar bar'

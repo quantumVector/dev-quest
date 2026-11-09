@@ -1,0 +1,107 @@
+
+// MEDIATOR PATTERN - Централизованное взаимодействие
+
+// Mediator для формы
+class FormMediator {
+  constructor() {
+    this.fields = {}
+    this.validators = {}
+    this.dependencies = {}
+  }
+
+  register(fieldName, validator, dependencies = []) {
+    this.fields[fieldName] = ''
+    this.validators[fieldName] = validator
+    this.dependencies[fieldName] = dependencies
+  }
+
+  setValue(fieldName, value) {
+    this.fields[fieldName] = value
+
+    // Уведомляем зависимые поля
+    Object.keys(this.dependencies).forEach(field => {
+      if (this.dependencies[field].includes(fieldName)) {
+        this.validate(field)
+      }
+    })
+
+    return this.validate(fieldName)
+  }
+
+  validate(fieldName) {
+    const value = this.fields[fieldName]
+    const validator = this.validators[fieldName]
+
+    if (validator) {
+      return validator(value, this.fields)
+    }
+    return true
+  }
+
+  validateAll() {
+    return Object.keys(this.fields).every(field => this.validate(field))
+  }
+
+  reset() {
+    Object.keys(this.fields).forEach(field => {
+      this.fields[field] = ''
+    })
+  }
+}
+
+// React: Использование Mediator в форме
+function RegistrationForm() {
+  const mediator = useRef(new FormMediator())
+  const [errors, setErrors] = useState({})
+
+  useEffect(() => {
+    // Регистрация полей с зависимостями
+    mediator.current.register('email', (value) => {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+    })
+
+    mediator.current.register('password', (value) => {
+      return value.length >= 8
+    })
+
+    mediator.current.register('confirmPassword', (value, allFields) => {
+      return value === allFields.password
+    }, ['password']) // зависит от password
+  }, [])
+
+  const handleChange = (field, value) => {
+    const isValid = mediator.current.setValue(field, value)
+    setErrors(prev => ({ ...prev, [field]: !isValid }))
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    if (mediator.current.validateAll()) {
+      // Submit form
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        type="email"
+        onChange={(e) => handleChange('email', e.target.value)}
+      />
+      {errors.email && <span>Invalid email</span>}
+
+      <input
+        type="password"
+        onChange={(e) => handleChange('password', e.target.value)}
+      />
+      {errors.password && <span>Password too short</span>}
+
+      <input
+        type="password"
+        onChange={(e) => handleChange('confirmPassword', e.target.value)}
+      />
+      {errors.confirmPassword && <span>Passwords don't match</span>}
+
+      <button type="submit">Register</button>
+    </form>
+  )
+}

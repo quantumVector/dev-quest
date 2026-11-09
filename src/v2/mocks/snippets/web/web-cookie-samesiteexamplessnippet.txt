@@ -1,0 +1,44 @@
+
+// ==========================================
+// SameSite ДЕТАЛЬНО - ПРАКТИЧЕСКИЕ ПРИМЕРЫ
+// ==========================================
+
+// Сценарий: Пользователь на evil.com, переходит на bank.com
+
+// 1. SameSite=Strict
+document.cookie = "authToken=abc123; SameSite=Strict; Secure; HttpOnly"
+
+// evil.com → <a href="https://bank.com/transfer">Link</a>
+// Клик по ссылке → bank.com
+// ❌ Cookie authToken НЕ отправляется!
+// Результат: Пользователь выглядит неавторизованным
+
+// evil.com → <form action="https://bank.com/transfer" method="POST">
+// ❌ Cookie authToken НЕ отправляется!
+// Результат: CSRF атака провалилась ✅
+
+// 2. SameSite=Lax (по умолчанию)
+document.cookie = "sessionId=xyz789; SameSite=Lax; Secure; HttpOnly"
+
+// evil.com → <a href="https://bank.com/account">Link</a>
+// ✅ Cookie sessionId ОТПРАВЛЯЕТСЯ
+// Результат: Пользователь видит свой аккаунт
+
+// evil.com → <form action="https://bank.com/transfer" method="POST">
+// ❌ Cookie sessionId НЕ отправляется!
+// Результат: CSRF атака провалилась ✅
+
+// evil.com → fetch('https://bank.com/api/balance')
+// ❌ Cookie sessionId НЕ отправляется!
+
+// 3. SameSite=None
+document.cookie = "tracking=track123; SameSite=None; Secure"
+
+// evil.com → любой запрос к bank.com
+// ✅ Cookie tracking ВСЕГДА отправляется
+// Использование: third-party сервисы, аналитика, виджеты
+
+// Современная стратегия безопасности:
+// Auth cookies: SameSite=Strict или Lax + HttpOnly + Secure
+// Tracking cookies: SameSite=None + Secure
+// Session cookies: SameSite=Lax + HttpOnly + Secure

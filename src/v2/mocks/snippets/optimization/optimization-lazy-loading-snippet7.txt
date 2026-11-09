@@ -1,0 +1,47 @@
+
+<!-- Lazy loading с современными форматами -->
+<picture>
+<!-- WebP для современных браузеров -->
+<source
+  type="image/webp"
+  data-srcset="image.webp"
+  srcset="placeholder.webp">
+
+<!-- AVIF для самых новых -->
+<source
+  type="image/avif"
+  data-srcset="image.avif"
+  srcset="placeholder.avif">
+
+<!-- Fallback JPEG -->
+<img
+  data-src="image.jpg"
+  src="placeholder.jpg"
+  alt="Изображение"
+  loading="lazy"
+  class="lazy-picture">
+</picture>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const picture = entry.target;
+      const sources = picture.querySelectorAll('source');
+      const img = picture.querySelector('img');
+
+      sources.forEach(source => {
+        source.srcset = source.dataset.srcset;
+      });
+
+      img.src = img.dataset.src;
+      observer.unobserve(picture);
+    }
+  });
+});
+
+document.querySelectorAll('.lazy-picture').forEach(img => {
+  observer.observe(img.parentElement);
+});
+</script>
+  

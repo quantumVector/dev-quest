@@ -1,0 +1,26 @@
+
+// call() - вызывает функцию с указанным this
+const person1 = {
+  name: 'Алиса',
+  age: 25
+}
+
+const person2 = {
+  name: 'Боб',
+  age: 30
+}
+
+function introduce(greeting, punctuation) {
+  return `${greeting}! Меня зовут ${this.name}, мне ${this.age} лет${punctuation}`
+}
+
+// Используем call для привязки контекста
+console.log(introduce.call(person1, 'Привет', '!'))
+// "Привет! Меня зовут Алиса, мне 25 лет!"
+
+console.log(introduce.call(person2, 'Добро пожаловать', '.'))
+// "Добро пожаловать! Меня зовут Боб, мне 30 лет."
+
+// Без привязки контекста (this будет undefined в strict mode)
+console.log(introduce('Привет', '!'))
+// TypeError: Cannot read property 'name' of undefined

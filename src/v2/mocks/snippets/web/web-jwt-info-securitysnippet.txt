@@ -1,0 +1,96 @@
+
+// Безопасное хранение и передача JWT
+
+// ❌ НЕБЕЗОПАСНО - localStorage
+// Проблема: Уязвимо к XSS атакам
+localStorage.setItem('token', accessToken)
+
+// ❌ НЕБЕЗОПАСНО - sessionStorage
+// Проблема: Тоже уязвимо к XSS атакам
+sessionStorage.setItem('token', accessToken)
+
+// ✅ БЕЗОПАСНЕЕ - HttpOnly Cookie
+// На сервере (Express):
+app.post('/auth/login', async (req, res) => {
+  const { accessToken, refreshToken } = generateTokens(user)
+
+  // Устанавливаем токен в HttpOnly cookie
+  res.cookie('accessToken', accessToken, {
+    httpOnly: true,      // Недоступен для JavaScript
+    secure: true,        // Только HTTPS
+    sameSite: 'strict',  // Защита от CSRF
+    maxAge: 15 * 60 * 1000  // 15 минут
+  })
+
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'strict',
+    maxAge: 7 * 24 * 60 * 60 * 1000,  // 7 дней
+    path: '/auth/refresh'  // Только для refresh endpoint
+  })
+
+  res.json({ success: true })
+})
+
+// ✅ ЛУЧШАЯ ПРАКТИКА - Комбинированный подход
+// Access token в памяти (переменная), refresh в HttpOnly cookie
+
+// На клиенте:
+class TokenManager {
+  constructor() {
+    this.accessToken = null  // В памяти, не в localStorage!
+  }
+
+  setAccessToken(token) {
+    this.accessToken = token
+  }
+
+  getAccessToken() {
+    return this.accessToken
+  }
+
+  clearTokens() {
+    this.accessToken = null
+    // Refresh token удаляется через API запрос
+  }
+}
+
+const tokenManager = new TokenManager()
+
+// При логине - сохраняем только в памяти
+async function login(email, password) {
+  const response = await fetch('/auth/login', {
+    method: 'POST',
+    credentials: 'include',  // Отправляем cookies
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  })
+
+  const { accessToken } = await response.json()
+  tokenManager.setAccessToken(accessToken)  // В памяти, не в localStorage!
+}
+
+// При запросах - токен из памяти
+async function makeAuthenticatedRequest(url) {
+  const response = await fetch(url, {
+    credentials: 'include',  // Отправляем refresh token cookie
+    headers: {
+      'Authorization': `Bearer ${tokenManager.getAccessToken()}`
+    }
+  })
+
+  return response.json()
+}
+
+// Обновление токена - автоматически через interceptor
+async function refreshAccessToken() {
+  const response = await fetch('/auth/refresh', {
+    method: 'POST',
+    credentials: 'include'  // Refresh token в HttpOnly cookie
+  })
+
+  const { accessToken } = await response.json()
+  tokenManager.setAccessToken(accessToken)
+  return accessToken
+}

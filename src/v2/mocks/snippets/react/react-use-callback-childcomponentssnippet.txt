@@ -1,0 +1,50 @@
+
+// useCallback для дочерних компонентов
+
+function ParentComponent() {
+  const [items, setItems] = useState([]);
+  const [selectedId, setSelectedId] = useState(null);
+
+  // ✅ Стабильная ссылка для мемоизированного компонента
+  const handleItemClick = useCallback((id) => {
+    setSelectedId(id);
+  }, []);
+
+  const handleItemDelete = useCallback((id) => {
+    setItems(prev => prev.filter(item => item.id !== id));
+  }, []);
+
+  return (
+    <div>
+      {items.map(item => (
+        <ItemCard
+          key={item.id}
+          item={item}
+          isSelected={item.id === selectedId}
+          onClick={handleItemClick}
+          onDelete={handleItemDelete}
+        />
+      ))}
+    </div>
+  );
+}
+
+// Мемоизированный дочерний компонент
+const ItemCard = React.memo(({ item, isSelected, onClick, onDelete }) => {
+  console.log('ItemCard render:', item.id);
+
+  const handleClick = useCallback(() => {
+    onClick(item.id);
+  }, [item.id, onClick]);
+
+  const handleDelete = useCallback(() => {
+    onDelete(item.id);
+  }, [item.id, onDelete]);
+
+  return (
+    <div onClick={handleClick} className={isSelected ? 'selected' : ''}>
+      <h3>{item.title}</h3>
+      <button onClick={handleDelete}>Delete</button>
+    </div>
+  );
+});

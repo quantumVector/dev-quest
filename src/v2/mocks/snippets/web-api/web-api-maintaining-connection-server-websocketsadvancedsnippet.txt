@@ -1,0 +1,286 @@
+
+// =====================================
+// WEBSOCKETS - ПРОДВИНУТОЕ ИСПОЛЬЗОВАНИЕ
+// =====================================
+
+// Класс-обертка для WebSocket с автопереподключением
+class ReconnectingWebSocket {
+  constructor(url, options = {}) {
+    this.url = url
+    this.options = {
+      reconnectInterval: 1000,    // Начальная задержка
+      maxReconnectInterval: 30000, // Максимальная задержка
+      reconnectDecay: 1.5,         // Множитель задержки
+      maxReconnectAttempts: null,  // null = бесконечно
+      ...options
+    }
+
+    this.reconnectAttempts = 0
+    this.messageQueue = []         // Очередь сообщений
+    this.forcedClose = false
+    this.timedOut = false
+
+    this.onopen = null
+    this.onclose = null
+    this.onmessage = null
+    this.onerror = null
+
+    this.connect()
+  }
+
+  connect() {
+    this.ws = new WebSocket(this.url)
+
+    // Timeout для подключения
+    const timeout = setTimeout(() => {
+      this.timedOut = true
+      this.ws.close()
+    }, 5000)
+
+    this.ws.onopen = (event) => {
+      clearTimeout(timeout)
+      console.log('WebSocket подключен')
+
+      this.reconnectAttempts = 0
+      this.timedOut = false
+
+      // Отправляем накопленные сообщения
+      while (this.messageQueue.length > 0) {
+        const message = this.messageQueue.shift()
+        this.ws.send(message)
+      }
+
+      if (this.onopen) this.onopen(event)
+    }
+
+    this.ws.onmessage = (event) => {
+      if (this.onmessage) this.onmessage(event)
+    }
+
+    this.ws.onerror = (error) => {
+      console.error('WebSocket ошибка:', error)
+      if (this.onerror) this.onerror(error)
+    }
+
+    this.ws.onclose = (event) => {
+      clearTimeout(timeout)
+
+      if (this.forcedClose) {
+        console.log('WebSocket закрыт вручную')
+        if (this.onclose) this.onclose(event)
+        return
+      }
+
+      console.log('WebSocket закрыт, переподключение...')
+
+      // Проверяем лимит попыток
+      if (
+        this.options.maxReconnectAttempts &&
+        this.reconnectAttempts >= this.options.maxReconnectAttempts
+      ) {
+        console.error('Достигнут лимит попыток переподключения')
+        if (this.onclose) this.onclose(event)
+        return
+      }
+
+      // Вычисляем задержку с экспоненциальным ростом
+      const delay = Math.min(
+        this.options.reconnectInterval *
+        Math.pow(this.options.reconnectDecay, this.reconnectAttempts),
+        this.options.maxReconnectInterval
+      )
+
+      this.reconnectAttempts++
+
+      console.log(`Попытка ${this.reconnectAttempts}, задержка ${delay}ms`)
+
+      setTimeout(() => this.connect(), delay)
+    }
+  }
+
+  send(message) {
+    if (this.ws.readyState === WebSocket.OPEN) {
+      this.ws.send(message)
+    } else {
+      console.warn('WebSocket не готов, сообщение добавлено в очередь')
+      this.messageQueue.push(message)
+    }
+  }
+
+  close() {
+    this.forcedClose = true
+    this.ws.close()
+  }
+
+  get readyState() {
+    return this.ws.readyState
+  }
+}
+
+// Использование
+const rws = new ReconnectingWebSocket('ws://localhost:3000', {
+  reconnectInterval: 1000,
+  maxReconnectAttempts: 10
+})
+
+rws.onopen = () => console.log('Подключено')
+rws.onmessage = (event) => console.log('Сообщение:', event.data)
+rws.onerror = (error) => console.error('Ошибка:', error)
+rws.onclose = () => console.log('Закрыто')
+
+// Отправка сообщений
+rws.send(JSON.stringify({ type: 'ping' }))
+
+// Система heartbeat (проверка соединения)
+class WebSocketWithHeartbeat extends ReconnectingWebSocket {
+  constructor(url, options = {}) {
+    super(url, options)
+
+    this.heartbeatInterval = options.heartbeatInterval || 30000 // 30 секунд
+    this.heartbeatTimer = null
+    this.pongTimeout = null
+
+    const originalOnOpen = this.onopen
+    this.onopen = (event) => {
+      this.startHeartbeat()
+      if (originalOnOpen) originalOnOpen(event)
+    }
+
+    const originalOnClose = this.onclose
+    this.onclose = (event) => {
+      this.stopHeartbeat()
+      if (originalOnClose) originalOnClose(event)
+    }
+
+    const originalOnMessage = this.onmessage
+    this.onmessage = (event) => {
+      const data = JSON.parse(event.data)
+
+      // Обработка pong ответа
+      if (data.type === 'pong') {
+        clearTimeout(this.pongTimeout)
+        return
+      }
+
+      if (originalOnMessage) originalOnMessage(event)
+    }
+  }
+
+  startHeartbeat() {
+    this.stopHeartbeat()
+
+    this.heartbeatTimer = setInterval(() => {
+      if (this.ws.readyState === WebSocket.OPEN) {
+        this.send(JSON.stringify({ type: 'ping' }))
+
+        // Ожидаем pong в течение 5 секунд
+        this.pongTimeout = setTimeout(() => {
+          console.warn('Нет ответа на ping, переподключение...')
+          this.ws.close()
+        }, 5000)
+      }
+    }, this.heartbeatInterval)
+  }
+
+  stopHeartbeat() {
+    if (this.heartbeatTimer) {
+      clearInterval(this.heartbeatTimer)
+      this.heartbeatTimer = null
+    }
+    if (this.pongTimeout) {
+      clearTimeout(this.pongTimeout)
+      this.pongTimeout = null
+    }
+  }
+}
+
+// Использование с heartbeat
+const wsWithHeartbeat = new WebSocketWithHeartbeat('ws://localhost:3000', {
+  heartbeatInterval: 30000,
+  reconnectInterval: 1000
+})
+
+// WebSocket с обработкой комнат и событий
+class WebSocketClient {
+  constructor(url) {
+    this.ws = new ReconnectingWebSocket(url)
+    this.eventHandlers = new Map()
+
+    this.ws.onmessage = (event) => {
+      const message = JSON.parse(event.data)
+      this.handleMessage(message)
+    }
+  }
+
+  on(eventType, handler) {
+    if (!this.eventHandlers.has(eventType)) {
+      this.eventHandlers.set(eventType, [])
+    }
+    this.eventHandlers.get(eventType).push(handler)
+  }
+
+  off(eventType, handler) {
+    if (!this.eventHandlers.has(eventType)) return
+
+    const handlers = this.eventHandlers.get(eventType)
+    const index = handlers.indexOf(handler)
+
+    if (index > -1) {
+      handlers.splice(index, 1)
+    }
+  }
+
+  handleMessage(message) {
+    const { type, data } = message
+
+    if (this.eventHandlers.has(type)) {
+      this.eventHandlers.get(type).forEach(handler => {
+        handler(data)
+      })
+    }
+  }
+
+  emit(eventType, data) {
+    this.ws.send(JSON.stringify({
+      type: eventType,
+      data: data
+    }))
+  }
+
+  joinRoom(roomId) {
+    this.emit('join', { room: roomId })
+  }
+
+  leaveRoom(roomId) {
+    this.emit('leave', { room: roomId })
+  }
+
+  close() {
+    this.ws.close()
+  }
+}
+
+// Использование
+const client = new WebSocketClient('ws://localhost:3000')
+
+// Подписка на события
+client.on('message', (data) => {
+  console.log('Новое сообщение:', data)
+})
+
+client.on('userJoined', (data) => {
+  console.log('Пользователь присоединился:', data.username)
+})
+
+client.on('userLeft', (data) => {
+  console.log('Пользователь вышел:', data.username)
+})
+
+// Отправка событий
+client.emit('message', {
+  text: 'Hello everyone!',
+  timestamp: Date.now()
+})
+
+// Присоединение к комнате
+client.joinRoom('chat-room-1')

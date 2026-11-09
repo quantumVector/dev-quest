@@ -1,0 +1,61 @@
+
+// Практические примеры и ловушки
+
+// 1. Callback функции
+const user = {
+  name: 'Grace',
+  greet() {
+    console.log(`Привет от ${this.name}`);
+  }
+};
+
+// ❌ Проблема
+setTimeout(user.greet, 1000); // "Привет от undefined"
+
+// ✅ Решения
+setTimeout(() => user.greet(), 1000); // "Привет от Grace"
+setTimeout(user.greet.bind(user), 1000); // "Привет от Grace"
+
+// 2. Методы массивов
+const calculator = {
+  numbers: [1, 2, 3, 4, 5],
+  multiplier: 2,
+
+  // ❌ Неправильно
+  multiplyWrong() {
+    return this.numbers.map(function(num) {
+      return num * this.multiplier; // this = undefined!
+    });
+  },
+
+  // ✅ Правильно
+  multiply() {
+    return this.numbers.map(num => {
+      return num * this.multiplier; // this = calculator
+    });
+  },
+
+  // ✅ Альтернатива с thisArg
+  multiplyWithThisArg() {
+    return this.numbers.map(function(num) {
+      return num * this.multiplier;
+    }, this); // передаем this как второй аргумент
+  }
+};
+
+console.log(calculator.multiply()); // [2, 4, 6, 8, 10]
+
+// 3. Деструктуризация
+const settings = {
+  theme: 'dark',
+  getTheme() {
+    return this.theme;
+  }
+};
+
+const { getTheme } = settings;
+console.log(getTheme()); // undefined - потеря контекста!
+
+// Решение
+const boundGetTheme = settings.getTheme.bind(settings);
+console.log(boundGetTheme()); // "dark"

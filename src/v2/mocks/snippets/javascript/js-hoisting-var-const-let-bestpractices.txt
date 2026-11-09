@@ -1,0 +1,45 @@
+
+// ========================================
+// ЛУЧШИЕ ПРАКТИКИ
+// ========================================
+
+// 1. Избегайте var в современном JS
+// ❌ Плохо
+var name = 'John';
+if (true) {
+    var age = 30; // доступна за пределами блока
+}
+
+// ✅ Хорошо
+let name = 'John';
+if (true) {
+    let age = 30; // блочная область видимости
+}
+
+// 2. Объявляйте переменные перед использованием
+// ❌ Плохо
+console.log(user); // undefined
+var user = 'Alice';
+
+// ✅ Хорошо
+let user = 'Alice';
+console.log(user); // 'Alice'
+
+// 3. Используйте const по умолчанию
+// ✅ Хорошо
+const API_URL = 'https://api.example.com';
+const users = []; // можно мутировать содержимое
+
+// 4. Function declarations vs expressions
+// ✅ Хорошо для utility функций
+function utils() {
+    return 'helper';
+}
+
+// ✅ Хорошо для условных функций
+let handler;
+if (condition) {
+    handler = function() {
+        // implementation
+    };
+}

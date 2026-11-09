@@ -1,0 +1,80 @@
+
+import { useState, useRef } from 'react';
+
+// Сравнение подходов
+
+// 1. Управляемый (Controlled)
+function ControlledForm() {
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Данные уже в state
+    console.log({ username, email });
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        placeholder="Username"
+      />
+      <input
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="Email"
+      />
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
+
+// 2. Неконтролируемый (Uncontrolled)
+function UncontrolledForm() {
+  const usernameRef = useRef(null);
+  const emailRef = useRef(null);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Читаем из DOM при submit
+    console.log({
+      username: usernameRef.current.value,
+      email: emailRef.current.value
+    });
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input ref={usernameRef} defaultValue="" placeholder="Username" />
+      <input ref={emailRef} defaultValue="" placeholder="Email" />
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
+
+// 3. Гибридный подход
+function HybridForm() {
+  const [username, setUsername] = useState('');
+  const fileInputRef = useRef(null); // Файлы — всегда неконтролируемые
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log({
+      username, // из state
+      file: fileInputRef.current.files[0] // из ref
+    });
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+      />
+      <input type="file" ref={fileInputRef} />
+      <button type="submit">Submit</button>
+    </form>
+  );
+}

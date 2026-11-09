@@ -1,0 +1,63 @@
+
+// Примеры ЛИШНИХ ререндеров
+
+// Проблема 1: Новый объект на каждый рендер
+function Parent() {
+  const [count, setCount] = useState(0)
+
+  // ❌ ПЛОХО - создается новый объект при каждом рендере!
+  const user = { name: 'John', age: 30 }
+
+  return (
+    <div>
+      <button onClick={() => setCount(count + 1)}>+</button>
+      {/* Child видит "новый" объект и ререндерится */}
+      <Child user={user} />
+    </div>
+  )
+}
+
+// Проблема 2: Новая функция на каждый рендер
+function Parent() {
+  const [count, setCount] = useState(0)
+
+  // ❌ ПЛОХО - новая функция при каждом рендере!
+  const handleClick = () => {
+    console.log('clicked')
+  }
+
+  return (
+    <div>
+      <button onClick={() => setCount(count + 1)}>+</button>
+      {/* Child получает "новую" функцию и ререндерится */}
+      <Child onClick={handleClick} />
+    </div>
+  )
+}
+
+// Проблема 3: Inline объекты и массивы в JSX
+function Parent() {
+  const [count, setCount] = useState(0)
+
+  return (
+    <div>
+      <button onClick={() => setCount(count + 1)}>+</button>
+      {/* ❌ Новый объект style при каждом рендере */}
+      <Child style={{ color: 'red' }} />
+      {/* ❌ Новый массив items при каждом рендере */}
+      <List items={[1, 2, 3]} />
+    </div>
+  )
+}
+
+// Проблема 4: Context Provider с inline value
+function App() {
+  const [user, setUser] = useState({ name: 'John' })
+
+  return (
+    // ❌ Новый объект value при каждом рендере App
+    <UserContext.Provider value={{ user, setUser }}>
+      <Child />
+    </UserContext.Provider>
+  )
+}

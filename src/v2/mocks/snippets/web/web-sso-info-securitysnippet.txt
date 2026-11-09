@@ -1,0 +1,153 @@
+
+// Меры безопасности при работе с SSO
+
+// 1. PKCE (Proof Key for Code Exchange) для публичных клиентов
+const generatePKCE = () => {
+  // Генерируем code_verifier (случайная строка)
+  const codeVerifier = generateRandomString(128)
+
+  // Создаем code_challenge (SHA-256 хэш)
+  const codeChallenge = base64URLEncode(
+    sha256(codeVerifier)
+  )
+
+  // Сохраняем code_verifier
+  sessionStorage.setItem('pkce_verifier', codeVerifier)
+
+  return {
+    code_challenge: codeChallenge,
+    code_challenge_method: 'S256'
+  }
+}
+
+// Использование PKCE при авторизации
+const initiateLoginWithPKCE = () => {
+  const pkce = generatePKCE()
+
+  const params = new URLSearchParams({
+    client_id: 'my-app',
+    redirect_uri: 'https://myapp.com/callback',
+    response_type: 'code',
+    scope: 'openid profile',
+    code_challenge: pkce.code_challenge,
+    code_challenge_method: pkce.code_challenge_method,
+    state: generateRandomState()
+  })
+
+  window.location.href =
+    `https://auth.example.com/authorize?${params}`
+}
+
+// При обмене code на токен добавляем code_verifier
+const exchangeWithPKCE = async (code) => {
+  const codeVerifier = sessionStorage.getItem('pkce_verifier')
+
+  const response = await fetch('https://auth.example.com/token', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: new URLSearchParams({
+      grant_type: 'authorization_code',
+      code: code,
+      redirect_uri: 'https://myapp.com/callback',
+      client_id: 'my-app',
+      code_verifier: codeVerifier // PKCE проверка
+    })
+  })
+
+  return response.json()
+}
+
+// 2. Защита от CSRF через state parameter
+const protectAgainstCSRF = () => {
+  // Генерируем уникальный state
+  const state = crypto.randomUUID()
+
+  // Сохраняем в session storage
+  sessionStorage.setItem('oauth_state', state)
+
+  return state
+}
+
+// Проверка state при callback
+const validateState = (receivedState) => {
+  const savedState = sessionStorage.getItem('oauth_state')
+
+  if (receivedState !== savedState) {
+    throw new Error('CSRF attack detected: state mismatch')
+  }
+
+  // Очищаем использованный state
+  sessionStorage.removeItem('oauth_state')
+}
+
+// 3. Валидация токенов
+const validateTokenSecurity = (token) => {
+  const decoded = decodeJWT(token)
+
+  // Проверка времени жизни
+  const now = Math.floor(Date.now() / 1000)
+  if (decoded.exp < now) {
+    throw new Error('Token expired')
+  }
+
+  if (decoded.nbf && decoded.nbf > now) {
+    throw new Error('Token not yet valid')
+  }
+
+  // Проверка издателя (issuer)
+  const trustedIssuers = ['https://auth.example.com']
+  if (!trustedIssuers.includes(decoded.iss)) {
+    throw new Error('Untrusted issuer')
+  }
+
+  // Проверка аудитории (audience)
+  if (decoded.aud !== 'my-app') {
+    throw new Error('Invalid audience')
+  }
+
+  // Проверка подписи (должна выполняться на backend)
+  return verifyJWTSignature(token)
+}
+
+// 4. Безопасное хранение токенов
+const secureTokenStorage = {
+  // НЕ храним токены в localStorage для чувствительных данных
+  // Используем httpOnly cookies (через backend)
+
+  setTokens: async (tokens) => {
+    // Отправляем токены на backend
+    await fetch('/api/auth/tokens', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(tokens),
+      credentials: 'include' // Включаем cookies
+    })
+
+    // Backend установит httpOnly cookie с refresh token
+    // Access token может быть в memory (не в storage)
+  },
+
+  getAccessToken: async () => {
+    // Получаем access token из backend
+    const response = await fetch('/api/auth/token', {
+      credentials: 'include'
+    })
+
+    const { access_token } = await response.json()
+    return access_token
+  }
+}
+
+// 5. Content Security Policy для защиты от XSS
+const cspHeaders = {
+  'Content-Security-Policy':
+    "default-src 'self'; " +
+    "script-src 'self' https://trusted-cdn.com; " +
+    "connect-src 'self' https://auth.example.com https://api.example.com; " +
+    "frame-ancestors 'none'; " +
+    "form-action 'self' https://auth.example.com;"
+}

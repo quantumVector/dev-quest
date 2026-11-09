@@ -1,0 +1,11 @@
+
+import styled from 'styled-components';
+
+// Уникальный хеш-класс генерируется автоматически
+const Button = styled.button`
+  background: ${props => props.primary ? '#007bff' : '#6c757d'};
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+`;
+// Результат в DOM: class="sc-bdVaJa kJhWER"

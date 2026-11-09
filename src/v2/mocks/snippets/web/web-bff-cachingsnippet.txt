@@ -1,0 +1,100 @@
+
+// Кэширование в BFF для оптимизации
+
+import Redis from 'ioredis'
+
+const redis = new Redis()
+
+// Кэширование на уровне BFF
+app.get('/api/user/:id/profile', async (req, res) => {
+  const { id } = req.params
+  const cacheKey = `user:profile:${id}`
+
+  try {
+    // Проверяем кэш
+    const cached = await redis.get(cacheKey)
+    if (cached) {
+      console.log('Cache hit!')
+      return res.json(JSON.parse(cached))
+    }
+
+    // Запрос к сервису
+    const user = await fetchUser(id)
+
+    const profile = {
+      name: `${user.firstName} ${user.lastName}`,
+      avatar: user.avatar,
+      email: user.email
+    }
+
+    // Кэшируем на 5 минут
+    await redis.setex(cacheKey, 300, JSON.stringify(profile))
+
+    res.json(profile)
+  } catch (error) {
+    console.error('Error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+// Инвалидация кэша при обновлении
+app.put('/api/user/:id/profile', async (req, res) => {
+  const { id } = req.params
+
+  try {
+    // Обновляем данные
+    await updateUser(id, req.body)
+
+    // Инвалидируем кэш
+    await redis.del(`user:profile:${id}`)
+
+    res.json({ success: true })
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update' })
+  }
+})
+
+// Batch запросы с кэшированием
+app.post('/api/users/batch', async (req, res) => {
+  const { userIds } = req.body
+
+  try {
+    // Проверяем кэш для каждого ID
+    const cacheKeys = userIds.map(id => `user:profile:${id}`)
+    const cachedResults = await redis.mget(cacheKeys)
+
+    const cached = []
+    const toFetch = []
+
+    cachedResults.forEach((result, index) => {
+      if (result) {
+        cached.push(JSON.parse(result))
+      } else {
+        toFetch.push(userIds[index])
+      }
+    })
+
+    // Запрашиваем только не закэшированные
+    if (toFetch.length > 0) {
+      const fetched = await fetchUsersBatch(toFetch)
+
+      // Кэшируем новые результаты
+      const pipeline = redis.pipeline()
+      fetched.forEach(user => {
+        const profile = transformUserToProfile(user)
+        pipeline.setex(
+          `user:profile:${user.id}`,
+          300,
+          JSON.stringify(profile)
+        )
+      })
+      await pipeline.exec()
+
+      cached.push(...fetched.map(transformUserToProfile))
+    }
+
+    res.json(cached)
+  } catch (error) {
+    res.status(500).json({ error: 'Batch request failed' })
+  }
+})

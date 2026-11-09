@@ -1,0 +1,152 @@
+
+// =====================================
+// РЕАЛИЗАЦИЯ СОБСТВЕННЫХ PICK И OMIT
+// =====================================
+
+// 1. Реализация Pick - выбрать определенные свойства
+type MyPick<T, K extends keyof T> = {
+  [P in K]: T[P]
+}
+
+// Пошаговое объяснение:
+// 1. T - исходный тип
+// 2. K extends keyof T - K должен быть подмножеством ключей T
+// 3. [P in K] - итерация только по выбранным ключам K
+// 4. T[P] - получение типа значения по ключу P
+
+interface Product {
+  id: number
+  name: string
+  price: number
+  description: string
+  category: string
+}
+
+// Использование MyPick
+type ProductPreview = MyPick<Product, 'id' | 'name' | 'price'>
+// Результат:
+// {
+//   id: number
+//   name: string
+//   price: number
+// }
+
+const preview: ProductPreview = {
+  id: 1,
+  name: 'Laptop',
+  price: 999
+  // description и category не нужны
+}
+
+// 2. Реализация Omit - исключить определенные свойства
+type MyOmit<T, K extends keyof T> = {
+  [P in Exclude<keyof T, K>]: T[P]
+}
+
+// Пошаговое объяснение:
+// 1. Exclude<keyof T, K> - исключить K из всех ключей T
+// 2. [P in ...] - итерация по оставшимся ключам
+// 3. T[P] - получение типа значения
+
+// Альтернативная реализация через Pick
+type MyOmit2<T, K extends keyof T> = MyPick<T, Exclude<keyof T, K>>
+
+// Использование MyOmit
+type ProductWithoutDescription = MyOmit<Product, 'description'>
+// Результат:
+// {
+//   id: number
+//   name: string
+//   price: number
+//   category: string
+// }
+
+const product: ProductWithoutDescription = {
+  id: 1,
+  name: 'Phone',
+  price: 599,
+  category: 'Electronics'
+  // description исключен
+}
+
+// Можно исключить несколько свойств
+type ProductBasic = MyOmit<Product, 'description' | 'category'>
+// Результат:
+// {
+//   id: number
+//   name: string
+//   price: number
+// }
+
+// 3. Сравнение с встроенными типами
+interface User {
+  id: number
+  name: string
+  email: string
+  password: string
+  role: 'admin' | 'user'
+}
+
+// Встроенный Pick
+type UserPublic1 = Pick<User, 'id' | 'name' | 'email'>
+
+// Наш MyPick
+type UserPublic2 = MyPick<User, 'id' | 'name' | 'email'>
+
+// Встроенный Omit
+type UserSafe1 = Omit<User, 'password'>
+
+// Наш MyOmit
+type UserSafe2 = MyOmit<User, 'password'>
+
+// Все эти типы эквивалентны!
+
+// 4. Pick с вложенными типами
+type DeepPick<T, K extends keyof T> = {
+  [P in K]: T[P] extends object
+    ? DeepPick<T[P], keyof T[P]>
+    : T[P]
+}
+
+interface Company {
+  id: number
+  name: string
+  address: {
+    street: string
+    city: string
+    country: string
+  }
+  employees: number
+}
+
+type CompanyBasic = MyPick<Company, 'id' | 'name' | 'address'>
+// address остается полным объектом
+
+// 5. Практический пример - API Response типы
+interface ApiUser {
+  id: number
+  username: string
+  email: string
+  password: string  // Не должен быть в ответе!
+  createdAt: string
+  updatedAt: string
+}
+
+// Тип для ответа API (без пароля)
+type UserResponse = MyOmit<ApiUser, 'password'>
+
+// Тип для создания пользователя (без id, timestamps)
+type CreateUserDto = MyOmit<ApiUser, 'id' | 'createdAt' | 'updatedAt'>
+
+// Тип для обновления пользователя (все необязательно, без id)
+type UpdateUserDto = Partial<MyOmit<ApiUser, 'id' | 'password'>>
+
+const newUser: CreateUserDto = {
+  username: 'john_doe',
+  email: 'john@example.com',
+  password: 'secret123'
+}
+
+const updateData: UpdateUserDto = {
+  email: 'newemail@example.com'  // Только то, что нужно обновить
+}

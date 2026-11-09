@@ -1,0 +1,95 @@
+
+// ✅ ПРАВИЛЬНО - Зависимость от абстракций
+
+// Абстракции (интерфейсы)
+interface HttpClient {
+  get<T>(url: string): Promise<T>
+  post<T>(url: string, data: any): Promise<T>
+}
+
+interface Cache {
+  get<T>(key: string): T | null
+  set<T>(key: string, value: T): void
+  clear(): void
+}
+
+interface Logger {
+  log(message: string): void
+  error(message: string): void
+}
+
+// Конкретные реализации
+class FetchAPI implements HttpClient {
+  async get<T>(url: string): Promise<T> {
+    const response = await fetch(url)
+    return response.json()
+  }
+
+  async post<T>(url: string, data: any): Promise<T> {
+    const response = await fetch(url, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    })
+    return response.json()
+  }
+}
+
+class LocalStorageCache implements Cache {
+  get<T>(key: string): T | null {
+    const item = localStorage.getItem(key)
+    return item ? JSON.parse(item) : null
+  }
+
+  set<T>(key: string, value: T): void {
+    localStorage.setItem(key, JSON.stringify(value))
+  }
+
+  clear(): void {
+    localStorage.clear()
+  }
+}
+
+class ConsoleLogger implements Logger {
+  log(message: string) {
+    console.log(`[LOG] ${message}`)
+  }
+
+  error(message: string) {
+    console.error(`[ERROR] ${message}`)
+  }
+}
+
+// Сервис зависит от абстракций через DI
+class UserService {
+  constructor(
+    private http: HttpClient,
+    private cache: Cache,
+    private logger: Logger
+  ) {}
+
+  async getUser(id: string) {
+    this.logger.log(`Fetching user ${id}`)
+
+    const cached = this.cache.get<User>(`user_${id}`)
+    if (cached) return cached
+
+    const user = await this.http.get<User>(`/users/${id}`)
+    this.cache.set(`user_${id}`, user)
+
+    return user
+  }
+}
+
+// Использование с разными реализациями
+const prodService = new UserService(
+  new FetchAPI(),
+  new LocalStorageCache(),
+  new ConsoleLogger()
+)
+
+// Легко тестировать с моками
+const testService = new UserService(
+  mockHttpClient,
+  mockCache,
+  mockLogger
+)

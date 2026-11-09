@@ -1,0 +1,75 @@
+
+// SEO Checklist для фронтенд-разработчика
+
+/* ✅ БАЗОВЫЕ META-ТЕГИ */
+// [ ] title (уникальный для каждой страницы, 50-60 символов)
+// [ ] meta description (150-160 символов)
+// [ ] meta viewport для мобильной версии
+// [ ] canonical URL для избежания дублей
+// [ ] meta robots (index/noindex)
+// [ ] favicon и apple-touch-icon
+
+/* ✅ СТРУКТУРИРОВАННЫЕ ДАННЫЕ */
+// [ ] Schema.org разметка (Article, Product, Organization)
+// [ ] Open Graph теги для соцсетей
+// [ ] Twitter Cards
+// [ ] Хлебные крошки (Breadcrumb Schema)
+
+/* ✅ ПРОИЗВОДИТЕЛЬНОСТЬ */
+// [ ] Lighthouse score > 90
+// [ ] LCP < 2.5s
+// [ ] FCP < 1.8s
+// [ ] TTFB < 600ms
+// [ ] CLS < 0.1
+// [ ] Lazy loading для изображений
+// [ ] Code splitting
+// [ ] Минификация CSS/JS
+// [ ] Compression (gzip/brotli)
+
+/* ✅ ИЗОБРАЖЕНИЯ */
+// [ ] Alt текст для всех изображений
+// [ ] Современные форматы (WebP, AVIF)
+// [ ] Responsive images (srcset)
+// [ ] Оптимизированные размеры
+// [ ] Lazy loading
+// [ ] Width и height атрибуты
+
+/* ✅ ССЫЛКИ И НАВИГАЦИЯ */
+// [ ] Внутренние ссылки используют относительные URL
+// [ ] Внешние ссылки с rel="noopener"
+// [ ] 404 страница настроена
+// [ ] Редиректы 301 для старых URL
+// [ ] Sitemap.xml актуален
+// [ ] robots.txt настроен
+
+/* ✅ МОБИЛЬНАЯ ВЕРСИЯ */
+// [ ] Mobile-first подход
+// [ ] Responsive design
+// [ ] Touch-friendly элементы (44x44px минимум)
+// [ ] Нет горизонтального скролла
+// [ ] Быстрая загрузка на 3G
+
+/* ✅ ДОСТУПНОСТЬ (A11Y) */
+// [ ] Семантические HTML теги
+// [ ] ARIA атрибуты где нужно
+// [ ] Keyboard navigation работает
+// [ ] Контрастность текста достаточная
+// [ ] Screen reader friendly
+
+/* ✅ ИНТЕРНАЦИОНАЛИЗАЦИЯ */
+// [ ] hreflang для мультиязычных сайтов
+// [ ] lang атрибут в <html>
+// [ ] Правильная кодировка (UTF-8)
+
+/* ✅ БЕЗОПАСНОСТЬ */
+// [ ] HTTPS включен
+// [ ] Security headers настроены
+// [ ] CSP (Content Security Policy)
+// [ ] Mixed content отсутствует
+
+/* ✅ АНАЛИТИКА И МОНИТОРИНГ */
+// [ ] Google Analytics подключен
+// [ ] Google Search Console настроен
+// [ ] Sitemap отправлен в Search Console
+// [ ] Мониторинг ошибок 404
+// [ ] Отслеживание Core Web Vitals

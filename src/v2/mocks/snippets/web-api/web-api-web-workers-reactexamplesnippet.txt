@@ -1,0 +1,314 @@
+
+// =====================================
+// REACT INTEGRATION - использование в React
+// =====================================
+
+// 1. Кастомный хук для Web Worker
+import { useEffect, useRef, useState, useCallback } from 'react'
+
+function useWebWorker(workerFunction) {
+  const workerRef = useRef(null)
+  const [result, setResult] = useState(null)
+  const [error, setError] = useState(null)
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    // Создаем Worker из функции
+    const code = workerFunction.toString()
+    const blob = new Blob([`(${code})()`], { type: 'application/javascript' })
+    const workerUrl = URL.createObjectURL(blob)
+
+    workerRef.current = new Worker(workerUrl)
+
+    workerRef.current.onmessage = (event) => {
+      setResult(event.data)
+      setLoading(false)
+    }
+
+    workerRef.current.onerror = (err) => {
+      setError(err.message)
+      setLoading(false)
+    }
+
+    return () => {
+      workerRef.current?.terminate()
+      URL.revokeObjectURL(workerUrl)
+    }
+  }, [workerFunction])
+
+  const execute = useCallback((data) => {
+    setLoading(true)
+    setError(null)
+    workerRef.current?.postMessage(data)
+  }, [])
+
+  return { result, error, loading, execute }
+}
+
+// 2. Компонент для тяжелых вычислений
+function HeavyCalculationComponent() {
+  const workerFunction = () => {
+    self.onmessage = (e) => {
+      const { numbers } = e.data
+
+      // Тяжелые вычисления
+      let result = 0
+      for (let i = 0; i < numbers.length; i++) {
+        for (let j = 0; j < 10000; j++) {
+          result += Math.sqrt(numbers[i]) * Math.sin(j)
+        }
+      }
+
+      self.postMessage({ result })
+    }
+  }
+
+  const { result, loading, execute } = useWebWorker(workerFunction)
+
+  const handleCalculate = () => {
+    const numbers = Array.from({ length: 1000 }, (_, i) => i)
+    execute({ numbers })
+  }
+
+  return (
+    <div>
+      <button onClick={handleCalculate} disabled={loading}>
+        {loading ? 'Вычисление...' : 'Начать вычисление'}
+      </button>
+      {result && <div>Результат: {result.result}</div>}
+    </div>
+  )
+}
+
+// 3. Обработка изображений с прогрессом
+function ImageProcessor() {
+  const [progress, setProgress] = useState(0)
+  const [processedImage, setProcessedImage] = useState(null)
+  const workerRef = useRef(null)
+
+  useEffect(() => {
+    const worker = new Worker('image-worker.js')
+
+    worker.onmessage = (event) => {
+      const { type, data } = event.data
+
+      if (type === 'progress') {
+        setProgress(data.progress)
+      } else if (type === 'complete') {
+        setProcessedImage(data.imageData)
+        setProgress(100)
+      }
+    }
+
+    workerRef.current = worker
+
+    return () => worker.terminate()
+  }, [])
+
+  const handleFileSelect = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    const bitmap = await createImageBitmap(file)
+    const canvas = document.createElement('canvas')
+    canvas.width = bitmap.width
+    canvas.height = bitmap.height
+
+    const ctx = canvas.getContext('2d')
+    ctx.drawImage(bitmap, 0, 0)
+
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+
+    // Отправляем в Worker
+    workerRef.current.postMessage({
+      type: 'process',
+      imageData: imageData,
+      filter: 'grayscale'
+    })
+  }
+
+  return (
+    <div>
+      <input type="file" accept="image/*" onChange={handleFileSelect} />
+      {progress > 0 && progress < 100 && (
+        <div>Обработка: {progress}%</div>
+      )}
+      {processedImage && (
+        <canvas ref={canvas => {
+          if (canvas) {
+            canvas.width = processedImage.width
+            canvas.height = processedImage.height
+            canvas.getContext('2d').putImageData(processedImage, 0, 0)
+          }
+        }} />
+      )}
+    </div>
+  )
+}
+
+// 4. Real-time поиск с Worker
+function SearchComponent() {
+  const [query, setQuery] = useState('')
+  const [results, setResults] = useState([])
+  const [searchTime, setSearchTime] = useState(0)
+  const workerRef = useRef(null)
+
+  useEffect(() => {
+    const worker = new Worker('search-worker.js')
+
+    // Загружаем большой датасет в Worker
+    fetch('/api/large-dataset')
+      .then(r => r.json())
+      .then(data => {
+        worker.postMessage({
+          type: 'init',
+          data: data
+        })
+      })
+
+    worker.onmessage = (event) => {
+      const { results, time } = event.data
+      setResults(results)
+      setSearchTime(time)
+    }
+
+    workerRef.current = worker
+
+    return () => worker.terminate()
+  }, [])
+
+  useEffect(() => {
+    if (!query.trim()) {
+      setResults([])
+      return
+    }
+
+    // Debounce
+    const timeoutId = setTimeout(() => {
+      workerRef.current?.postMessage({
+        type: 'search',
+        query: query
+      })
+    }, 300)
+
+    return () => clearTimeout(timeoutId)
+  }, [query])
+
+  return (
+    <div>
+      <input
+        type="text"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Поиск..."
+      />
+      {searchTime > 0 && (
+        <div>Найдено за {searchTime}ms</div>
+      )}
+      <ul>
+        {results.map(item => (
+          <li key={item.id}>{item.title}</li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+// search-worker.js
+let dataset = []
+
+self.onmessage = (event) => {
+  const { type, data, query } = event.data
+
+  switch (type) {
+    case 'init':
+      dataset = data
+      console.log('Dataset loaded:', dataset.length, 'items')
+      break
+
+    case 'search':
+      const startTime = performance.now()
+
+      const results = dataset.filter(item => {
+        return item.title.toLowerCase().includes(query.toLowerCase()) ||
+               item.description.toLowerCase().includes(query.toLowerCase())
+      }).slice(0, 50) // Первые 50 результатов
+
+      const endTime = performance.now()
+
+      self.postMessage({
+        results,
+        time: (endTime - startTime).toFixed(2)
+      })
+      break
+  }
+}
+
+// 5. Worker Pool хук
+function useWorkerPool(workerScript, poolSize = 4) {
+  const poolRef = useRef(null)
+
+  useEffect(() => {
+    poolRef.current = new WorkerPool(workerScript, poolSize)
+
+    return () => {
+      poolRef.current?.terminate()
+    }
+  }, [workerScript, poolSize])
+
+  const execute = useCallback(async (data) => {
+    if (!poolRef.current) throw new Error('Worker pool not initialized')
+    return poolRef.current.execute(data)
+  }, [])
+
+  const getStats = useCallback(() => {
+    return poolRef.current?.getStats() || null
+  }, [])
+
+  return { execute, getStats }
+}
+
+// Использование pool хука
+function DataProcessor() {
+  const [items, setItems] = useState([])
+  const [processing, setProcessing] = useState(false)
+  const [stats, setStats] = useState(null)
+
+  const { execute, getStats } = useWorkerPool('processor-worker.js', 4)
+
+  const processItems = async () => {
+    setProcessing(true)
+
+    try {
+      const results = await Promise.all(
+        items.map(item => execute({
+          type: 'process',
+          data: item
+        }))
+      )
+
+      console.log('Обработано:', results.length)
+      setStats(getStats())
+    } catch (error) {
+      console.error('Ошибка обработки:', error)
+    } finally {
+      setProcessing(false)
+    }
+  }
+
+  return (
+    <div>
+      <button onClick={processItems} disabled={processing}>
+        {processing ? 'Обработка...' : 'Обработать данные'}
+      </button>
+      {stats && (
+        <div>
+          <div>Workers: {stats.totalWorkers}</div>
+          <div>Busy: {stats.busyWorkers}</div>
+          <div>Queue: {stats.queueLength}</div>
+          <div>Utilization: {stats.utilization}</div>
+        </div>
+      )}
+    </div>
+  )
+}

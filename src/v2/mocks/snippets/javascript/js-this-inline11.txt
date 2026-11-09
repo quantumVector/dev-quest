@@ -1,0 +1,12 @@
+function defaultThis() {
+  console.log(this);
+}
+
+defaultThis();
+// Не строгий: Window/global
+// Строгий: undefined
+
+"use strict";
+function strictThis() {
+  console.log(this); // undefined
+}

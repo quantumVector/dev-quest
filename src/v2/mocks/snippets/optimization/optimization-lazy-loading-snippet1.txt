@@ -1,0 +1,11 @@
+
+<!-- Базовый lazy loading для изображений -->
+<img src="hero.jpg" alt="Герой" loading="eager">
+<!-- ⬆️ Критическое изображение - загружаем сразу -->
+
+<img src="gallery-1.jpg" alt="Галерея 1" loading="lazy">
+<img src="gallery-2.jpg" alt="Галерея 2" loading="lazy">
+<!-- ⬆️ Изображения ниже первого экрана - lazy -->
+
+<!-- Для старых браузеров используем polyfill -->
+<script src="https://cdn.jsdelivr.net/npm/loading-attribute-polyfill@latest/dist/loading-attribute-polyfill.min.js"></script>

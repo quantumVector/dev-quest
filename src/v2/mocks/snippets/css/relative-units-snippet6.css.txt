@@ -1,0 +1,30 @@
+
+/* Современные viewport единицы - решение проблем мобильных браузеров */
+
+/* Традиционные проблемы на мобильных */
+.old-fullscreen {
+  height: 100vh; /* Может не учитывать адресную строку */
+}
+
+/* Новые динамические единицы */
+.hero-section {
+  height: 100dvh;  /* Dynamic Viewport Height - учитывает изменения UI */
+  width: 100dvw;   /* Dynamic Viewport Width */
+}
+
+/* Статические единицы - фиксированные размеры */
+.stable-header {
+  height: 10svh;   /* Small Viewport Height - наименьший размер */
+}
+
+/* Большие единицы - максимальный размер */
+.full-experience {
+  height: 100lvh;  /* Large Viewport Height - наибольший размер */
+}
+
+/* Практическое применение */
+.mobile-safe-hero {
+  height: 100dvh;              /* Адаптируется к UI браузера */
+  min-height: 100svh;          /* Минимум = без UI элементов */
+  padding: clamp(1rem, 5vw, 3rem); /* Адаптивные отступы */
+}

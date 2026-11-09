@@ -1,0 +1,81 @@
+
+// Асинхронный итератор
+const asyncIterable = {
+  data: ['a', 'b', 'c'],
+
+  // Symbol.asyncIterator для асинхронной итерации
+  [Symbol.asyncIterator]() {
+    let index = 0
+    const data = this.data
+
+    return {
+      // next() возвращает Promise
+      async next() {
+        // Имитируем асинхронную операцию
+        await new Promise(resolve => setTimeout(resolve, 100))
+
+        if (index < data.length) {
+          return { value: data[index++], done: false }
+        } else {
+          return { value: undefined, done: true }
+        }
+      }
+    }
+  }
+}
+
+// Использование с for await...of
+async function consumeAsyncIterable() {
+  for await (const value of asyncIterable) {
+    console.log(value) // 'a', 'b', 'c' с задержкой
+  }
+}
+
+// Или вручную
+async function manualAsyncIteration() {
+  const iterator = asyncIterable[Symbol.asyncIterator]()
+  let result = await iterator.next()
+
+  while (!result.done) {
+    console.log(result.value)
+    result = await iterator.next()
+  }
+}
+
+// Асинхронный итератор для API запросов
+class APIIterator {
+  constructor(url, pageSize = 10) {
+    this.url = url
+    this.pageSize = pageSize
+    this.page = 0
+  }
+
+  [Symbol.asyncIterator]() {
+    return this
+  }
+
+  async next() {
+    try {
+      const response = await fetch(`${this.url}?page=${this.page}&size=${this.pageSize}`)
+      const data = await response.json()
+
+      if (data.items && data.items.length > 0) {
+        this.page++
+        return { value: data.items, done: false }
+      } else {
+        return { value: undefined, done: true }
+      }
+    } catch (error) {
+      return { value: undefined, done: true }
+    }
+  }
+}
+
+// Использование
+async function fetchAllPages() {
+  const api = new APIIterator('/api/users')
+
+  for await (const page of api) {
+    console.log('Страница данных:', page)
+  }
+}

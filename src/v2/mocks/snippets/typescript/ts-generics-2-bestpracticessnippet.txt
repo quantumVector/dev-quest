@@ -1,0 +1,201 @@
+
+// =====================================
+// ЛУЧШИЕ ПРАКТИКИ
+// =====================================
+
+// 1. Именование Generic параметров
+// ❌ ПЛОХО - непонятные имена
+function process<X, Y, Z>(a: X, b: Y): Z {
+  // ...
+}
+
+// ✅ ХОРОШО - описательные имена
+function transform<TInput, TOutput>(input: TInput): TOutput {
+  // ...
+}
+
+// Общепринятые соглашения:
+// T - Type (основной тип)
+// K - Key (ключ)
+// V - Value (значение)
+// E - Element (элемент)
+// R - Result (результат)
+// P - Props (свойства React)
+// S - State (состояние React)
+
+// 2. Ограничения типов - используйте extends
+// ❌ ПЛОХО - слишком общее
+function getLength<T>(item: T): number {
+  return item.length  // ❌ Error - T может не иметь length
+}
+
+// ✅ ХОРОШО - с ограничением
+function getLength<T extends { length: number }>(item: T): number {
+  return item.length  // ✅ OK
+}
+
+// 3. Избегайте чрезмерной вложенности Generics
+// ❌ ПЛОХО - слишком сложно
+type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends object
+    ? T[P] extends Array<infer U>
+      ? Array<DeepPartial<U>>
+      : DeepPartial<T[P]>
+    : T[P]
+}
+
+// ✅ ЛУЧШЕ - разбить на части
+type PartialArray<T> = Array<DeepPartial<T>>
+type PartialObject<T> = { [P in keyof T]?: DeepPartial<T[P]> }
+
+type DeepPartial<T> = T extends Array<infer U>
+  ? PartialArray<U>
+  : T extends object
+  ? PartialObject<T>
+  : T
+
+// 4. Используйте infer для извлечения типов
+// ✅ ХОРОШО
+type UnwrapArray<T> = T extends Array<infer U> ? U : T
+
+type StringArray = UnwrapArray<string[]>  // string
+type NumberType = UnwrapArray<number>     // number
+
+// 5. Предпочитайте extends вместо условных проверок
+// ❌ ПЛОХО
+function process<T>(value: T): void {
+  if (typeof value === 'string') {
+    console.log(value.toUpperCase())  // Приходится проверять в runtime
+  }
+}
+
+// ✅ ЛУЧШЕ
+function processString<T extends string>(value: T): void {
+  console.log(value.toUpperCase())  // TypeScript знает что это string
+}
+
+// 6. Используйте Utility Types вместо создания своих
+// ❌ ПЛОХО - переизобретение колеса
+type MyPartial<T> = {
+  [P in keyof T]?: T[P]
+}
+
+// ✅ ХОРОШО - используем встроенный
+type UserPartial = Partial<User>
+
+// 7. Документируйте сложные Generic типы
+/**
+ * Создает тип с обязательными полями из T
+ * @template T - Исходный тип
+ * @template K - Ключи, которые должны быть обязательными
+ * @example
+ * type User = { id?: number, name?: string }
+ * type RequiredUser = RequiredKeys<User, 'id'>
+ * // { id: number, name?: string }
+ */
+type RequiredKeys<T, K extends keyof T> = T & Required<Pick<T, K>>
+
+// 8. Используйте const assertions с Generics
+// ✅ ХОРОШО
+function createEnum<T extends readonly string[]>(values: T): T {
+  return values
+}
+
+const Statuses = createEnum(['active', 'inactive', 'pending'] as const)
+type Status = typeof Statuses[number]  // 'active' | 'inactive' | 'pending'
+
+// 9. Избегайте any в Generic типах
+// ❌ ПЛОХО
+function process<T = any>(value: T): void {
+  // ...
+}
+
+// ✅ ЛУЧШЕ
+function process<T = unknown>(value: T): void {
+  // ...
+}
+
+// ✅ ЕЩЕ ЛУЧШЕ - без дефолта если тип всегда нужен
+function process<T>(value: T): void {
+  // ...
+}
+
+// 10. Используйте Generic constraints для type safety
+// ✅ ХОРОШО
+function sortBy<T, K extends keyof T>(
+  array: T[],
+  key: K
+): T[] {
+  return array.sort((a, b) => {
+    if (a[key] < b[key]) return -1
+    if (a[key] > b[key]) return 1
+    return 0
+  })
+}
+
+const sorted = sortBy(users, 'name')  // ✅ OK
+// const invalid = sortBy(users, 'invalid')  // ❌ Error
+
+// 11. Создавайте helper типы для переиспользования
+type Nullable<T> = T | null
+type Optional<T> = T | undefined
+type Maybe<T> = T | null | undefined
+
+type AsyncResult<T> =
+  | { status: 'loading' }
+  | { status: 'success'; data: T }
+  | { status: 'error'; error: Error }
+
+// 12. Используйте Generic constraints для валидации
+interface Identifiable {
+  id: string | number
+}
+
+function findById<T extends Identifiable>(
+  items: T[],
+  id: T['id']
+): T | undefined {
+  return items.find(item => item.id === id)
+}
+
+// 13. Предпочитайте композицию сложным Generic типам
+// ❌ ПЛОХО - монолитный тип
+type ComplexType<T, K extends keyof T, V extends T[K]> = {
+  // Очень сложная логика
+}
+
+// ✅ ЛУЧШЕ - композиция простых типов
+type PickByValue<T, V> = Pick<T, {
+  [K in keyof T]: T[K] extends V ? K : never
+}[keyof T]>
+
+type FilterByType<T, U> = PickByValue<T, U>
+
+// 14. Используйте distributive conditional types правильно
+// ✅ ХОРОШО - распределяется по union
+type ToArray<T> = T extends any ? T[] : never
+
+type Result = ToArray<string | number>  // string[] | number[]
+
+// Если не нужно распределение, используйте [T]
+type ToArrayNonDistributive<T> = [T] extends [any] ? T[] : never
+
+type Result2 = ToArrayNonDistributive<string | number>  // (string | number)[]
+
+// 15. Тестируйте Generic типы
+// Используйте специальные типы для проверки
+type Expect<T extends true> = T
+type Equal<X, Y> = (<T>() => T extends X ? 1 : 2) extends (<T>() => T extends Y ? 1 : 2)
+  ? true
+  : false
+
+// Тесты
+type Test1 = Expect<Equal<
+  ReturnType<typeof identity>,
+  <T>(value: T) => T
+>>
+
+type Test2 = Expect<Equal<
+  FilterByType<{ a: string; b: number }, number>,
+  { b: number }
+>>

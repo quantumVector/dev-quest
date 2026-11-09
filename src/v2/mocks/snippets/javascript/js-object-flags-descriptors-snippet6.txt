@@ -1,0 +1,38 @@
+
+// Практические применения
+
+// 1. Создание констант
+const API = {};
+Object.defineProperty(API, 'BASE_URL', {
+  value: "https://api.example.com",
+  writable: false,
+  enumerable: true,
+  configurable: false
+});
+
+// 2. Метаданные объекта
+function createUser(name, email) {
+  const user = { name, email };
+
+  Object.defineProperty(user, '_created', {
+    value: new Date(),
+    writable: false,
+    enumerable: false, // скрываем от JSON.stringify
+    configurable: false
+  });
+
+  return user;
+}
+
+// 3. Геттеры и сеттеры с ограничениями
+const account = { _balance: 1000 };
+
+Object.defineProperty(account, 'balance', {
+  get() { return this._balance; },
+  set(value) {
+    if (value < 0) throw new Error("Balance cannot be negative");
+    this._balance = value;
+  },
+  enumerable: true,
+  configurable: false
+});

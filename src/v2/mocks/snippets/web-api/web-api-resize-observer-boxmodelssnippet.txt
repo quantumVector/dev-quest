@@ -1,0 +1,95 @@
+
+// =====================================
+// BOX MODELS - разные режимы измерения
+// =====================================
+
+// ResizeObserver поддерживает 3 режима: content-box, border-box, device-pixel-content-box
+
+const element = document.querySelector('.box')
+
+// 1. content-box (по умолчанию) - размер контента без padding
+const contentBoxObserver = new ResizeObserver((entries) => {
+  for (const entry of entries) {
+    // Размеры через contentRect
+    console.log('ContentRect:', entry.contentRect.width)
+
+    // Размеры через contentBoxSize (массив)
+    if (entry.contentBoxSize) {
+      // Поддержка старых и новых браузеров
+      const size = Array.isArray(entry.contentBoxSize)
+        ? entry.contentBoxSize[0]
+        : entry.contentBoxSize
+
+      console.log('Content Box Size:')
+      console.log('  Width:', size.inlineSize)
+      console.log('  Height:', size.blockSize)
+    }
+  }
+})
+
+contentBoxObserver.observe(element, { box: 'content-box' })
+
+// 2. border-box - размер с padding и border
+const borderBoxObserver = new ResizeObserver((entries) => {
+  for (const entry of entries) {
+    if (entry.borderBoxSize) {
+      const size = Array.isArray(entry.borderBoxSize)
+        ? entry.borderBoxSize[0]
+        : entry.borderBoxSize
+
+      console.log('Border Box Size:')
+      console.log('  Width:', size.inlineSize)
+      console.log('  Height:', size.blockSize)
+    }
+  }
+})
+
+borderBoxObserver.observe(element, { box: 'border-box' })
+
+// 3. device-pixel-content-box - размеры в device pixels (для canvas, retina)
+const devicePixelObserver = new ResizeObserver((entries) => {
+  for (const entry of entries) {
+    if (entry.devicePixelContentBoxSize) {
+      const size = Array.isArray(entry.devicePixelContentBoxSize)
+        ? entry.devicePixelContentBoxSize[0]
+        : entry.devicePixelContentBoxSize
+
+      console.log('Device Pixel Box Size:')
+      console.log('  Width:', size.inlineSize)
+      console.log('  Height:', size.blockSize)
+
+      // Полезно для canvas с учетом devicePixelRatio
+      const canvas = entry.target
+      canvas.width = size.inlineSize
+      canvas.height = size.blockSize
+    }
+  }
+})
+
+devicePixelObserver.observe(element, { box: 'device-pixel-content-box' })
+
+// 4. Универсальная функция получения размеров
+function getElementSize(entry, boxType = 'content-box') {
+  let sizeArray
+
+  switch (boxType) {
+    case 'border-box':
+      sizeArray = entry.borderBoxSize
+      break
+    case 'device-pixel-content-box':
+      sizeArray = entry.devicePixelContentBoxSize
+      break
+    case 'content-box':
+    default:
+      sizeArray = entry.contentBoxSize
+      break
+  }
+
+  // Поддержка разных форматов
+  const size = Array.isArray(sizeArray) ? sizeArray[0] : sizeArray
+
+  return {
+    width: size.inlineSize,
+    height: size.blockSize
+  }
+}

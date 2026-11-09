@@ -1,0 +1,44 @@
+
+// Классовый компонент с методами жизненного цикла
+class UserProfile extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { user: null }
+  }
+
+  // 1. componentDidMount - после монтирования
+  componentDidMount() {
+    console.log('Component mounted')
+    this.fetchUser(this.props.userId)
+  }
+
+  // 2. componentDidUpdate - после обновления
+  componentDidUpdate(prevProps, prevState) {
+    console.log('Component updated')
+    // Проверяем изменился ли userId
+    if (prevProps.userId !== this.props.userId) {
+      this.fetchUser(this.props.userId)
+    }
+  }
+
+  // 3. componentWillUnmount - перед размонтированием
+  componentWillUnmount() {
+    console.log('Component will unmount')
+    // Отменяем запросы, таймеры, подписки
+    this.cancelRequests()
+  }
+
+  fetchUser(userId) {
+    fetch(`/api/users/${userId}`)
+      .then(res => res.json())
+      .then(user => this.setState({ user }))
+  }
+
+  cancelRequests() {
+    // Логика отмены
+  }
+
+  render() {
+    return <div>{this.state.user?.name}</div>
+  }
+}

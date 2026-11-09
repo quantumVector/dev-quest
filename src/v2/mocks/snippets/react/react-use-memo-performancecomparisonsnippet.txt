@@ -1,0 +1,72 @@
+
+// Сравнение производительности с и без useMemo
+
+// ❌ Без оптимизации
+function SlowComponent({ items, threshold }) {
+  // При каждом рендере:
+  // 1. Фильтрация массива
+  const filtered = items.filter(item => item.value > threshold);
+
+  // 2. Сортировка
+  const sorted = [...filtered].sort((a, b) => b.value - a.value);
+
+  // 3. Вычисление статистики
+  const stats = {
+    total: sorted.reduce((sum, item) => sum + item.value, 0),
+    average: sorted.reduce((sum, item) => sum + item.value, 0) / sorted.length,
+    max: Math.max(...sorted.map(item => item.value))
+  };
+
+  // 4. Форматирование данных для графика
+  const chartData = sorted.map(item => ({
+    x: item.name,
+    y: item.value,
+    color: item.value > stats.average ? 'green' : 'red'
+  }));
+
+  return (
+    <div>
+      <Chart data={chartData} />
+      <Stats data={stats} />
+    </div>
+  );
+}
+
+// ✅ С useMemo - оптимизировано
+function OptimizedComponent({ items, threshold }) {
+  // 1. Мемоизация фильтрации
+  const filtered = useMemo(() =>
+    items.filter(item => item.value > threshold),
+    [items, threshold]
+  );
+
+  // 2. Мемоизация сортировки
+  const sorted = useMemo(() =>
+    [...filtered].sort((a, b) => b.value - a.value),
+    [filtered]
+  );
+
+  // 3. Мемоизация статистики
+  const stats = useMemo(() => ({
+    total: sorted.reduce((sum, item) => sum + item.value, 0),
+    average: sorted.reduce((sum, item) => sum + item.value, 0) / sorted.length,
+    max: Math.max(...sorted.map(item => item.value))
+  }), [sorted]);
+
+  // 4. Мемоизация данных для графика
+  const chartData = useMemo(() =>
+    sorted.map(item => ({
+      x: item.name,
+      y: item.value,
+      color: item.value > stats.average ? 'green' : 'red'
+    })),
+    [sorted, stats.average]
+  );
+
+  return (
+    <div>
+      <Chart data={chartData} />
+      <Stats data={stats} />
+    </div>
+  );
+}

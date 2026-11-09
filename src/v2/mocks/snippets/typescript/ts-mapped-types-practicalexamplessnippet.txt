@@ -1,0 +1,307 @@
+
+// =====================================
+// ПРАКТИЧЕСКИЕ ПРИМЕРЫ
+// =====================================
+
+// 1. API Response типы с трансформацией
+interface DatabaseUser {
+  user_id: number
+  user_name: string
+  user_email: string
+  created_at: string
+  updated_at: string
+}
+
+// Трансформация snake_case в camelCase
+type CamelCase<S extends string> = S extends `${infer P1}_${infer P2}${infer P3}`
+  ? `${P1}${Uppercase<P2>}${CamelCase<P3>}`
+  : S
+
+type CamelCaseKeys<T> = {
+  [K in keyof T as CamelCase<string & K>]: T[K]
+}
+
+type ApiUser = CamelCaseKeys<DatabaseUser>
+// Результат:
+// {
+//   userId: number
+//   userName: string
+//   userEmail: string
+//   createdAt: string
+//   updatedAt: string
+// }
+
+// 2. Form State Management
+interface FormField<T> {
+  value: T
+  error: string | null
+  touched: boolean
+  dirty: boolean
+}
+
+type FormState<T> = {
+  [K in keyof T]: FormField<T[K]>
+}
+
+interface LoginForm {
+  email: string
+  password: string
+  rememberMe: boolean
+}
+
+type LoginFormState = FormState<LoginForm>
+// Результат:
+// {
+//   email: FormField<string>
+//   password: FormField<string>
+//   rememberMe: FormField<boolean>
+// }
+
+const loginState: LoginFormState = {
+  email: {
+    value: '',
+    error: null,
+    touched: false,
+    dirty: false
+  },
+  password: {
+    value: '',
+    error: 'Password is required',
+    touched: true,
+    dirty: true
+  },
+  rememberMe: {
+    value: false,
+    error: null,
+    touched: false,
+    dirty: false
+  }
+}
+
+// 3. Redux-style Actions
+type ActionCreator<T> = {
+  [K in keyof T as `set${Capitalize<string & K>}`]: (
+    payload: T[K]
+  ) => {
+    type: `SET_${Uppercase<string & K>}`
+    payload: T[K]
+  }
+}
+
+interface AppState {
+  user: User | null
+  loading: boolean
+  error: string | null
+}
+
+type AppActions = ActionCreator<AppState>
+// Результат:
+// {
+//   setUser: (payload: User | null) => { type: 'SET_USER', payload: User | null }
+//   setLoading: (payload: boolean) => { type: 'SET_LOADING', payload: boolean }
+//   setError: (payload: string | null) => { type: 'SET_ERROR', payload: string | null }
+// }
+
+// 4. Validation Schema
+type ValidationRule<T> = (value: T) => string | null
+
+type ValidationSchema<T> = {
+  [K in keyof T]: ValidationRule<T[K]>[]
+}
+
+interface RegistrationForm {
+  username: string
+  email: string
+  password: string
+  age: number
+}
+
+const validationSchema: ValidationSchema<RegistrationForm> = {
+  username: [
+    (value) => !value ? 'Username is required' : null,
+    (value) => value.length < 3 ? 'Too short' : null
+  ],
+  email: [
+    (value) => !value ? 'Email is required' : null,
+    (value) => !value.includes('@') ? 'Invalid email' : null
+  ],
+  password: [
+    (value) => !value ? 'Password is required' : null,
+    (value) => value.length < 8 ? 'Too short' : null
+  ],
+  age: [
+    (value) => value < 18 ? 'Must be 18+' : null
+  ]
+}
+
+// 5. Event Handlers типизация
+type EventHandlers<T> = {
+  [K in keyof T as `on${Capitalize<string & K>}`]?: (value: T[K]) => void
+}
+
+interface FormInputs {
+  name: string
+  email: string
+  age: number
+}
+
+type FormHandlers = EventHandlers<FormInputs>
+// Результат:
+// {
+//   onName?: (value: string) => void
+//   onEmail?: (value: string) => void
+//   onAge?: (value: number) => void
+// }
+
+const handlers: FormHandlers = {
+  onName: (value) => console.log('Name:', value),
+  onEmail: (value) => console.log('Email:', value),
+  onAge: (value) => console.log('Age:', value)
+}
+
+// 6. React Props с вариантами
+type ComponentVariant = 'primary' | 'secondary' | 'danger'
+type ComponentSize = 'small' | 'medium' | 'large'
+
+type VariantProps<V extends string, S extends string> = {
+  [K in V as `${K}Style`]?: React.CSSProperties
+} & {
+  [K in S as `${K}Class`]?: string
+}
+
+type ButtonVariants = VariantProps<ComponentVariant, ComponentSize>
+// Результат:
+// {
+//   primaryStyle?: React.CSSProperties
+//   secondaryStyle?: React.CSSProperties
+//   dangerStyle?: React.CSSProperties
+//   smallClass?: string
+//   mediumClass?: string
+//   largeClass?: string
+// }
+
+// 7. Database Query Builder
+type WhereClause<T> = {
+  [K in keyof T as `where${Capitalize<string & K>}`]?: T[K] | {
+    equals?: T[K]
+    not?: T[K]
+    in?: T[K][]
+    notIn?: T[K][]
+    lt?: T[K]
+    lte?: T[K]
+    gt?: T[K]
+    gte?: T[K]
+  }
+}
+
+interface Post {
+  id: number
+  title: string
+  published: boolean
+  views: number
+}
+
+type PostQuery = WhereClause<Post>
+
+const query: PostQuery = {
+  wherePublished: true,
+  whereViews: {
+    gte: 100,
+    lt: 1000
+  },
+  whereTitle: {
+    in: ['First Post', 'Second Post']
+  }
+}
+
+// 8. Immutable Update Helpers
+type SetProperty<T> = {
+  [K in keyof T as `set${Capitalize<string & K>}`]: (
+    value: T[K] | ((prev: T[K]) => T[K])
+  ) => void
+}
+
+interface Counter {
+  count: number
+  label: string
+}
+
+type CounterSetters = SetProperty<Counter>
+
+const useCounter = (): [Counter, CounterSetters] => {
+  const [state, setState] = useState<Counter>({
+    count: 0,
+    label: 'Counter'
+  })
+
+  const setters: CounterSetters = {
+    setCount: (value) => {
+      setState(prev => ({
+        ...prev,
+        count: typeof value === 'function' ? value(prev.count) : value
+      }))
+    },
+    setLabel: (value) => {
+      setState(prev => ({
+        ...prev,
+        label: typeof value === 'function' ? value(prev.label) : value
+      }))
+    }
+  }
+
+  return [state, setters]
+}
+
+// Использование
+const [counter, { setCount, setLabel }] = useCounter()
+setCount(prev => prev + 1)
+setLabel('New Label')
+
+// 9. API Error типизация
+type ApiError<T> = {
+  [K in keyof T]: {
+    field: K
+    message: string
+    code: string
+  }
+}[keyof T]
+
+interface UserForm {
+  username: string
+  email: string
+  password: string
+}
+
+type UserFormError = ApiError<UserForm>
+// Результат: union type
+// | { field: 'username'; message: string; code: string }
+// | { field: 'email'; message: string; code: string }
+// | { field: 'password'; message: string; code: string }
+
+const errors: UserFormError[] = [
+  { field: 'username', message: 'Already taken', code: 'DUPLICATE' },
+  { field: 'email', message: 'Invalid format', code: 'INVALID' }
+]
+
+// 10. Type-safe Environment Variables
+interface EnvironmentVariables {
+  NODE_ENV: 'development' | 'production' | 'test'
+  API_URL: string
+  API_KEY: string
+  PORT: number
+  DATABASE_URL: string
+}
+
+type EnvPrefix<T> = {
+  [K in keyof T as `REACT_APP_${string & K}`]: T[K]
+}
+
+type ReactEnv = EnvPrefix<EnvironmentVariables>
+
+// Использование
+declare const process: {
+  env: ReactEnv
+}
+
+const apiUrl = process.env.REACT_APP_API_URL  // string
+const port = process.env.REACT_APP_PORT        // number

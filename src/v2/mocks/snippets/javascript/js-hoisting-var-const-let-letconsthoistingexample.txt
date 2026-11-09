@@ -1,0 +1,26 @@
+
+// ========================================
+// LET/CONST HOISTING - Временная мертвая зона
+// ========================================
+
+// LET - ReferenceError
+console.log(myLet); // ❌ ReferenceError: Cannot access 'myLet' before initialization
+let myLet = 'Hello';
+
+// CONST - ReferenceError
+console.log(myConst); // ❌ ReferenceError: Cannot access 'myConst' before initialization
+const myConst = 'World';
+
+// Функция с let/const
+function example() {
+    console.log(y); // ❌ ReferenceError
+    let y = 10;
+}
+
+// Temporal Dead Zone (TDZ)
+function showTDZ() {
+    // TDZ начинается здесь для переменной 'temp'
+    console.log(temp); // ❌ ReferenceError
+    let temp = 'test'; // TDZ заканчивается здесь
+    console.log(temp); // ✅ 'test'
+}

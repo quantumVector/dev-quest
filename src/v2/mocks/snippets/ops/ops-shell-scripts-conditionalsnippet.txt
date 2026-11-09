@@ -1,0 +1,138 @@
+
+#!/bin/bash
+
+# =====================================
+# IF-ELSE УСЛОВИЯ
+# =====================================
+
+# Базовый синтаксис
+if [ condition ]; then
+    echo "True"
+fi
+
+# С else
+if [ "$NAME" = "John" ]; then
+    echo "Hello, John!"
+else
+    echo "Hello, stranger!"
+fi
+
+# С elif
+if [ "$AGE" -lt 18 ]; then
+    echo "Minor"
+elif [ "$AGE" -lt 65 ]; then
+    echo "Adult"
+else
+    echo "Senior"
+fi
+
+# =====================================
+# ОПЕРАТОРЫ СРАВНЕНИЯ
+# =====================================
+
+# Числовые сравнения
+NUM=10
+if [ "$NUM" -eq 10 ]; then echo "Equal to 10"; fi
+if [ "$NUM" -ne 5 ]; then echo "Not equal to 5"; fi
+if [ "$NUM" -gt 5 ]; then echo "Greater than 5"; fi
+if [ "$NUM" -ge 10 ]; then echo "Greater or equal 10"; fi
+if [ "$NUM" -lt 20 ]; then echo "Less than 20"; fi
+if [ "$NUM" -le 10 ]; then echo "Less or equal 10"; fi
+
+# Строковые сравнения
+STR="hello"
+if [ "$STR" = "hello" ]; then echo "Equal"; fi
+if [ "$STR" != "world" ]; then echo "Not equal"; fi
+if [ -z "$STR" ]; then echo "Empty string"; fi
+if [ -n "$STR" ]; then echo "Non-empty string"; fi
+
+# Проверка файлов
+if [ -f "file.txt" ]; then echo "File exists"; fi
+if [ -d "directory" ]; then echo "Directory exists"; fi
+if [ -r "file.txt" ]; then echo "File is readable"; fi
+if [ -w "file.txt" ]; then echo "File is writable"; fi
+if [ -x "script.sh" ]; then echo "File is executable"; fi
+if [ -s "file.txt" ]; then echo "File is not empty"; fi
+if [ -e "file.txt" ]; then echo "File or directory exists"; fi
+
+# =====================================
+# ЛОГИЧЕСКИЕ ОПЕРАТОРЫ
+# =====================================
+
+# AND (&&)
+if [ "$AGE" -ge 18 ] && [ "$AGE" -le 65 ]; then
+    echo "Working age"
+fi
+
+# OR (||)
+if [ "$NAME" = "John" ] || [ "$NAME" = "Jane" ]; then
+    echo "Valid name"
+fi
+
+# NOT (!)
+if [ ! -f "file.txt" ]; then
+    echo "File does not exist"
+fi
+
+# Современный синтаксис [[...]] (bash-специфичный)
+if [[ "$NAME" == "John" && "$AGE" -ge 18 ]]; then
+    echo "Adult John"
+fi
+
+# Регулярные выражения (только с [[...]])
+if [[ "$EMAIL" =~ ^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z]+$ ]]; then
+    echo "Valid email"
+fi
+
+# =====================================
+# CASE STATEMENT
+# =====================================
+
+read -p "Enter environment (dev/staging/prod): " ENV
+
+case "$ENV" in
+    dev|development)
+        echo "Development environment"
+        PORT=3000
+        ;;
+    staging)
+        echo "Staging environment"
+        PORT=4000
+        ;;
+    prod|production)
+        echo "Production environment"
+        PORT=80
+        ;;
+    *)
+        echo "Unknown environment"
+        exit 1
+        ;;
+esac
+
+# Пример с файловыми расширениями
+FILE="script.js"
+case "$FILE" in
+    *.js)
+        echo "JavaScript file"
+        ;;
+    *.ts)
+        echo "TypeScript file"
+        ;;
+    *.py)
+        echo "Python file"
+        ;;
+    *)
+        echo "Unknown file type"
+        ;;
+esac
+
+# =====================================
+# ТЕРНАРНЫЙ ОПЕРАТОР (альтернатива)
+# =====================================
+
+# Bash не имеет тернарного оператора, но можно использовать:
+RESULT=$( [ "$AGE" -ge 18 ] && echo "adult" || echo "minor" )
+echo "Status: $RESULT"
+
+# Или короткая форма
+[ "$DEBUG" = true ] && echo "Debug mode ON" || echo "Debug mode OFF"

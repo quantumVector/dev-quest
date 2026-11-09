@@ -1,0 +1,26 @@
+
+// ❌ ПЛОХО - Прямая зависимость от конкретной реализации
+class UserService {
+  // Жесткая зависимость от конкретного класса
+  private api = new FetchAPI()
+  private cache = new LocalStorageCache()
+  private logger = new ConsoleLogger()
+
+  async getUser(id: string) {
+    this.logger.log(`Fetching user ${id}`)
+
+    const cached = this.cache.get(`user_${id}`)
+    if (cached) return cached
+
+    const user = await this.api.get(`/users/${id}`)
+    this.cache.set(`user_${id}`, user)
+
+    return user
+  }
+}
+
+// Проблемы:
+// 1. Нельзя заменить FetchAPI на AxiosAPI без изменения кода
+// 2. Нельзя использовать RedisCache вместо LocalStorageCache
+// 3. Сложно тестировать - нельзя замокать зависимости
+// 4. Нарушена инверсия зависимостей

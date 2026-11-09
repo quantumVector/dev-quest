@@ -1,0 +1,182 @@
+
+// =====================================
+// DISCRIMINATED UNIONS (РАЗМЕЧЕННЫЕ ОБЪЕДИНЕНИЯ)
+// =====================================
+
+// 1. Базовый пример с дискриминантом "type"
+type LoadingState = {
+  type: 'loading'
+}
+
+type SuccessState = {
+  type: 'success'
+  data: { id: number; name: string }
+}
+
+type ErrorState = {
+  type: 'error'
+  error: string
+}
+
+type State = LoadingState | SuccessState | ErrorState
+
+function renderState(state: State) {
+  // TypeScript автоматически сужает тип по дискриминанту
+  switch (state.type) {
+    case 'loading':
+      return 'Loading...'
+
+    case 'success':
+      // TypeScript знает, что state - SuccessState
+      return `Data: ${state.data.name}`
+
+    case 'error':
+      // TypeScript знает, что state - ErrorState
+      return `Error: ${state.error}`
+  }
+}
+
+// 2. Discriminated Union для API ответов
+type ApiSuccess<T> = {
+  status: 'success'
+  data: T
+  timestamp: Date
+}
+
+type ApiError = {
+  status: 'error'
+  error: {
+    code: number
+    message: string
+  }
+  timestamp: Date
+}
+
+type ApiResult<T> = ApiSuccess<T> | ApiError
+
+function handleApiResult<T>(result: ApiResult<T>) {
+  if (result.status === 'success') {
+    // TypeScript знает, что result - ApiSuccess<T>
+    console.log('Success:', result.data)
+    console.log('Timestamp:', result.timestamp)
+  } else {
+    // TypeScript знает, что result - ApiError
+    console.error(`Error ${result.error.code}: ${result.error.message}`)
+  }
+}
+
+// 3. Более сложный пример с событиями
+type MouseEvent = {
+  kind: 'mouse'
+  x: number
+  y: number
+  button: 'left' | 'right'
+}
+
+type KeyboardEvent = {
+  kind: 'keyboard'
+  key: string
+  modifiers: {
+    ctrl: boolean
+    shift: boolean
+    alt: boolean
+  }
+}
+
+type TouchEvent = {
+  kind: 'touch'
+  touches: Array<{ x: number; y: number }>
+}
+
+type InputEvent = MouseEvent | KeyboardEvent | TouchEvent
+
+function handleEvent(event: InputEvent) {
+  switch (event.kind) {
+    case 'mouse':
+      console.log(`Mouse ${event.button} click at (${event.x}, ${event.y})`)
+      break
+
+    case 'keyboard':
+      console.log(`Key pressed: ${event.key}`)
+      if (event.modifiers.ctrl) {
+        console.log('With Ctrl modifier')
+      }
+      break
+
+    case 'touch':
+      console.log(`Touch with ${event.touches.length} finger(s)`)
+      break
+  }
+}
+
+// 4. Exhaustiveness checking (проверка полноты)
+type PaymentMethod =
+  | { type: 'cash' }
+  | { type: 'card'; cardNumber: string }
+  | { type: 'crypto'; wallet: string }
+
+function processPayment(payment: PaymentMethod) {
+  switch (payment.type) {
+    case 'cash':
+      console.log('Processing cash payment')
+      break
+
+    case 'card':
+      console.log(`Processing card: ${payment.cardNumber}`)
+      break
+
+    case 'crypto':
+      console.log(`Processing crypto: ${payment.wallet}`)
+      break
+
+    default:
+      // Если забыли обработать какой-то case, TypeScript выдаст ошибку
+      const exhaustiveCheck: never = payment
+      throw new Error(`Unhandled payment type: ${exhaustiveCheck}`)
+  }
+}
+
+// 5. Вложенные Discriminated Unions
+type WebSocketConnecting = {
+  state: 'connecting'
+  url: string
+}
+
+type WebSocketOpen = {
+  state: 'open'
+  connection: WebSocket
+  messageCount: number
+}
+
+type WebSocketClosing = {
+  state: 'closing'
+  reason: string
+}
+
+type WebSocketClosed = {
+  state: 'closed'
+  code: number
+  reason: string
+}
+
+type WebSocketState =
+  | WebSocketConnecting
+  | WebSocketOpen
+  | WebSocketClosing
+  | WebSocketClosed
+
+function getWebSocketStatus(state: WebSocketState): string {
+  switch (state.state) {
+    case 'connecting':
+      return `Connecting to ${state.url}...`
+
+    case 'open':
+      return `Connected. Messages: ${state.messageCount}`
+
+    case 'closing':
+      return `Closing: ${state.reason}`
+
+    case 'closed':
+      return `Closed with code ${state.code}: ${state.reason}`
+  }
+}

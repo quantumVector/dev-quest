@@ -1,0 +1,14 @@
+
+// Глобальный реестр символов - Symbol.for()
+const globalSym1 = Symbol.for('sharedSymbol')
+const globalSym2 = Symbol.for('sharedSymbol')
+
+console.log(globalSym1 === globalSym2) // true - один и тот же символ!
+
+// Проверяем ключ глобального символа
+console.log(Symbol.keyFor(globalSym1)) // "sharedSymbol"
+console.log(Symbol.keyFor(globalSym2)) // "sharedSymbol"
+
+// Локальные символы не имеют ключа в глобальном реестре
+const localSym = Symbol('local')
+console.log(Symbol.keyFor(localSym)) // undefined

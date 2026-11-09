@@ -1,0 +1,9 @@
+
+import { atom } from 'jotai'
+
+const priceAtom = atom(100)
+const quantityAtom = atom(2)
+
+const totalAtom = atom((get) => {
+  return get(priceAtom) * get(quantityAtom)
+})

@@ -1,0 +1,26 @@
+
+// Каждая функция в JavaScript имеет свойство prototype
+function Person(name, age) {
+  this.name = name;
+  this.age = age;
+}
+
+// Добавляем метод в прототип
+Person.prototype.greet = function() {
+  return `Привет, меня зовут ${this.name}`;
+};
+
+Person.prototype.getAge = function() {
+  return this.age;
+};
+
+// Создаем экземпляры
+const john = new Person('John', 30);
+const jane = new Person('Jane', 25);
+
+console.log(john.greet()); // "Привет, меня зовут John"
+console.log(jane.getAge()); // 25
+
+// Методы находятся в прототипе, а не в каждом экземпляре
+console.log(john.hasOwnProperty('greet')); // false
+console.log(john.__proto__.hasOwnProperty('greet')); // true

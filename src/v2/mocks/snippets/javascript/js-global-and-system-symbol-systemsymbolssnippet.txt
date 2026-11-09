@@ -1,0 +1,35 @@
+
+// Системные (well-known) символы
+
+// Symbol.iterator - делает объект итерируемым
+const myIterable = {
+  data: [1, 2, 3],
+
+  // Определяем кастомный итератор
+  [Symbol.iterator]() {
+    let index = 0
+    const data = this.data
+
+    return {
+      next() {
+        if (index < data.length) {
+          return { value: data[index++], done: false }
+        }
+        return { done: true }
+      }
+    }
+  }
+}
+
+// Теперь объект можно использовать в for...of
+for (const value of myIterable) {
+  console.log(value) // 1, 2, 3
+}
+
+// Symbol.toStringTag - настройка Object.prototype.toString()
+const myObject = {
+  [Symbol.toStringTag]: 'MyCustomObject'
+}
+
+console.log(Object.prototype.toString.call(myObject))
+// "[object MyCustomObject]"

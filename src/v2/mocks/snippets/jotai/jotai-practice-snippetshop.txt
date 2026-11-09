@@ -1,0 +1,132 @@
+
+import { Suspense } from 'react'
+import {
+  atom,
+  useAtom,
+  useAtomValue,
+  useSetAtom,
+} from 'jotai'
+import { atomWithStorage } from 'jotai/utils'
+
+type Product = {
+  id: string
+  title: string
+  price: number
+}
+
+type CartItem = Product & {
+  quantity: number
+}
+
+const searchAtom = atom('')
+const cartAtom = atom<CartItem[]>([])
+const themeAtom = atomWithStorage<'light' | 'dark'>('theme', 'light')
+
+const productsAtom = atom(async () => {
+  const response = await fetch('/api/products')
+
+  if (!response.ok) {
+    throw new Error('Failed to load products')
+  }
+
+  return response.json() as Promise<Product[]>
+})
+
+const filteredProductsAtom = atom(async (get) => {
+  const products = await get(productsAtom)
+  const search = get(searchAtom).toLowerCase()
+
+  return products.filter((product) =>
+    product.title.toLowerCase().includes(search)
+  )
+})
+
+const totalPriceAtom = atom((get) =>
+  get(cartAtom).reduce((sum, item) => sum + item.price * item.quantity, 0)
+)
+
+const totalCountAtom = atom((get) =>
+  get(cartAtom).reduce((sum, item) => sum + item.quantity, 0)
+)
+
+const addToCartAtom = atom(null, (get, set, product: Product) => {
+  const cart = get(cartAtom)
+  const existing = cart.find((item) => item.id === product.id)
+
+  if (existing) {
+    set(
+      cartAtom,
+      cart.map((item) =>
+        item.id === product.id
+          ? { ...item, quantity: item.quantity + 1 }
+          : item
+      )
+    )
+    return
+  }
+
+  set(cartAtom, [...cart, { ...product, quantity: 1 }])
+})
+
+function SearchBox() {
+  const [search, setSearch] = useAtom(searchAtom)
+
+  return (
+    <input
+      value={search}
+      onChange={(event) => setSearch(event.target.value)}
+      placeholder="Search products"
+    />
+  )
+}
+
+function ProductList() {
+  const products = useAtomValue(filteredProductsAtom)
+  const addToCart = useSetAtom(addToCartAtom)
+
+  return (
+    <ul>
+      {products.map((product) => (
+        <li key={product.id}>
+          {product.title} — {product.price}
+          <button onClick={() => addToCart(product)}>Add</button>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+function CartSummary() {
+  const totalCount = useAtomValue(totalCountAtom)
+  const totalPrice = useAtomValue(totalPriceAtom)
+
+  return (
+    <p>
+      Cart: {totalCount} items, total: {totalPrice}
+    </p>
+  )
+}
+
+function ThemeToggle() {
+  const [theme, setTheme] = useAtom(themeAtom)
+
+  return (
+    <button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
+      Theme: {theme}
+    </button>
+  )
+}
+
+export function MiniShop() {
+  return (
+    <>
+      <ThemeToggle />
+      <SearchBox />
+      <CartSummary />
+
+      <Suspense fallback={<p>Loading products...</p>}>
+        <ProductList />
+      </Suspense>
+    </>
+  )
+}

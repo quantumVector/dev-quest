@@ -1,0 +1,122 @@
+
+// ITERATOR PATTERN - Обход коллекции
+
+// Кастомная итерируемая структура данных
+class TreeNode {
+  constructor(value) {
+    this.value = value
+    this.children = []
+  }
+
+  addChild(node) {
+    this.children.push(node)
+  }
+
+  // Depth-First Iterator
+  *[Symbol.iterator]() {
+    yield this.value
+
+    for (const child of this.children) {
+      yield* child // Делегируем итерацию детям
+    }
+  }
+
+  // Breadth-First Iterator
+  *breadthFirst() {
+    const queue = [this]
+
+    while (queue.length > 0) {
+      const node = queue.shift()
+      yield node.value
+      queue.push(...node.children)
+    }
+  }
+}
+
+// Использование кастомного итератора
+const root = new TreeNode('root')
+const child1 = new TreeNode('child1')
+const child2 = new TreeNode('child2')
+const grandchild1 = new TreeNode('grandchild1')
+
+root.addChild(child1)
+root.addChild(child2)
+child1.addChild(grandchild1)
+
+// Depth-First (по умолчанию)
+for (const value of root) {
+  console.log(value) // root, child1, grandchild1, child2
+}
+
+// Breadth-First
+for (const value of root.breadthFirst()) {
+  console.log(value) // root, child1, child2, grandchild1
+}
+
+// React: Компонент для рендера дерева с итератором
+function TreeView({ root }) {
+  const renderNode = (node, level = 0) => (
+    <div key={node.value} style={{ marginLeft: level * 20 }}>
+      {node.value}
+      {node.children.map(child => renderNode(child, level + 1))}
+    </div>
+  )
+
+  return <div>{renderNode(root)}</div>
+}
+
+// Async Iterator для пагинации
+class PaginatedAPI {
+  constructor(baseUrl, pageSize = 10) {
+    this.baseUrl = baseUrl
+    this.pageSize = pageSize
+  }
+
+  async *[Symbol.asyncIterator]() {
+    let page = 1
+    let hasMore = true
+
+    while (hasMore) {
+      const response = await fetch(
+        `${this.baseUrl}?page=${page}&size=${this.pageSize}`
+      )
+      const data = await response.json()
+
+      for (const item of data.items) {
+        yield item
+      }
+
+      hasMore = data.hasMore
+      page++
+    }
+  }
+}
+
+// React: Загрузка данных с async iterator
+function InfiniteList() {
+  const [items, setItems] = useState([])
+  const [loading, setLoading] = useState(false)
+
+  const loadMore = async () => {
+    setLoading(true)
+    const api = new PaginatedAPI('/api/items')
+
+    let count = 0
+    for await (const item of api) {
+      setItems(prev => [...prev, item])
+      count++
+      if (count >= 10) break // Загружаем по 10 за раз
+    }
+
+    setLoading(false)
+  }
+
+  return (
+    <div>
+      {items.map(item => <div key={item.id}>{item.name}</div>)}
+      <button onClick={loadMore} disabled={loading}>
+        {loading ? 'Loading...' : 'Load More'}
+      </button>
+    </div>
+  )
+}

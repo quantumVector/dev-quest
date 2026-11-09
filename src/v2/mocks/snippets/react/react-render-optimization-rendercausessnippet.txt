@@ -1,0 +1,47 @@
+
+// Основные причины ререндера в React
+
+// 1. Изменение состояния (setState)
+function Counter() {
+  const [count, setCount] = useState(0)
+
+  // Каждый вызов setCount вызывает ререндер
+  return <button onClick={() => setCount(count + 1)}>
+    Count: {count}
+  </button>
+}
+
+// 2. Изменение пропсов
+function Child({ name, age }) {
+  console.log('Child rendered')
+  return <div>{name}, {age}</div>
+}
+
+function Parent() {
+  const [user, setUser] = useState({ name: 'John', age: 30 })
+
+  // При изменении user компонент Child перерендерится
+  return <Child name={user.name} age={user.age} />
+}
+
+// 3. Ререндер родителя
+function Parent() {
+  const [count, setCount] = useState(0)
+
+  return (
+    <div>
+      <button onClick={() => setCount(count + 1)}>+</button>
+      {/* Child ререндерится при каждом клике, хотя пропсы не меняются! */}
+      <Child />
+    </div>
+  )
+}
+
+// 4. Context изменения
+const ThemeContext = React.createContext()
+
+function Button() {
+  const theme = useContext(ThemeContext)
+  // Ререндер при изменении любого значения в контексте
+  return <button className={theme}>Click</button>
+}

@@ -1,0 +1,39 @@
+
+<!-- Twitter Card мета-теги -->
+
+<!-- Summary Card (по умолчанию) -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@username">
+<meta name="twitter:creator" content="@author">
+<meta name="twitter:title" content="Заголовок для Twitter">
+<meta name="twitter:description" content="Описание для Twitter">
+<meta name="twitter:image" content="https://example.com/twitter-image.jpg">
+<meta name="twitter:image:alt" content="Описание изображения">
+
+<!-- Summary Card с большим изображением -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@username">
+<meta name="twitter:creator" content="@author">
+<meta name="twitter:title" content="Заголовок статьи">
+<meta name="twitter:description" content="Подробное описание контента">
+<meta name="twitter:image" content="https://example.com/large-image.jpg">
+
+<!-- App Card (для мобильных приложений) -->
+<meta name="twitter:card" content="app">
+<meta name="twitter:site" content="@username">
+<meta name="twitter:description" content="Описание приложения">
+<meta name="twitter:app:name:iphone" content="App Name">
+<meta name="twitter:app:id:iphone" content="123456789">
+<meta name="twitter:app:url:iphone" content="app://open">
+<meta name="twitter:app:name:googleplay" content="App Name">
+<meta name="twitter:app:id:googleplay" content="com.example.app">
+
+<!-- Player Card (для медиа-контента) -->
+<meta name="twitter:card" content="player">
+<meta name="twitter:site" content="@username">
+<meta name="twitter:title" content="Название видео">
+<meta name="twitter:description" content="Описание видео">
+<meta name="twitter:player" content="https://example.com/player">
+<meta name="twitter:player:width" content="1280">
+<meta name="twitter:player:height" content="720">
+<meta name="twitter:image" content="https://example.com/video-thumbnail.jpg">

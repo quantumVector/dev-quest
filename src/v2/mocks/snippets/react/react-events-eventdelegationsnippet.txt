@@ -1,0 +1,160 @@
+
+// Делегирование событий в React
+
+// ========================================
+// Как работает делегирование в React
+// ========================================
+
+// React < 17: События делегируются на document
+/*
+  <div id="root">
+    <button onClick={handler}>Click</button>
+  </div>
+
+  React добавляет ОДИН addEventListener на document:
+  document.addEventListener('click', reactClickHandler, false);
+
+  Когда кликаешь на button:
+  1. Native событие всплывает до document
+  2. React перехватывает его
+  3. React создает SyntheticEvent
+  4. React вызывает твой handler с SyntheticEvent
+*/
+
+// React 17+: События делегируются на корневой контейнер
+/*
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(<App />);
+
+  React добавляет addEventListener на #root, а не на document
+  Это решает проблемы с интеграцией нескольких React-приложений
+*/
+
+// ========================================
+// Преимущества делегирования
+// ========================================
+
+// 1. Производительность - меньше слушателей
+function PerformanceExample() {
+  const items = Array.from({ length: 1000 }, (_, i) => i);
+
+  // ❌ Плохо (Vanilla JS) - 1000 слушателей
+  // items.forEach(i => {
+  //   element.addEventListener('click', handler);
+  // });
+
+  // ✅ Хорошо (React) - 1 слушатель на корне
+  return (
+    <ul>
+      {items.map(i => (
+        <li key={i} onClick={() => console.log(i)}>
+          Item {i}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+// 2. Динамическое добавление элементов - автоматически работает
+function DynamicElements() {
+  const [items, setItems] = useState([1, 2, 3]);
+
+  function addItem() {
+    setItems([...items, items.length + 1]);
+  }
+
+  // Новые элементы автоматически получают обработчики
+  // благодаря делегированию!
+  return (
+    <div>
+      <button onClick={addItem}>Добавить</button>
+      <ul>
+        {items.map(i => (
+          <li key={i} onClick={() => console.log(i)}>
+            Item {i}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+// ========================================
+// Проблемы делегирования и решения
+// ========================================
+
+// Проблема 1: Интеграция с нативными событиями
+function NativeIntegration() {
+  const buttonRef = useRef(null);
+
+  useEffect(() => {
+    const button = buttonRef.current;
+
+    // Нативный обработчик
+    function nativeHandler(e) {
+      console.log('Native handler');
+      e.stopPropagation(); // Останавливаем всплытие
+    }
+
+    button.addEventListener('click', nativeHandler);
+
+    return () => {
+      button.removeEventListener('click', nativeHandler);
+    };
+  }, []);
+
+  function reactHandler(e) {
+    // Этот обработчик ВСЁ РАВНО вызовется!
+    // Потому что stopPropagation() в нативном обработчике
+    // не останавливает всплытие до корня React
+    console.log('React handler');
+  }
+
+  return <button ref={buttonRef} onClick={reactHandler}>Клик</button>;
+}
+
+// Решение: stopPropagation в React обработчике
+function NativeIntegrationFixed() {
+  const buttonRef = useRef(null);
+
+  useEffect(() => {
+    const button = buttonRef.current;
+
+    function nativeHandler(e) {
+      console.log('Native handler');
+    }
+
+    button.addEventListener('click', nativeHandler);
+
+    return () => {
+      button.removeEventListener('click', nativeHandler);
+    };
+  }, []);
+
+  function reactHandler(e) {
+    e.stopPropagation(); // Останавливаем в React
+    console.log('React handler');
+  }
+
+  return <button ref={buttonRef} onClick={reactHandler}>Клик</button>;
+}
+
+// Проблема 2: Множественные React приложения (решено в React 17)
+// React < 17: оба приложения слушают document
+/*
+  ReactDOM.render(<App1 />, div1); // addEventListener на document
+  ReactDOM.render(<App2 />, div2); // addEventListener на document
+
+  Если в App1 делаем stopPropagation() - может сломать App2!
+*/
+
+// React 17+: каждое приложение слушает свой корень
+/*
+  const root1 = ReactDOM.createRoot(div1);
+  root1.render(<App1 />); // addEventListener на div1
+
+  const root2 = ReactDOM.createRoot(div2);
+  root2.render(<App2 />); // addEventListener на div2
+
+  stopPropagation() в App1 не влияет на App2 ✅
+*/

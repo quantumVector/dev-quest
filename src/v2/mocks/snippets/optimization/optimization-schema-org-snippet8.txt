@@ -1,0 +1,43 @@
+
+<!-- Event разметка -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Event",
+  "name": "Frontend Meetup 2025",
+  "startDate": "2025-03-15T19:00",
+  "endDate": "2025-03-15T22:00",
+  "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+  "eventStatus": "https://schema.org/EventScheduled",
+  "location": {
+    "@type": "Place",
+    "name": "Технопарк",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Волгоградский проспект, 42",
+      "addressLocality": "Москва",
+      "postalCode": "109316",
+      "addressCountry": "RU"
+    }
+  },
+  "image": "https://example.com/event-image.jpg",
+  "description": "Встреча frontend-разработчиков с докладами о React, Vue и современных инструментах",
+  "offers": {
+    "@type": "Offer",
+    "url": "https://example.com/events/frontend-meetup-2025",
+    "price": "0",
+    "priceCurrency": "RUB",
+    "availability": "https://schema.org/InStock",
+    "validFrom": "2025-02-01T00:00"
+  },
+  "performer": {
+    "@type": "PerformingGroup",
+    "name": "Frontend Community"
+  },
+  "organizer": {
+    "@type": "Organization",
+    "name": "Tech Events",
+    "url": "https://example.com"
+  }
+}
+</script>

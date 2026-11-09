@@ -1,0 +1,31 @@
+
+// React 17 - старый API ReactDOM.render
+import ReactDOM from 'react-dom';
+
+const container = document.getElementById('root');
+ReactDOM.render(<App />, container);
+
+// Unmount
+ReactDOM.unmountComponentAtNode(container);
+
+// React 18 - новый API createRoot (Concurrent Mode)
+import { createRoot } from 'react-dom/client';
+
+const container = document.getElementById('root');
+const root = createRoot(container);
+
+// Рендер с конкурентными возможностями
+root.render(<App />);
+
+// Unmount
+root.unmount();
+
+// Для обратной совместимости можно использовать Legacy Mode
+import { render } from 'react-dom';
+render(<App />, container); // Работает как в React 17
+
+// SSR с гидратацией
+import { hydrateRoot } from 'react-dom/client';
+
+const container = document.getElementById('root');
+const root = hydrateRoot(container, <App />);

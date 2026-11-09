@@ -1,0 +1,82 @@
+
+// =======================================
+// AMD (Asynchronous Module Definition)
+// =======================================
+
+// Определение модуля без зависимостей
+define('myModule', function() {
+  var privateVar = 'secret';
+
+  return {
+    publicMethod: function() {
+      return 'Hello from AMD module!';
+    },
+
+    getPrivate: function() {
+      return privateVar;
+    }
+  };
+});
+
+// Модуль с зависимостями
+define('calculator', ['jquery', 'lodash'], function($, _) {
+  function calculate(numbers) {
+    const sum = _.sum(numbers);
+    $('#result').text('Sum: ' + sum);
+    return sum;
+  }
+
+  return {
+    calculate: calculate,
+    version: '1.0.0'
+  };
+});
+
+// Анонимный модуль (обычно в отдельном файле)
+define(['jquery', 'underscore'], function($, _) {
+  // Логика модуля
+  return {
+    render: function(data) {
+      const template = _.template($('#template').html());
+      return template(data);
+    }
+  };
+});
+
+// RequireJS конфигурация
+require.config({
+  baseUrl: 'js/lib',
+  paths: {
+    app: '../app',
+    jquery: 'jquery-3.6.0.min',
+    underscore: 'underscore-min'
+  },
+  shim: {
+    'underscore': {
+      exports: '_'
+    },
+    'backbone': {
+      deps: ['underscore', 'jquery'],
+      exports: 'Backbone'
+    }
+  }
+});
+
+// Использование AMD модулей
+require(['app/calculator', 'jquery'], function(calc, $) {
+  $(document).ready(function() {
+    const result = calc.calculate([1, 2, 3, 4, 5]);
+    console.log('Calculation result:', result);
+  });
+});
+
+// Условная загрузка модулей
+if (isMobile) {
+  require(['app/mobile-ui'], function(mobileUI) {
+    mobileUI.init();
+  });
+} else {
+  require(['app/desktop-ui'], function(desktopUI) {
+    desktopUI.init();
+  });
+}

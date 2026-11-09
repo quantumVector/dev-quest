@@ -1,0 +1,90 @@
+
+// =====================================
+// CORS - Cross-Origin Resource Sharing
+// =====================================
+
+// Проблема Same-Origin Policy
+// Браузер блокирует запросы между разными источниками
+
+// Origin = protocol + domain + port
+https://example.com:443  ← Origin 1
+https://api.example.com  ← Origin 2 (другой поддомен)
+http://example.com       ← Origin 3 (другой протокол)
+https://example.com:8080 ← Origin 4 (другой порт)
+
+// Простой CORS запрос (Simple Request)
+// GET, HEAD, POST с простыми заголовками
+fetch('https://api.example.com/data', {
+method: 'GET',
+headers: {
+'Accept': 'application/json' // Простой заголовок
+}
+})
+
+// Server ДОЛЖЕН ответить с заголовками CORS
+HTTP/1.1 200 OK
+Access-Control-Allow-Origin: https://myapp.com
+Access-Control-Allow-Credentials: true
+
+// Preflight запрос (OPTIONS)
+// Для сложных запросов: PUT, DELETE, кастомные заголовки
+
+// 1. Browser отправляет OPTIONS (preflight)
+OPTIONS /api/users HTTP/1.1
+Host: api.example.com
+Origin: https://myapp.com
+Access-Control-Request-Method: POST
+Access-Control-Request-Headers: Content-Type, Authorization
+
+// 2. Server отвечает разрешениями
+HTTP/1.1 200 OK
+Access-Control-Allow-Origin: https://myapp.com
+Access-Control-Allow-Methods: GET, POST, PUT, DELETE
+Access-Control-Allow-Headers: Content-Type, Authorization
+Access-Control-Max-Age: 86400  // Кэш preflight на 24 часа
+
+// 3. Browser отправляет основной запрос
+POST /api/users HTTP/1.1
+Host: api.example.com
+Origin: https://myapp.com
+Content-Type: application/json
+Authorization: Bearer token
+
+// Server-side CORS (Node.js/Express)
+const cors = require('cors')
+
+// Разрешить все источники (НЕ для production!)
+app.use(cors())
+
+// Настроенный CORS
+app.use(cors({
+origin: 'https://myapp.com', // Конкретный источник
+methods: ['GET', 'POST', 'PUT', 'DELETE'],
+allowedHeaders: ['Content-Type', 'Authorization'],
+credentials: true, // Разрешить cookies
+maxAge: 86400 // Кэш preflight
+}))
+
+// Динамический CORS
+app.use(cors({
+origin: function (origin, callback) {
+const allowedOrigins = [
+'https://app1.com',
+'https://app2.com'
+]
+if (allowedOrigins.includes(origin) || !origin) {
+callback(null, true)
+} else {
+callback(new Error('Not allowed by CORS'))
+}
+}
+}))
+
+// Обработка CORS ошибок в JavaScript
+fetch('https://api.example.com/data')
+.then(response => response.json())
+.catch(error => {
+if (error.message.includes('CORS')) {
+console.error('CORS error - server not allowing origin')
+}
+})

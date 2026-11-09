@@ -1,0 +1,34 @@
+
+<!-- Различные стратегии URL для мультиязычных сайтов -->
+
+<!-- 1. Поддомены (subdomains) -->
+<link rel="alternate" hreflang="en" href="https://en.example.com/products">
+<link rel="alternate" hreflang="ru" href="https://ru.example.com/products">
+<link rel="alternate" hreflang="de" href="https://de.example.com/products">
+
+<!-- Плюсы: Независимые сайты, легко масштабировать
+     Минусы: SEO-вес распределяется между доменами -->
+
+<!-- 2. Подпапки (subdirectories) -->
+<link rel="alternate" hreflang="en" href="https://example.com/en/products">
+<link rel="alternate" hreflang="ru" href="https://example.com/ru/products">
+<link rel="alternate" hreflang="de" href="https://example.com/de/products">
+
+<!-- Плюсы: SEO-вес на одном домене, проще управлять
+     Минусы: Все на одном сервере -->
+
+<!-- 3. Параметры запроса (query parameters) -->
+<link rel="alternate" hreflang="en" href="https://example.com/products?lang=en">
+<link rel="alternate" hreflang="ru" href="https://example.com/products?lang=ru">
+
+<!-- Плюсы: Простая реализация
+     Минусы: Хуже для SEO, сложнее индексация -->
+
+<!-- 4. Разные домены (ccTLD - country code Top Level Domain) -->
+<link rel="alternate" hreflang="en-US" href="https://example.com/products">
+<link rel="alternate" hreflang="en-GB" href="https://example.co.uk/products">
+<link rel="alternate" hreflang="de" href="https://example.de/products">
+<link rel="alternate" hreflang="ru" href="https://example.ru/products">
+
+<!-- Плюсы: Сильный региональный сигнал для Google
+     Минусы: Дорого, сложное управление, разделение SEO-веса -->

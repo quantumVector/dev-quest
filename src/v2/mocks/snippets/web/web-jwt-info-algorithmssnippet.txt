@@ -1,0 +1,71 @@
+
+// Алгоритмы подписи JWT
+
+// 1. СИММЕТРИЧНЫЕ АЛГОРИТМЫ (один секретный ключ)
+// HS256 (HMAC SHA-256) - самый популярный
+const jwt = require('jsonwebtoken')
+
+const SECRET_KEY = 'your-256-bit-secret'
+
+// Создание токена
+const token = jwt.sign(
+  { userId: 123 },
+  SECRET_KEY,
+  { algorithm: 'HS256' }  // По умолчанию
+)
+
+// Проверка токена
+const decoded = jwt.verify(token, SECRET_KEY)
+
+// HS384, HS512 - более длинные хеши
+const tokenHS512 = jwt.sign(
+  { userId: 123 },
+  SECRET_KEY,
+  { algorithm: 'HS512' }  // Более стойкий к коллизиям
+)
+
+// 2. АСИММЕТРИЧНЫЕ АЛГОРИТМЫ (приватный + публичный ключ)
+// RS256 (RSA SHA-256) - для микросервисов
+
+const fs = require('fs')
+
+// Генерация ключей (выполнить один раз):
+// openssl genrsa -out private.key 2048
+// openssl rsa -in private.key -pubout -out public.key
+
+const privateKey = fs.readFileSync('private.key')
+const publicKey = fs.readFileSync('public.key')
+
+// Создание токена (только приватным ключом)
+const tokenRS256 = jwt.sign(
+  { userId: 123 },
+  privateKey,
+  { algorithm: 'RS256' }
+)
+
+// Проверка токена (публичным ключом - можно распространять!)
+const decodedRS256 = jwt.verify(tokenRS256, publicKey)
+
+// ES256 (ECDSA SHA-256) - современный, быстрый
+// openssl ecparam -genkey -name prime256v1 -noout -out ec-private.key
+// openssl ec -in ec-private.key -pubout -out ec-public.key
+
+const ecPrivateKey = fs.readFileSync('ec-private.key')
+const ecPublicKey = fs.readFileSync('ec-public.key')
+
+const tokenES256 = jwt.sign(
+  { userId: 123 },
+  ecPrivateKey,
+  { algorithm: 'ES256' }
+)
+
+const decodedES256 = jwt.verify(tokenES256, ecPublicKey)
+
+// 3. ОТСУТСТВИЕ ПОДПИСИ (НЕБЕЗОПАСНО!)
+// 'none' algorithm - НИКОГДА не используйте в production!
+const unsignedToken = jwt.sign(
+  { userId: 123 },
+  '',
+  { algorithm: 'none' }
+)
+// ⚠️ Любой может подделать такой токен!

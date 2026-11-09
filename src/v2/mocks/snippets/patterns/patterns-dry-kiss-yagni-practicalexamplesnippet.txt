@@ -1,0 +1,87 @@
+
+// 📦 РЕАЛЬНЫЙ ПРИМЕР: React компонент
+
+// ❌ ПЛОХО
+const UserDashboard = ({ userId }) => {
+  const [user, setUser] = useState(null);
+  const [orders, setOrders] = useState([]);
+  const [recommendations, setRecommendations] = useState([]);
+  const [analytics, setAnalytics] = useState(null);
+
+  // Нарушение DRY - дублирование fetch логики
+  useEffect(() => {
+    fetch(`/api/users/${userId}`)
+      .then(r => r.json())
+      .then(setUser)
+      .catch(console.error);
+  }, [userId]);
+
+  useEffect(() => {
+    fetch(`/api/users/${userId}/orders`)
+      .then(r => r.json())
+      .then(setOrders)
+      .catch(console.error);
+  }, [userId]);
+
+  // Нарушение YAGNI - неиспользуемая функциональность
+  useEffect(() => {
+    fetch(`/api/users/${userId}/recommendations`)
+      .then(r => r.json())
+      .then(setRecommendations)
+      .catch(console.error);
+  }, [userId]);
+
+  // Нарушение KISS - излишняя сложность рендеринга
+  return (
+    <div>
+      {user && (
+        <UserProfileCard
+          user={user}
+          theme="light"
+          variant="elevated"
+          showBadges={true}
+          showSocialLinks={false}
+          enableAnimations={true}
+        />
+      )}
+      {/* ... сложная структура ... */}
+    </div>
+  );
+};
+
+// ✅ ХОРОШО
+const UserDashboard = ({ userId }) => {
+  // DRY: единый хук для загрузки данных
+  const { data: user, loading } = useFetch(`/api/users/${userId}`);
+  const { data: orders } = useFetch(`/api/users/${userId}/orders`);
+
+  // YAGNI: загружаем только необходимые данные
+  // (recommendations убрали - они не используются)
+
+  if (loading) return <Loader />;
+
+  // KISS: простой и понятный рендеринг
+  return (
+    <div>
+      <UserProfile user={user} />
+      <OrdersList orders={orders} />
+    </div>
+  );
+};
+
+// Переиспользуемый хук (DRY)
+function useFetch(url) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(url)
+      .then(r => r.json())
+      .then(data => {
+        setData(data);
+        setLoading(false);
+      });
+  }, [url]);
+
+  return { data, loading };
+}

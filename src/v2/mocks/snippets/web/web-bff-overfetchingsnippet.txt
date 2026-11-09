@@ -1,0 +1,46 @@
+
+// Проблема Over-Fetching (избыточные данные)
+
+// ❌ Без BFF - получаем много лишних данных
+const response = await fetch('https://api.users.com/users/123')
+const user = await response.json()
+// Ответ содержит 50+ полей:
+// {
+//   id, firstName, lastName, email, phone, address,
+//   birthDate, gender, country, city, zipCode,
+//   preferences, settings, metadata, createdAt,
+//   updatedAt, lastLogin, loginCount, ...и еще 30 полей
+// }
+
+// Но нам нужны только 3 поля для отображения в UI!
+const displayData = {
+  name: `${user.firstName} ${user.lastName}`,
+  avatar: user.avatar,
+  email: user.email
+}
+
+// Проблемы:
+// - Тратим трафик на ненужные данные
+// - Медленнее обработка больших JSON
+// - Потенциальные проблемы с приватностью
+
+// ✅ С BFF - получаем только нужные данные
+const response = await fetch('https://bff.myapp.com/api/user/123/profile')
+const profile = await response.json()
+// {
+//   name: "John Doe",
+//   avatar: "https://...",
+//   email: "john@example.com"
+// }
+
+// BFF endpoint на сервере
+app.get('/api/user/:id/profile', async (req, res) => {
+  const user = await fetchUser(req.params.id)
+
+  // Отдаем только необходимые поля
+  res.json({
+    name: `${user.firstName} ${user.lastName}`,
+    avatar: user.avatar,
+    email: user.email
+  })
+})

@@ -1,0 +1,18 @@
+
+/* FLEXBOX - одномерная система (строка ИЛИ столбец) */
+.navbar {
+  display: flex;
+  justify-content: space-between; /* горизонтальное выравнивание */
+  align-items: center;            /* вертикальное выравнивание */
+}
+
+.navigation {
+  display: flex;
+  gap: 20px;
+}
+
+.button-group {
+  display: flex;
+  flex-direction: column; /* вертикальная ориентация */
+  gap: 10px;
+}

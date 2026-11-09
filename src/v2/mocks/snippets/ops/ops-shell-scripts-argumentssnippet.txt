@@ -1,0 +1,246 @@
+
+#!/bin/bash
+
+# =====================================
+# АРГУМЕНТЫ СКРИПТА
+# =====================================
+
+# Имя скрипта
+echo "Script name: $0"
+
+# Позиционные аргументы
+echo "First argument: $1"
+echo "Second argument: $2"
+echo "Third argument: $3"
+
+# Все аргументы
+echo "All arguments ($@): $@"
+echo "All arguments ($*): $*"
+
+# Количество аргументов
+echo "Number of arguments: $#"
+
+# Проверка наличия аргументов
+if [ $# -eq 0 ]; then
+    echo "No arguments provided"
+    echo "Usage: $0 <arg1> <arg2>"
+    exit 1
+fi
+
+# =====================================
+# ОБРАБОТКА АРГУМЕНТОВ
+# =====================================
+
+# Простая обработка
+NAME=$1
+AGE=$2
+
+if [ -z "$NAME" ]; then
+    echo "Error: Name is required"
+    exit 1
+fi
+
+if [ -z "$AGE" ]; then
+    AGE=25  # значение по умолчанию
+fi
+
+echo "Name: $NAME, Age: $AGE"
+
+# =====================================
+# SHIFT - СДВИГ АРГУМЕНТОВ
+# =====================================
+
+echo "Original arguments: $@"
+shift  # удалить $1, сдвинуть все влево
+echo "After shift: $@"
+
+shift 2  # сдвинуть на 2 позиции
+echo "After shift 2: $@"
+
+# Обработка всех аргументов
+while [ $# -gt 0 ]; do
+    echo "Processing: $1"
+    shift
+done
+
+# =====================================
+# GETOPTS - ОПЦИИ КОМАНДНОЙ СТРОКИ
+# =====================================
+
+# Базовое использование
+while getopts "n:a:v" opt; do
+    case $opt in
+        n)
+            NAME=$OPTARG
+            ;;
+        a)
+            AGE=$OPTARG
+            ;;
+        v)
+            VERBOSE=true
+            ;;
+        \?)
+            echo "Invalid option: -$OPTARG"
+            exit 1
+            ;;
+        :)
+            echo "Option -$OPTARG requires an argument"
+            exit 1
+            ;;
+    esac
+done
+
+# Использование: ./script.sh -n John -a 25 -v
+
+# =====================================
+# ДЛИННЫЕ ОПЦИИ (GNU getopt)
+# =====================================
+
+# Требует установленного GNU getopt
+TEMP=$(getopt -o n:a:vh --long name:,age:,verbose,help -n 'script.sh' -- "$@")
+
+if [ $? != 0 ]; then
+    echo "Error parsing arguments"
+    exit 1
+fi
+
+eval set -- "$TEMP"
+
+while true; do
+    case "$1" in
+        -n|--name)
+            NAME="$2"
+            shift 2
+            ;;
+        -a|--age)
+            AGE="$2"
+            shift 2
+            ;;
+        -v|--verbose)
+            VERBOSE=true
+            shift
+            ;;
+        -h|--help)
+            echo "Usage: $0 [options]"
+            echo "  -n, --name NAME      Specify name"
+            echo "  -a, --age AGE        Specify age"
+            echo "  -v, --verbose        Verbose output"
+            echo "  -h, --help           Show this help"
+            exit 0
+            ;;
+        --)
+            shift
+            break
+            ;;
+        *)
+            echo "Internal error!"
+            exit 1
+            ;;
+    esac
+done
+
+# Использование: ./script.sh --name John --age 25 --verbose
+
+# =====================================
+# ПРАКТИЧЕСКИЕ ПРИМЕРЫ
+# =====================================
+
+# Скрипт сборки с опциями
+#!/bin/bash
+
+ENVIRONMENT="dev"
+VERBOSE=false
+CLEAN=false
+
+while getopts "e:vc" opt; do
+    case $opt in
+        e)
+            ENVIRONMENT=$OPTARG
+            ;;
+        v)
+            VERBOSE=true
+            ;;
+        c)
+            CLEAN=true
+            ;;
+    esac
+done
+
+[ "$VERBOSE" = true ] && echo "Environment: $ENVIRONMENT"
+
+if [ "$CLEAN" = true ]; then
+    [ "$VERBOSE" = true ] && echo "Cleaning..."
+    rm -rf dist node_modules
+fi
+
+echo "Building for $ENVIRONMENT..."
+npm run build
+
+# Использование: ./build.sh -e prod -v -c
+
+# =====================================
+# ВАЛИДАЦИЯ АРГУМЕНТОВ
+# =====================================
+
+#!/bin/bash
+
+validate_args() {
+    if [ $# -lt 2 ]; then
+        echo "Error: Not enough arguments"
+        echo "Usage: $0 <rows> <cols>"
+        exit 1
+    fi
+
+    if ! [[ "$1" =~ ^[0-9]+$ ]]; then
+        echo "Error: Rows must be a number"
+        exit 1
+    fi
+
+    if ! [[ "$2" =~ ^[0-9]+$ ]]; then
+        echo "Error: Cols must be a number"
+        exit 1
+    fi
+
+    if [ "$1" -le 0 ] || [ "$2" -le 0 ]; then
+        echo "Error: Rows and cols must be positive"
+        exit 1
+    fi
+}
+
+validate_args "$@"
+
+# =====================================
+# ЗНАЧЕНИЯ ПО УМОЛЧАНИЮ
+# =====================================
+
+#!/bin/bash
+
+# Метод 1: Проверка и присваивание
+ROWS=$1
+COLS=$2
+
+if [ -z "$ROWS" ]; then
+    ROWS=5
+fi
+
+if [ -z "$COLS" ]; then
+    COLS=5
+fi
+
+# Метод 2: Использование :-
+ROWS=${1:-5}
+COLS=${2:-5}
+
+# Метод 3: Проверка количества аргументов
+if [ $# -eq 0 ]; then
+    ROWS=5
+    COLS=5
+elif [ $# -eq 1 ]; then
+    ROWS=$1
+    COLS=$1  # квадратная таблица
+else
+    ROWS=$1
+    COLS=$2
+fi
+
+echo "Creating table: ${ROWS}x${COLS}"

@@ -1,0 +1,155 @@
+
+// Продвинутые примеры лексического окружения
+console.log("=== Продвинутые примеры ===");
+
+// 1. Модульный паттерн с приватными переменными
+const Module = (function() {
+  // Приватное лексическое окружение модуля
+  let privateCounter = 0;
+  const privateArray = [];
+
+  function privateFunction() {
+    return "Приватная функция";
+  }
+
+  // Публичный API
+  return {
+    increment: function() {
+      privateCounter++;
+      return privateCounter;
+    },
+
+    addToArray: function(item) {
+      privateArray.push(item);
+      return privateArray.length;
+    },
+
+    getArrayLength: function() {
+      return privateArray.length;
+    },
+
+    callPrivateFunction: function() {
+      return privateFunction(); // Доступ к приватной функции
+    },
+
+    // Метод для отладки (не используйте в продакшене!)
+    debug: function() {
+      return {
+        privateCounter,
+        privateArrayLength: privateArray.length,
+        privateFunction: privateFunction()
+      };
+    }
+  };
+})();
+
+console.log("Module.increment():", Module.increment()); // 1
+console.log("Module.addToArray('item1'):", Module.addToArray('item1')); // 1
+console.log("Module.callPrivateFunction():", Module.callPrivateFunction());
+console.log("Module.debug():", Module.debug());
+
+// Приватные переменные недоступны извне
+console.log("Module.privateCounter:", Module.privateCounter); // undefined
+
+// 2. Фабрика функций с конфигурируемым поведением
+function createValidator(config) {
+  // Лексическое окружение сохраняет конфигурацию
+  const rules = config.rules || [];
+  const errorMessages = config.errorMessages || {};
+
+  return function validate(value) {
+    const errors = [];
+
+    // Каждое правило имеет доступ к config через замыкание
+    rules.forEach(rule => {
+      if (!rule.test(value)) {
+        errors.push(errorMessages[rule.name] || `Ошибка валидации: ${rule.name}`);
+      }
+    });
+
+    return {
+      isValid: errors.length === 0,
+      errors: errors,
+      value: value
+    };
+  };
+}
+
+const emailValidator = createValidator({
+  rules: [
+    { name: 'required', test: v => v && v.length > 0 },
+    { name: 'email', test: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) },
+    { name: 'length', test: v => v.length <= 100 }
+  ],
+  errorMessages: {
+    required: 'Email обязателен',
+    email: 'Неверный формат email',
+    length: 'Email слишком длинный'
+  }
+});
+
+console.log("\nВалидация email:");
+console.log("Valid email:", emailValidator('test@example.com'));
+console.log("Invalid email:", emailValidator('invalid-email'));
+
+// 3. Система событий с лексическим окружением
+function createEventEmitter() {
+  const events = new Map(); // Приватное хранилище событий
+
+  return {
+    on(eventName, callback) {
+      if (!events.has(eventName)) {
+        events.set(eventName, []);
+      }
+      events.get(eventName).push(callback);
+
+      // Возвращаем функцию отписки (замыкание!)
+      return function unsubscribe() {
+        const callbacks = events.get(eventName);
+        const index = callbacks.indexOf(callback);
+        if (index !== -1) {
+          callbacks.splice(index, 1);
+        }
+      };
+    },
+
+    emit(eventName, ...args) {
+      const callbacks = events.get(eventName) || [];
+      callbacks.forEach(callback => {
+        try {
+          callback(...args);
+        } catch (error) {
+          console.error(`Ошибка в обработчике события ${eventName}:`, error);
+        }
+      });
+    },
+
+    getEventNames() {
+      return Array.from(events.keys());
+    },
+
+    getListenerCount(eventName) {
+      return events.has(eventName) ? events.get(eventName).length : 0;
+    }
+  };
+}
+
+const emitter = createEventEmitter();
+
+const unsubscribe1 = emitter.on('test', (data) => {
+  console.log('Обработчик 1:', data);
+});
+
+const unsubscribe2 = emitter.on('test', (data) => {
+  console.log('Обработчик 2:', data);
+});
+
+console.log("\nСистема событий:");
+console.log("Количество обработчиков:", emitter.getListenerCount('test')); // 2
+
+emitter.emit('test', 'Привет!');
+
+unsubscribe1(); // Отписываемся от первого обработчика
+
+console.log("После отписки:", emitter.getListenerCount('test')); // 1
+emitter.emit('test', 'Пока!');

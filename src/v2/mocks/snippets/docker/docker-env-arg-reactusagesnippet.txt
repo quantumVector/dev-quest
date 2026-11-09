@@ -1,0 +1,32 @@
+
+// Использование в React компонентах
+
+// Vite приложение
+const apiUrl = import.meta.env.VITE_API_URL
+const appVersion = import.meta.env.VITE_APP_VERSION
+const isAnalyticsEnabled = import.meta.env.VITE_ENABLE_ANALYTICS === 'true'
+
+// Create React App
+const apiUrl = process.env.REACT_APP_API_URL
+const appVersion = process.env.REACT_APP_VERSION
+const featureFlag = process.env.REACT_APP_FEATURE_FLAG
+
+// Использование в коде
+export default function App() {
+  useEffect(() => {
+    console.log('API URL:', apiUrl)
+    console.log('App Version:', appVersion)
+
+    // Инициализация аналитики
+    if (isAnalyticsEnabled) {
+      initAnalytics()
+    }
+  }, [])
+
+  return (
+    <div>
+      <h1>My App v{appVersion}</h1>
+      {/* Остальной код */}
+    </div>
+  )
+}

@@ -1,0 +1,246 @@
+
+// =====================================
+// INTERFACES С КЛАССАМИ - преимущества
+// =====================================
+
+// 1. Implements - контракты для классов
+interface Logger {
+  log(message: string): void
+  error(message: string): void
+  warn(message: string): void
+}
+
+// Класс ДОЛЖЕН реализовать все методы интерфейса
+class ConsoleLogger implements Logger {
+  log(message: string): void {
+    console.log(`[LOG] ${message}`)
+  }
+
+  error(message: string): void {
+    console.error(`[ERROR] ${message}`)
+  }
+
+  warn(message: string): void {
+    console.warn(`[WARN] ${message}`)
+  }
+}
+
+// ❌ Ошибка компиляции - не все методы реализованы
+class IncompleteLogger implements Logger {
+  log(message: string): void {
+    console.log(message)
+  }
+  // error и warn отсутствуют - TypeScript ошибка!
+}
+
+// 2. Множественная реализация интерфейсов
+interface Serializable {
+  serialize(): string
+}
+
+interface Comparable<T> {
+  compareTo(other: T): number
+}
+
+class User implements Serializable, Comparable<User> {
+  constructor(
+    public id: number,
+    public name: string
+  ) {}
+
+  serialize(): string {
+    return JSON.stringify({ id: this.id, name: this.name })
+  }
+
+  compareTo(other: User): number {
+    return this.id - other.id
+  }
+}
+
+// Type не может быть implements напрямую
+type SerializableType = {
+  serialize(): string
+}
+
+// ❌ Ошибка - type не может быть implements
+// class User2 implements SerializableType { }
+
+// 3. Interface для абстрактных контрактов
+interface PaymentProcessor {
+  processPayment(amount: number): Promise<boolean>
+  refund(transactionId: string): Promise<void>
+  validateCard(cardNumber: string): boolean
+}
+
+class StripeProcessor implements PaymentProcessor {
+  async processPayment(amount: number): Promise<boolean> {
+    // Stripe API logic
+    return true
+  }
+
+  async refund(transactionId: string): Promise<void> {
+    // Stripe refund logic
+  }
+
+  validateCard(cardNumber: string): boolean {
+    // Luhn algorithm
+    return true
+  }
+}
+
+class PayPalProcessor implements PaymentProcessor {
+  async processPayment(amount: number): Promise<boolean> {
+    // PayPal API logic
+    return true
+  }
+
+  async refund(transactionId: string): Promise<void> {
+    // PayPal refund logic
+  }
+
+  validateCard(cardNumber: string): boolean {
+    // PayPal validation
+    return true
+  }
+}
+
+// Dependency Injection с интерфейсами
+class PaymentService {
+  constructor(private processor: PaymentProcessor) {}
+
+  async charge(amount: number): Promise<boolean> {
+    return this.processor.processPayment(amount)
+  }
+}
+
+// Можем легко переключать реализации
+const stripeService = new PaymentService(new StripeProcessor())
+const paypalService = new PaymentService(new PayPalProcessor())
+
+// 4. Расширение интерфейсов для специализации
+interface Animal {
+  name: string
+  makeSound(): void
+}
+
+interface Flyable {
+  fly(): void
+  maxAltitude: number
+}
+
+class Bird implements Animal, Flyable {
+  constructor(public name: string) {}
+
+  makeSound(): void {
+    console.log('Chirp!')
+  }
+
+  fly(): void {
+    console.log(`${this.name} is flying`)
+  }
+
+  maxAltitude = 10000
+}
+
+// 5. Optional методы в интерфейсах
+interface Repository<T> {
+  findAll(): Promise<T[]>
+  findById(id: number): Promise<T | null>
+  save(entity: T): Promise<T>
+  delete(id: number): Promise<void>
+
+  // Опциональные методы
+  count?(): Promise<number>
+  exists?(id: number): Promise<boolean>
+}
+
+class UserRepository implements Repository<User> {
+  async findAll(): Promise<User[]> {
+    return []
+  }
+
+  async findById(id: number): Promise<User | null> {
+    return null
+  }
+
+  async save(entity: User): Promise<User> {
+    return entity
+  }
+
+  async delete(id: number): Promise<void> {}
+
+  // Optional методы можно не реализовывать
+  async count(): Promise<number> {
+    return 0
+  }
+}
+
+// 6. Readonly свойства в интерфейсах для классов
+interface DatabaseConfig {
+  readonly host: string
+  readonly port: number
+  readonly database: string
+}
+
+class Database implements DatabaseConfig {
+  readonly host: string
+  readonly port: number
+  readonly database: string
+
+  constructor(config: DatabaseConfig) {
+    this.host = config.host
+    this.port = config.port
+    this.database = config.database
+  }
+
+  // Нельзя изменить после инициализации
+  // changeHost(newHost: string) {
+  //   this.host = newHost  // ❌ Error: Cannot assign to 'host'
+  // }
+}
+
+// 7. Static методы НЕ входят в интерфейс
+interface StaticExample {
+  instanceMethod(): void
+  // static staticMethod(): void  // ❌ Нельзя объявить static в interface
+}
+
+// Для static методов используем отдельный контракт
+interface UserConstructor {
+  new (name: string): User
+  fromJSON(json: string): User  // Static фабричный метод
+}
+
+class User {
+  constructor(public name: string) {}
+
+  static fromJSON(json: string): User {
+    const data = JSON.parse(json)
+    return new User(data.name)
+  }
+}
+
+// 8. Hybrid Types - callable interfaces
+interface Counter {
+  (start: number): string
+  interval: number
+  reset(): void
+}
+
+function getCounter(): Counter {
+  const counter = function(start: number) {
+    return `Count: ${start}`
+  } as Counter
+
+  counter.interval = 1000
+  counter.reset = function() {
+    console.log('Reset')
+  }
+
+  return counter
+}
+
+const myCounter = getCounter()
+console.log(myCounter(10))      // Функция
+console.log(myCounter.interval) // Свойство
+myCounter.reset()                // Метод

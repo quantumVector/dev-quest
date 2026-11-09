@@ -1,0 +1,27 @@
+
+# Dockerfile с ARG - переменные времени сборки
+FROM node:18-alpine
+
+# ARG доступны только во время сборки
+ARG NODE_ENV=production
+ARG API_URL=https://api.example.com
+ARG BUILD_VERSION
+
+# Используем ARG в RUN
+RUN echo "Building for environment: $NODE_ENV"
+RUN echo "API URL: $API_URL"
+RUN echo "Build version: $BUILD_VERSION"
+
+# ARG можно передать в ENV
+ENV NODE_ENV=$NODE_ENV
+ENV REACT_APP_API_URL=$API_URL
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+
+COPY . .
+RUN npm run build
+
+EXPOSE 3000
+CMD ["npm", "start"]

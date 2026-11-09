@@ -1,0 +1,54 @@
+
+// Стрелочные функции и контекст
+
+// Обычная функция - контекст определяется при вызове
+function regularFunction() {
+  console.log('Regular:', this)
+}
+
+// Стрелочная функция - контекст берется из окружения
+const arrowFunction = () => {
+  console.log('Arrow:', this)
+}
+
+const obj = {
+  name: 'Test Object',
+
+  regularMethod() {
+    console.log('Regular method:', this.name) // "Test Object"
+
+    // Проблема с колбэками
+    setTimeout(function() {
+      console.log('Callback regular:', this.name) // undefined (this = window/global)
+    }, 100)
+
+    // Решение 1: стрелочная функция (наследует контекст)
+    setTimeout(() => {
+      console.log('Callback arrow:', this.name) // "Test Object"
+    }, 100)
+
+    // Решение 2: bind
+    setTimeout(function() {
+      console.log('Callback bound:', this.name) // "Test Object"
+    }.bind(this), 100)
+
+    // Решение 3: сохранение контекста в переменной
+    const self = this
+    setTimeout(function() {
+      console.log('Callback self:', self.name) // "Test Object"
+    }, 100)
+  },
+
+  // Стрелочная функция как метод - НЕ привязывает контекст объекта
+  arrowMethod: () => {
+    console.log('Arrow method:', this.name) // undefined (this = window/global)
+  }
+}
+
+// Демонстрация
+obj.regularMethod() // работает
+obj.arrowMethod()   // this не указывает на obj
+
+// call/apply/bind НЕ работают со стрелочными функциями
+const arrowFunc = () => console.log(this)
+arrowFunc.call({test: 'value'}) // this остается прежним, не меняется на {test: 'value'}

@@ -1,0 +1,79 @@
+
+// Практические примеры использования
+
+// 1. Заимствование методов массива
+const arrayLikeObject = {
+  0: 'first',
+  1: 'second',
+  2: 'third',
+  length: 3
+}
+
+// Превращаем в настоящий массив
+const realArray = Array.prototype.slice.call(arrayLikeObject)
+console.log(realArray) // ['first', 'second', 'third']
+
+// Используем методы массива на NodeList
+const divs = document.querySelectorAll('div')
+Array.prototype.forEach.call(divs, (div, index) => {
+  console.log(`Div ${index}:`, div)
+})
+
+// 2. Функция debounce с правильным контекстом
+function debounce(func, delay) {
+  let timeoutId
+  return function(...args) {
+    const context = this
+    clearTimeout(timeoutId)
+    timeoutId = setTimeout(() => {
+      func.apply(context, args)
+    }, delay)
+  }
+}
+
+class SearchBox {
+  constructor() {
+    this.query = ''
+  }
+
+  search(value) {
+    this.query = value
+    console.log(`Searching for: ${this.query}`)
+  }
+}
+
+const searchBox = new SearchBox()
+const debouncedSearch = debounce(searchBox.search, 300)
+
+// Привязываем контекст для правильной работы
+const boundDebouncedSearch = debouncedSearch.bind(searchBox)
+
+// 3. Цепочка вызовов с разными контекстами
+const logger = {
+  prefix: '[LOG]',
+  log(message) {
+    console.log(`${this.prefix} ${message}`)
+  }
+}
+
+const errorLogger = {
+  prefix: '[ERROR]'
+}
+
+const warnLogger = {
+  prefix: '[WARN]'
+}
+
+// Используем один метод с разными контекстами
+logger.log.call(errorLogger, 'Something went wrong')  // [ERROR] Something went wrong
+logger.log.call(warnLogger, 'This is a warning')     // [WARN] This is a warning
+
+// 4. Полифилл для bind (упрощенная версия)
+if (!Function.prototype.bind) {
+  Function.prototype.bind = function(context, ...args) {
+    const fn = this
+    return function(...newArgs) {
+      return fn.apply(context, [...args, ...newArgs])
+    }
+  }
+}

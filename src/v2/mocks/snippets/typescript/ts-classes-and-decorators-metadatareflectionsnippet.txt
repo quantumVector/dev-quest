@@ -1,0 +1,68 @@
+
+// Метаданные и Reflection API (требует reflect-metadata)
+import 'reflect-metadata'
+
+// Ключи метаданных
+const REQUIRED_METADATA_KEY = Symbol('required')
+const VALIDATION_METADATA_KEY = Symbol('validation')
+
+// Декоратор для валидации типов
+function Type(type: any) {
+  return Reflect.metadata('design:type', type)
+}
+
+// Декоратор для обязательных полей
+function Required(target: any, propertyKey: string) {
+  Reflect.defineMetadata(REQUIRED_METADATA_KEY, true, target, propertyKey)
+}
+
+// Декоратор для валидации
+function Validate(
+  target: any,
+  propertyKey: string,
+  descriptor: PropertyDescriptor
+) {
+  const originalMethod = descriptor.value
+
+  descriptor.value = function (...args: any[]) {
+    // Получаем типы параметров
+    const paramTypes = Reflect.getMetadata('design:paramtypes', target, propertyKey)
+
+    // Получаем тип возвращаемого значения
+    const returnType = Reflect.getMetadata('design:returntype', target, propertyKey)
+
+    console.log('Parameter types:', paramTypes)
+    console.log('Return type:', returnType)
+
+    // Валидация типов параметров
+    args.forEach((arg, index) => {
+      const expectedType = paramTypes[index]
+      if (expectedType && !(arg instanceof expectedType) && typeof arg !== expectedType.name.toLowerCase()) {
+        throw new TypeError(`Argument at index ${index} should be of type ${expectedType.name}`)
+      }
+    })
+
+    return originalMethod.apply(this, args)
+  }
+
+  return descriptor
+}
+
+class User {
+  @Required
+  @Type(String)
+  name!: string
+
+  @Type(Number)
+  age!: number
+
+  @Validate
+  setName(name: string): void {
+    this.name = name
+  }
+}
+
+// Получение метаданных
+const user = new User()
+const isRequired = Reflect.getMetadata(REQUIRED_METADATA_KEY, user, 'name')
+console.log('name is required:', isRequired) // true

@@ -1,0 +1,51 @@
+
+// React 19: Улучшенная поддержка скриптов
+function AnalyticsWrapper({ children }) {
+  return (
+    <>
+      {/* Асинхронная загрузка внешних скриптов */}
+      <script async src="https://analytics.example.com/script.js" />
+
+      {/* Встроенные скрипты */}
+      <script>
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+        `}
+      </script>
+
+{children}
+</>
+)
+}
+
+// Скрипты дедуплицируются автоматически
+function App() {
+return (
+<div>
+{/* Этот скрипт загрузится только один раз, даже если используется дважды */}
+<ComponentA />
+<ComponentB />
+</div>
+)
+}
+
+function ComponentA() {
+return (
+<div>
+<script src="https://example.com/library.js" />
+<h1>Component A</h1>
+</div>
+)
+}
+
+function ComponentB() {
+return (
+<div>
+{/* Тот же скрипт - не загрузится повторно */}
+<script src="https://example.com/library.js" />
+<h1>Component B</h1>
+</div>
+)
+}

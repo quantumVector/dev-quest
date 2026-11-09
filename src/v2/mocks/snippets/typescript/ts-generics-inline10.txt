@@ -1,0 +1,4 @@
+// Слишком общий
+function process<T>(data: T): T {
+  return data.map(x => x * 2) // ❌ Error
+}

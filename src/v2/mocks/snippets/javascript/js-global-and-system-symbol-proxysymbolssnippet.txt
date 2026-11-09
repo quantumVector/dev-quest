@@ -1,0 +1,26 @@
+
+// Символы в Proxy для метапрограммирования
+
+const target = {}
+const handler = {
+  get(target, prop, receiver) {
+    if (typeof prop === 'symbol') {
+      console.log('Accessing symbol property:', prop.toString())
+    }
+    return Reflect.get(target, prop, receiver)
+  },
+
+  set(target, prop, value, receiver) {
+    if (typeof prop === 'symbol') {
+      console.log('Setting symbol property:', prop.toString())
+    }
+    return Reflect.set(target, prop, value, receiver)
+  }
+}
+
+const proxy = new Proxy(target, handler)
+
+const sym = Symbol('test')
+proxy[sym] = 'value'     // "Setting symbol property: Symbol(test)"
+console.log(proxy[sym])  // "Accessing symbol property: Symbol(test)"
+                         // "value"

@@ -1,0 +1,78 @@
+
+// Оптимизация с помощью мемоизации
+
+// 1. React.memo - предотвращает ререндер при неизменных пропсах
+const Child = React.memo(function Child({ name, age }) {
+  console.log('Child rendered')
+  return <div>{name}, {age}</div>
+})
+
+function Parent() {
+  const [count, setCount] = useState(0)
+
+  return (
+    <div>
+      <button onClick={() => setCount(count + 1)}>Count: {count}</button>
+      {/* Child НЕ ререндерится, т.к. пропсы не изменились */}
+      <Child name="John" age={30} />
+    </div>
+  )
+}
+
+// 2. React.memo с кастомным сравнением
+const ExpensiveChild = React.memo(
+  function ExpensiveChild({ user, settings }) {
+    console.log('ExpensiveChild rendered')
+    return <div>{user.name}</div>
+  },
+  (prevProps, nextProps) => {
+    // Возвращаем true, если НЕ нужен ререндер
+    // Сравниваем только важные поля
+    return prevProps.user.id === nextProps.user.id &&
+           prevProps.settings.theme === nextProps.settings.theme
+  }
+)
+
+// 3. useMemo для вычислений
+function ExpensiveCalculation({ items }) {
+  // ✅ Вычисление происходит только при изменении items
+  const total = useMemo(() => {
+    console.log('Calculating total...')
+    return items.reduce((sum, item) => sum + item.price, 0)
+  }, [items])
+
+  return <div>Total: {total}</div>
+}
+
+// 4. useCallback для функций
+function Parent() {
+  const [count, setCount] = useState(0)
+  const [items, setItems] = useState([])
+
+  // ❌ ПЛОХО - новая функция при каждом рендере
+  const handleClick = () => {
+    console.log('clicked')
+  }
+
+  // ✅ ХОРОШО - функция создается один раз
+  const handleClickMemo = useCallback(() => {
+    console.log('clicked')
+  }, []) // Пустой массив зависимостей
+
+  // ✅ С зависимостями
+  const addItem = useCallback((item) => {
+    setItems(prev => [...prev, item])
+  }, []) // setItems стабилен
+
+  return (
+    <div>
+      <button onClick={() => setCount(count + 1)}>Count: {count}</button>
+      <Child onClick={handleClickMemo} />
+    </div>
+  )
+}
+
+const Child = React.memo(function Child({ onClick }) {
+  console.log('Child rendered')
+  return <button onClick={onClick}>Click me</button>
+})

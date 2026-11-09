@@ -1,0 +1,59 @@
+
+// Generator Function - создает генератор
+function* simpleGenerator() {
+  yield 1
+  yield 2
+  yield 3
+  return 'done'
+}
+
+// Генератор - это итератор
+const gen = simpleGenerator()
+console.log(gen.next()) // { value: 1, done: false }
+console.log(gen.next()) // { value: 2, done: false }
+console.log(gen.next()) // { value: 3, done: false }
+console.log(gen.next()) // { value: 'done', done: true }
+
+// Генератор можно использовать в циклах
+for (const value of simpleGenerator()) {
+  console.log(value) // 1, 2, 3 (return не выводится)
+}
+
+// Генератор с параметрами и бесконечностью
+function* fibonacci() {
+  let a = 0, b = 1
+  while (true) {
+    yield a
+    ;[a, b] = [b, a + b]
+  }
+}
+
+// Можно взять первые N значений
+function takeN(iterable, n) {
+  const result = []
+  let count = 0
+  for (const value of iterable) {
+    if (count >= n) break
+    result.push(value)
+    count++
+  }
+  return result
+}
+
+console.log(takeN(fibonacci(), 10)) // [0,1,1,2,3,5,8,13,21,34]
+
+// Генератор с двусторонней связью
+function* generatorWithInput() {
+  let input = yield 'Первое значение'
+  console.log('Получил:', input)
+
+  input = yield 'Второе значение'
+  console.log('Получил:', input)
+
+  return 'Конец'
+}
+
+const interactive = generatorWithInput()
+console.log(interactive.next())           // { value: 'Первое значение', done: false }
+console.log(interactive.next('Hello'))    // Получил: Hello, { value: 'Второе значение', done: false }
+console.log(interactive.next('World'))    // Получил: World, { value: 'Конец', done: true }

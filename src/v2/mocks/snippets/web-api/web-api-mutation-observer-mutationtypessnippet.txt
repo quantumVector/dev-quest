@@ -1,0 +1,132 @@
+
+// =====================================
+// ТИПЫ МУТАЦИЙ И ИХ ОСОБЕННОСТИ
+// =====================================
+
+const targetElement = document.querySelector('#target')
+
+// 1. ATTRIBUTES - изменение атрибутов
+const attributesObserver = new MutationObserver((mutations) => {
+  mutations.forEach(mutation => {
+    if (mutation.type === 'attributes') {
+      const element = mutation.target
+      const attrName = mutation.attributeName
+      const oldValue = mutation.oldValue
+      const newValue = element.getAttribute(attrName)
+
+      console.log(`Атрибут "${attrName}" изменен`)
+      console.log(`Старое значение: ${oldValue}`)
+      console.log(`Новое значение: ${newValue}`)
+    }
+  })
+})
+
+attributesObserver.observe(targetElement, {
+  attributes: true,
+  attributeOldValue: true,
+  attributeFilter: ['class', 'data-status'] // Только эти атрибуты
+})
+
+// Тестирование
+targetElement.className = 'active'        // Сработает
+targetElement.setAttribute('data-status', 'loading') // Сработает
+targetElement.id = 'new-id'              // НЕ сработает (не в фильтре)
+
+// 2. CHILDLIST - добавление/удаление элементов
+const childListObserver = new MutationObserver((mutations) => {
+  mutations.forEach(mutation => {
+    if (mutation.type === 'childList') {
+      // Добавленные элементы
+      mutation.addedNodes.forEach(node => {
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          console.log('Добавлен элемент:', node.tagName)
+        }
+      })
+
+      // Удаленные элементы
+      mutation.removedNodes.forEach(node => {
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          console.log('Удален элемент:', node.tagName)
+        }
+      })
+
+      console.log('Предыдущий сосед:', mutation.previousSibling)
+      console.log('Следующий сосед:', mutation.nextSibling)
+    }
+  })
+})
+
+childListObserver.observe(targetElement, {
+  childList: true
+})
+
+// Тестирование
+const newDiv = document.createElement('div')
+targetElement.appendChild(newDiv)        // Сработает
+targetElement.removeChild(newDiv)        // Сработает
+
+// 3. SUBTREE - наблюдение за всем поддеревом
+const subtreeObserver = new MutationObserver((mutations) => {
+  mutations.forEach(mutation => {
+    console.log('Изменение в поддереве:', mutation.target)
+  })
+})
+
+subtreeObserver.observe(targetElement, {
+  childList: true,
+  subtree: true // Наблюдать за всеми потомками
+})
+
+// Тестирование
+const deepChild = targetElement.querySelector('.deep-child')
+deepChild.textContent = 'Изменено'       // Сработает
+
+// 4. CHARACTERDATA - изменение текстового содержимого
+const textObserver = new MutationObserver((mutations) => {
+  mutations.forEach(mutation => {
+    if (mutation.type === 'characterData') {
+      console.log('Старый текст:', mutation.oldValue)
+      console.log('Новый текст:', mutation.target.data)
+    }
+  })
+})
+
+// Важно: наблюдаем за текстовым узлом, не за элементом
+const textNode = targetElement.firstChild
+if (textNode && textNode.nodeType === Node.TEXT_NODE) {
+  textObserver.observe(textNode, {
+    characterData: true,
+    characterDataOldValue: true
+  })
+}
+
+// Тестирование
+textNode.data = 'Новый текст'            // Сработает
+
+// 5. КОМБИНИРОВАННОЕ наблюдение
+const fullObserver = new MutationObserver((mutations) => {
+  const changes = {
+    attributes: [],
+    childList: [],
+    characterData: []
+  }
+
+  mutations.forEach(mutation => {
+    changes[mutation.type].push(mutation)
+  })
+
+  console.log('Сводка изменений:', {
+    'Атрибуты': changes.attributes.length,
+    'Дочерние элементы': changes.childList.length,
+    'Текстовое содержимое': changes.characterData.length
+  })
+})
+
+fullObserver.observe(targetElement, {
+  attributes: true,
+  childList: true,
+  characterData: true,
+  subtree: true,
+  attributeOldValue: true,
+  characterDataOldValue: true
+})

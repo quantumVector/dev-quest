@@ -1,0 +1,87 @@
+
+// React Fiber - современная архитектура Virtual DOM
+
+// Проблема старого Virtual DOM:
+// - Синхронный рендеринг
+// - Блокирует главный поток
+// - UI "замораживается" при больших обновлениях
+
+// React Fiber решает это через:
+// 1. Incremental Rendering - рендеринг по частям
+// 2. Ability to Pause/Resume - приоритеты задач
+// 3. Time Slicing - разбиение на временные слоты
+
+// Fiber Node - единица работы
+const fiberNode = {
+  // Информация о компоненте
+  type: 'div',              // Тип элемента
+  key: null,                // Key для списков
+  props: { /* ... */ },     // Props компонента
+
+  // Связи в дереве
+  return: parentFiber,      // Родитель
+  child: firstChildFiber,   // Первый ребенок
+  sibling: nextSiblingFiber, // Следующий сиbling
+
+  // Состояние
+  memoizedState: { /* ... */ }, // Текущее состояние
+  memoizedProps: { /* ... */ }, // Текущие props
+
+  // Информация об обновлении
+  alternate: oldFiber,      // Предыдущая версия fiber
+  effectTag: 'UPDATE',      // Тип изменения (PLACEMENT, UPDATE, DELETION)
+
+  // Приоритет
+  lanes: 0b0001,            // Битовая маска приоритета
+
+  // Эффекты
+  updateQueue: [],          // Очередь обновлений
+  effects: []               // Побочные эффекты
+};
+
+// Процесс рендеринга с Fiber:
+
+// Фаза 1: Render/Reconciliation (прерываемая)
+function workLoop(deadline) {
+  let shouldYield = false;
+
+  while (nextUnitOfWork && !shouldYield) {
+    // Обрабатываем один fiber node
+    nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
+
+    // Проверяем, осталось ли время
+    shouldYield = deadline.timeRemaining() < 1;
+  }
+
+  // Если есть еще работа, запланируем продолжение
+  if (nextUnitOfWork) {
+    requestIdleCallback(workLoop);
+  } else {
+    // Все fiber обработаны, переходим к commit
+    commitRoot();
+  }
+}
+
+requestIdleCallback(workLoop);
+
+// Фаза 2: Commit (синхронная, быстрая)
+function commitRoot() {
+  // Применяем все изменения к реальному DOM
+  // Эта фаза неприрывна и быстра
+  commitAllHostEffects(finishedWork);
+  commitAllLifeCycles(finishedWork);
+}
+
+// Приоритеты задач в Fiber:
+const priorities = {
+  ImmediatePriority: 1,    // Клик, ввод текста
+  UserBlockingPriority: 2, // Hover, скролл
+  NormalPriority: 3,       // Сетевые запросы
+  LowPriority: 4,          // Аналитика
+  IdlePriority: 5          // Фоновые задачи
+};
+
+// Concurrent Mode:
+// - Высокоприоритетные задачи прерывают низкоприоритетные
+// - UI остается отзывчивым
+// - Плавные анимации даже при больших обновлениях

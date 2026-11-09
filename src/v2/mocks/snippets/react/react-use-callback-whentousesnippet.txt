@@ -1,0 +1,72 @@
+
+// Когда использовать useCallback, а когда нет
+
+// ❌ НЕ НУЖЕН useCallback - простой обработчик в родителе
+function SimpleButton() {
+  const [count, setCount] = useState(0);
+
+  // Обычная функция достаточно - нет дочерних компонентов
+  const handleClick = () => {
+    setCount(count + 1);
+  };
+
+  return <button onClick={handleClick}>Count: {count}</button>;
+}
+
+// ❌ НЕ НУЖЕН - инлайн функция не влияет на производительность
+function InlineHandler() {
+  const [text, setText] = useState('');
+
+  return (
+    <input
+      value={text}
+      onChange={(e) => setText(e.target.value)} // Это нормально
+    />
+  );
+}
+
+// ✅ НУЖЕН - передача в мемоизированный компонент
+function WithMemoizedChild() {
+  const [count, setCount] = useState(0);
+
+  const handleUpdate = useCallback(() => {
+    console.log('Updated');
+  }, []);
+
+  return (
+    <div>
+      <button onClick={() => setCount(count + 1)}>Increment</button>
+      <ExpensiveComponent onUpdate={handleUpdate} />
+    </div>
+  );
+}
+
+const ExpensiveComponent = React.memo(({ onUpdate }) => {
+  // Тяжелые вычисления
+  return <div>Expensive render</div>;
+});
+
+// ✅ НУЖЕН - зависимость в useEffect
+function WithEffect() {
+  const [data, setData] = useState(null);
+
+  const fetchData = useCallback(async () => {
+    const result = await api.getData();
+    setData(result);
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  return <div>{data}</div>;
+}
+
+// ✅ НУЖЕН - передача в сторонние библиотеки
+function WithLibrary() {
+  const handleChange = useCallback((value) => {
+    console.log('Changed:', value);
+  }, []);
+
+  return <ExternalLibraryComponent onChange={handleChange} />;
+}

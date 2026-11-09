@@ -1,0 +1,115 @@
+
+// INP - Interaction to Next Paint (заменил FID в 2024)
+// Измеряет отзывчивость на взаимодействия пользователя
+
+// FID (старая метрика):
+// - Измерял только ПЕРВОЕ взаимодействие
+// - Время от клика до начала обработки
+
+// INP (новая метрика):
+// - Измеряет ВСЕ взаимодействия
+// - Время от взаимодействия до следующей отрисовки
+// - Более полная картина интерактивности
+
+// Хорошие значения:
+// ✅ Отлично: < 200 мс
+// ⚠️  Требует улучшения: 200 - 500 мс
+// ❌ Плохо: > 500 мс
+
+// Как улучшить INP:
+
+// 1. Оптимизация обработчиков событий
+// ❌ Плохо - тяжелая синхронная работа
+button.addEventListener('click', () => {
+// Блокирующая операция
+const result = heavyComputation();
+updateUI(result);
+});
+
+// ✅ Хорошо - разбиваем на части
+button.addEventListener('click', async () => {
+// Показываем индикатор загрузки сразу
+showLoadingIndicator();
+
+// Вычисления в следующем фрейме
+await scheduler.postTask(() => {
+const result = heavyComputation();
+updateUI(result);
+}, { priority: 'user-blocking' });
+
+hideLoadingIndicator();
+});
+
+// 2. Используйте Web Workers для тяжелых вычислений
+// worker.js
+self.addEventListener('message', (e) => {
+const result = performHeavyCalculation(e.data);
+self.postMessage(result);
+});
+
+// main.js
+const worker = new Worker('worker.js');
+button.addEventListener('click', () => {
+showLoadingIndicator();
+worker.postMessage(data);
+worker.onmessage = (e) => {
+updateUI(e.data);
+hideLoadingIndicator();
+};
+});
+
+// 3. Дебаунсинг и троттлинг
+// Дебаунсинг для поиска
+let debounceTimer;
+searchInput.addEventListener('input', (e) => {
+clearTimeout(debounceTimer);
+debounceTimer = setTimeout(() => {
+performSearch(e.target.value);
+}, 300);
+});
+
+// Троттлинг для скролла
+let lastRun = 0;
+const throttleDelay = 100;
+window.addEventListener('scroll', () => {
+const now = Date.now();
+if (now - lastRun >= throttleDelay) {
+updateScrollPosition();
+lastRun = now;
+}
+});
+
+// 4. Оптимизация рендеринга в React
+import { memo, useMemo, useCallback } from 'react';
+
+// Мемоизация компонентов
+const ExpensiveComponent = memo(({ data }) => {
+const processedData = useMemo(() =>
+heavyProcessing(data),
+[data]
+);
+
+const handleClick = useCallback(() => {
+// обработка
+}, []);
+
+return <div onClick={handleClick}>{processedData}</div>;
+});
+
+// 5. Виртуализация длинных списков
+import { FixedSizeList } from 'react-window';
+
+function VirtualizedList({ items }) {
+return (
+<FixedSizeList
+  height={600}
+  itemCount={items.length}
+  itemSize={50}
+  width="100%"
+>
+{({ index, style }) => (
+<div style={style}>{items[index]}</div>
+)}
+</FixedSizeList>
+);
+}

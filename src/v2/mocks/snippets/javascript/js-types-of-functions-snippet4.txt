@@ -1,0 +1,100 @@
+
+// =====================================
+// 5. ФУНКЦИИ ДЛЯ РАБОТЫ С ФУНКЦИЯМИ
+// =====================================
+
+// Function.prototype.call()
+function introduce(greeting, punctuation) {
+  return `${greeting}, я ${this.name}${punctuation}`;
+}
+
+const person = { name: "Иван" };
+console.log(introduce.call(person, "Привет", "!")); // "Привет, я Иван!"
+
+// Function.prototype.apply()
+const numbers = [1, 5, 3, 9, 2];
+console.log(Math.max.apply(null, numbers)); // 9
+
+// Function.prototype.bind()
+const boundIntroduce = introduce.bind(person, "Здравствуй");
+console.log(boundIntroduce(".")); // "Здравствуй, я Иван."
+
+// Function constructor (редко используется)
+const dynamicFunction = new Function('a', 'b', 'return a + b');
+console.log(dynamicFunction(2, 3)); // 5
+
+// =====================================
+// 6. МЕТОДЫ ФУНКЦИЙ
+// =====================================
+
+function testFunction(a, b, c) {
+  console.log("arguments:", arguments);
+  console.log("this:", this);
+  return a + b + c;
+}
+
+// Получение информации о функции
+console.log(testFunction.name);     // "testFunction"
+console.log(testFunction.length);   // 3 (количество параметров)
+
+// toString() - получить код функции
+console.log(testFunction.toString());
+
+// =====================================
+// 7. ФУНКЦИИ ES6+ ВОЗМОЖНОСТИ
+// =====================================
+
+// Деструктуризация в параметрах
+function greetUser({name, age = 18}) {
+  return `Привет, ${name}! Тебе ${age} лет.`;
+}
+
+console.log(greetUser({name: "Мария"})); // "Привет, Мария! Тебе 18 лет."
+
+// Rest параметры
+function sum(...numbers) {
+  return numbers.reduce((total, num) => total + num, 0);
+}
+
+console.log(sum(1, 2, 3, 4, 5)); // 15
+
+// Spread в вызове
+const nums = [1, 2, 3];
+console.log(Math.max(...nums)); // 3
+
+// Default параметры с функциями
+function createUser(name, getId = () => Math.random().toString(36)) {
+  return {
+    name,
+    id: getId()
+  };
+}
+
+// Template literals в функциях
+function html(strings, ...values) {
+  return strings.reduce((result, string, i) => {
+    return result + string + (values[i] || '');
+  }, '');
+}
+
+const name = "Анна";
+const age = 25;
+const template = html`<p>Имя: ${name}, Возраст: ${age}</p>`;
+
+// Async/Await
+async function getData() {
+  const data = await fetch('/api/users');
+  return data.json();
+}
+
+// Promise-based функции
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Использование с async/await
+async function example() {
+  console.log("Начало");
+  await delay(1000);
+  console.log("Через секунду");
+}

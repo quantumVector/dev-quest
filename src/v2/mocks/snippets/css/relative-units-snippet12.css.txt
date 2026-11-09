@@ -1,0 +1,44 @@
+
+/* Производительность относительных единиц */
+
+/* Эффективные вычисления */
+.efficient-layout {
+  /* rem быстрее em в глубокой вложенности */
+  font-size: 1.2rem;
+  margin: 1rem;
+
+  /* Viewport единицы требуют пересчета при resize */
+  width: clamp(20rem, 50vw, 60rem); /* Ограничиваем пересчеты */
+}
+
+/* Избегаем частых пересчетов */
+.avoid-frequent-recalc {
+  /* ❌ Каждый resize пересчитывает */
+  font-size: 4vw;
+  padding: 2vw;
+  margin: 1vw;
+
+  /* ✅ Меньше зависимостей от viewport */
+  font-size: clamp(1rem, 4vw, 2rem);
+  padding: 1rem;
+  margin: 0.5rem;
+}
+
+/* CSS Custom Properties с относительными единицами */
+:root {
+  --base-font-size: 1rem;
+  --large-font-size: 1.5rem;
+  --huge-font-size: clamp(2rem, 5vw, 4rem);
+
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 2rem;
+  --spacing-xl: 3rem;
+}
+
+.component {
+  font-size: var(--base-font-size);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}

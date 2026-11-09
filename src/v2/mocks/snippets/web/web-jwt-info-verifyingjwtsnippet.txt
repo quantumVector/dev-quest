@@ -1,0 +1,87 @@
+
+// Проверка JWT на сервере
+
+const jwt = require('jsonwebtoken')
+
+// 1. Middleware для проверки токена
+function authenticateToken(req, res, next) {
+  // Получаем токен из заголовка
+  const authHeader = req.headers['authorization']
+  const token = authHeader && authHeader.split(' ')[1] // "Bearer TOKEN"
+
+  if (!token) {
+    return res.status(401).json({ error: 'Access token required' })
+  }
+
+  // Проверяем и декодируем токен
+  jwt.verify(token, SECRET_KEY, (err, decoded) => {
+    if (err) {
+      // Токен невалиден, истек или подделан
+      if (err.name === 'TokenExpiredError') {
+        return res.status(401).json({ error: 'Token expired' })
+      }
+      if (err.name === 'JsonWebTokenError') {
+        return res.status(403).json({ error: 'Invalid token' })
+      }
+      return res.status(403).json({ error: 'Token verification failed' })
+    }
+
+    // Токен валиден, добавляем данные пользователя в request
+    req.user = decoded
+    next()
+  })
+}
+
+// 2. Проверка с дополнительными условиями
+function authenticateWithOptions(req, res, next) {
+  const token = req.headers['authorization']?.split(' ')[1]
+
+  if (!token) {
+    return res.status(401).json({ error: 'No token provided' })
+  }
+
+  try {
+    const decoded = jwt.verify(token, SECRET_KEY, {
+      audience: 'myapp.com',           // Проверяем аудиторию
+      issuer: 'api.myapp.com',         // Проверяем издателя
+      clockTolerance: 10                // Допуск на разницу часов (секунды)
+    })
+
+    req.user = decoded
+    next()
+  } catch (error) {
+    return res.status(403).json({ error: error.message })
+  }
+}
+
+// 3. Проверка роли пользователя
+function requireRole(role) {
+  return (req, res, next) => {
+    if (req.user.role !== role) {
+      return res.status(403).json({ error: 'Insufficient permissions' })
+    }
+    next()
+  }
+}
+
+// 4. Использование middleware
+const express = require('express')
+const app = express()
+
+// Защищенный роут
+app.get('/api/profile', authenticateToken, (req, res) => {
+  res.json({
+    user: req.user,
+    message: 'Protected route accessed successfully'
+  })
+})
+
+// Роут только для админов
+app.delete('/api/users/:id',
+  authenticateToken,
+  requireRole('admin'),
+  async (req, res) => {
+    await User.deleteById(req.params.id)
+    res.json({ success: true })
+  }
+)

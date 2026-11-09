@@ -1,0 +1,109 @@
+
+// Сравнение производительности: массив vs генератор
+
+// Обычный подход - создает весь массив в памяти
+function createLargeArray(size) {
+  const result = []
+  for (let i = 0; i < size; i++) {
+    result.push(i * i)
+  }
+  return result
+}
+
+// Генератор - вычисляет значения по требованию
+function* createLargeSequence(size) {
+  for (let i = 0; i < size; i++) {
+    yield i * i
+  }
+}
+
+// Тест производительности
+function performanceTest() {
+  const size = 1000000
+
+  console.time('Array creation')
+  const array = createLargeArray(size)
+  console.timeEnd('Array creation')
+
+  console.time('Generator creation')
+  const generator = createLargeSequence(size)
+  console.timeEnd('Generator creation') // Практически мгновенно
+
+  // Потребление памяти
+  console.log('Array memory:', JSON.stringify(array).length, 'bytes')
+  // Генератор не хранит данные в памяти
+
+  // Но доступ к элементу в массиве быстрее
+  console.time('Array access')
+  console.log(array[999999])
+  console.timeEnd('Array access')
+
+  console.time('Generator iteration')
+  let count = 0
+  for (const value of createLargeSequence(size)) {
+    if (count === 999999) {
+      console.log(value)
+      break
+    }
+    count++
+  }
+  console.timeEnd('Generator iteration')
+}
+
+// Композиция генераторов для сложной обработки
+function* pipeline(...generators) {
+  for (const generator of generators) {
+    yield* generator
+  }
+}
+
+function* numbers(max) {
+  for (let i = 1; i <= max; i++) {
+    yield i
+  }
+}
+
+function* squares(iterable) {
+  for (const n of iterable) {
+    yield n * n
+  }
+}
+
+function* filter(iterable, predicate) {
+  for (const item of iterable) {
+    if (predicate(item)) {
+      yield item
+    }
+  }
+}
+
+// Создаем pipeline без промежуточных массивов
+const evenSquares = filter(
+  squares(numbers(100)),
+  x => x % 2 === 0
+)
+
+console.log([...takeN(evenSquares, 5)]) // [4, 16, 36, 64, 100]
+
+// Мониторинг производительности генераторов
+function* monitoredGenerator(iterable, name) {
+  let count = 0
+  const start = performance.now()
+
+  for (const item of iterable) {
+    count++
+    yield item
+
+    if (count % 1000 === 0) {
+      const elapsed = performance.now() - start
+      console.log(`${name}: обработано ${count} элементов за ${elapsed.toFixed(2)}ms`)
+    }
+  }
+
+  const total = performance.now() - start
+  console.log(`${name}: завершено. Всего: ${count} элементов за ${total.toFixed(2)}ms`)
+}
+
+// Использование
+const monitored = monitoredGenerator(numbers(10000), 'NumberGenerator')
+const processed = [...monitored] // Обработает все с мониторингом

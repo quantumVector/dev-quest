@@ -1,0 +1,39 @@
+
+// Упрощенная схема SSO процесса
+
+// 1. Пользователь переходит на Application A
+// https://app-a.example.com
+
+// 2. Application A проверяет авторизацию
+// Нет токена → редирект на SSO Provider
+
+// 3. Редирект на SSO Provider
+window.location.href =
+  'https://sso.example.com/login?redirect=https://app-a.example.com/callback'
+
+// 4. SSO Provider проверяет сессию
+// Если пользователь уже авторизован в другом приложении:
+// → сразу генерирует токен
+// Если нет → показывает форму логина
+
+// 5. После успешной аутентификации:
+// SSO Provider редиректит обратно с токеном
+window.location.href =
+  'https://app-a.example.com/callback?token=eyJhbGciOiJIUzI1...'
+
+// 6. Application A валидирует токен и создает сессию
+const validateToken = async (token) => {
+  const response = await fetch('https://sso.example.com/validate', {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  })
+
+  const userData = await response.json()
+  // Пользователь авторизован!
+  return userData
+}
+
+// 7. Пользователь переходит на Application B
+// Процесс повторяется, но SSO Provider уже знает пользователя
+// → мгновенная авторизация без повторного ввода пароля!

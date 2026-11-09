@@ -1,0 +1,30 @@
+
+// Функция-конструктор
+function Person(name, age) {
+  this.name = name;    // this = новый создаваемый объект
+  this.age = age;
+
+  this.sayHi = function() {
+    console.log(`Привет, я ${this.name}`);
+  };
+}
+
+const person1 = new Person('Bob', 25);
+const person2 = new Person('Carol', 28);
+
+person1.sayHi(); // "Привет, я Bob" - this = person1
+person2.sayHi(); // "Привет, я Carol" - this = person2
+
+// Класс (ES6+)
+class Animal {
+  constructor(name) {
+    this.name = name; // this = экземпляр класса
+  }
+
+  speak() {
+    console.log(`${this.name} издает звук`);
+  }
+}
+
+const dog = new Animal('Рекс');
+dog.speak(); // "Рекс издает звук" - this = dog

@@ -1,0 +1,25 @@
+
+<!-- Подключение sitemap в HTML -->
+<head>
+  <!-- Указание основного sitemap -->
+  <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml">
+
+  <!-- RSS feed как альтернатива для блога -->
+  <link rel="alternate" type="application/rss+xml" title="RSS Feed" href="/feed.xml">
+</head>
+
+<!-- Проверка robots.txt через meta-теги -->
+<head>
+  <!-- Управление индексацией конкретной страницы -->
+  <meta name="robots" content="index, follow">
+
+  <!-- Запрет индексации -->
+  <meta name="robots" content="noindex, nofollow">
+
+  <!-- Для конкретных ботов -->
+  <meta name="googlebot" content="index, follow">
+  <meta name="bingbot" content="noindex, nofollow">
+
+  <!-- Продвинутые директивы -->
+  <meta name="robots" content="index, follow, max-snippet:150, max-image-preview:large">
+</head>

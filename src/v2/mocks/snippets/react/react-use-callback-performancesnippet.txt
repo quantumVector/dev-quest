@@ -1,0 +1,66 @@
+
+// Производительность: useCallback vs обычные функции
+
+import { useState, useCallback, memo } from 'react';
+
+// Пример: Большой список элементов
+
+function TodoApp() {
+  const [todos, setTodos] = useState([]);
+  const [filter, setFilter] = useState('all');
+
+  // ❌ БЕЗ useCallback - каждый элемент перерендеривается
+  const handleToggleBad = (id) => {
+    setTodos(prev => prev.map(todo =>
+      todo.id === id ? { ...todo, completed: !todo.completed } : todo
+    ));
+  };
+
+  // ✅ С useCallback - только измененный элемент рендерится
+  const handleToggleGood = useCallback((id) => {
+    setTodos(prev => prev.map(todo =>
+      todo.id === id ? { ...todo, completed: !todo.completed } : todo
+    ));
+  }, []);
+
+  const handleDeleteGood = useCallback((id) => {
+    setTodos(prev => prev.filter(todo => todo.id !== id));
+  }, []);
+
+  return (
+    <div>
+      <FilterButtons filter={filter} setFilter={setFilter} />
+
+      {/* С handleToggleBad все элементы перерендерятся */}
+      {/* С handleToggleGood только изменившийся */}
+      {todos.map(todo => (
+        <TodoItem
+          key={todo.id}
+          todo={todo}
+          onToggle={handleToggleGood}
+          onDelete={handleDeleteGood}
+        />
+      ))}
+    </div>
+  );
+}
+
+const TodoItem = memo(({ todo, onToggle, onDelete }) => {
+  console.log('Render TodoItem:', todo.id);
+
+  return (
+    <div>
+      <input
+        type="checkbox"
+        checked={todo.completed}
+        onChange={() => onToggle(todo.id)}
+      />
+      <span>{todo.text}</span>
+      <button onClick={() => onDelete(todo.id)}>Delete</button>
+    </div>
+  );
+});
+
+// Результат:
+// БЕЗ useCallback: 100 элементов → 100 рендеров при изменении одного
+// С useCallback: 100 элементов → 1 рендер при изменении одного

@@ -1,0 +1,32 @@
+
+// Методы обнаружения модификаций прототипов
+
+// 1. Проверка собственных свойств
+function hasSafePrototype(obj) {
+  const proto = Object.getPrototypeOf(obj);
+  const expectedKeys = Object.getOwnPropertyNames(proto);
+  const actualKeys = Object.getOwnPropertyNames(Object.getPrototypeOf({}));
+
+  return expectedKeys.length === actualKeys.length;
+}
+
+// 2. Сохранение оригинальных методов
+const originalMethods = {
+  hasOwnProperty: Object.prototype.hasOwnProperty,
+  toString: Object.prototype.toString,
+  push: Array.prototype.push,
+  map: Array.prototype.map
+};
+
+// 3. Восстановление при необходимости
+function restoreOriginalMethods() {
+  Object.prototype.hasOwnProperty = originalMethods.hasOwnProperty;
+  Object.prototype.toString = originalMethods.toString;
+  Array.prototype.push = originalMethods.push;
+  Array.prototype.map = originalMethods.map;
+}
+
+// 4. Создание чистых объектов
+const cleanObject = Object.create(null); // Без прототипа
+cleanObject.name = "John";
+console.log(cleanObject.toString); // undefined - нет прототипа

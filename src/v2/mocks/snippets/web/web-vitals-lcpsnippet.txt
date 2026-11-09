@@ -1,0 +1,50 @@
+
+// LCP - Largest Contentful Paint
+// Измеряет время отрисовки самого большого контентного элемента
+
+// Что считается LCP элементом:
+// - <img> элементы
+// - <image> внутри <svg>
+// - <video> элементы (постер)
+// - Элементы с background-image через CSS
+// - Блочные элементы с текстом
+
+// Хорошие значения:
+// ✅ Отлично: < 2.5 секунд
+// ⚠️  Требует улучшения: 2.5 - 4 секунды
+// ❌ Плохо: > 4 секунд
+
+// Как улучшить LCP:
+// 1. Оптимизация изображений
+<img
+  src="hero.jpg"
+  srcset="hero-400.jpg 400w, hero-800.jpg 800w"
+  sizes="(max-width: 600px) 100vw, 50vw"
+  alt="Hero image"
+  loading="eager"
+  fetchpriority="high"
+>
+
+// 2. Предзагрузка критических ресурсов
+<link rel="preload" as="image" href="hero.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="dns-prefetch" href="https://cdn.example.com">
+
+// 3. Серверная оптимизация
+// - Используйте CDN
+// - Включите HTTP/2 или HTTP/3
+// - Оптимизируйте TTFB
+// - Используйте кэширование
+
+// 4. Оптимизация CSS
+// - Критичный CSS inline
+// - Ленивая загрузка некритичного CSS
+<style>
+  /* Критичные стили inline */
+  .hero { display: block; width: 100%; }
+</style>
+<link rel="stylesheet" href="non-critical.css" media="print" onload="this.media='all'">
+
+// 5. Избегайте рендер-блокирующих ресурсов
+<script src="app.js" defer></script>
+<script src="analytics.js" async></script>

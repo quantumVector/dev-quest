@@ -1,0 +1,60 @@
+
+// Стратегии кэширования для SSR
+
+// 1. STATIC GENERATION (SSG) - генерация в build time
+// Next.js
+export async function generateStaticParams() {
+const products = await getProducts()
+
+// Генерируем страницы для каждого продукта
+return products.map(product => ({
+slug: product.slug
+}))
+}
+
+// 2. INCREMENTAL STATIC REGENERATION (ISR)
+// Next.js
+export const revalidate = 60 // Регенерация каждые 60 секунд
+
+async function getProduct(slug: string) {
+const res = await fetch(`https://api.example.com/products/${slug}`, {
+next: { revalidate: 60 }
+})
+return res.json()
+}
+
+// 3. ON-DEMAND REVALIDATION
+// Next.js API Route
+export async function POST(request: Request) {
+const { slug } = await request.json()
+
+// Инвалидируем кэш для конкретной страницы
+await revalidatePath(`/products/${slug}`)
+
+return Response.json({ revalidated: true })
+}
+
+// 4. EDGE CACHING с CDN
+// Vercel / Cloudflare
+export const config = {
+runtime: 'edge' // Выполняется на edge серверах близко к пользователю
+}
+
+// 5. REDIS CACHING на сервере
+import Redis from 'ioredis'
+
+const redis = new Redis(process.env.REDIS_URL)
+
+async function getCachedProduct(id: string) {
+// Проверяем кэш
+const cached = await redis.get(`product:${id}`)
+if (cached) return JSON.parse(cached)
+
+// Запрос к БД
+const product = await db.product.findUnique({ where: { id } })
+
+// Сохраняем в кэш на 10 минут
+await redis.setex(`product:${id}`, 600, JSON.stringify(product))
+
+return product
+}

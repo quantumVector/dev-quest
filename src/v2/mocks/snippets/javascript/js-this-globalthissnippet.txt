@@ -1,0 +1,15 @@
+
+// Глобальный контекст
+console.log(this); // Window (в браузере) или global (в Node.js)
+
+function regularFunction() {
+  console.log(this); // Window (не строгий режим) или undefined (строгий)
+}
+
+"use strict";
+function strictFunction() {
+  console.log(this); // undefined в строгом режиме
+}
+
+regularFunction();
+strictFunction();

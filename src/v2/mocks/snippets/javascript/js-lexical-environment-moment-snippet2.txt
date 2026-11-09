@@ -1,0 +1,53 @@
+
+// Детальный разбор фаз создания лексического окружения
+console.log("=== Фазы создания лексического окружения ===");
+
+function demonstratePhases() {
+  console.log("\n1. CREATION PHASE (Фаза создания):");
+  console.log("   - Создается Environment Record");
+  console.log("   - Устанавливается Outer Reference");
+  console.log("   - Происходит hoisting переменных и функций");
+
+  // В этот момент:
+  // - hoistedVar уже существует в Environment Record (undefined)
+  // - hoistedFunction уже существует и инициализирована
+  // - letVariable и constVariable созданы, но в TDZ
+
+  console.log("   - hoistedVar до инициализации:", typeof hoistedVar);      // "undefined"
+  console.log("   - hoistedFunction доступна:", typeof hoistedFunction);   // "function"
+  // console.log("   - letVariable:", letVariable);                        // ReferenceError (TDZ)
+
+  console.log("\n2. EXECUTION PHASE (Фаза выполнения):");
+  console.log("   - Присваиваются значения переменным");
+  console.log("   - Выходим из TDZ для let/const");
+
+  var hoistedVar = "Проинициализирована";
+  let letVariable = "Вышла из TDZ";
+  const constVariable = "Тоже вышла из TDZ";
+
+  function hoistedFunction() {
+    return "Была доступна с самого начала";
+  }
+
+  console.log("   - hoistedVar:", hoistedVar);
+  console.log("   - letVariable:", letVariable);
+  console.log("   - constVariable:", constVariable);
+  console.log("   - hoistedFunction():", hoistedFunction());
+
+  return function returnedFunction() {
+    // Лексическое окружение returnedFunction создается ТОЛЬКО при вызове этой функции
+    console.log("\n3. Лексическое окружение returnedFunction создано при вызове");
+    console.log("   - Имеет доступ ко всем переменным demonstratePhases");
+    console.log("   - hoistedVar:", hoistedVar);
+    console.log("   - letVariable:", letVariable);
+    console.log("   - constVariable:", constVariable);
+  };
+}
+
+console.log("Определили demonstratePhases - лексическое окружение ещё НЕ создано");
+
+console.log("\nВызываем demonstratePhases:");
+const returnedFunc = demonstratePhases();
+
+console.log("\nВызываем возвращенную функцию:");
+returnedFunc();

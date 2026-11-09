@@ -1,0 +1,43 @@
+
+// ========================================
+// ВОПРОСЫ С СОБЕСЕДОВАНИЙ
+// ========================================
+
+// Вопрос 1: Что выведет этот код?
+var a = 1;
+function test() {
+    console.log(a); // ???
+    var a = 2;
+    console.log(a); // ???
+}
+test();
+
+// Ответ: undefined, 2
+// Объяснение: var a внутри функции поднимается вверх
+
+// Вопрос 2: В чем разница?
+// Вариант A
+if (true) {
+    var x = 1;
+}
+console.log(x); // ???
+
+// Вариант B
+if (true) {
+    let y = 1;
+}
+console.log(y); // ???
+
+// Ответ A: 1 (var не имеет блочной области видимости)
+// Ответ B: ReferenceError (let имеет блочную область)
+
+// Вопрос 3: Temporal Dead Zone
+let name = 'outer';
+function example() {
+    console.log(name); // ???
+    let name = 'inner';
+}
+example();
+
+// Ответ: ReferenceError
+// let name поднимается, но находится в TDZ

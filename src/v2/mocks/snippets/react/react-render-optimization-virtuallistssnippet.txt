@@ -1,0 +1,84 @@
+
+// Виртуализация для больших списков
+
+// Без виртуализации - все элементы рендерятся
+function BadList({ items }) {
+  return (
+    <div>
+      {/* Если items = 10000, все 10000 DOM элементов создаются! */}
+      {items.map(item => (
+        <ItemComponent key={item.id} item={item} />
+      ))}
+    </div>
+  )
+}
+
+// ✅ С react-window
+import { FixedSizeList } from 'react-window'
+
+function VirtualizedList({ items }) {
+  const Row = ({ index, style }) => (
+    <div style={style}>
+      <ItemComponent item={items[index]} />
+    </div>
+  )
+
+  return (
+    <FixedSizeList
+      height={600}
+      itemCount={items.length}
+      itemSize={50}
+      width="100%"
+    >
+      {Row}
+    </FixedSizeList>
+  )
+}
+
+// ✅ С react-virtualized
+import { List } from 'react-virtualized'
+
+function VirtualizedList({ items }) {
+  const rowRenderer = ({ key, index, style }) => (
+    <div key={key} style={style}>
+      <ItemComponent item={items[index]} />
+    </div>
+  )
+
+  return (
+    <List
+      width={800}
+      height={600}
+      rowCount={items.length}
+      rowHeight={50}
+      rowRenderer={rowRenderer}
+    />
+  )
+}
+
+// Динамическая высота элементов
+import { VariableSizeList } from 'react-window'
+
+function DynamicList({ items }) {
+  const getItemSize = (index) => {
+    // Вычисляем высоту на основе данных
+    return items[index].isExpanded ? 200 : 50
+  }
+
+  const Row = ({ index, style }) => (
+    <div style={style}>
+      <ItemComponent item={items[index]} />
+    </div>
+  )
+
+  return (
+    <VariableSizeList
+      height={600}
+      itemCount={items.length}
+      itemSize={getItemSize}
+      width="100%"
+    >
+      {Row}
+    </VariableSizeList>
+  )
+}

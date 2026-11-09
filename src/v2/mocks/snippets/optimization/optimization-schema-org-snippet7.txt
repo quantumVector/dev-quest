@@ -1,0 +1,23 @@
+
+<!-- FAQ разметка -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [{
+    "@type": "Question",
+    "name": "Что такое React Hooks?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "<p>React Hooks — это функции, которые позволяют использовать состояние и другие возможности React без написания классов.</p>"
+    }
+  }, {
+    "@type": "Question",
+    "name": "Когда следует использовать useEffect?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "<p>useEffect используется для выполнения побочных эффектов в функциональных компонентах: запросы к API, подписки, изменение DOM напрямую.</p>"
+    }
+  }]
+}
+</script>

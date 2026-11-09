@@ -1,0 +1,46 @@
+
+// Инструменты для профилирования
+
+import { Profiler } from 'react'
+
+function App() {
+  const onRenderCallback = (
+    id,           // "id" профилируемого компонента
+    phase,        // "mount" или "update"
+    actualDuration, // время рендера
+    baseDuration,   // без мемоизации
+    startTime,
+    commitTime,
+    interactions
+  ) => {
+    console.log(`${id}'s ${phase} phase:`)
+    console.log(`Actual duration: ${actualDuration}ms`)
+    console.log(`Base duration: ${baseDuration}ms`)
+  }
+
+  return (
+    <Profiler id="App" onRender={onRenderCallback}>
+      <Dashboard />
+    </Profiler>
+  )
+}
+
+// React DevTools Profiler
+// 1. Открыть DevTools → Profiler
+// 2. Нажать Record
+// 3. Взаимодействовать с приложением
+// 4. Stop
+// 5. Анализировать Flame Chart
+
+// Why Did You Render (библиотека)
+import whyDidYouRender from '@welldone-software/why-did-you-render'
+
+if (process.env.NODE_ENV === 'development') {
+  whyDidYouRender(React, {
+    trackAllPureComponents: true,
+    logOnDifferentValues: true
+  })
+}
+
+// Добавить к компонентам для отслеживания
+Component.whyDidYouRender = true

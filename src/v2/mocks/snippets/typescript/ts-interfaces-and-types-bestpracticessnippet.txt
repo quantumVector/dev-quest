@@ -1,0 +1,210 @@
+
+// =====================================
+// ЛУЧШИЕ ПРАКТИКИ
+// =====================================
+
+// 1. Когда использовать Interface
+// ✅ Для описания объектов и классов
+interface User {
+  id: number
+  name: string
+}
+
+// ✅ Когда нужно расширение через declaration merging
+interface Window {
+  myCustomProperty: string
+}
+
+// ✅ Для публичных API (библиотеки)
+export interface Config {
+  apiUrl: string
+  timeout: number
+}
+
+// 2. Когда использовать Type
+// ✅ Для union types
+type Status = 'active' | 'inactive' | 'pending'
+
+// ✅ Для tuple types
+type Point = [number, number]
+
+// ✅ Для сложных типов с условной логикой
+type NonNullable<T> = T extends null | undefined ? never : T
+
+// ✅ Для mapped types
+type Readonly<T> = {
+  readonly [P in keyof T]: T[P]
+}
+
+// 3. Именование - используйте осмысленные имена
+// ❌ Плохо
+type T = { n: string; a: number }
+
+// ✅ Хорошо
+interface User {
+  name: string
+  age: number
+}
+
+// 4. Префиксы - избегайте I/T префиксов
+// ❌ Плохо (C# style)
+interface IUser { }
+type TStatus = 'active'
+
+// ✅ Хорошо
+interface User { }
+type Status = 'active'
+
+// 5. DRY - не повторяйтесь, используйте generics
+// ❌ Плохо
+interface UserResponse {
+  data: User
+  status: number
+}
+
+interface ProductResponse {
+  data: Product
+  status: number
+}
+
+// ✅ Хорошо
+interface ApiResponse<T> {
+  data: T
+  status: number
+}
+
+type UserResponse = ApiResponse<User>
+type ProductResponse = ApiResponse<Product>
+
+// 6. Используйте Utility Types
+// ❌ Плохо
+interface UpdateUser {
+  id?: number
+  name?: string
+  email?: string
+}
+
+// ✅ Хорошо
+type UpdateUser = Partial<User>
+
+// 7. Строгая типизация - избегайте any
+// ❌ Плохо
+const fetchData = async (url: string): Promise<any> => {
+  const response = await fetch(url)
+  return response.json()
+}
+
+// ✅ Хорошо
+interface ApiData {
+  id: number
+  value: string
+}
+
+const fetchData = async (url: string): Promise<ApiData> => {
+  const response = await fetch(url)
+  return response.json()
+}
+
+// 8. Используйте unknown вместо any когда тип неизвестен
+// ❌ Плохо
+const processData = (data: any) => {
+  return data.value  // Небезопасно
+}
+
+// ✅ Хорошо
+const processData = (data: unknown) => {
+  if (typeof data === 'object' && data !== null && 'value' in data) {
+    return (data as { value: string }).value
+  }
+  throw new Error('Invalid data')
+}
+
+// 9. Readonly для неизменяемых данных
+// ✅ Хорошо
+interface Config {
+  readonly apiUrl: string
+  readonly timeout: number
+}
+
+type ReadonlyUser = Readonly<User>
+
+// 10. Дискриминированные union для state management
+type LoadingState = {
+  status: 'loading'
+}
+
+type SuccessState<T> = {
+  status: 'success'
+  data: T
+}
+
+type ErrorState = {
+  status: 'error'
+  error: string
+}
+
+type AsyncState<T> = LoadingState | SuccessState<T> | ErrorState
+
+const handleState = <T>(state: AsyncState<T>) => {
+  switch (state.status) {
+    case 'loading':
+      return 'Loading...'
+    case 'success':
+      return state.data  // TypeScript знает о data
+    case 'error':
+      return state.error  // TypeScript знает об error
+  }
+}
+
+// 11. Избегайте глубокой вложенности
+// ❌ Плохо
+interface DeepNested {
+  a: {
+    b: {
+      c: {
+        d: {
+          e: string
+        }
+      }
+    }
+  }
+}
+
+// ✅ Хорошо - разбейте на составные типы
+interface E {
+  e: string
+}
+
+interface D {
+  d: E
+}
+
+interface C {
+  c: D
+}
+
+interface B {
+  b: C
+}
+
+interface A {
+  a: B
+}
+
+// Или используйте плоскую структуру
+interface Flat {
+  aValue: string
+  bValue: number
+  cValue: boolean
+}
+
+// 12. Документируйте сложные типы
+/**
+ * Представляет состояние асинхронной операции
+ * @template T - Тип данных при успешном выполнении
+ */
+type AsyncState<T> =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'success'; data: T }
+  | { status: 'error'; error: Error }

@@ -1,0 +1,377 @@
+
+// =====================================
+// ОПТИМИЗАЦИЯ ПРОИЗВОДИТЕЛЬНОСТИ
+// =====================================
+
+// 1. Debounce для частых изменений
+class OptimizedCartSync {
+  constructor() {
+    this.cart = this.loadCart()
+    this.channel = new BroadcastChannel('cart-sync-optimized')
+    this.saveTimeout = null
+    this.SAVE_DELAY = 300 // мс
+
+    this.channel.onmessage = this.handleMessage.bind(this)
+  }
+
+  loadCart() {
+    const data = localStorage.getItem('cart')
+    return data ? JSON.parse(data) : []
+  }
+
+  // Debounced save
+  saveCart(cart) {
+    this.cart = cart
+
+    // Отменяем предыдущий таймер
+    if (this.saveTimeout) {
+      clearTimeout(this.saveTimeout)
+    }
+
+    // Откладываем сохранение
+    this.saveTimeout = setTimeout(() => {
+      localStorage.setItem('cart', JSON.stringify(cart))
+
+      // Отправляем в другие вкладки
+      this.channel.postMessage({
+        type: 'CART_UPDATED',
+        cart,
+        timestamp: Date.now()
+      })
+
+      this.saveTimeout = null
+    }, this.SAVE_DELAY)
+  }
+
+  // Немедленное сохранение (для важных операций)
+  saveCartImmediate(cart) {
+    if (this.saveTimeout) {
+      clearTimeout(this.saveTimeout)
+      this.saveTimeout = null
+    }
+
+    this.cart = cart
+    localStorage.setItem('cart', JSON.stringify(cart))
+
+    this.channel.postMessage({
+      type: 'CART_UPDATED',
+      cart,
+      timestamp: Date.now()
+    })
+  }
+
+  updateQuantity(itemId, quantity) {
+    const cart = this.cart.map(item =>
+      item.id === itemId ? { ...item, quantity } : item
+    )
+
+    // Используем debounced save для частых изменений
+    this.saveCart(cart)
+  }
+
+  removeItem(itemId) {
+    const cart = this.cart.filter(item => item.id !== itemId)
+
+    // Немедленное сохранение для удаления
+    this.saveCartImmediate(cart)
+  }
+
+  handleMessage(event) {
+    if (event.data.type === 'CART_UPDATED') {
+      this.cart = event.data.cart
+
+      // Обновляем localStorage только если это не наше сообщение
+      localStorage.setItem('cart', JSON.stringify(this.cart))
+      this.notifyListeners(this.cart)
+    }
+  }
+}
+
+// 2. Incremental updates - отправляем только изменения
+class IncrementalCartSync {
+  constructor() {
+    this.cart = this.loadCart()
+    this.channel = new BroadcastChannel('cart-sync-incremental')
+
+    this.channel.onmessage = this.handleMessage.bind(this)
+  }
+
+  loadCart() {
+    const data = localStorage.getItem('cart')
+    return data ? JSON.parse(data) : []
+  }
+
+  saveCart(cart) {
+    localStorage.setItem('cart', JSON.stringify(cart))
+    this.cart = cart
+  }
+
+  // Отправляем только конкретное изменение
+  addItem(item) {
+    const newItem = { ...item, id: Date.now() }
+    this.cart.push(newItem)
+    this.saveCart(this.cart)
+
+    // Отправляем только добавленный элемент
+    this.channel.postMessage({
+      type: 'ITEM_ADDED',
+      item: newItem
+    })
+  }
+
+  removeItem(itemId) {
+    this.cart = this.cart.filter(item => item.id !== itemId)
+    this.saveCart(this.cart)
+
+    // Отправляем только ID удаленного элемента
+    this.channel.postMessage({
+      type: 'ITEM_REMOVED',
+      itemId
+    })
+  }
+
+  updateQuantity(itemId, quantity) {
+    const item = this.cart.find(item => item.id === itemId)
+    if (item) {
+      item.quantity = quantity
+      this.saveCart(this.cart)
+
+      // Отправляем только обновление
+      this.channel.postMessage({
+        type: 'QUANTITY_UPDATED',
+        itemId,
+        quantity
+      })
+    }
+  }
+
+  handleMessage(event) {
+    const { type, item, itemId, quantity } = event.data
+
+    switch (type) {
+      case 'ITEM_ADDED':
+        if (!this.cart.find(i => i.id === item.id)) {
+          this.cart.push(item)
+          this.saveCart(this.cart)
+          this.notifyListeners(this.cart)
+        }
+        break
+
+      case 'ITEM_REMOVED':
+        const indexToRemove = this.cart.findIndex(i => i.id === itemId)
+        if (indexToRemove !== -1) {
+          this.cart.splice(indexToRemove, 1)
+          this.saveCart(this.cart)
+          this.notifyListeners(this.cart)
+        }
+        break
+
+      case 'QUANTITY_UPDATED':
+        const itemToUpdate = this.cart.find(i => i.id === itemId)
+        if (itemToUpdate) {
+          itemToUpdate.quantity = quantity
+          this.saveCart(this.cart)
+          this.notifyListeners(this.cart)
+        }
+        break
+    }
+  }
+}
+
+// 3. Batching - группируем изменения
+class BatchedCartSync {
+  constructor() {
+    this.cart = this.loadCart()
+    this.channel = new BroadcastChannel('cart-sync-batched')
+    this.pendingUpdates = []
+    this.batchTimeout = null
+    this.BATCH_DELAY = 100 // мс
+
+    this.channel.onmessage = this.handleMessage.bind(this)
+  }
+
+  loadCart() {
+    const data = localStorage.getItem('cart')
+    return data ? JSON.parse(data) : []
+  }
+
+  saveCart(cart) {
+    localStorage.setItem('cart', JSON.stringify(cart))
+    this.cart = cart
+  }
+
+  queueUpdate(update) {
+    this.pendingUpdates.push(update)
+
+    if (this.batchTimeout) {
+      clearTimeout(this.batchTimeout)
+    }
+
+    this.batchTimeout = setTimeout(() => {
+      this.flushUpdates()
+    }, this.BATCH_DELAY)
+  }
+
+  flushUpdates() {
+    if (this.pendingUpdates.length === 0) return
+
+    // Применяем все обновления
+    for (const update of this.pendingUpdates) {
+      this.applyUpdate(update)
+    }
+
+    this.saveCart(this.cart)
+
+    // Отправляем батч обновлений
+    this.channel.postMessage({
+      type: 'BATCH_UPDATE',
+      updates: this.pendingUpdates,
+      timestamp: Date.now()
+    })
+
+    this.pendingUpdates = []
+    this.batchTimeout = null
+  }
+
+  applyUpdate(update) {
+    switch (update.type) {
+      case 'ADD_ITEM':
+        this.cart.push(update.item)
+        break
+
+      case 'REMOVE_ITEM':
+        this.cart = this.cart.filter(item => item.id !== update.itemId)
+        break
+
+      case 'UPDATE_QUANTITY':
+        const item = this.cart.find(item => item.id === update.itemId)
+        if (item) {
+          item.quantity = update.quantity
+        }
+        break
+    }
+  }
+
+  addItem(item) {
+    this.queueUpdate({
+      type: 'ADD_ITEM',
+      item: { ...item, id: Date.now() }
+    })
+  }
+
+  removeItem(itemId) {
+    this.queueUpdate({
+      type: 'REMOVE_ITEM',
+      itemId
+    })
+  }
+
+  updateQuantity(itemId, quantity) {
+    this.queueUpdate({
+      type: 'UPDATE_QUANTITY',
+      itemId,
+      quantity
+    })
+  }
+
+  handleMessage(event) {
+    if (event.data.type === 'BATCH_UPDATE') {
+      for (const update of event.data.updates) {
+        this.applyUpdate(update)
+      }
+
+      this.saveCart(this.cart)
+      this.notifyListeners(this.cart)
+    }
+  }
+
+  destroy() {
+    if (this.batchTimeout) {
+      clearTimeout(this.batchTimeout)
+      this.flushUpdates() // Сохраняем pending изменения
+    }
+    this.channel.close()
+  }
+}
+
+// 4. Compression для больших корзин
+class CompressedCartSync {
+  constructor() {
+    this.cart = this.loadCart()
+    this.channel = new BroadcastChannel('cart-sync-compressed')
+
+    this.channel.onmessage = this.handleMessage.bind(this)
+  }
+
+  async loadCart() {
+    try {
+      const compressed = localStorage.getItem('cart-compressed')
+      if (compressed) {
+        const decompressed = await this.decompress(compressed)
+        return JSON.parse(decompressed)
+      }
+    } catch (error) {
+      console.error('Error loading cart:', error)
+    }
+    return []
+  }
+
+  async saveCart(cart) {
+    this.cart = cart
+
+    const json = JSON.stringify(cart)
+    const compressed = await this.compress(json)
+
+    localStorage.setItem('cart-compressed', compressed)
+
+    // Отправляем сжатые данные
+    this.channel.postMessage({
+      type: 'CART_UPDATED',
+      cart: compressed,
+      compressed: true
+    })
+  }
+
+  async compress(str) {
+    // Используем CompressionStream API
+    const stream = new Blob([str]).stream()
+    const compressedStream = stream.pipeThrough(
+      new CompressionStream('gzip')
+    )
+
+    const blob = await new Response(compressedStream).blob()
+    const buffer = await blob.arrayBuffer()
+
+    // Конвертируем в base64 для хранения
+    return btoa(
+      String.fromCharCode(...new Uint8Array(buffer))
+    )
+  }
+
+  async decompress(compressed) {
+    // Декодируем из base64
+    const binary = atob(compressed)
+    const bytes = Uint8Array.from(binary, c => c.charCodeAt(0))
+
+    const stream = new Blob([bytes]).stream()
+    const decompressedStream = stream.pipeThrough(
+      new DecompressionStream('gzip')
+    )
+
+    return await new Response(decompressedStream).text()
+  }
+
+  async handleMessage(event) {
+    if (event.data.type === 'CART_UPDATED') {
+      if (event.data.compressed) {
+        const json = await this.decompress(event.data.cart)
+        this.cart = JSON.parse(json)
+      } else {
+        this.cart = event.data.cart
+      }
+
+      await this.saveCart(this.cart)
+      this.notifyListeners(this.cart)
+    }
+  }
+}

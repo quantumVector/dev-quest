@@ -1,0 +1,59 @@
+
+// ==========================================
+// СОЗДАНИЕ COOKIE НА СТОРОНЕ КЛИЕНТА
+// ==========================================
+
+// 1. Базовое создание cookie
+document.cookie = "username=John Doe"
+
+// 2. Cookie с датой истечения
+const expires = new Date()
+expires.setDate(expires.getDate() + 7) // Через 7 дней
+document.cookie = `username=John Doe; expires=${expires.toUTCString()}`
+
+// 3. Cookie с максимальным возрастом (предпочтительнее expires)
+document.cookie = "sessionId=abc123; max-age=3600" // 1 час в секундах
+
+// 4. Cookie с путем
+document.cookie = "theme=dark; path=/" // Доступна на всех страницах
+document.cookie = "adminToken=xyz; path=/admin" // Только для /admin/*
+
+// 5. Cookie с доменом
+document.cookie = "userId=123; domain=.example.com" // Для всех поддоменов
+
+// 6. Безопасная cookie (только HTTPS)
+document.cookie = "token=secret; secure"
+
+// 7. HttpOnly cookie (НЕ работает из JavaScript!)
+// HttpOnly можно установить только на сервере
+// document.cookie = "sessionToken=abc; httpOnly" // ❌ НЕ РАБОТАЕТ!
+
+// 8. SameSite атрибут
+document.cookie = "tracking=xyz; SameSite=Strict"
+document.cookie = "auth=token; SameSite=Lax"
+document.cookie = "cross=data; SameSite=None; Secure" // None требует Secure
+
+// 9. Комплексный пример
+function setCookie(name, value, days, options = {}) {
+  let cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)}`
+
+  if (days) {
+    const expires = new Date()
+    expires.setDate(expires.getDate() + days)
+    cookie += `; expires=${expires.toUTCString()}`
+  }
+
+  if (options.path) cookie += `; path=${options.path}`
+  if (options.domain) cookie += `; domain=${options.domain}`
+  if (options.secure) cookie += '; secure'
+  if (options.sameSite) cookie += `; SameSite=${options.sameSite}`
+
+  document.cookie = cookie
+}
+
+// Использование
+setCookie('username', 'John Doe', 7, {
+  path: '/',
+  secure: true,
+  sameSite: 'Lax'
+})

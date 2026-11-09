@@ -1,0 +1,27 @@
+
+// Основная проблема: промисы создаются и сразу запускаются
+const promises = [
+  fetch('/api/users'),      // Уже запущен!
+  fetch('/api/posts'),      // Уже запущен!
+  fetch('/api/comments')    // Уже запущен!
+]
+
+// Все три запроса выполняются параллельно
+Promise.all(promises)
+  .then(responses => {
+    console.log('Все запросы завершены:', responses)
+  })
+
+// Vs. создание промисов в функциях (lazy)
+const promiseFunctions = [
+  () => fetch('/api/users'),
+  () => fetch('/api/posts'),
+  () => fetch('/api/comments')
+]
+
+// Теперь мы контролируем, когда запустить каждый промис
+const lazyPromises = promiseFunctions.map(fn => fn())
+Promise.all(lazyPromises)
+  .then(responses => {
+    console.log('Все запросы завершены:', responses)
+  })

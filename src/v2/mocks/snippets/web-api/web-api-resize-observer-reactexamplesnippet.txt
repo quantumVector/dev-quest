@@ -1,0 +1,170 @@
+
+// =====================================
+// ИНТЕГРАЦИЯ С REACT
+// =====================================
+
+import { useEffect, useRef, useState } from 'react'
+
+// 1. Хук useResizeObserver
+function useResizeObserver(callback, options = {}) {
+  const observerRef = useRef(null)
+
+  useEffect(() => {
+    observerRef.current = new ResizeObserver(callback)
+
+    return () => {
+      observerRef.current?.disconnect()
+    }
+  }, [callback])
+
+  const observe = (element) => {
+    if (element && observerRef.current) {
+      observerRef.current.observe(element, options)
+    }
+  }
+
+  const unobserve = (element) => {
+    if (element && observerRef.current) {
+      observerRef.current.unobserve(element)
+    }
+  }
+
+  return { observe, unobserve }
+}
+
+// Использование
+function MyComponent() {
+  const divRef = useRef(null)
+  const [size, setSize] = useState({ width: 0, height: 0 })
+
+  const { observe } = useResizeObserver((entries) => {
+    for (const entry of entries) {
+      setSize({
+        width: entry.contentRect.width,
+        height: entry.contentRect.height
+      })
+    }
+  })
+
+  useEffect(() => {
+    if (divRef.current) {
+      observe(divRef.current)
+    }
+  }, [observe])
+
+  return (
+    <div ref={divRef}>
+      Size: {size.width} x {size.height}
+    </div>
+  )
+}
+
+// 2. Хук с ref
+function useElementSize() {
+  const [size, setSize] = useState({ width: 0, height: 0 })
+  const elementRef = useRef(null)
+
+  useEffect(() => {
+    const element = elementRef.current
+    if (!element) return
+
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0]
+      if (entry) {
+        setSize({
+          width: entry.contentRect.width,
+          height: entry.contentRect.height
+        })
+      }
+    })
+
+    observer.observe(element)
+
+    return () => observer.disconnect()
+  }, [])
+
+  return [elementRef, size]
+}
+
+// Использование
+function ResponsiveComponent() {
+  const [ref, size] = useElementSize()
+
+  return (
+    <div ref={ref}>
+      <p>Width: {size.width}px</p>
+      <p>Height: {size.height}px</p>
+    </div>
+  )
+}
+
+// 3. Хук для нескольких элементов
+function useMultipleResizeObserver() {
+  const [sizes, setSizes] = useState(new Map())
+  const observerRef = useRef(null)
+  const elementsRef = useRef(new Map())
+
+  useEffect(() => {
+    observerRef.current = new ResizeObserver((entries) => {
+      const newSizes = new Map(sizes)
+
+      entries.forEach(entry => {
+        newSizes.set(entry.target, {
+          width: entry.contentRect.width,
+          height: entry.contentRect.height
+        })
+      })
+
+      setSizes(newSizes)
+    })
+
+    return () => observerRef.current?.disconnect()
+  }, [])
+
+  const observe = (element, key) => {
+    if (element && observerRef.current) {
+      elementsRef.current.set(key, element)
+      observerRef.current.observe(element)
+    }
+  }
+
+  const getSize = (key) => {
+    const element = elementsRef.current.get(key)
+    return sizes.get(element) || { width: 0, height: 0 }
+  }
+
+  return { observe, getSize }
+}
+
+// 4. Компонент с адаптивным поведением
+function AdaptiveCard() {
+  const [layout, setLayout] = useState('large')
+  const cardRef = useRef(null)
+
+  useEffect(() => {
+    const observer = new ResizeObserver((entries) => {
+      const width = entries[0].contentRect.width
+
+      if (width < 300) {
+        setLayout('small')
+      } else if (width < 600) {
+        setLayout('medium')
+      } else {
+        setLayout('large')
+      }
+    })
+
+    if (cardRef.current) {
+      observer.observe(cardRef.current)
+    }
+
+    return () => observer.disconnect()
+  }, [])
+
+  return (
+    <div ref={cardRef} className={`card card--${layout}`}>
+      <h2>Adaptive Card</h2>
+      <p>Layout: {layout}</p>
+    </div>
+  )
+}

@@ -1,0 +1,24 @@
+
+// ❌ НАРУШЕНИЕ DRY - повторяющийся код
+function calculateUserDiscount(user) {
+  if (user.membershipYears > 5) {
+    return user.totalPurchases * 0.2;
+  }
+  return user.totalPurchases * 0.1;
+}
+
+function calculateProductDiscount(product, user) {
+  if (user.membershipYears > 5) {
+    return product.price * 0.2;
+  }
+  return product.price * 0.1;
+}
+
+function calculateCartDiscount(cart, user) {
+  if (user.membershipYears > 5) {
+    return cart.total * 0.2;
+  }
+  return cart.total * 0.1;
+}
+
+// Проблема: логика скидки повторяется 3 раза!

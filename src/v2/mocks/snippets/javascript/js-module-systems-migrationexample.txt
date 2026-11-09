@@ -1,0 +1,123 @@
+
+// =======================================
+// МИГРАЦИЯ МЕЖДУ СИСТЕМАМИ МОДУЛЕЙ
+// =======================================
+
+// 1. IIFE → ES6 Modules
+// Было (IIFE):
+var UserManager = (function() {
+  var users = [];
+
+  return {
+    addUser: function(user) { users.push(user); },
+    getUsers: function() { return users.slice(); }
+  };
+})();
+
+// Стало (ES6):
+let users = [];
+
+export function addUser(user) {
+  users.push(user);
+}
+
+export function getUsers() {
+  return users.slice();
+}
+
+// 2. CommonJS → ES6 Modules
+// Было (CommonJS):
+const fs = require('fs');
+const path = require('path');
+const { promisify } = require('util');
+
+const readFile = promisify(fs.readFile);
+
+module.exports = {
+  loadConfig: async function(configPath) {
+    const fullPath = path.resolve(configPath);
+    const data = await readFile(fullPath, 'utf8');
+    return JSON.parse(data);
+  }
+};
+
+// Стало (ES6):
+import { readFile } from 'fs/promises';
+import { resolve } from 'path';
+
+export async function loadConfig(configPath) {
+  const fullPath = resolve(configPath);
+  const data = await readFile(fullPath, 'utf8');
+  return JSON.parse(data);
+}
+
+// 3. AMD → ES6 Modules
+// Было (AMD):
+define(['jquery', 'lodash'], function($, _) {
+  function DataTable(selector, options) {
+    this.$element = $(selector);
+    this.options = _.defaults(options, {
+      sortable: true,
+      paginate: false
+    });
+  }
+
+  DataTable.prototype.render = function(data) {
+    // рендеринг таблицы
+  };
+
+  return DataTable;
+});
+
+// Стало (ES6):
+import $ from 'jquery';
+import { defaults } from 'lodash';
+
+export default class DataTable {
+  constructor(selector, options) {
+    this.$element = $(selector);
+    this.options = defaults(options, {
+      sortable: true,
+      paginate: false
+    });
+  }
+
+  render(data) {
+    // рендеринг таблицы
+  }
+}
+
+// 4. Градуальная миграция с интеропом
+// esm-wrapper.js - обертка для legacy кода
+import legacyModule from './legacy-commonjs-module.cjs';
+
+// Оборачиваем CommonJS экспорт в ES6
+export const { method1, method2 } = legacyModule;
+export default legacyModule;
+
+// commonjs-wrapper.cjs - для использования ES6 в CommonJS
+const esmModule = await import('./modern-es6-module.js');
+
+module.exports = {
+  // Re-export ES6 модуля
+  modernFunction: esmModule.modernFunction,
+  ModernClass: esmModule.default
+};
+
+// Babel конфигурация для постепенной миграции
+// babel.config.js
+module.exports = {
+  presets: [
+    ['@babel/preset-env', {
+      modules: 'auto',  // Автоопределение формата модулей
+      targets: {
+        node: '14',
+        browsers: ['> 1%', 'last 2 versions']
+      }
+    }]
+  ],
+  plugins: [
+    '@babel/plugin-transform-modules-commonjs',  // Для Node.js
+    '@babel/plugin-syntax-dynamic-import'        // Для динамических импортов
+  ]
+};

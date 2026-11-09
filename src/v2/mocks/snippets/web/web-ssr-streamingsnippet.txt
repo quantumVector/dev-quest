@@ -1,0 +1,61 @@
+
+// React 18+ Streaming SSR - прогрессивная гидратация
+
+// Традиционный SSR: ждем ВСЕ данные перед отправкой HTML
+async function traditionalSSR(req, res) {
+const slowData = await fetchSlowData() // Ждем 5 секунд!
+const html = renderToString(<App data={slowData} />)
+res.send(html) // Отправляем только после 5 секунд
+}
+
+// ✅ Streaming SSR: отправляем HTML частями
+import { renderToPipeableStream } from 'react-dom/server'
+
+function streamingSSR(req, res) {
+const { pipe } = renderToPipeableStream(
+<App />,
+{
+// Отправляем shell сразу
+onShellReady() {
+res.setHeader('Content-Type', 'text/html')
+pipe(res)
+}
+}
+)
+}
+
+// Компонент с Suspense для отложенной загрузки
+import { Suspense } from 'react'
+
+function App() {
+return (
+<div>
+<h1>My App</h1>
+
+{/* Эта часть отправляется сразу */}
+<Navigation />
+
+{/* Эта часть стримится позже */}
+<Suspense fallback={<Skeleton />}>
+<SlowComponent />
+</Suspense>
+
+{/* И эта тоже */}
+<Suspense fallback={<Skeleton />}>
+<AnotherSlowComponent />
+</Suspense>
+</div>
+)
+}
+
+// SlowComponent рендерится асинхронно
+async function SlowComponent() {
+const data = await fetchSlowData() // 5 секунд
+return <div>{data}</div>
+}
+
+// Результат:
+// 1. Браузер получает HTML с Navigation и Skeleton'ами СРАЗУ
+// 2. Пользователь видит контент моментально
+// 3. SlowComponent стримится по мере готовности
+// 4. React автоматически заменяет Skeleton на готовый компонент

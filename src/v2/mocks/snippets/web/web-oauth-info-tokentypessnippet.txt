@@ -1,0 +1,142 @@
+
+// ============================================
+// ТИПЫ ТОКЕНОВ В OAUTH 2.0
+// ============================================
+
+/**
+ * 1. ACCESS TOKEN
+ * Ключ для доступа к защищенным ресурсам
+ */
+const accessToken = {
+  purpose: 'Доступ к API',
+  lifetime: 'Короткий (15 минут - 1 час)',
+  format: 'JWT или opaque (случайная строка)',
+  storage: 'Memory, httpOnly cookie (не localStorage!)',
+
+  usage: `
+    // В заголовке запроса
+    fetch('/api/user', {
+      headers: {
+        'Authorization': 'Bearer ya29.a0AfH6...'
+      }
+    })
+  `,
+
+  security: [
+    '⚠️ НЕ хранить в localStorage (XSS риск)',
+    '✅ Хранить в httpOnly cookie или memory',
+    '✅ Передавать только по HTTPS',
+    '✅ Короткое время жизни'
+  ]
+}
+
+/**
+ * 2. REFRESH TOKEN
+ * Долгоживущий токен для обновления access_token
+ */
+const refreshToken = {
+  purpose: 'Получение нового access_token',
+  lifetime: 'Долгий (дни, недели, месяцы)',
+  format: 'Opaque (случайная строка)',
+  storage: 'httpOnly cookie, secure storage',
+
+  rotation: {
+    description: 'При каждом использовании выдается новый refresh_token',
+    oldTokenInvalidated: true,
+    detectsTokenTheft: true
+  },
+
+  usage: `
+    // Автоматическое обновление при 401
+    async function fetchWithAuth(url) {
+      let response = await fetch(url, {
+        headers: { 'Authorization': `Bearer ${accessToken}` }
+      })
+
+      if (response.status === 401) {
+        // Access token истек, обновляем
+        await refreshAccessToken()
+        response = await fetch(url, {
+          headers: { 'Authorization': `Bearer ${newAccessToken}` }
+        })
+      }
+
+      return response
+    }
+  `
+}
+
+/**
+ * 3. ID TOKEN (OpenID Connect)
+ * Информация о пользователе в формате JWT
+ */
+const idToken = {
+  purpose: 'Аутентификация пользователя',
+  protocol: 'OpenID Connect (расширение OAuth 2.0)',
+  format: 'JWT (JSON Web Token)',
+
+  structure: {
+    header: { alg: 'RS256', typ: 'JWT' },
+    payload: {
+      iss: 'https://accounts.google.com',       // Issuer
+      sub: '1234567890',                         // Subject (user ID)
+      aud: 'YOUR_CLIENT_ID',                     // Audience
+      exp: 1735689600,                           // Expiration
+      iat: 1735686000,                           // Issued at
+      email: 'user@example.com',
+      email_verified: true,
+      name: 'John Doe',
+      picture: 'https://...'
+    },
+    signature: 'RSA signature'
+  },
+
+  validation: `
+    import jwt from 'jsonwebtoken'
+    import jwksClient from 'jwks-rsa'
+
+    // Проверка ID Token
+    const client = jwksClient({
+      jwksUri: 'https://www.googleapis.com/oauth2/v3/certs'
+    })
+
+    function getKey(header, callback) {
+      client.getSigningKey(header.kid, (err, key) => {
+        const signingKey = key.publicKey || key.rsaPublicKey
+        callback(null, signingKey)
+      })
+    }
+
+    jwt.verify(idToken, getKey, {
+      audience: 'YOUR_CLIENT_ID',
+      issuer: 'https://accounts.google.com'
+    }, (err, decoded) => {
+      if (err) throw new Error('Invalid token')
+      console.log('User:', decoded)
+    })
+  `
+}
+
+/**
+ * СРАВНЕНИЕ ТОКЕНОВ
+ */
+const tokenComparison = {
+  accessToken: {
+    цель: 'Доступ к API',
+    жизнь: 'Короткая',
+    хранение: 'Memory/httpOnly cookie',
+    передача: 'В каждом API запросе'
+  },
+  refreshToken: {
+    цель: 'Обновление access_token',
+    жизнь: 'Долгая',
+    хранение: 'httpOnly cookie/secure DB',
+    передача: 'Только на /token endpoint'
+  },
+  idToken: {
+    цель: 'Информация о пользователе',
+    жизнь: 'Короткая',
+    хранение: 'Можно не хранить',
+    передача: 'Используется для аутентификации'
+  }
+}

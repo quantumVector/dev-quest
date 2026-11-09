@@ -1,0 +1,12 @@
+
+/* Специфичность: 0,0,1,1 */
+p.highlight { color: orange; }
+
+/* Специфичность: 0,0,2,0 */
+.container .text { color: navy; }
+
+/* Специфичность: 0,1,1,1 */
+#header .nav a { color: black; }
+
+/* Специфичность: 0,0,0,3 */
+div > p + span { color: gray; }

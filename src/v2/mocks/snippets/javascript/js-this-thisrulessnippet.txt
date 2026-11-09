@@ -1,0 +1,27 @@
+
+// Правила определения this (в порядке приоритета)
+
+// 1. new - this = новый объект
+function Foo() {
+  this.a = 'new binding';
+}
+const obj1 = new Foo(); // this = obj1
+
+// 2. call, apply, bind - явное указание this
+const obj2 = { a: 'explicit binding' };
+Foo.call(obj2); // this = obj2
+
+// 3. Метод объекта - this = объект-владелец
+const obj3 = {
+  a: 'implicit binding',
+  foo: Foo
+};
+obj3.foo(); // this = obj3
+
+// 4. По умолчанию - global object или undefined
+Foo(); // this = Window/global или undefined (strict mode)
+
+// Исключения:
+// - Стрелочные функции игнорируют все правила и берут this из лексического окружения
+// - setTimeout, setInterval - this обычно = Window
+// - Event handlers - this = element (если не стрелочная функция)

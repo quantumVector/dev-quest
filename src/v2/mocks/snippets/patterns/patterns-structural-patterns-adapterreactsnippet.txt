@@ -1,0 +1,41 @@
+
+// Adapter в React - адаптация сторонних библиотек
+
+// Старая библиотека графиков
+interface OldChartLibrary {
+  drawChart(elementId: string, data: number[]): void;
+}
+
+// Современный React компонент
+interface ChartProps {
+  data: Array<{ label: string; value: number }>;
+  type: 'line' | 'bar';
+}
+
+// Адаптер для React
+function ChartAdapter({ data, type }: ChartProps) {
+  const chartRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!chartRef.current) return;
+
+    // Адаптируем данные для старой библиотеки
+    const adaptedData = data.map(item => item.value);
+    const oldLib = new OldChartLibrary();
+
+    oldLib.drawChart(chartRef.current.id, adaptedData);
+  }, [data]);
+
+  return <div ref={chartRef} id="chart-container" />;
+}
+
+// Использование в приложении
+function App() {
+  const modernData = [
+    { label: 'Jan', value: 100 },
+    { label: 'Feb', value: 150 },
+    { label: 'Mar', value: 200 }
+  ];
+
+  return <ChartAdapter data={modernData} type="line" />;
+}

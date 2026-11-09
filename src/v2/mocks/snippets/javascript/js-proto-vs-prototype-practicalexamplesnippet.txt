@@ -1,0 +1,26 @@
+
+// Практический пример: добавление методов к встроенным типам
+// ⚠️ Осторожно в реальных проектах!
+
+// Добавляем метод к Array.prototype
+Array.prototype.last = function() {
+  return this[this.length - 1];
+};
+
+const numbers = [1, 2, 3, 4, 5];
+console.log(numbers.last()); // 5
+
+// У всех массивов теперь есть метод last
+const colors = ['red', 'green', 'blue'];
+console.log(colors.last()); // 'blue'
+
+// Проверяем цепочку
+console.log(numbers.__proto__ === Array.prototype); // true
+console.log(Array.prototype.__proto__ === Object.prototype); // true
+
+// Полифил для старых браузеров
+if (!Array.prototype.includes) {
+  Array.prototype.includes = function(searchElement) {
+    return this.indexOf(searchElement) !== -1;
+  };
+}

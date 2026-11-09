@@ -1,0 +1,39 @@
+
+// ❌ Традиционный подход - фронтенд напрямую к микросервисам
+
+// Клиентское приложение делает множество запросов
+async function loadUserDashboard(userId) {
+  try {
+    // Запрос 1: Профиль пользователя
+    const userResponse = await fetch(`https://api.users.com/users/${userId}`)
+    const user = await userResponse.json()
+
+    // Запрос 2: Посты пользователя
+    const postsResponse = await fetch(`https://api.posts.com/posts?userId=${userId}`)
+    const posts = await postsResponse.json()
+
+    // Запрос 3: Друзья пользователя
+    const friendsResponse = await fetch(`https://api.social.com/friends/${userId}`)
+    const friends = await friendsResponse.json()
+
+    // Запрос 4: Уведомления
+    const notificationsResponse = await fetch(`https://api.notifications.com/notifications/${userId}`)
+    const notifications = await notificationsResponse.json()
+
+    // Запрос 5: Статистика
+    const statsResponse = await fetch(`https://api.analytics.com/stats/${userId}`)
+    const stats = await statsResponse.json()
+
+    return { user, posts, friends, notifications, stats }
+  } catch (error) {
+    console.error('Error loading dashboard:', error)
+  }
+}
+
+// Проблемы:
+// 1. Множество запросов = медленная загрузка
+// 2. Сложная логика на клиенте
+// 3. Проблемы с CORS
+// 4. Избыточные данные (over-fetching)
+// 5. Недостаток данных (under-fetching)
+// 6. Трудности с версионированием API

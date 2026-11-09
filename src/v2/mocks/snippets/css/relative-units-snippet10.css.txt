@@ -1,0 +1,50 @@
+
+/* Частые ошибки и их решения */
+
+/* ❌ НЕПРАВИЛЬНО: Каскадные em */
+.bad-nesting {
+  font-size: 1.2em;
+}
+.bad-nesting .child {
+  font-size: 1.2em;  /* 1.44em от корня */
+}
+.bad-nesting .child .grandchild {
+  font-size: 1.2em;  /* 1.728em от корня - слишком крупно */
+}
+
+/* ✅ ПРАВИЛЬНО: Используем rem */
+.good-nesting {
+  font-size: 1.2rem;
+}
+.good-nesting .child {
+  font-size: 1.2rem; /* всегда 1.2rem */
+}
+.good-nesting .child .grandchild {
+  font-size: 1.2rem; /* всегда 1.2rem */
+}
+
+/* ❌ НЕПРАВИЛЬНО: Некомпенсированные viewport единицы */
+.bad-viewport {
+  font-size: 5vw;  /* На 4K мониторе = огромный текст */
+}
+
+/* ✅ ПРАВИЛЬНО: Ограниченные размеры */
+.good-viewport {
+  font-size: clamp(1rem, 5vw, 2.5rem);
+}
+
+/* ❌ НЕПРАВИЛЬНО: Процентная высота без контекста */
+.parent-no-height {
+  /* height не определена */
+}
+.child-no-height {
+  height: 100%; /* Не работает! */
+}
+
+/* ✅ ПРАВИЛЬНО: Viewport или определенный контекст */
+.parent-with-height {
+  height: 100vh; /* или конкретное значение */
+}
+.child-works {
+  height: 100%; /* Теперь работает */
+}

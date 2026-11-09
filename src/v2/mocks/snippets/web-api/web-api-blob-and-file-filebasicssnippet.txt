@@ -1,0 +1,35 @@
+
+// =====================================
+// FILE - расширение Blob для файлов
+// =====================================
+
+// File наследуется от Blob и добавляет метаданные
+
+// 1. Создание File программно
+const file = new File(
+  ['Содержимое файла'],
+  'example.txt',
+  {
+    type: 'text/plain',
+    lastModified: Date.now()
+  }
+)
+
+console.log(file.name)          // "example.txt"
+console.log(file.size)          // размер в байтах
+console.log(file.type)          // "text/plain"
+console.log(file.lastModified)  // timestamp
+console.log(file.lastModifiedDate) // Date объект (deprecated)
+
+// 2. File - это Blob
+console.log(file instanceof Blob)  // true
+console.log(file instanceof File)  // true
+
+// 3. Все методы Blob доступны
+const text = await file.text()
+const buffer = await file.arrayBuffer()
+const part = file.slice(0, 10)
+
+// 4. Создание File из существующего Blob
+const blob = new Blob(['Some data'], { type: 'text/plain' })
+const fileFromBlob = new File([blob], 'data.txt', { type: 'text/plain' })

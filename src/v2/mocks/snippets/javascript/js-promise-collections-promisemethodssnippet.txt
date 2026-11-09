@@ -1,0 +1,52 @@
+
+// Различные методы для обработки коллекций промисов
+
+const createPromises = () => [
+  new Promise(resolve => setTimeout(() => resolve('Результат 1'), 1000)),
+  new Promise(resolve => setTimeout(() => resolve('Результат 2'), 2000)),
+  new Promise((resolve, reject) => setTimeout(() => reject(new Error('Ошибка 3')), 1500))
+]
+
+// 1. Promise.all - все должны успеть, иначе общая ошибка
+Promise.all(createPromises())
+  .then(results => {
+    console.log('Promise.all успех:', results) // Не выполнится из-за ошибки
+  })
+  .catch(error => {
+    console.error('Promise.all ошибка:', error.message) // "Ошибка 3"
+  })
+
+// 2. Promise.allSettled - ждем все, получаем все результаты
+Promise.allSettled(createPromises())
+  .then(results => {
+    console.log('Promise.allSettled:', results)
+    // [
+    //   { status: 'fulfilled', value: 'Результат 1' },
+    //   { status: 'fulfilled', value: 'Результат 2' },
+    //   { status: 'rejected', reason: Error('Ошибка 3') }
+    // ]
+
+    const successful = results.filter(r => r.status === 'fulfilled')
+    const failed = results.filter(r => r.status === 'rejected')
+
+    console.log('Успешных:', successful.length)
+    console.log('Неудачных:', failed.length)
+  })
+
+// 3. Promise.race - первый завершенный (успех или ошибка)
+Promise.race(createPromises())
+  .then(result => {
+    console.log('Promise.race успех:', result) // "Результат 1"
+  })
+  .catch(error => {
+    console.error('Promise.race ошибка:', error.message)
+  })
+
+// 4. Promise.any - первый успешный (ES2021)
+Promise.any(createPromises())
+  .then(result => {
+    console.log('Promise.any:', result) // "Результат 1"
+  })
+  .catch(error => {
+    console.error('Promise.any - все провалились:', error)
+  })

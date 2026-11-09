@@ -1,0 +1,34 @@
+
+// ПРОСТЫЕ ЗАПРОСЫ (Simple Requests) - без preflight
+
+// Условия для простого запроса:
+// 1. Методы: GET, HEAD, POST
+// 2. Только безопасные заголовки:
+//    - Accept
+//    - Accept-Language
+//    - Content-Language
+//    - Content-Type (только определенные значения)
+// 3. Content-Type только:
+//    - application/x-www-form-urlencoded
+//    - multipart/form-data
+//    - text/plain
+
+// Пример простого запроса:
+fetch('https://api.example.com/users', {
+  method: 'GET',
+  headers: {
+    'Accept': 'application/json'
+  }
+})
+
+// Браузер отправляет запрос СРАЗУ:
+// GET /users HTTP/1.1
+// Host: api.example.com
+// Origin: https://myapp.com
+// Accept: application/json
+
+// Сервер отвечает:
+// HTTP/1.1 200 OK
+// Access-Control-Allow-Origin: https://myapp.com
+// Content-Type: application/json
+// ...data...

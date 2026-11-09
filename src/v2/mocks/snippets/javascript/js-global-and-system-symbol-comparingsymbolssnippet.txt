@@ -1,0 +1,22 @@
+
+// Сравнение различных способов создания символов
+
+// 1. Локальные символы
+const local1 = Symbol('test')
+const local2 = Symbol('test')
+console.log(local1 === local2) // false
+
+// 2. Глобальные символы
+const global1 = Symbol.for('test')
+const global2 = Symbol.for('test')
+console.log(global1 === global2) // true
+
+// 3. Системные символы
+const system1 = Symbol.iterator
+const system2 = Symbol.iterator
+console.log(system1 === system2) // true
+
+// Проверка принадлежности к глобальному реестру
+console.log(Symbol.keyFor(local1))  // undefined
+console.log(Symbol.keyFor(global1)) // "test"
+console.log(Symbol.keyFor(system1)) // undefined (системные не в глобальном реестре)

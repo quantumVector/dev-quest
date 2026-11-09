@@ -1,0 +1,24 @@
+
+/* ✅ Анимируемые свойства — плавный переход */
+.box {
+  transform: scale(1);
+  transform-origin: top left;
+  perspective: 1000px;
+  perspective-origin: 50% 50%;
+  transition: transform 0.3s ease, perspective 0.3s ease;
+}
+.box:hover {
+  transform: scale(1.2) rotate(10deg);
+  perspective: 600px;
+}
+
+/* ❌ Неанимируемые — мгновенный переход, transition бессмысленен */
+.non-animatable {
+  transform-style: flat;
+  backface-visibility: visible;
+  transition: transform-style 0.3s; /* не сработает */
+}
+.non-animatable:hover {
+  transform-style: preserve-3d;    /* резкий скачок */
+  backface-visibility: hidden;     /* резкий скачок */
+}

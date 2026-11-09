@@ -1,0 +1,11 @@
+requestAnimationFrame((timestamp) => {
+  // timestamp - время начала кадра
+  const progress = (timestamp - startTime) / duration;
+  const currentPos = startPos + (endPos - startPos) * progress;
+
+  element.style.transform = \`translateX(\${currentPos}px)\`;
+
+  if (progress < 1) {
+    requestAnimationFrame(animate);
+  }
+});

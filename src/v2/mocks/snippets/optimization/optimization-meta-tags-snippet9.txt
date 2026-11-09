@@ -1,0 +1,46 @@
+
+<!-- Валидация и проверка meta-тегов -->
+
+<!-- Google Search Console -->
+<!-- Проверяет title, description, canonical -->
+<!-- Показывает ошибки дублирования -->
+
+<!-- Yandex Вебмастер -->
+<!-- Аналогично Google, для Яндекса -->
+
+<!-- Инструменты для разработки -->
+
+<!-- 1. Browser DevTools -->
+<!-- Просмотр: Elements -> <head> -->
+<!-- Проверка отрисовки: Console -> document.title -->
+
+<!-- 2. Lighthouse (Chrome DevTools) -->
+<!-- Аудит SEO секции -->
+<!-- Проверка описания, title, meta viewport -->
+
+<!-- 3. Онлайн-инструменты -->
+<!-- - Meta Tags - https://metatags.io/ -->
+<!-- - Open Graph Check - https://www.opengraph.xyz/ -->
+<!-- - Twitter Card Validator -->
+<!-- - Structured Data Testing Tool -->
+
+<!-- 4. Плагины для VS Code -->
+<!-- - HTMLHint -->
+<!-- - SEO Peek -->
+
+<!-- Пример проверки через JavaScript -->
+<script>
+// Проверка длины title
+const titleLength = document.title.length;
+if (titleLength > 60) {
+  console.warn(`Title слишком длинный: ${titleLength} символов`);
+}
+
+// Проверка наличия description
+const description = document.querySelector('meta[name="description"]');
+if (!description) {
+  console.error('Отсутствует meta description');
+} else if (description.content.length > 160) {
+  console.warn(`Description слишком длинный: ${description.content.length} символов`);
+}
+</script>

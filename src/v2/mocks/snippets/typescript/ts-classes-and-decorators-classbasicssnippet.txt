@@ -1,0 +1,47 @@
+
+// Базовый класс в TypeScript
+class User {
+  // Свойства с типами
+  name: string
+  age: number
+  private email: string // private - доступно только внутри класса
+  protected id: number  // protected - доступно в классе и наследниках
+  readonly createdAt: Date // readonly - только чтение после инициализации
+
+  // Конструктор
+  constructor(name: string, age: number, email: string) {
+    this.name = name
+    this.age = age
+    this.email = email
+    this.id = Math.random()
+    this.createdAt = new Date()
+  }
+
+  // Методы
+  getEmail(): string {
+    return this.email
+  }
+
+  // Геттер
+  get info(): string {
+    return `${this.name}, ${this.age} years old`
+  }
+
+  // Сеттер
+  set updateAge(newAge: number) {
+    if (newAge > 0 && newAge < 150) {
+      this.age = newAge
+    }
+  }
+
+  // Статический метод
+  static isAdult(age: number): boolean {
+    return age >= 18
+  }
+}
+
+const user = new User('John', 30, 'john@example.com')
+console.log(user.name) // "John"
+console.log(user.info) // "John, 30 years old"
+user.updateAge = 31
+console.log(User.isAdult(user.age)) // true

@@ -1,0 +1,70 @@
+
+// Динамическое создание коллекций промисов
+
+// 1. Из массива данных
+const userIds = [1, 2, 3, 4, 5]
+
+const fetchUsers = async (ids) => {
+  const promises = ids.map(id =>
+    fetch(`/api/users/${id}`)
+      .then(res => res.json())
+      .catch(error => ({ error: error.message, id }))
+  )
+
+  return Promise.all(promises)
+}
+
+// 2. Из объекта с разными операциями
+const operations = {
+  users: () => fetch('/api/users').then(res => res.json()),
+  posts: () => fetch('/api/posts').then(res => res.json()),
+  comments: () => fetch('/api/comments').then(res => res.json()),
+  analytics: () => fetch('/api/analytics').then(res => res.json())
+}
+
+// Выполняем все операции параллельно
+const executeAll = async () => {
+  const promises = Object.entries(operations).map(async ([key, operation]) => {
+    try {
+      const result = await operation()
+      return { [key]: result }
+    } catch (error) {
+      return { [key]: null, error: error.message }
+    }
+  })
+
+  const results = await Promise.all(promises)
+
+  // Объединяем результаты в один объект
+  return results.reduce((acc, curr) => ({ ...acc, ...curr }), {})
+}
+
+executeAll().then(data => {
+  console.log('Все данные загружены:', data)
+})
+
+// 3. Генерация промисов в цикле
+const batchProcess = async (items, batchSize = 3) => {
+  const results = []
+
+  for (let i = 0; i < items.length; i += batchSize) {
+    const batch = items.slice(i, i + batchSize)
+
+    // Обрабатываем batch параллельно
+    const batchPromises = batch.map(item => processItem(item))
+    const batchResults = await Promise.all(batchPromises)
+
+    results.push(...batchResults)
+
+    console.log(`Обработан batch ${Math.floor(i / batchSize) + 1}`)
+  }
+
+  return results
+}
+
+async function processItem(item) {
+  // Имитация асинхронной операции
+  return new Promise(resolve => {
+    setTimeout(() => resolve(`Обработан: ${item}`), Math.random() * 1000)
+  })
+}

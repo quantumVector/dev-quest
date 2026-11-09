@@ -1,0 +1,132 @@
+
+// =====================================
+// GENERIC TYPES
+// =====================================
+
+// 1. Generic Interface
+interface Box<T> {
+  value: T
+  getValue(): T
+  setValue(value: T): void
+}
+
+const numberBox: Box<number> = {
+  value: 42,
+  getValue() {
+    return this.value
+  },
+  setValue(value: number) {
+    this.value = value
+  }
+}
+
+const stringBox: Box<string> = {
+  value: "hello",
+  getValue() {
+    return this.value
+  },
+  setValue(value: string) {
+    this.value = value
+  }
+}
+
+// 2. Generic Type Alias
+type Container<T> = {
+  value: T
+  isEmpty(): boolean
+}
+
+const numContainer: Container<number> = {
+  value: 100,
+  isEmpty() {
+    return this.value === 0
+  }
+}
+
+// 3. Generic Array Type
+type StringArray = Array<string>
+type NumberArray = Array<number>
+type ObjectArray = Array<{ id: number; name: string }>
+
+// 4. Generic Promise Type
+type AsyncResult<T> = Promise<T>
+
+async function fetchUser(): AsyncResult<User> {
+  const response = await fetch('/api/user')
+  return response.json()
+}
+
+// 5. Generic с несколькими параметрами
+interface Pair<K, V> {
+  key: K
+  value: V
+}
+
+const pair1: Pair<string, number> = {
+  key: "age",
+  value: 30
+}
+
+const pair2: Pair<number, boolean> = {
+  key: 1,
+  value: true
+}
+
+// 6. Generic Tuple Types
+type Tuple<T, U> = [T, U]
+type Triple<T, U, V> = [T, U, V]
+
+const tuple1: Tuple<string, number> = ["hello", 42]
+const triple1: Triple<boolean, string, number> = [true, "test", 123]
+
+// 7. Generic Record Type
+type Dictionary<T> = {
+  [key: string]: T
+}
+
+const scores: Dictionary<number> = {
+  math: 95,
+  physics: 88,
+  chemistry: 92
+}
+
+const settings: Dictionary<boolean> = {
+  darkMode: true,
+  notifications: false
+}
+
+// 8. Generic Partial Type
+type PartialUser<T> = {
+  [P in keyof T]?: T[P]
+}
+
+interface User {
+  id: number
+  name: string
+  email: string
+  age: number
+}
+
+const updateUser: PartialUser<User> = {
+  name: "John"  // Остальные поля необязательны
+}
+
+// 9. Generic Pick Type
+type Pick<T, K extends keyof T> = {
+  [P in K]: T[P]
+}
+
+type UserPreview = Pick<User, 'id' | 'name'>
+// { id: number; name: string }
+
+const preview: UserPreview = {
+  id: 1,
+  name: "John"
+}
+
+// 10. Generic Exclude Type
+type Exclude<T, U> = T extends U ? never : T
+
+type T1 = Exclude<'a' | 'b' | 'c', 'a'>        // 'b' | 'c'
+type T2 = Exclude<string | number, number>     // string
+type T3 = Exclude<string | number | (() => void), Function>  // string | number

@@ -1,0 +1,23 @@
+
+// Управление контекстом: call, apply, bind
+const person1 = { name: 'Алексей' };
+const person2 = { name: 'Мария' };
+
+function greet(greeting, punctuation) {
+    return greeting + ', ' + this.name + punctuation;
+}
+
+// call - вызывает сразу, аргументы по отдельности
+console.log(greet.call(person1, 'Привет', '!')); // 'Привет, Алексей!'
+console.log(greet.call(person2, 'Здравствуй', '.')); // 'Здравствуй, Мария.'
+
+// apply - вызывает сразу, аргументы массивом
+console.log(greet.apply(person1, ['Добро пожаловать', '!!!'])); // 'Добро пожаловать, Алексей!!!'
+
+// bind - возвращает новую функцию с привязанным контекстом
+const greetAlexey = greet.bind(person1);
+console.log(greetAlexey('Хай', '~')); // 'Хай, Алексей~'
+
+// Partial application с bind
+const sayHelloTo = greet.bind(null, 'Привет'); // this будет undefined/Window
+console.log(sayHelloTo.call(person2, '!')); // 'Привет, Мария!'

@@ -1,0 +1,216 @@
+
+// =====================================
+// СРАВНЕНИЕ: WebSockets vs Server-Sent Events
+// =====================================
+
+// WEBSOCKETS
+// ===========
+
+const ws = new WebSocket('ws://localhost:3000')
+
+// ✅ Преимущества WebSockets:
+// 1. Двусторонняя связь (full-duplex)
+ws.send('Message from client')  // Клиент → Сервер
+ws.onmessage = (e) => {          // Сервер → Клиент
+  console.log(e.data)
+}
+
+// 2. Минимальный overhead
+// Заголовок кадра: 2-14 байт
+// vs HTTP заголовки: сотни байт
+
+// 3. Поддержка бинарных данных
+ws.send(new Uint8Array([1, 2, 3]))
+ws.send(new Blob(['data']))
+
+// 4. Низкая задержка
+// Нет overhead HTTP запроса/ответа
+// Идеально для игр, чатов, трейдинга
+
+// 5. Лучше для частых обновлений
+// Отправка 100 сообщений в секунду - норма
+
+// ❌ Недостатки WebSockets:
+// 1. Требует WebSocket сервер
+// Нужна специальная имплементация на сервере
+
+// 2. Сложности с proxy и firewall
+// Некоторые корпоративные сети блокируют
+
+// 3. Нет автоматического переподключения
+// Нужно реализовывать самостоятельно
+
+// 4. Проблемы с load balancing
+// Sticky sessions или специальная настройка
+
+// 5. Нет встроенного fallback
+// Если WebSocket не поддерживается - нужна альтернатива
+
+// SERVER-SENT EVENTS (EventSource)
+// =================================
+
+const eventSource = new EventSource('/api/events')
+
+// ✅ Преимущества EventSource:
+// 1. Простой API
+eventSource.onmessage = (e) => {
+  console.log(e.data)
+}
+
+// 2. Автоматическое переподключение
+// Браузер сам переподключается при обрыве
+
+// 3. Работает поверх HTTP
+// Проще с proxy, firewall, load balancers
+
+// 4. Поддержка lastEventId
+// Автоматическое возобновление с последнего события
+eventSource.onmessage = (e) => {
+  console.log('Last ID:', e.lastEventId)
+}
+
+// 5. Именованные события
+eventSource.addEventListener('notification', (e) => {
+  console.log('Notification:', e.data)
+})
+
+// 6. Встроен в браузер
+// Не нужны библиотеки для базового функционала
+
+// ❌ Недостатки EventSource:
+// 1. Только от сервера к клиенту
+// Нельзя отправить данные с клиента (только GET запросы)
+
+// 2. Только текстовые данные
+// Нет поддержки бинарных данных
+
+// 3. Ограничение соединений
+// HTTP/1.1: 6 соединений на домен
+// HTTP/2: лучше, но все равно ограничено
+
+// 4. Нельзя добавить заголовки
+// Стандартный EventSource не поддерживает кастомные заголовки
+
+// 5. Больший overhead чем WebSocket
+// HTTP заголовки в каждом сообщении
+
+// КОГДА ИСПОЛЬЗОВАТЬ ЧТО:
+// =======================
+
+// Используйте WEBSOCKETS когда:
+const webSocketUseCases = {
+  // 1. Нужна двусторонняя связь
+  chat: () => {
+    ws.send(JSON.stringify({ message: 'Hello' }))  // Отправка
+    ws.onmessage = (e) => { /* Получение */ }       // Получение
+  },
+
+  // 2. Высокая частота обновлений
+  liveTrading: () => {
+    // 100+ сообщений в секунду
+    ws.onmessage = (e) => {
+      updatePriceChart(JSON.parse(e.data))
+    }
+  },
+
+  // 3. Нужны бинарные данные
+  videoStreaming: () => {
+    ws.binaryType = 'arraybuffer'
+    ws.onmessage = (e) => {
+      processVideoFrame(e.data)
+    }
+  },
+
+  // 4. Многопользовательские игры
+  multiplayer: () => {
+    ws.send(JSON.stringify({
+      type: 'move',
+      x: 10,
+      y: 20
+    }))
+  },
+
+  // 5. Коллаборативное редактирование
+  collaborative: () => {
+    ws.send(JSON.stringify({
+      type: 'edit',
+      position: 42,
+      text: 'new'
+    }))
+  }
+}
+
+// Используйте EVENTSOURCE когда:
+const eventSourceUseCases = {
+  // 1. Только от сервера к клиенту
+  notifications: () => {
+    eventSource.addEventListener('notification', (e) => {
+      showNotification(JSON.parse(e.data))
+    })
+  },
+
+  // 2. Обновления новостной ленты
+  newsFeed: () => {
+    eventSource.onmessage = (e) => {
+      const article = JSON.parse(e.data)
+      addArticleToFeed(article)
+    }
+  },
+
+  // 3. Мониторинг и дашборды
+  monitoring: () => {
+    eventSource.addEventListener('metric', (e) => {
+      updateDashboard(JSON.parse(e.data))
+    })
+  },
+
+  // 4. Прогресс длительных операций
+  progressTracking: () => {
+    eventSource.addEventListener('progress', (e) => {
+      const { percent, status } = JSON.parse(e.data)
+      updateProgressBar(percent, status)
+    })
+  },
+
+  // 5. Автоматическое обновление контента
+  liveScores: () => {
+    eventSource.onmessage = (e) => {
+      const score = JSON.parse(e.data)
+      updateScoreboard(score)
+    }
+  }
+}
+
+// Сравнение характеристик
+const comparison = {
+  characteristic: {
+    direction: {
+      websocket: 'Двусторонняя (full-duplex)',
+      eventSource: 'Односторонняя (сервер → клиент)'
+    },
+    dataTypes: {
+      websocket: 'Текст + Бинарные данные',
+      eventSource: 'Только текст (строки)'
+    },
+    reconnection: {
+      websocket: 'Вручную (нужно реализовать)',
+      eventSource: 'Автоматическое (встроено)'
+    },
+    overhead: {
+      websocket: 'Минимальный (2-14 байт)',
+      eventSource: 'HTTP заголовки (больше)'
+    },
+    protocol: {
+      websocket: 'ws:// или wss://',
+      eventSource: 'HTTP/HTTPS'
+    },
+    complexity: {
+      websocket: 'Сложнее (сервер + клиент)',
+      eventSource: 'Проще (стандартный HTTP)'
+    },
+    browserSupport: {
+      websocket: 'Все современные браузеры',
+      eventSource: 'Все кроме IE (полифилл есть)'
+    }
+  }
+}

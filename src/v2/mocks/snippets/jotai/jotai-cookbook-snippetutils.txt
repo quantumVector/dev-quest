@@ -1,0 +1,34 @@
+
+import { atom } from 'jotai'
+import {
+  atomFamily,
+  atomWithReset,
+  atomWithStorage,
+  RESET,
+  useResetAtom,
+} from 'jotai/utils'
+
+const themeAtom = atomWithStorage<'light' | 'dark'>('theme-key', 'light')
+
+const dollarsAtom = atomWithReset(0)
+
+const centsAtom = atom(
+  (get) => get(dollarsAtom) * 100,
+  (get, set, newValue: number | typeof RESET) => {
+    set(dollarsAtom, newValue === RESET ? newValue : newValue / 100)
+  }
+)
+
+const todoDraftAtomFamily = atomFamily((todoId: string) =>
+  atom({
+    id: todoId,
+    title: '',
+    isDirty: false,
+  })
+)
+
+function ResetCentsButton() {
+  const resetCents = useResetAtom(centsAtom)
+
+  return <button onClick={resetCents}>Reset cents</button>
+}

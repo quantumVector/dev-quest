@@ -1,0 +1,30 @@
+
+# =====================================
+# КОМПЛЕКСНАЯ ОТЛАДКА КОНТЕЙНЕРА
+# =====================================
+
+# Проверка статуса контейнера
+docker ps                              # Запущенные контейнеры
+docker ps -a                           # Все контейнеры (включая остановленные)
+docker inspect container_name          # Детальная информация
+docker stats container_name            # Использование ресурсов в реальном времени
+
+# Проверка здоровья
+docker inspect --format='{{.State.Health.Status}}' container_name
+docker events --filter container=container_name    # События контейнера
+
+# Отладка сети
+docker exec container_name netstat -tlnp           # Открытые порты
+docker exec container_name nslookup google.com     # DNS проверка
+docker network ls                                  # Список сетей
+docker network inspect bridge                      # Информация о сети
+
+# Отладка файловой системы
+docker exec container_name df -h                   # Свободное место
+docker exec container_name mount                   # Смонтированные volumes
+docker diff container_name                         # Изменения в файловой системе
+
+# Анализ производительности
+docker exec container_name top                     # Процессы
+docker exec container_name free -h                 # Память
+docker exec container_name iostat                  # I/O статистика (если доступна)

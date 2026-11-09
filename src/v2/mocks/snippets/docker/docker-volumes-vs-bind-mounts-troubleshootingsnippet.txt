@@ -1,0 +1,42 @@
+
+# =====================================
+# РЕШЕНИЕ ПРОБЛЕМ HOT RELOAD
+# =====================================
+
+# 1. Polling для файловых систем (Windows/macOS)
+ENV CHOKIDAR_USEPOLLING=true
+ENV WATCHPACK_POLLING=true
+
+# 2. Настройка webpack dev server
+# webpack.config.js
+module.exports = {
+  devServer: {
+    host: '0.0.0.0',
+    port: 3000,
+    allowedHosts: 'all',
+    watchOptions: {
+      poll: 1000,
+      aggregateTimeout: 300,
+    }
+  }
+}
+
+# 3. Vite настройки
+# vite.config.js
+export default {
+  server: {
+    host: '0.0.0.0',
+    port: 3000,
+    watch: {
+      usePolling: true
+    }
+  }
+}
+
+# 4. Проверка прав доступа
+docker exec -it container-name ls -la /app
+
+# 5. Очистка и пересборка
+docker-compose down -v
+docker-compose build --no-cache
+docker-compose up

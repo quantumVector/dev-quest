@@ -1,0 +1,38 @@
+
+// ❌ Без useMemo - вычисление при каждом рендере
+function ExpensiveComponent({ items, filterText }) {
+  // Эта функция выполняется КАЖДЫЙ раз при рендере компонента
+  // Даже если items и filterText не изменились!
+  const filteredItems = items.filter(item =>
+    item.name.toLowerCase().includes(filterText.toLowerCase())
+  );
+
+  return (
+    <div>
+      {filteredItems.map(item => (
+        <div key={item.id}>{item.name}</div>
+      ))}
+    </div>
+  );
+}
+
+// ✅ С useMemo - вычисление только при изменении зависимостей
+import { useMemo } from 'react';
+
+function OptimizedComponent({ items, filterText }) {
+  // Вычисление выполняется только если items или filterText изменились
+  const filteredItems = useMemo(() => {
+    console.log('Пересчет фильтрации...');
+    return items.filter(item =>
+      item.name.toLowerCase().includes(filterText.toLowerCase())
+    );
+  }, [items, filterText]); // Массив зависимостей
+
+  return (
+    <div>
+      {filteredItems.map(item => (
+        <div key={item.id}>{item.name}</div>
+      ))}
+    </div>
+  );
+}

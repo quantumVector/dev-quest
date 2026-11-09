@@ -1,0 +1,104 @@
+
+// Продвинутая обработка ошибок в коллекциях промисов
+
+// 1. Retry логика для отдельных промисов
+const createRetryPromise = (fn, maxRetries = 3, delay = 1000) => {
+  return new Promise(async (resolve, reject) => {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const result = await fn()
+        resolve(result)
+        return
+      } catch (error) {
+        console.log(`Попытка ${attempt} провалилась:, error.message`)
+
+        if (attempt === maxRetries) {
+          reject(error)
+          return
+        }
+
+        // Ждем перед следующей попыткой
+        await new Promise(r => setTimeout(r, delay * attempt))
+      }
+    }
+  })
+}
+
+// Использование retry в коллекции
+const urls = [
+  'https://api.example.com/unstable-endpoint-1',
+  'https://api.example.com/unstable-endpoint-2',
+  'https://api.example.com/unstable-endpoint-3'
+]
+
+const resilientFetch = urls.map(url =>
+  createRetryPromise(() => fetch(url).then(res => {
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    return res.json()
+  }))
+)
+
+Promise.allSettled(resilientFetch)
+  .then(results => {
+    const successful = results.filter(r => r.status === 'fulfilled')
+    const failed = results.filter(r => r.status === 'rejected')
+
+    console.log(`Успешно: ${successful.length}/${results.length}`)
+    console.log('Успешные результаты:', successful.map(r => r.value))
+    console.log('Ошибки:', failed.map(r => r.reason.message))
+  })
+
+// 2. Circuit Breaker pattern для коллекций
+class CircuitBreaker {
+  constructor(threshold = 5, timeout = 60000) {
+    this.failureThreshold = threshold
+    this.timeout = timeout
+    this.failureCount = 0
+    this.lastFailureTime = null
+    this.state = 'CLOSED' // CLOSED, OPEN, HALF_OPEN
+  }
+
+  async execute(promise) {
+    if (this.state === 'OPEN') {
+      if (Date.now() - this.lastFailureTime < this.timeout) {
+        throw new Error('Circuit breaker is OPEN')
+      }
+      this.state = 'HALF_OPEN'
+    }
+
+    try {
+      const result = await promise
+      this.onSuccess()
+      return result
+    } catch (error) {
+      this.onFailure()
+      throw error
+    }
+  }
+
+  onSuccess() {
+    this.failureCount = 0
+    this.state = 'CLOSED'
+  }
+
+  onFailure() {
+    this.failureCount++
+    this.lastFailureTime = Date.now()
+
+    if (this.failureCount >= this.failureThreshold) {
+      this.state = 'OPEN'
+    }
+  }
+}
+
+// Использование Circuit Breaker
+const circuitBreaker = new CircuitBreaker()
+
+const protectedPromises = urls.map(url =>
+  circuitBreaker.execute(fetch(url).then(res => res.json()))
+)
+
+Promise.allSettled(protectedPromises)
+  .then(results => {
+    console.log('Результаты с Circuit Breaker:', results)
+  })

@@ -1,0 +1,34 @@
+
+// ========================================
+// ЧАСТЫЕ ОШИБКИ И ЗАБЛУЖДЕНИЯ
+// ========================================
+
+// Ошибка 1: "let и const не поднимаются"
+// НЕПРАВДА! Они поднимаются, но находятся в TDZ
+
+// Ошибка 2: Путаница с typeof
+console.log(typeof undeclaredVar); // 'undefined'
+console.log(typeof letVar); // ❌ ReferenceError
+let letVar = 5;
+
+// Ошибка 3: Переопределение параметров
+function confusing(x) {
+    console.log(x); // undefined (не значение параметра!)
+    var x = 'redefined';
+    console.log(x); // 'redefined'
+}
+confusing('parameter');
+
+// Правильная интерпретация:
+function confusing(x) {
+    var x; // параметр перезатирается var объявлением
+    console.log(x); // undefined
+    x = 'redefined';
+    console.log(x); // 'redefined'
+}
+
+// Ошибка 4: Class hoisting
+console.log(MyClass); // ❌ ReferenceError
+class MyClass {}
+
+// Classes ведут себя как let/const, не как function declarations

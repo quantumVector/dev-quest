@@ -1,0 +1,55 @@
+
+import { useState, useCallback } from 'react';
+
+// Callback Ref - альтернатива useRef
+function MeasureElement() {
+  const [height, setHeight] = useState(0);
+
+  // Callback вызывается при монтировании/размонтировании
+  const measuredRef = useCallback((node) => {
+    if (node !== null) {
+      setHeight(node.getBoundingClientRect().height);
+    }
+  }, []);
+
+  return (
+    <div>
+      <h1 ref={measuredRef}>Hello, world</h1>
+      <p>Height: {height}px</p>
+    </div>
+  );
+}
+
+// Динамический callback ref
+function DynamicRef() {
+  const [items, setItems] = useState(['Item 1', 'Item 2', 'Item 3']);
+  const itemRefs = useRef(new Map());
+
+  const scrollToItem = (index) => {
+    const node = itemRefs.current.get(index);
+    node?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+
+  return (
+    <div>
+      {items.map((item, index) => (
+        <div
+          key={index}
+          ref={(node) => {
+            if (node) {
+              itemRefs.current.set(index, node);
+            } else {
+              itemRefs.current.delete(index);
+            }
+          }}
+        >
+          {item}
+        </div>
+      ))}
+      <button onClick={() => scrollToItem(1)}>Scroll to Item 2</button>
+    </div>
+  );
+}
+
+// Callback ref позволяет реагировать на изменения DOM
+// useRef не вызывает колбэк при изменении

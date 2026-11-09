@@ -1,0 +1,64 @@
+
+// Автоматическая генерация sitemap в Next.js 13+
+
+// app/sitemap.ts (Next.js App Router)
+import { MetadataRoute } from 'next'
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const baseUrl = 'https://example.com'
+
+  // Статические маршруты
+  const routes = ['', '/about', '/contact'].map((route) => ({
+    url: `${baseUrl}${route}`,
+    lastModified: new Date().toISOString(),
+    changeFrequency: 'daily' as const,
+    priority: route === '' ? 1 : 0.8,
+  }))
+
+  // Динамические маршруты из API
+  const posts = await fetch('https://api.example.com/posts').then(res => res.json())
+  const postRoutes = posts.map((post) => ({
+    url: `${baseUrl}/blog/${post.slug}`,
+    lastModified: post.updatedAt,
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }))
+
+  const products = await fetch('https://api.example.com/products').then(res => res.json())
+  const productRoutes = products.map((product) => ({
+    url: `${baseUrl}/products/${product.slug}`,
+    lastModified: product.updatedAt,
+    changeFrequency: 'daily' as const,
+    priority: 0.9,
+  }))
+
+  return [...routes, ...postRoutes, ...productRoutes]
+}
+
+// app/robots.ts (Next.js App Router)
+import { MetadataRoute } from 'next'
+
+export default function robots(): MetadataRoute.Robots {
+  const baseUrl = 'https://example.com'
+
+  return {
+    rules: [
+      {
+        userAgent: '*',
+        allow: '/',
+        disallow: ['/admin/', '/api/private/', '/cart/'],
+      },
+      {
+        userAgent: 'Googlebot',
+        allow: '/',
+        disallow: ['/admin/'],
+        crawlDelay: 0,
+      },
+      {
+        userAgent: ['AhrefsBot', 'SemrushBot'],
+        disallow: '/',
+      },
+    ],
+    sitemap: `${baseUrl}/sitemap.xml`,
+  }
+}

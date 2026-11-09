@@ -1,0 +1,67 @@
+
+// =====================================
+// АВТОДОПОЛНЕНИЕ И INTELLISENSE
+// =====================================
+
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  category: string;
+  inStock: boolean;
+  tags: string[];
+  metadata?: Record<string, any>;
+}
+
+// TypeScript знает все поля объекта
+function formatProduct(product: Product) {
+  // При написании product. IDE покажет все доступные поля
+  return `${product.name} - ${product.price}₽`;
+
+  // Автодополнение работает и для вложенных структур
+  if (product.metadata) {
+    // IDE понимает, что metadata существует
+    console.log(product.metadata);
+  }
+}
+
+// Автодополнение для методов
+const products: Product[] = [];
+
+// IDE подсказывает все методы массива
+products.filter(p => p.inStock)
+  .map(p => p.name)
+  .sort()
+  .join(", ");
+
+// Типизация помогает при работе с библиотеками
+import { useState, useEffect } from 'react';
+
+function UserProfile() {
+  // TypeScript выводит тип автоматически
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // IDE показывает параметры и типы возврата
+  useEffect(() => {
+    fetchUser().then(setUser);
+  }, []);
+
+  // Безопасный доступ к полям
+  return user ? <div>{user.name}</div> : <div>Loading...</div>;
+}
+
+// TypeScript помогает с рефакторингом
+interface OldUser {
+  userName: string;
+}
+
+interface NewUser {
+  fullName: string; // Переименовали поле
+}
+
+// Все места использования userName будут подсвечены как ошибки
+function greetUser(user: NewUser) {
+  // console.log(user.userName); // ❌ Ошибка - поле не существует
+  console.log(user.fullName); // ✅ OK
+}

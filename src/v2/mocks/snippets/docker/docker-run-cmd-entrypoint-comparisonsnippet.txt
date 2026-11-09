@@ -1,0 +1,26 @@
+
+# Сравнение поведения
+
+# 1. Только RUN
+FROM ubuntu
+RUN echo "Build time" # Выполняется при сборке
+# При запуске контейнер сразу завершится
+
+# 2. Только CMD
+FROM ubuntu
+CMD echo "Runtime" # Выполняется при запуске
+# docker run image → "Runtime"
+# docker run image ls → ls (CMD переопределяется)
+
+# 3. Только ENTRYPOINT
+FROM ubuntu
+ENTRYPOINT echo "Always" # Всегда выполняется
+# docker run image → "Always"
+# docker run image ls → "Always ls" (добавляется к ENTRYPOINT)
+
+# 4. ENTRYPOINT + CMD
+FROM ubuntu
+ENTRYPOINT ["echo"]
+CMD ["default"]
+# docker run image → "default"
+# docker run image "custom" → "custom"

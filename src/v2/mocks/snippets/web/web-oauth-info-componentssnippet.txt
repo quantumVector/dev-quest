@@ -1,0 +1,77 @@
+
+// ============================================
+// КОМПОНЕНТЫ OAUTH 2.0 АРХИТЕКТУРЫ
+// ============================================
+
+/**
+ * 1. RESOURCE OWNER (Владелец ресурса)
+ * - Пользователь, который владеет данными
+ * - Может предоставить доступ к своим ресурсам
+ */
+const resourceOwner = {
+  role: 'Пользователь',
+  action: 'Дает согласие на доступ к данным',
+  example: 'Вы, когда логинитесь через Google'
+}
+
+/**
+ * 2. CLIENT (Клиент)
+ * - Приложение, которое хочет получить доступ
+ * - Делает запросы от имени пользователя
+ */
+const client = {
+  role: 'Ваше приложение',
+  types: {
+    confidential: 'Backend приложение (может хранить секрет)',
+    public: 'SPA/Mobile приложение (не может хранить секрет)'
+  },
+  credentials: {
+    client_id: 'Публичный идентификатор',
+    client_secret: 'Секретный ключ (только для confidential)'
+  }
+}
+
+/**
+ * 3. AUTHORIZATION SERVER (Сервер авторизации)
+ * - Выдает токены после аутентификации
+ * - Управляет разрешениями (scopes)
+ */
+const authorizationServer = {
+  role: 'Сервер OAuth провайдера',
+  endpoints: {
+    authorization: '/oauth/authorize',  // Вход и согласие
+    token: '/oauth/token',              // Обмен кода на токен
+    revoke: '/oauth/revoke',            // Отзыв токена
+    introspect: '/oauth/introspect'     // Проверка токена
+  },
+  examples: [
+    'accounts.google.com',
+    'github.com/login/oauth',
+    'api.twitter.com/oauth2'
+  ]
+}
+
+/**
+ * 4. RESOURCE SERVER (Сервер ресурсов)
+ * - Хранит защищенные данные
+ * - Проверяет access token при запросах
+ */
+const resourceServer = {
+  role: 'API сервер с данными',
+  validates: 'Access Token в каждом запросе',
+  examples: [
+    'www.googleapis.com/drive/v3',  // Google Drive API
+    'graph.microsoft.com/v1.0',     // Microsoft Graph API
+    'api.github.com'                 // GitHub API
+  ]
+}
+
+// Взаимодействие компонентов:
+const oauthFlow = {
+  step1: 'Client → Authorization Server: запрос авторизации',
+  step2: 'Authorization Server → Resource Owner: вход и согласие',
+  step3: 'Authorization Server → Client: authorization code',
+  step4: 'Client → Authorization Server: обмен code на tokens',
+  step5: 'Client → Resource Server: запрос данных с access_token',
+  step6: 'Resource Server → Client: защищенные данные'
+}

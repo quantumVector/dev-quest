@@ -1,0 +1,366 @@
+
+// =====================================
+// ПРАКТИЧЕСКИЕ ПРИМЕРЫ
+// =====================================
+
+// 1. Мониторинг производительности ресурсов
+class ResourcePerformanceMonitor {
+  constructor() {
+    this.slowResources = []
+    this.cacheHits = 0
+    this.cacheMisses = 0
+
+    this.init()
+  }
+
+  init() {
+    const observer = new PerformanceObserver((list) => {
+      list.getEntries().forEach(entry => {
+        // Проверка медленных ресурсов (>1s)
+        if (entry.duration > 1000) {
+          this.slowResources.push({
+            url: entry.name,
+            duration: entry.duration,
+            type: entry.initiatorType,
+            size: entry.transferSize
+          })
+
+          console.warn('Медленный ресурс:', {
+            url: entry.name,
+            duration: `${entry.duration.toFixed(2)}ms`,
+            type: entry.initiatorType
+          })
+        }
+
+        // Статистика кэширования
+        if (entry.transferSize === 0 && entry.decodedBodySize > 0) {
+          this.cacheHits++
+        } else {
+          this.cacheMisses++
+        }
+      })
+    })
+
+    observer.observe({ type: 'resource', buffered: true })
+  }
+
+  getReport() {
+    const cacheRate = (this.cacheHits / (this.cacheHits + this.cacheMisses)) * 100
+
+    return {
+      slowResources: this.slowResources,
+      cacheHitRate: `${cacheRate.toFixed(2)}%`,
+      totalResources: this.cacheHits + this.cacheMisses
+    }
+  }
+}
+
+// Использование
+const resourceMonitor = new ResourcePerformanceMonitor()
+
+// Через некоторое время получаем отчет
+setTimeout(() => {
+  console.log('Resource Performance Report:', resourceMonitor.getReport())
+}, 5000)
+
+// 2. Детектор долгих задач (Long Tasks)
+class LongTaskDetector {
+  constructor(threshold = 50) {
+    this.threshold = threshold
+    this.longTasks = []
+    this.totalBlockingTime = 0
+
+    this.init()
+  }
+
+  init() {
+    const observer = new PerformanceObserver((list) => {
+      list.getEntries().forEach(entry => {
+        const blockingTime = entry.duration - this.threshold
+
+        if (blockingTime > 0) {
+          this.longTasks.push({
+            duration: entry.duration,
+            startTime: entry.startTime,
+            blockingTime: blockingTime,
+            attribution: entry.attribution
+          })
+
+          this.totalBlockingTime += blockingTime
+
+          console.warn('Long Task detected:', {
+            duration: `${entry.duration.toFixed(2)}ms`,
+            blocking: `${blockingTime.toFixed(2)}ms`
+          })
+
+          // Можно добавить trace для отладки
+          if (entry.duration > 200) {
+            console.trace('Very long task - investigate!')
+          }
+        }
+      })
+    })
+
+    try {
+      observer.observe({ type: 'longtask', buffered: true })
+    } catch (e) {
+      console.warn('Long Tasks API not supported')
+    }
+  }
+
+  getTBI() {
+    // Total Blocking Time
+    return this.totalBlockingTime
+  }
+
+  getWorstTasks(n = 5) {
+    return [...this.longTasks]
+      .sort((a, b) => b.duration - a.duration)
+      .slice(0, n)
+  }
+}
+
+// Использование
+const taskDetector = new LongTaskDetector()
+
+setTimeout(() => {
+  console.log('Total Blocking Time:', taskDetector.getTBI())
+  console.log('Top 5 worst tasks:', taskDetector.getWorstTasks())
+}, 10000)
+
+// 3. Мониторинг Layout Shift с деталями
+class LayoutShiftTracker {
+  constructor() {
+    this.shifts = []
+    this.totalCLS = 0
+
+    this.init()
+  }
+
+  init() {
+    const observer = new PerformanceObserver((list) => {
+      list.getEntries().forEach(entry => {
+        if (!entry.hadRecentInput) {
+          this.totalCLS += entry.value
+
+          const shiftData = {
+            value: entry.value,
+            time: entry.startTime,
+            sources: entry.sources?.map(source => ({
+              node: source.node,
+              previousRect: source.previousRect,
+              currentRect: source.currentRect
+            }))
+          }
+
+          this.shifts.push(shiftData)
+
+          // Выводим детали сдвига
+          console.warn('Layout Shift detected:', {
+            value: entry.value.toFixed(4),
+            totalCLS: this.totalCLS.toFixed(4),
+            affectedElements: entry.sources?.length || 0
+          })
+
+          // Подсветка элементов, вызвавших сдвиг (для разработки)
+          if (process.env.NODE_ENV === 'development') {
+            entry.sources?.forEach(source => {
+              if (source.node) {
+                source.node.style.outline = '2px solid red'
+                setTimeout(() => {
+                  source.node.style.outline = ''
+                }, 2000)
+              }
+            })
+          }
+        }
+      })
+    })
+
+    observer.observe({ type: 'layout-shift', buffered: true })
+  }
+
+  getCLS() {
+    return this.totalCLS
+  }
+
+  getShiftDetails() {
+    return this.shifts
+  }
+}
+
+// Использование
+const shiftTracker = new LayoutShiftTracker()
+
+// 4. Измерение времени выполнения функций
+class FunctionTimer {
+  static measure(name, fn, ...args) {
+    performance.mark(`${name}-start`)
+
+    const result = fn(...args)
+
+    // Поддержка async функций
+    if (result instanceof Promise) {
+      return result.finally(() => {
+        performance.mark(`${name}-end`)
+        performance.measure(name, `${name}-start`, `${name}-end`)
+      })
+    }
+
+    performance.mark(`${name}-end`)
+    performance.measure(name, `${name}-start`, `${name}-end`)
+
+    return result
+  }
+
+  static observe(callback) {
+    const observer = new PerformanceObserver((list) => {
+      list.getEntries().forEach(entry => {
+        if (entry.entryType === 'measure') {
+          callback({
+            name: entry.name,
+            duration: entry.duration,
+            startTime: entry.startTime
+          })
+        }
+      })
+    })
+
+    observer.observe({ entryTypes: ['measure'] })
+
+    return observer
+  }
+}
+
+// Использование
+const observer = FunctionTimer.observe((measurement) => {
+  console.log(`Function "${measurement.name}" took ${measurement.duration.toFixed(2)}ms`)
+})
+
+// Синхронная функция
+FunctionTimer.measure('calculateSum', (a, b) => {
+  return a + b
+}, 5, 10)
+
+// Асинхронная функция
+await FunctionTimer.measure('fetchData', async () => {
+  const response = await fetch('https://api.example.com/data')
+  return await response.json()
+})
+
+// 5. React интеграция
+import { useEffect, useRef } from 'react'
+
+function usePerformanceObserver(options) {
+  const observerRef = useRef(null)
+
+  useEffect(() => {
+    if (!('PerformanceObserver' in window)) {
+      console.warn('PerformanceObserver not supported')
+      return
+    }
+
+    observerRef.current = new PerformanceObserver(options.callback)
+
+    try {
+      observerRef.current.observe(options.observerOptions)
+    } catch (error) {
+      console.error('Failed to observe:', error)
+    }
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect()
+      }
+    }
+  }, [])
+
+  return observerRef
+}
+
+// Использование в компоненте
+function PerformanceMonitor() {
+  usePerformanceObserver({
+    callback: (list) => {
+      list.getEntries().forEach(entry => {
+        console.log('Performance entry:', entry)
+      })
+    },
+    observerOptions: {
+      entryTypes: ['navigation', 'resource', 'paint']
+    }
+  })
+
+  return null
+}
+
+// 6. Автоматическая отправка метрик
+class MetricsReporter {
+  constructor(endpoint) {
+    this.endpoint = endpoint
+    this.queue = []
+    this.observers = new Map()
+
+    this.initObservers()
+  }
+
+  initObservers() {
+    const types = ['navigation', 'resource', 'paint', 'largest-contentful-paint']
+
+    types.forEach(type => {
+      try {
+        const observer = new PerformanceObserver((list) => {
+          list.getEntries().forEach(entry => {
+            this.queue.push({
+              type: entry.entryType,
+              name: entry.name,
+              startTime: entry.startTime,
+              duration: entry.duration,
+              timestamp: Date.now()
+            })
+          })
+
+          // Отправляем батчем
+          if (this.queue.length >= 10) {
+            this.flush()
+          }
+        })
+
+        observer.observe({ type, buffered: true })
+        this.observers.set(type, observer)
+      } catch (e) {
+        console.warn(`Type ${type} not supported`)
+      }
+    })
+
+    // Отправка при закрытии страницы
+    window.addEventListener('beforeunload', () => this.flush())
+  }
+
+  flush() {
+    if (this.queue.length === 0) return
+
+    const data = JSON.stringify(this.queue)
+
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon(this.endpoint, data)
+    } else {
+      fetch(this.endpoint, {
+        method: 'POST',
+        body: data,
+        keepalive: true
+      }).catch(console.error)
+    }
+
+    this.queue = []
+  }
+
+  disconnect() {
+    this.flush()
+    this.observers.forEach(observer => observer.disconnect())
+    this.observers.clear()
+  }
+}
+
+// Использование
+const reporter = new MetricsReporter('/api/performance-metrics')

@@ -1,0 +1,80 @@
+
+// Полный пример применения SOLID на фронтенде
+
+// 1. SRP - Разделение ответственности
+// Каждый модуль делает одну вещь
+
+// API слой
+class UserAPI {
+  async getUser(id: string): Promise<User> {
+    const response = await fetch(`/api/users/${id}`)
+    return response.json()
+  }
+}
+
+// Валидация
+class UserValidator {
+  validate(user: Partial<User>): ValidationResult {
+    const errors: string[] = []
+    if (!user.email) errors.push('Email required')
+    if (!user.name) errors.push('Name required')
+    return { valid: errors.length === 0, errors }
+  }
+}
+
+// Форматирование
+class UserFormatter {
+  formatFullName(user: User): string {
+    return `${user.firstName} ${user.lastName}`
+  }
+}
+
+// 2. OCP - Расширяемость через конфигурацию
+const buttonConfig = {
+  variants: {
+    primary: 'bg-blue-500',
+    secondary: 'bg-gray-500'
+  },
+  sizes: {
+    sm: 'px-2 py-1',
+    md: 'px-4 py-2'
+  }
+}
+
+// 3. LSP - Правильная иерархия
+interface Clickable {
+  onClick: () => void
+}
+
+const Button: React.FC<Clickable> = ({ onClick }) => (
+  <button onClick={onClick}>Click</button>
+)
+
+const IconButton: React.FC<Clickable & { icon: string }> = ({ onClick, icon }) => (
+  <button onClick={onClick}>
+    <Icon name={icon} />
+  </button>
+)
+
+// 4. ISP - Минимальные интерфейсы
+interface Readable {
+  read(id: string): Promise<any>
+}
+
+interface Writable {
+  create(data: any): Promise<void>
+  update(id: string, data: any): Promise<void>
+}
+
+// 5. DIP - Зависимость от абстракций
+interface DataSource {
+  fetch<T>(key: string): Promise<T>
+}
+
+class Component {
+  constructor(private dataSource: DataSource) {}
+
+  async loadData() {
+    return this.dataSource.fetch('users')
+  }
+}

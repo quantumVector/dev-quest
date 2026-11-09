@@ -1,0 +1,25 @@
+
+// Основные CORS заголовки
+
+// 1. Access-Control-Allow-Origin - какие origins могут делать запросы
+// Конкретный origin
+'Access-Control-Allow-Origin': 'https://myapp.com'
+
+// Любой origin (⚠️ небезопасно для приватных данных)
+'Access-Control-Allow-Origin': '*'
+
+// 2. Access-Control-Allow-Methods - разрешенные HTTP методы
+'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
+
+// 3. Access-Control-Allow-Headers - разрешенные кастомные заголовки
+'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Custom-Header'
+
+// 4. Access-Control-Allow-Credentials - разрешить отправку cookies
+'Access-Control-Allow-Credentials': 'true'
+// ⚠️ При использовании credentials нельзя использовать '*' в Allow-Origin!
+
+// 5. Access-Control-Max-Age - время кэширования preflight ответа
+'Access-Control-Max-Age': '86400' // 24 часа в секундах
+
+// 6. Access-Control-Expose-Headers - какие заголовки ответа доступны JS
+'Access-Control-Expose-Headers': 'X-Custom-Response-Header, X-Total-Count'

@@ -1,0 +1,38 @@
+
+// Практические примеры валидации
+
+// Email (упрощенный)
+const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+// Телефон (российский)
+const phoneRegex = /^\+?7\s?\(?\d{3}\)?\s?\d{3}[-\s]?\d{2}[-\s]?\d{2}$/;
+
+// URL
+const urlRegex = /^https?:\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(:[0-9]+)?(\/.*)?$/;
+
+// IP адрес
+const ipRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+
+// Дата в формате DD.MM.YYYY
+const dateRegex = /^(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[0-2])\.(19|20)\d{2}$/;
+
+// Извлечение данных
+const logEntry = "2023-12-25 14:30:15 ERROR User johndoe failed login";
+const logRegex = /^(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2}:\d{2})\s+(\w+)\s+(.+)$/;
+
+const match = logEntry.match(logRegex);
+if (match) {
+  console.log("Дата:", match[1]);     // "2023-12-25"
+  console.log("Время:", match[2]);    // "14:30:15"
+  console.log("Уровень:", match[3]);  // "ERROR"
+  console.log("Сообщение:", match[4]); // "User johndoe failed login"
+}
+
+// Замена с функцией
+const text = "Цена: $100, Скидка: $20";
+const priceRegex = /\$(\d+)/g;
+
+const converted = text.replace(priceRegex, (match, price) => {
+  return `₽${price * 75}`; // конвертация $ в ₽
+});
+console.log(converted); // "Цена: ₽7500, Скидка: ₽1500"

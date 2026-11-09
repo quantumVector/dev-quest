@@ -1,0 +1,44 @@
+
+import { atom, useAtomValue } from 'jotai'
+import { useHydrateAtoms } from 'jotai/react/utils'
+import type { GetServerSidePropsContext } from 'next'
+
+type User = {
+  name: string
+}
+
+const userAtom = atom<User | null>(null)
+const themeAtom = atom<'light' | 'dark'>('light')
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const user = await getUserFromRequest(context.req)
+  const theme = context.req.cookies.theme === 'dark' ? 'dark' : 'light'
+
+  return {
+    props: {
+      initialData: { user, theme },
+    },
+  }
+}
+
+function HydratePageAtoms({
+  initialData,
+  children,
+}: {
+  initialData: { user: User; theme: 'light' | 'dark' }
+  children: React.ReactNode
+}) {
+  useHydrateAtoms([
+    [userAtom, initialData.user],
+    [themeAtom, initialData.theme],
+  ])
+
+  return children
+}
+
+function Profile() {
+  const user = useAtomValue(userAtom)
+  const theme = useAtomValue(themeAtom)
+
+  return <p data-theme={theme}>Hello, {user?.name}</p>
+}

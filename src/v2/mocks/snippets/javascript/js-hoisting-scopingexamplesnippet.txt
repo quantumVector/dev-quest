@@ -1,0 +1,33 @@
+
+// Как hoisting взаимодействует с областями видимости
+
+// Глобальная область
+var globalVar = "global";
+
+function outerFunction() {
+  console.log(globalVar); // undefined (локальный var всплывает!)
+  console.log(localVar);  // undefined
+
+  if (true) {
+    var localVar = "local";
+    var globalVar = "shadowed"; // затеняет глобальную
+  }
+
+  console.log(localVar);  // "local"
+  console.log(globalVar); // "shadowed"
+}
+
+outerFunction();
+console.log(globalVar); // "global" (не изменилась)
+
+// С let/const:
+function modernFunction() {
+  console.log(modernVar); // ReferenceError
+
+  if (true) {
+    let modernVar = "modern";
+    console.log(modernVar); // "modern"
+  }
+
+  console.log(modernVar); // ReferenceError
+}

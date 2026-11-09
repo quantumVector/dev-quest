@@ -1,0 +1,30 @@
+
+// app/dashboard/page.tsx
+import {
+  dehydrate,
+  HydrationBoundary,
+} from '@tanstack/react-query'
+import { makeQueryClient } from '@/lib/make-query-client'
+import { getPosts, getUsers, queryKeys } from '@/lib/api'
+import { DashboardClient } from './dashboard-client'
+
+export default async function DashboardPage() {
+  const queryClient = makeQueryClient()
+
+  await Promise.all([
+    queryClient.prefetchQuery({
+      queryKey: queryKeys.users,
+      queryFn: getUsers,
+    }),
+    queryClient.prefetchQuery({
+      queryKey: queryKeys.posts,
+      queryFn: getPosts,
+    }),
+  ])
+
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <DashboardClient />
+    </HydrationBoundary>
+  )
+}

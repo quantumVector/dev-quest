@@ -1,0 +1,41 @@
+
+// =====================================
+// 1. FUNCTION DECLARATION
+// =====================================
+
+// Синтаксис Function Declaration
+function greet(name) {
+  return "Привет, " + name + "!";
+}
+
+// Можно вызывать ДО объявления благодаря hoisting
+console.log(sayHello("Мир")); // "Hello, Мир!" - работает!
+
+function sayHello(name) {
+  return "Hello, " + name + "!";
+}
+
+// Условные объявления (работают, но не рекомендуются)
+if (true) {
+  function conditionalFunc() {
+    return "Я объявлена в блоке";
+  }
+}
+
+// Hoisting - функция "поднимается" наверх области видимости
+console.log(hoistedFunction()); // "Я поднялась!"
+
+function hoistedFunction() {
+  return "Я поднялась!";
+}
+
+// Могут быть переопределены
+function canBeRedefined() {
+  return "Первая версия";
+}
+
+function canBeRedefined() {
+  return "Вторая версия"; // Перезапишет первую
+}
+
+console.log(canBeRedefined()); // "Вторая версия"

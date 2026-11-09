@@ -1,0 +1,86 @@
+
+import { useRef, useEffect, useState } from 'react';
+
+// ❌ АНТИПАТТЕРНЫ
+
+// 1. Изменение ref в рендере
+function BadComponent1() {
+  const countRef = useRef(0);
+
+  // ❌ НЕ ДЕЛАТЬ: изменение ref в рендере
+  countRef.current += 1;
+
+  return <div>Render count: {countRef.current}</div>;
+}
+
+// ✅ Правильно: изменение в useEffect
+function GoodComponent1() {
+  const countRef = useRef(0);
+
+  useEffect(() => {
+    countRef.current += 1;
+  });
+
+  return <div>Render count: {countRef.current}</div>;
+}
+
+// 2. Использование ref как замена state
+function BadComponent2() {
+  const valueRef = useRef(0);
+
+  // ❌ НЕ ДЕЛАТЬ: ref не вызывает ререндер
+  const increment = () => {
+    valueRef.current += 1;
+    // UI не обновится!
+  };
+
+  return (
+    <div>
+      <p>Value: {valueRef.current}</p>
+      <button onClick={increment}>Increment</button>
+    </div>
+  );
+}
+
+// ✅ Правильно: используйте state для UI
+function GoodComponent2() {
+  const [value, setValue] = useState(0);
+
+  const increment = () => {
+    setValue(v => v + 1);
+  };
+
+  return (
+    <div>
+      <p>Value: {value}</p>
+      <button onClick={increment}>Increment</button>
+    </div>
+  );
+}
+
+// 3. Доступ к ref.current в рендере
+function BadComponent3() {
+  const inputRef = useRef(null);
+
+  // ❌ НЕ ДЕЛАТЬ: ref.current может быть null
+  const value = inputRef.current?.value || '';
+
+  return <input ref={inputRef} />;
+}
+
+// ✅ Правильно: доступ в обработчиках/useEffect
+function GoodComponent3() {
+  const inputRef = useRef(null);
+
+  const handleClick = () => {
+    const value = inputRef.current?.value || '';
+    console.log(value);
+  };
+
+  return (
+    <div>
+      <input ref={inputRef} />
+      <button onClick={handleClick}>Get Value</button>
+    </div>
+  );
+}

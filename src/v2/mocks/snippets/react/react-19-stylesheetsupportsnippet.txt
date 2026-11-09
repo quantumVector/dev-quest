@@ -1,0 +1,49 @@
+
+// React 19: Встроенная поддержка стилей с приоритетами
+function Page() {
+return (
+<div>
+{/* Критичные стили для первого рендера */}
+<link
+  rel="stylesheet"
+  href="/critical.css"
+  precedence="high"
+// React дожидается загрузки перед рендером
+/>
+
+{/* Стили для интерактивности - средний приоритет */}
+<link
+  rel="stylesheet"
+  href="/interactive.css"
+  precedence="medium"
+/>
+
+{/* Декоративные стили - низкий приоритет */}
+<link
+  rel="stylesheet"
+  href="/decorative.css"
+  precedence="low"
+/>
+
+<h1>Контент страницы</h1>
+</div>
+)
+}
+
+// Условная загрузка стилей
+function ThemedComponent({ theme }) {
+return (
+<div>
+{theme === 'dark' && (
+<link rel="stylesheet" href="/dark-theme.css" precedence="high" />
+)}
+{theme === 'light' && (
+<link rel="stylesheet" href="/light-theme.css" precedence="high" />
+)}
+
+<div className="themed-content">
+  Контент с темой
+</div>
+</div>
+)
+}

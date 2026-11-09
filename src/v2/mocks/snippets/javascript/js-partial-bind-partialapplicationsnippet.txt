@@ -1,0 +1,28 @@
+
+// Функция для демонстрации частичного применения
+function multiply(a, b, c) {
+  return a * b * c;
+}
+
+// 1. Частичное применение первого аргумента
+const multiplyBy2 = multiply.bind(null, 2);
+console.log(multiplyBy2(3, 4)); // 2 * 3 * 4 = 24
+
+// 2. Частичное применение двух аргументов
+const multiplyBy2And3 = multiply.bind(null, 2, 3);
+console.log(multiplyBy2And3(4)); // 2 * 3 * 4 = 24
+
+// 3. Полное применение всех аргументов
+const multiply2x3x4 = multiply.bind(null, 2, 3, 4);
+console.log(multiply2x3x4()); // 2 * 3 * 4 = 24
+
+// 4. Создание специализированных функций
+function createMultiplier(factor) {
+  return multiply.bind(null, factor);
+}
+
+const double = createMultiplier(2);
+const triple = createMultiplier(3);
+
+console.log(double(5, 6)); // 2 * 5 * 6 = 60
+console.log(triple(4, 7)); // 3 * 4 * 7 = 84

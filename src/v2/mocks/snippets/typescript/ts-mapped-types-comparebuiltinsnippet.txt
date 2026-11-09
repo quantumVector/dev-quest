@@ -1,0 +1,135 @@
+
+// =====================================
+// СРАВНЕНИЕ С ВСТРОЕННЫМИ UTILITY TYPES
+// =====================================
+
+// 1. Partial - встроенный vs кастомный
+type MyPartial<T> = {
+  [P in keyof T]?: T[P]
+}
+
+// Встроенный Partial делает то же самое
+interface User {
+  id: number
+  name: string
+}
+
+type PartialUser1 = Partial<User>
+type PartialUser2 = MyPartial<User>
+// Оба эквивалентны
+
+// 2. Required - встроенный vs кастомный
+type MyRequired<T> = {
+  [P in keyof T]-?: T[P]
+}
+
+type RequiredUser1 = Required<Partial<User>>
+type RequiredUser2 = MyRequired<Partial<User>>
+// Оба эквивалентны
+
+// 3. Readonly - встроенный vs кастомный
+type MyReadonly<T> = {
+  readonly [P in keyof T]: T[P]
+}
+
+type ReadonlyUser1 = Readonly<User>
+type ReadonlyUser2 = MyReadonly<User>
+// Оба эквивалентны
+
+// 4. Pick - встроенный vs кастомный
+type MyPick<T, K extends keyof T> = {
+  [P in K]: T[P]
+}
+
+type UserPreview1 = Pick<User, 'id' | 'name'>
+type UserPreview2 = MyPick<User, 'id' | 'name'>
+// Оба эквивалентны
+
+// 5. Omit - встроенный vs кастомный
+type MyOmit<T, K extends keyof T> = {
+  [P in Exclude<keyof T, K>]: T[P]
+}
+
+interface FullUser {
+  id: number
+  name: string
+  password: string
+}
+
+type SafeUser1 = Omit<FullUser, 'password'>
+type SafeUser2 = MyOmit<FullUser, 'password'>
+// Оба эквивалентны
+
+// 6. Record - встроенный vs кастомный
+type MyRecord<K extends keyof any, T> = {
+  [P in K]: T
+}
+
+type StringMap1 = Record<string, number>
+type StringMap2 = MyRecord<string, number>
+// Оба эквивалентны
+
+// 7. Exclude - встроенный (не mapped type, но часто используется)
+type MyExclude<T, U> = T extends U ? never : T
+
+type Colors = 'red' | 'blue' | 'green' | 'yellow'
+type PrimaryColors1 = Exclude<Colors, 'green' | 'yellow'>
+type PrimaryColors2 = MyExclude<Colors, 'green' | 'yellow'>
+// Оба: 'red' | 'blue'
+
+// 8. Extract - встроенный
+type MyExtract<T, U> = T extends U ? T : never
+
+type Numbers = 1 | 2 | 3 | 'four' | 'five'
+type OnlyNumbers1 = Extract<Numbers, number>
+type OnlyNumbers2 = MyExtract<Numbers, number>
+// Оба: 1 | 2 | 3
+
+// 9. NonNullable - встроенный
+type MyNonNullable<T> = T extends null | undefined ? never : T
+
+type MaybeString = string | null | undefined
+type DefiniteString1 = NonNullable<MaybeString>
+type DefiniteString2 = MyNonNullable<MaybeString>
+// Оба: string
+
+// 10. ReturnType - встроенный (использует infer)
+type MyReturnType<T extends (...args: any) => any> =
+  T extends (...args: any) => infer R ? R : never
+
+function getUser(): User {
+  return { id: 1, name: 'John' }
+}
+
+type UserType1 = ReturnType<typeof getUser>
+type UserType2 = MyReturnType<typeof getUser>
+// Оба: User
+
+// 11. Parameters - встроенный
+type MyParameters<T extends (...args: any) => any> =
+  T extends (...args: infer P) => any ? P : never
+
+function updateUser(id: number, data: Partial<User>): void {}
+
+type UpdateParams1 = Parameters<typeof updateUser>
+type UpdateParams2 = MyParameters<typeof updateUser>
+// Оба: [number, Partial<User>]
+
+// 12. Awaited - встроенный (TypeScript 4.5+)
+type MyAwaited<T> = T extends Promise<infer U> ? U : T
+
+async function fetchUser(): Promise<User> {
+  return { id: 1, name: 'John' }
+}
+
+type FetchedUser1 = Awaited<ReturnType<typeof fetchUser>>
+type FetchedUser2 = MyAwaited<ReturnType<typeof fetchUser>>
+// Оба: User
+
+// 13. Производительность встроенных vs кастомных
+// Встроенные типы оптимизированы компилятором TypeScript
+// и компилируются быстрее, чем кастомные эквиваленты
+
+// Рекомендация: используйте встроенные когда возможно!
+type Recommended = Omit<User, 'password'>  // ✅ Хорошо
+type NotRecommended = MyOmit<User, 'password'>  // ⚠️ Работает, но медленнее

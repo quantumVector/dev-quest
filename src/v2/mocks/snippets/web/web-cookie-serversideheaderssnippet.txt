@@ -1,0 +1,47 @@
+
+// Set-Cookie заголовок напрямую (любой сервер)
+
+// HTTP Response Header:
+Set-Cookie: username=John%20Doe; Max-Age=3600; Path=/; Secure; HttpOnly; SameSite=Strict
+
+// Множественные cookies - множественные заголовки:
+Set-Cookie: sessionId=abc123; HttpOnly; Secure
+Set-Cookie: theme=dark; Path=/
+Set-Cookie: lang=ru; Max-Age=2592000
+
+// Next.js API Route
+export default function handler(req, res) {
+  res.setHeader('Set-Cookie', [
+    'token=xyz; HttpOnly; Secure; SameSite=Strict; Max-Age=3600; Path=/',
+    'theme=dark; Path=/; Max-Age=31536000'
+  ])
+  res.status(200).json({ message: 'Cookies set!' })
+}
+
+// PHP
+<?php
+setcookie("username", "John Doe", [
+    'expires' => time() + 3600,
+    'path' => '/',
+    'domain' => '.example.com',
+    'secure' => true,
+    'httponly' => true,
+    'samesite' => 'Strict'
+]);
+?>
+
+// Python (Flask)
+from flask import Flask, make_response
+
+@app.route('/set-cookie')
+def set_cookie():
+    resp = make_response('Cookie set!')
+    resp.set_cookie(
+        'sessionId',
+        'abc123',
+        max_age=3600,
+        secure=True,
+        httponly=True,
+        samesite='Strict'
+    )
+    return resp

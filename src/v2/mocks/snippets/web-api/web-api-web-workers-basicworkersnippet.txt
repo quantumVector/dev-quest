@@ -1,0 +1,77 @@
+
+// =====================================
+// ОСНОВЫ WEB WORKERS
+// =====================================
+
+// main.js - основной поток
+// 1. Создание Web Worker
+const worker = new Worker('worker.js')
+
+// 2. Отправка данных в Worker
+worker.postMessage({
+  type: 'calculate',
+  data: [1, 2, 3, 4, 5]
+})
+
+// 3. Получение данных от Worker
+worker.onmessage = (event) => {
+  console.log('Результат от Worker:', event.data)
+  // { type: 'result', value: 15 }
+}
+
+// 4. Обработка ошибок
+worker.onerror = (error) => {
+  console.error('Ошибка в Worker:', error.message)
+  console.error('Файл:', error.filename)
+  console.error('Строка:', error.lineno)
+}
+
+// 5. Завершение работы Worker
+worker.terminate()  // Немедленная остановка
+
+// =====================================
+// worker.js - Worker поток
+// =====================================
+
+// Слушаем сообщения от основного потока
+self.onmessage = (event) => {
+  const { type, data } = event.data
+
+  switch (type) {
+    case 'calculate':
+      // Выполняем вычисления
+      const sum = data.reduce((acc, num) => acc + num, 0)
+
+      // Отправляем результат обратно
+      self.postMessage({
+        type: 'result',
+        value: sum
+      })
+      break
+
+    case 'heavy-task':
+      // Тяжелая операция
+      const result = performHeavyCalculation(data)
+      self.postMessage({ type: 'result', value: result })
+      break
+
+    case 'stop':
+      // Завершаем работу Worker изнутри
+      self.close()
+      break
+  }
+}
+
+// Функция с тяжелыми вычислениями
+function performHeavyCalculation(data) {
+  let result = 0
+  for (let i = 0; i < 1000000; i++) {
+    result += Math.sqrt(i) * data
+  }
+  return result
+}
+
+// Обработка ошибок в Worker
+self.onerror = (error) => {
+  console.error('Внутренняя ошибка Worker:', error)
+}

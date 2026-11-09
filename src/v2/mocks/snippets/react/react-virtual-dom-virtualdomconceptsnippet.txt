@@ -1,0 +1,43 @@
+
+// Концепция Virtual DOM
+
+// Virtual DOM - это легковесное JavaScript представление реального DOM
+const virtualDOM = {
+  type: 'div',
+  props: {
+    className: 'container',
+    id: 'main'
+  },
+  children: [
+    {
+      type: 'h1',
+      props: { className: 'title' },
+      children: ['Hello World']
+    },
+    {
+      type: 'ul',
+      props: { className: 'list' },
+      children: [
+        {
+          type: 'li',
+          props: { key: '1' },
+          children: ['Item 1']
+        },
+        {
+          type: 'li',
+          props: { key: '2' },
+          children: ['Item 2']
+        }
+      ]
+    }
+  ]
+};
+
+// Это просто JavaScript объект - создается мгновенно!
+// Никаких reflow/repaint - работа только с памятью
+
+// Преимущества:
+// 1. Быстрое создание (обычный JS объект)
+// 2. Быстрое сравнение (diff двух объектов)
+// 3. Батчинг обновлений (одно обновление DOM)
+// 4. Кроссплатформенность (не только браузер)

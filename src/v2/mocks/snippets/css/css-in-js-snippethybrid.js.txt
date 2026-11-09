@@ -1,0 +1,23 @@
+
+// Гибридный подход: статические классы + CSS-переменные для runtime-значений
+// styles.css.ts (Vanilla Extract)
+export const dynamicButton = style({
+  background: 'var(--btn-bg, #007bff)',
+  color: 'var(--btn-color, white)',
+  padding: 'var(--btn-padding, 12px 24px)',
+  border: 'none',
+  borderRadius: '4px',
+  cursor: 'pointer'
+});
+
+// Компонент — статический класс + inline CSS-переменные для уникальных значений
+function BrandButton({ brandColor, children }) {
+  return (
+    <button
+      className={dynamicButton}
+      style={{ '--btn-bg': brandColor, '--btn-color': getContrastColor(brandColor) }}
+    >
+      {children}
+    </button>
+  );
+}

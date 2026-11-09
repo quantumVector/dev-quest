@@ -1,0 +1,75 @@
+
+// =====================================
+// BLOB URL - временные ссылки на данные
+// =====================================
+
+// 1. Создание Blob URL для изображения
+async function displayImageFromBlob(blob) {
+  const url = URL.createObjectURL(blob)
+
+  const img = document.createElement('img')
+  img.src = url
+  img.onload = () => {
+    // ⚠️ Освобождаем память после загрузки
+    URL.revokeObjectURL(url)
+  }
+
+  document.body.appendChild(img)
+}
+
+// 2. Скачивание файла через Blob URL
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob)
+
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  a.click()
+
+  // Освобождаем через небольшую задержку
+  setTimeout(() => URL.revokeObjectURL(url), 100)
+}
+
+// Пример: скачивание текстового файла
+const textBlob = new Blob(['Hello, World!'], { type: 'text/plain' })
+downloadBlob(textBlob, 'hello.txt')
+
+// 3. Открытие PDF в новой вкладке
+async function openPdfInNewTab(pdfBlob) {
+  const url = URL.createObjectURL(pdfBlob)
+  const newWindow = window.open(url, '_blank')
+
+  // Освобождаем после закрытия окна
+  if (newWindow) {
+    newWindow.addEventListener('unload', () => {
+      URL.revokeObjectURL(url)
+    })
+  }
+}
+
+// 4. Видео плеер с Blob URL
+function playVideoFromBlob(videoBlob) {
+  const url = URL.createObjectURL(videoBlob)
+
+  const video = document.createElement('video')
+  video.src = url
+  video.controls = true
+  video.onended = () => {
+    URL.revokeObjectURL(url)
+  }
+
+  document.body.appendChild(video)
+  video.play()
+}
+
+// 5. ⚠️ Важно: управление памятью
+const urls = []
+
+// Создаем много URL
+for (let i = 0; i < 1000; i++) {
+  const blob = new Blob([i.toString()])
+  urls.push(URL.createObjectURL(blob))
+}
+
+// Память занята! Нужно освободить
+urls.forEach(url => URL.revokeObjectURL(url))

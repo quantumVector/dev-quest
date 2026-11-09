@@ -1,0 +1,72 @@
+
+// Proxy в React - виртуальный скроллинг и lazy loading
+
+// Прокси для виртуализации больших списков
+function VirtualizedListProxy({ items }: { items: any[] }) {
+  const [visibleRange, setVisibleRange] = useState({ start: 0, end: 50 });
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleScroll = useCallback(() => {
+    if (!containerRef.current) return;
+
+    const scrollTop = containerRef.current.scrollTop;
+    const itemHeight = 50;
+    const start = Math.floor(scrollTop / itemHeight);
+    const end = start + 50;
+
+    setVisibleRange({ start, end });
+  }, []);
+
+  // Прокси показывает только видимые элементы
+  const visibleItems = items.slice(visibleRange.start, visibleRange.end);
+
+  return (
+    <div
+      ref={containerRef}
+      onScroll={handleScroll}
+      style={{ height: '500px', overflow: 'auto' }}
+    >
+      <div style={{ height: items.length * 50 }}>
+        <div style={{ transform: `translateY(${visibleRange.start * 50}px)` }}>
+          {visibleItems.map((item, index) => (
+            <div key={visibleRange.start + index} style={{ height: 50 }}>
+              {item.name}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Прокси для ленивой загрузки изображений
+function LazyImageProxy({ src, alt }: { src: string; alt: string }) {
+  const [loaded, setLoaded] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        setVisible(true);
+        observer.disconnect();
+      }
+    });
+
+    if (imgRef.current) {
+      observer.observe(imgRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <img
+      ref={imgRef}
+      src={visible ? src : 'data:image/svg+xml,...'} // placeholder
+      alt={alt}
+      onLoad={() => setLoaded(true)}
+      style={{ opacity: loaded ? 1 : 0.5 }}
+    />
+  );
+}

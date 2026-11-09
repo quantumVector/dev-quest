@@ -1,0 +1,48 @@
+
+// Демонстрация момента создания лексического окружения
+console.log("=== Момент создания лексического окружения ===");
+
+// 1. ВАЖНО: Лексическое окружение создается в момент ВЫПОЛНЕНИЯ функции, НЕ определения!
+
+// Определение функции (создается только объект функции)
+console.log("1. Определяем функцию outerFunction");
+function outerFunction(param) {
+  console.log("  outerFunction выполняется, param =", param);
+
+  // В этот момент создается лексическое окружение outerFunction:
+  // {
+  //   Environment Record: { param: значение, innerVar: undefined (hoisting) }
+  //   Outer Reference: Global Lexical Environment
+  // }
+
+  var innerVar = "Переменная outerFunction";
+  console.log("  innerVar =", innerVar);
+
+  // Определение вложенной функции
+  function innerFunction() {
+    console.log("    innerFunction выполняется");
+    console.log("    Доступ к param:", param);        // Из родительского окружения
+    console.log("    Доступ к innerVar:", innerVar);  // Из родительского окружения
+
+    // Лексическое окружение innerFunction создается ТОЛЬКО при вызове:
+    // {
+    //   Environment Record: { } (пустое)
+    //   Outer Reference: outerFunction Lexical Environment
+    // }
+  }
+
+  console.log("  Вложенная функция определена, но её лексическое окружение ещё НЕ создано");
+
+  // Возвращаем функцию (замыкание)
+  return innerFunction;
+}
+
+console.log("2. Функция outerFunction определена, но лексическое окружение ещё НЕ создано");
+
+// Вызов функции - ЗДЕСЬ создается лексическое окружение outerFunction
+console.log("3. Вызываем outerFunction('test')");
+const closure = outerFunction('test');
+
+console.log("4. Получили замыкание, теперь вызываем его");
+// Вызов замыкания - ЗДЕСЬ создается лексическое окружение innerFunction
+closure();

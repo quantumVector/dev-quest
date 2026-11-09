@@ -1,0 +1,32 @@
+
+// JSX - JavaScript XML синтаксис
+
+// JSX код
+const element = (
+  <div className="container">
+    <h1>Привет, {user.name}!</h1>
+    <p>Сегодня {new Date().toLocaleDateString()}</p>
+    {isLoggedIn ? (
+      <button onClick={handleLogout}>Выйти</button>
+    ) : (
+      <button onClick={handleLogin}>Войти</button>
+    )}
+  </div>
+);
+
+// Компилируется в:
+const element = React.createElement(
+  'div',
+  { className: 'container' },
+  React.createElement('h1', null, 'Привет, ', user.name, '!'),
+  React.createElement('p', null, 'Сегодня ', new Date().toLocaleDateString()),
+  isLoggedIn
+    ? React.createElement('button', { onClick: handleLogout }, 'Выйти')
+    : React.createElement('button', { onClick: handleLogin }, 'Войти')
+);
+
+// Преимущества JSX:
+// 1. Читаемость - похоже на HTML
+// 2. Инструменты - подсветка синтаксиса, автодополнение
+// 3. Типобезопасность - ошибки на этапе компиляции
+// 4. Производительность - оптимизация на этапе сборки

@@ -1,0 +1,49 @@
+
+// Callback Hell - пример до промисов
+function getUserData(userId, callback) {
+  setTimeout(() => {
+    console.log('Получили пользователя')
+    callback(null, { id: userId, name: 'John' })
+  }, 1000)
+}
+
+function getUserPosts(userId, callback) {
+  setTimeout(() => {
+    console.log('Получили посты')
+    callback(null, [{ id: 1, title: 'Post 1' }])
+  }, 1000)
+}
+
+function getPostComments(postId, callback) {
+  setTimeout(() => {
+    console.log('Получили комментарии')
+    callback(null, [{ id: 1, text: 'Comment 1' }])
+  }, 1000)
+}
+
+// Вложенные колбэки - "Callback Hell"
+getUserData(1, (error, user) => {
+  if (error) {
+    console.error('Ошибка получения пользователя:', error)
+    return
+  }
+
+  getUserPosts(user.id, (error, posts) => {
+    if (error) {
+      console.error('Ошибка получения постов:', error)
+      return
+    }
+
+    getPostComments(posts[0].id, (error, comments) => {
+      if (error) {
+        console.error('Ошибка получения комментариев:', error)
+        return
+      }
+
+      // Наконец-то можем использовать данные
+      console.log('Пользователь:', user)
+      console.log('Посты:', posts)
+      console.log('Комментарии:', comments)
+    })
+  })
+})

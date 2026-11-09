@@ -1,0 +1,91 @@
+
+// Стратегия запуска тестов в CI/CD
+
+/*
+УРОВЕНЬ 1: Local Development (при сохранении файла)
+├── Unit тесты affected файлов
+├── Время: секунды
+└── Watch mode с hot reload
+
+УРОВЕНЬ 2: Pre-commit Hook
+├── Unit тесты измененных файлов
+├── Линтеры и форматтеры
+├── Время: ~30 секунд
+└── Блокирует коммит при ошибках
+
+УРОВЕНЬ 3: Pull Request
+├── Все Unit тесты (60%)
+├── Все Integration тесты (30%)
+├── Базовые E2E тесты (5%)
+├── Время: ~10 минут
+└── Обязательно для merge
+
+УРОВЕНЬ 4: Merge to Main
+├── Все тесты включая полные E2E (100%)
+├── Performance тесты
+├── Security сканирование
+├── Время: ~20-30 минут
+└── Перед деплоем в staging
+
+УРОВЕНЬ 5: Production Deploy
+├── Smoke тесты E2E
+├── Критические сценарии
+├── Время: ~5 минут
+└── После деплоя в production
+*/
+
+// package.json scripts
+{
+  "scripts": {
+    // Локальная разработка
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+
+    // CI/CD уровни
+    "test:unit": "vitest run --coverage",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test:e2e": "playwright test",
+    "test:e2e:critical": "playwright test --grep @critical",
+
+    // Полный прогон
+    "test:all": "npm run test:unit && npm run test:integration && npm run test:e2e",
+
+    // Быстрая проверка
+    "test:quick": "vitest run --changed"
+  }
+}
+
+// Playwright конфигурация для разных окружений
+// playwright.config.ts
+export default {
+  projects: [
+    {
+      name: 'critical',
+      testMatch: /.*.critical.spec.ts/,
+      retries: 2,  // Критические тесты retry
+      timeout: 60000
+    },
+    {
+      name: 'smoke',
+      testMatch: /.*.smoke.spec.ts/,
+      retries: 0,
+      timeout: 30000
+    },
+    {
+      name: 'full',
+      testMatch: /.*.spec.ts/,
+      retries: 1,
+      timeout: 120000
+    }
+  ],
+
+  // Параллелизация в CI
+  workers: process.env.CI ? 4 : undefined,
+
+  // Репорты
+  reporter: [
+    ['list'],
+    ['html', { open: 'never' }],
+    ['junit', { outputFile: 'test-results/junit.xml' }]
+  ]
+}

@@ -1,0 +1,48 @@
+
+<!-- Nuxt.js - SSR пример -->
+<!-- pages/products/index.vue -->
+
+<script setup lang="ts">
+// Композабл для SSR данных
+const { data: products, pending, error } = await useFetch('/api/products', {
+  // Выполняется на сервере
+  server: true,
+  // Данные передаются клиенту
+  lazy: false
+})
+
+// SEO метаданные
+useHead({
+  title: 'Products - My Store',
+  meta: [
+    { name: 'description', content: 'Browse our products' }
+  ]
+})
+
+// Server-side логика
+const route = useRoute()
+const category = route.query.category as string
+
+// Фильтрация на сервере
+const filteredProducts = computed(() => {
+  if (!category || !products.value) return products.value
+  return products.value.filter(p => p.category === category)
+})
+</script>
+
+<template>
+  <div>
+    <h1>Products</h1>
+
+    <div v-if="pending">Loading...</div>
+    <div v-else-if="error">Error: {{ error.message }}</div>
+
+    <div v-else class="products-grid">
+      <ProductCard
+        v-for="product in filteredProducts"
+        :key="product.id"
+        v-bind="product"
+      />
+    </div>
+  </div>
+</template>

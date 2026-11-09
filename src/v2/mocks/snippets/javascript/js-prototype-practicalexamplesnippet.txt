@@ -1,0 +1,43 @@
+
+// Практический пример: система событий
+
+function EventEmitter() {
+  this.events = {};
+}
+
+EventEmitter.prototype.on = function(event, listener) {
+  if (!this.events[event]) {
+    this.events[event] = [];
+  }
+  this.events[event].push(listener);
+  return this; // Для chaining
+};
+
+EventEmitter.prototype.emit = function(event, ...args) {
+  if (this.events[event]) {
+    this.events[event].forEach(listener => {
+      listener.apply(this, args);
+    });
+  }
+  return this;
+};
+
+EventEmitter.prototype.off = function(event, listener) {
+  if (this.events[event]) {
+    this.events[event] = this.events[event].filter(l => l !== listener);
+  }
+  return this;
+};
+
+// Использование
+const emitter = new EventEmitter();
+
+const handler = (data) => console.log('Получен:', data);
+
+emitter
+  .on('test', handler)
+  .on('test', (data) => console.log('Второй обработчик:', data))
+  .emit('test', 'Hello World!');
+
+// Все экземпляры EventEmitter получают эти методы через прототип
+// но имеют свое собственное состояние (this.events)

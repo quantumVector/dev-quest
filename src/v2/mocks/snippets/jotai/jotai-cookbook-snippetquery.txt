@@ -1,0 +1,24 @@
+
+import { atomWithQuery } from 'jotai-tanstack-query'
+import { useAtom } from 'jotai'
+import { api } from '@/shared/api'
+
+const todosAtom = atomWithQuery(() => ({
+  queryKey: ['todos'],
+  queryFn: api.getTodos,
+}))
+
+function Todos() {
+  const [{ data, isPending, isError }] = useAtom(todosAtom)
+
+  if (isPending) return <p>Loading...</p>
+  if (isError) return <p>Failed to load todos</p>
+
+  return (
+    <ul>
+      {data.map((todo) => (
+        <li key={todo.id}>{todo.title}</li>
+      ))}
+    </ul>
+  )
+}

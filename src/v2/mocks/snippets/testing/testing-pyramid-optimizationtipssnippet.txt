@@ -1,0 +1,121 @@
+
+// Оптимизация скорости выполнения тестов
+
+// 1. Параллелизация Unit тестов
+// vitest.config.ts
+export default {
+  test: {
+    threads: true,  // Параллельное выполнение
+    maxThreads: 8,
+    minThreads: 4,
+    isolate: true,  // Изоляция между тестами
+
+    // Группировка медленных тестов
+    sequence: {
+      shuffle: false,
+      concurrent: true
+    }
+  }
+}
+
+// 2. Кэширование в Integration тестах
+describe('Database Integration', () => {
+  let dbConnection
+
+  // Переиспользуем подключение
+  beforeAll(async () => {
+    dbConnection = await createConnection()
+  })
+
+  afterAll(async () => {
+    await dbConnection.close()
+  })
+
+  // Каждый тест очищает данные, но не пересоздает соединение
+  beforeEach(async () => {
+    await dbConnection.query('TRUNCATE TABLE users')
+  })
+})
+
+// 3. Умное использование моков
+// ❌ МЕДЛЕННО: Реальные HTTP запросы
+test('fetch user data', async () => {
+  const data = await fetch('https://api.example.com/users/1')
+  expect(data).toBeDefined()
+})
+
+// ✅ БЫСТРО: Mock fetch
+test('fetch user data', async () => {
+  global.fetch = jest.fn(() =>
+    Promise.resolve({
+      json: () => Promise.resolve({ id: 1, name: 'John' })
+    })
+  )
+
+  const data = await fetchUser(1)
+  expect(data).toEqual({ id: 1, name: 'John' })
+})
+
+// 4. Оптимизация E2E тестов
+// ❌ МЕДЛЕННО: Каждый тест с нуля
+test('test 1', async ({ page }) => {
+  await page.goto('/login')
+  await login(page)
+  await page.goto('/dashboard')
+  // ... тест
+})
+
+test('test 2', async ({ page }) => {
+  await page.goto('/login')
+  await login(page)  // Дубликат!
+  await page.goto('/settings')
+  // ... тест
+})
+
+// ✅ БЫСТРО: Переиспользование состояния
+test.describe('Authenticated tests', () => {
+  test.use({ storageState: 'auth.json' })  // Переиспользуем сессию
+
+  test('test 1', async ({ page }) => {
+    await page.goto('/dashboard')  // Уже залогинен
+    // ... тест
+  })
+
+  test('test 2', async ({ page }) => {
+    await page.goto('/settings')  // Уже залогинен
+    // ... тест
+  })
+})
+
+// 5. Таймауты и ожидания
+// ❌ МЕДЛЕННО: Фиксированные задержки
+await page.waitForTimeout(5000)  // Всегда ждем 5 секунд
+
+// ✅ БЫСТРО: Умные ожидания
+await page.waitForSelector('.loaded')  // Ждем только нужное время
+await expect(page.locator('h1')).toBeVisible({ timeout: 10000 })
+
+// 6. Стратегия тестирования
+// Пример: Feature с 20 сценариями
+
+/*
+Unit тесты (12 тестов):
+├── Валидация форм (5 тестов)
+├── Бизнес-логика расчетов (4 теста)
+└── Форматирование данных (3 теста)
+Время: ~100ms
+
+Integration тесты (6 тестов):
+├── API endpoints (3 теста)
+├── Database операции (2 теста)
+└── Кэш взаимодействие (1 тест)
+Время: ~2 секунды
+
+E2E тесты (2 теста):
+├── Happy path сценарий (1 тест)
+└── Error handling сценарий (1 тест)
+Время: ~30 секунд
+
+ИТОГО: 20 тестов за ~33 секунды
+Вместо 20 E2E тестов за ~20 минут!
+*/

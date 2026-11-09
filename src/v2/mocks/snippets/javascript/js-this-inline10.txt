@@ -1,0 +1,2 @@
+const greetFunc = user.greet;
+greetFunc(); // this = undefined (строгий режим) или Window

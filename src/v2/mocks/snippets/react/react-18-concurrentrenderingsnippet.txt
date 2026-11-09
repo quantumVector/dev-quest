@@ -1,0 +1,37 @@
+
+// React 17 - синхронный рендеринг (blocking)
+function LegacyApp() {
+  const [count, setCount] = useState(0);
+
+  // Все обновления блокируют UI
+  const handleClick = () => {
+    setCount(count + 1); // Блокирует до завершения
+  };
+
+  return <button onClick={handleClick}>{count}</button>;
+}
+
+// React 18 - конкурентный рендеринг (concurrent)
+import { useTransition } from 'react';
+
+function ModernApp() {
+  const [count, setCount] = useState(0);
+  const [isPending, startTransition] = useTransition();
+
+  const handleClick = () => {
+    // Неотложное обновление - выполняется сразу
+    setCount(count + 1);
+
+    // Отложенное обновление - может быть прервано
+    startTransition(() => {
+      // Тяжёлые вычисления или обновления
+      updateComplexState();
+    });
+  };
+
+  return (
+    <button onClick={handleClick} disabled={isPending}>
+      {count} {isPending && '(обновление...)'}
+    </button>
+  );
+}

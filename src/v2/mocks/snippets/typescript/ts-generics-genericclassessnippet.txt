@@ -1,0 +1,344 @@
+
+// =====================================
+// GENERIC CLASSES
+// =====================================
+
+// 1. Простой Generic Class
+class GenericBox<T> {
+  private value: T
+
+  constructor(value: T) {
+    this.value = value
+  }
+
+  getValue(): T {
+    return this.value
+  }
+
+  setValue(value: T): void {
+    this.value = value
+  }
+}
+
+const numberBox = new GenericBox<number>(42)
+console.log(numberBox.getValue())  // 42
+numberBox.setValue(100)
+
+const stringBox = new GenericBox<string>("hello")
+console.log(stringBox.getValue())  // "hello"
+
+// 2. Generic Stack (LIFO)
+class Stack<T> {
+  private items: T[] = []
+
+  push(item: T): void {
+    this.items.push(item)
+  }
+
+  pop(): T | undefined {
+    return this.items.pop()
+  }
+
+  peek(): T | undefined {
+    return this.items[this.items.length - 1]
+  }
+
+  isEmpty(): boolean {
+    return this.items.length === 0
+  }
+
+  size(): number {
+    return this.items.length
+  }
+
+  clear(): void {
+    this.items = []
+  }
+}
+
+const numberStack = new Stack<number>()
+numberStack.push(1)
+numberStack.push(2)
+numberStack.push(3)
+console.log(numberStack.pop())   // 3
+console.log(numberStack.peek())  // 2
+
+// 3. Generic Queue (FIFO)
+class Queue<T> {
+  private items: T[] = []
+
+  enqueue(item: T): void {
+    this.items.push(item)
+  }
+
+  dequeue(): T | undefined {
+    return this.items.shift()
+  }
+
+  peek(): T | undefined {
+    return this.items[0]
+  }
+
+  isEmpty(): boolean {
+    return this.items.length === 0
+  }
+
+  size(): number {
+    return this.items.length
+  }
+}
+
+const stringQueue = new Queue<string>()
+stringQueue.enqueue("first")
+stringQueue.enqueue("second")
+console.log(stringQueue.dequeue())  // "first"
+
+// 4. Generic Storage (Key-Value хранилище)
+class Storage<K, V> {
+  private storage = new Map<K, V>()
+
+  set(key: K, value: V): void {
+    this.storage.set(key, value)
+  }
+
+  get(key: K): V | undefined {
+    return this.storage.get(key)
+  }
+
+  has(key: K): boolean {
+    return this.storage.has(key)
+  }
+
+  delete(key: K): boolean {
+    return this.storage.delete(key)
+  }
+
+  clear(): void {
+    this.storage.clear()
+  }
+
+  get size(): number {
+    return this.storage.size
+  }
+
+  keys(): IterableIterator<K> {
+    return this.storage.keys()
+  }
+
+  values(): IterableIterator<V> {
+    return this.storage.values()
+  }
+
+  entries(): IterableIterator<[K, V]> {
+    return this.storage.entries()
+  }
+}
+
+const cache = new Storage<string, number>()
+cache.set("age", 30)
+cache.set("score", 95)
+console.log(cache.get("age"))  // 30
+
+// 5. Generic Repository Pattern
+interface Entity {
+  id: number
+}
+
+class Repository<T extends Entity> {
+  private items: T[] = []
+  private nextId = 1
+
+  create(item: Omit<T, 'id'>): T {
+    const newItem = { ...item, id: this.nextId++ } as T
+    this.items.push(newItem)
+    return newItem
+  }
+
+  findById(id: number): T | undefined {
+    return this.items.find(item => item.id === id)
+  }
+
+  findAll(): T[] {
+    return [...this.items]
+  }
+
+  update(id: number, updates: Partial<T>): T | undefined {
+    const item = this.findById(id)
+    if (item) {
+      Object.assign(item, updates)
+      return item
+    }
+    return undefined
+  }
+
+  delete(id: number): boolean {
+    const index = this.items.findIndex(item => item.id === id)
+    if (index !== -1) {
+      this.items.splice(index, 1)
+      return true
+    }
+    return false
+  }
+
+  count(): number {
+    return this.items.length
+  }
+}
+
+interface User extends Entity {
+  name: string
+  email: string
+}
+
+const userRepo = new Repository<User>()
+const user1 = userRepo.create({ name: "John", email: "john@example.com" })
+const user2 = userRepo.create({ name: "Jane", email: "jane@example.com" })
+console.log(userRepo.findAll())
+
+// 6. Generic Observable Pattern
+class Observable<T> {
+  private observers: Array<(value: T) => void> = []
+  private value: T
+
+  constructor(initialValue: T) {
+    this.value = initialValue
+  }
+
+  subscribe(observer: (value: T) => void): () => void {
+    this.observers.push(observer)
+    observer(this.value)  // Немедленно вызываем с текущим значением
+
+    // Возвращаем функцию отписки
+    return () => {
+      const index = this.observers.indexOf(observer)
+      if (index > -1) {
+        this.observers.splice(index, 1)
+      }
+    }
+  }
+
+  next(value: T): void {
+    this.value = value
+    this.observers.forEach(observer => observer(value))
+  }
+
+  getValue(): T {
+    return this.value
+  }
+}
+
+const counter = new Observable<number>(0)
+
+const unsubscribe1 = counter.subscribe(value => {
+  console.log(`Observer 1: ${value}`)
+})
+
+const unsubscribe2 = counter.subscribe(value => {
+  console.log(`Observer 2: ${value}`)
+})
+
+counter.next(1)  // Оба observer получат 1
+counter.next(2)  // Оба observer получат 2
+
+unsubscribe1()   // Отписываем первого observer
+
+counter.next(3)  // Только observer 2 получит 3
+
+// 7. Generic Result/Either Type
+class Result<T, E = Error> {
+  private constructor(
+    private readonly isSuccess: boolean,
+    private readonly value?: T,
+    private readonly error?: E
+  ) {}
+
+  static success<T, E = Error>(value: T): Result<T, E> {
+    return new Result<T, E>(true, value, undefined)
+  }
+
+  static failure<T, E = Error>(error: E): Result<T, E> {
+    return new Result<T, E>(false, undefined, error)
+  }
+
+  isOk(): this is { value: T } {
+    return this.isSuccess
+  }
+
+  isErr(): this is { error: E } {
+    return !this.isSuccess
+  }
+
+  unwrap(): T {
+    if (!this.isSuccess) {
+      throw new Error('Called unwrap on an error result')
+    }
+    return this.value!
+  }
+
+  unwrapOr(defaultValue: T): T {
+    return this.isSuccess ? this.value! : defaultValue
+  }
+
+  map<U>(fn: (value: T) => U): Result<U, E> {
+    if (this.isSuccess) {
+      return Result.success(fn(this.value!))
+    }
+    return Result.failure(this.error!)
+  }
+
+  mapErr<F>(fn: (error: E) => F): Result<T, F> {
+    if (!this.isSuccess) {
+      return Result.failure(fn(this.error!))
+    }
+    return Result.success(this.value!)
+  }
+}
+
+// Использование
+function divide(a: number, b: number): Result<number, string> {
+  if (b === 0) {
+    return Result.failure("Division by zero")
+  }
+  return Result.success(a / b)
+}
+
+const result1 = divide(10, 2)
+if (result1.isOk()) {
+  console.log(`Result: ${result1.unwrap()}`)  // 5
+}
+
+const result2 = divide(10, 0)
+if (result2.isErr()) {
+  console.log(`Error: ${result2.unwrapOr(0)}`)  // 0
+}
+
+// 8. Generic Builder Pattern
+class UserBuilder<T extends Partial<User>> {
+  private user: T = {} as T
+
+  setName(name: string): UserBuilder<T & { name: string }> {
+    return Object.assign(this, { user: { ...this.user, name } })
+  }
+
+  setEmail(email: string): UserBuilder<T & { email: string }> {
+    return Object.assign(this, { user: { ...this.user, email } })
+  }
+
+  setAge(age: number): UserBuilder<T & { age: number }> {
+    return Object.assign(this, { user: { ...this.user, age } })
+  }
+
+  build(): T & Required<Pick<User, 'name' | 'email'>> {
+    if (!this.user.name || !this.user.email) {
+      throw new Error('Name and email are required')
+    }
+    return this.user as T & Required<Pick<User, 'name' | 'email'>>
+  }
+}
+
+// Использование
+const user = new UserBuilder()
+  .setName("John")
+  .setEmail("john@example.com")
+  .setAge(30)
+  .build()

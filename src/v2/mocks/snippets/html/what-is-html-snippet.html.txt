@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Пример</title>
+</head>
+<body>
+  <h1>Моя первая страница</h1>
+  <p>HTML описывает содержание, а CSS задаёт стиль.</p>
+  <a href="https://developer.mozilla.org/">Документация MDN</a>
+</body>
+</html>

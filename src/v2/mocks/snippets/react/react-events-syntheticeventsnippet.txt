@@ -1,0 +1,90 @@
+
+// SyntheticEvent - обертка React над нативными событиями
+
+function EventExample() {
+  function handleClick(event) {
+    // event - это SyntheticEvent, а не нативное событие!
+    console.log('Type:', event.type);              // "click"
+    console.log('Target:', event.target);          // DOM элемент
+    console.log('CurrentTarget:', event.currentTarget);
+    console.log('TimeStamp:', event.timeStamp);
+
+    // Доступ к нативному событию
+    const nativeEvent = event.nativeEvent;
+    console.log('Native event:', nativeEvent);
+
+    // Методы SyntheticEvent
+    event.preventDefault();    // Отменить действие по умолчанию
+    event.stopPropagation();  // Остановить всплытие
+    event.persist();          // Сохранить событие (для React < 17)
+  }
+
+  return <button onClick={handleClick}>Клик</button>;
+}
+
+// Структура SyntheticEvent
+const syntheticEventStructure = {
+  // Свойства
+  bubbles: true,
+  cancelable: true,
+  currentTarget: null,        // Элемент с обработчиком
+  defaultPrevented: false,
+  eventPhase: 3,
+  isTrusted: true,
+  target: null,               // Элемент, вызвавший событие
+  timeStamp: 0,
+  type: 'click',
+
+  // Методы
+  preventDefault: function() {},
+  stopPropagation: function() {},
+  persist: function() {},     // Только React < 17
+
+  // Доступ к нативному событию
+  nativeEvent: null
+};
+
+// Типы событий и их интерфейсы (TypeScript)
+interface SyntheticEventTypes {
+  // Базовый SyntheticEvent
+  onClick: React.MouseEvent<HTMLButtonElement>
+  onChange: React.ChangeEvent<HTMLInputElement>
+  onSubmit: React.FormEvent<HTMLFormElement>
+  onKeyDown: React.KeyboardEvent<HTMLInputElement>
+  onFocus: React.FocusEvent<HTMLInputElement>
+  onBlur: React.FocusEvent<HTMLInputElement>
+  onScroll: React.UIEvent<HTMLDivElement>
+  onWheel: React.WheelEvent<HTMLDivElement>
+  onDrag: React.DragEvent<HTMLDivElement>
+  onDrop: React.DragEvent<HTMLDivElement>
+  onTouchStart: React.TouchEvent<HTMLDivElement>
+  onTouchMove: React.TouchEvent<HTMLDivElement>
+  onAnimationStart: React.AnimationEvent<HTMLDivElement>
+  onTransitionEnd: React.TransitionEvent<HTMLDivElement>
+}
+
+// Пример с типизацией
+function TypedButton() {
+  function handleClick(event: React.MouseEvent<HTMLButtonElement>) {
+    // event автоматически типизирован
+    console.log(event.clientX, event.clientY);
+    event.preventDefault();
+  }
+
+  function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+    console.log(event.target.value);
+  }
+
+  function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key === 'Enter') {
+      console.log('Enter нажат!');
+    }
+  }
+
+  return (
+    <>
+      <button onClick={handleClick}>Клик</button>
+      <input onChange={handleChange} onKeyDown={handleKeyDown} />
+    </>
+  );
+}

@@ -1,0 +1,237 @@
+
+// =====================================
+// РЕАЛЬНЫЕ ПРИМЕРЫ ИЗ ПРАКТИКИ
+// =====================================
+
+// ПРИМЕР 1: TypeScript спасает от ошибки
+
+// До TypeScript - баг в продакшене
+function calculateDiscount(price, discountPercent) {
+  return price - (price * discountPercent / 100);
+}
+
+// Вызов с ошибкой
+calculateDiscount("100", "10"); // "100NaN" - баг!
+
+// С TypeScript - ошибка на этапе разработки
+function calculateDiscount(price: number, discountPercent: number): number {
+  return price - (price * discountPercent / 100);
+}
+
+// calculateDiscount("100", "10"); // ❌ Ошибка компиляции
+
+// ПРИМЕР 2: Рефакторинг API
+
+// Старая версия API
+interface OldApiResponse {
+  status: string;
+  userData: {
+    userName: string;
+    userEmail: string;
+  };
+}
+
+// Новая версия API
+interface NewApiResponse {
+  success: boolean; // Изменили тип
+  user: { // Изменили структуру
+    name: string; // Изменили имена полей
+    email: string;
+  };
+}
+
+// TypeScript найдет ВСЕ места, где используется старый формат
+function displayUser(response: NewApiResponse) {
+  // console.log(response.userData.userName); // ❌ Ошибки во всех местах
+  console.log(response.user.name); // ✅ Нужно исправить
+}
+
+// ПРИМЕР 3: Безопасная работа с null/undefined
+
+// JavaScript - ошибка в runtime
+function getUserEmail(user) {
+  return user.profile.email; // TypeError если profile undefined
+}
+
+// TypeScript - ошибка на этапе разработки
+interface User {
+  id: number;
+  name: string;
+  profile?: { // Опциональное поле
+    email: string;
+    avatar: string;
+  };
+}
+
+function getUserEmail(user: User): string | undefined {
+  return user.profile?.email; // ✅ Optional chaining
+}
+
+// ПРИМЕР 4: Типизация сложных структур данных
+
+// Redux store с TypeScript
+interface RootState {
+  auth: {
+    user: User | null;
+    token: string | null;
+    loading: boolean;
+  };
+  products: {
+    items: Product[];
+    filters: FilterState;
+    pagination: PaginationState;
+  };
+  cart: {
+    items: CartItem[];
+    total: number;
+  };
+}
+
+// Типизированные селекторы
+const selectUser = (state: RootState) => state.auth.user;
+const selectCartTotal = (state: RootState) => state.cart.total;
+
+// TypeScript подсказывает структуру state везде
+
+// ПРИМЕР 5: Проблема с библиотекой без типов
+
+// Библиотека без типов
+import oldLibrary from 'old-library';
+
+// Приходится объявлять типы вручную
+declare module 'old-library' {
+  export interface Config {
+    apiKey: string;
+    timeout?: number;
+  }
+
+  export function initialize(config: Config): void;
+  export function fetchData(endpoint: string): Promise<any>;
+}
+
+// Теперь можно использовать с типами
+oldLibrary.initialize({
+  apiKey: "key",
+  timeout: 5000
+});
+
+// ПРИМЕР 6: Type narrowing спасает
+
+type NetworkState =
+  | { state: "loading" }
+  | { state: "success"; data: string }
+  | { state: "error"; error: Error };
+
+function renderState(networkState: NetworkState) {
+  // TypeScript сужает тип внутри каждого блока
+  switch (networkState.state) {
+    case "loading":
+      return "Loading...";
+
+    case "success":
+      // TypeScript знает, что здесь есть поле data
+      return networkState.data;
+
+    case "error":
+      // TypeScript знает, что здесь есть поле error
+      return networkState.error.message;
+  }
+}
+
+// ПРИМЕР 7: Дженерики для переиспользуемых компонентов
+
+// Типобезопасная функция для работы с API
+async function fetchData<T>(
+  endpoint: string,
+  validator: (data: unknown) => data is T
+): Promise<T> {
+  const response = await fetch(endpoint);
+  const data = await response.json();
+
+  if (!validator(data)) {
+    throw new Error("Invalid data format");
+  }
+
+  return data;
+}
+
+// Type guard
+function isUser(data: unknown): data is User {
+  return (
+    typeof data === "object" &&
+    data !== null &&
+    "id" in data &&
+    "name" in data &&
+    "email" in data
+  );
+}
+
+// Использование
+const user = await fetchData<User>("/api/user", isUser);
+// user имеет тип User, не any
+
+// ПРИМЕР 8: Проблема с type assertion
+
+// Опасное приведение типов
+const input = document.getElementById("email") as HTMLInputElement;
+const value = input.value; // Если это не input, будет ошибка!
+
+// Безопасный способ
+const element = document.getElementById("email");
+if (element instanceof HTMLInputElement) {
+  const value = element.value; // ✅ Безопасно
+}
+
+// ПРИМЕР 9: Conditional types для продвинутых случаев
+
+type IsString<T> = T extends string ? "yes" : "no";
+
+type Test1 = IsString<string>; // "yes"
+type Test2 = IsString<number>; // "no"
+
+// Практическое применение
+type AsyncReturnType<T> = T extends (...args: any[]) => Promise<infer R>
+  ? R
+  : never;
+
+async function fetchUser() {
+  return { id: 1, name: "John" };
+}
+
+type UserType = AsyncReturnType<typeof fetchUser>; // { id: number; name: string }
+
+// ПРИМЕР 10: Настоящая проблема - legacy код
+
+// Старый JavaScript код
+function processOrder(order) {
+  if (order.items && order.items.length > 0) {
+    const total = order.items.reduce((sum, item) => {
+      return sum + item.price * item.quantity;
+    }, 0);
+
+    if (order.discount) {
+      total = total * (1 - order.discount / 100);
+    }
+
+    return total;
+  }
+  return 0;
+}
+
+// Миграция на TypeScript требует времени
+interface OrderItem {
+  id: number;
+  price: number;
+  quantity: number;
+}
+
+interface Order {
+  id: number;
+  items: OrderItem[];
+  discount?: number;
+}
+
+function processOrder(order: Order): number {
+  // Нужно переписать всю логику с учетом типов
+  // Это может занять значительное время
+}

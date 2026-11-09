@@ -1,0 +1,368 @@
+
+// =====================================
+// ПРАКТИЧЕСКИЕ ПРИМЕРЫ
+// =====================================
+
+// 1. СОХРАНЕНИЕ НАСТРОЕК ПОЛЬЗОВАТЕЛЯ
+class UserSettings {
+  constructor() {
+    this.storage = new StorageHelper(localStorage)
+    this.defaults = {
+      theme: 'light',
+      language: 'en',
+      notifications: true,
+      fontSize: 16
+    }
+  }
+
+  get(key) {
+    return this.storage.get(`settings.${key}`, this.defaults[key])
+  }
+
+  set(key, value) {
+    return this.storage.set(`settings.${key}`, value)
+  }
+
+  getAll() {
+    const settings = {}
+    for (const key in this.defaults) {
+      settings[key] = this.get(key)
+    }
+    return settings
+  }
+
+  setAll(settings) {
+    for (const [key, value] of Object.entries(settings)) {
+      this.set(key, value)
+    }
+  }
+
+  reset() {
+    for (const key in this.defaults) {
+      this.storage.remove(`settings.${key}`)
+    }
+  }
+}
+
+// Использование
+const settings = new UserSettings()
+settings.set('theme', 'dark')
+settings.set('fontSize', 18)
+console.log(settings.getAll()) // { theme: 'dark', language: 'en', ... }
+
+// 2. КОРЗИНА ПОКУПОК
+class ShoppingCart {
+  constructor() {
+    this.storage = new StorageHelper(localStorage)
+    this.key = 'shopping-cart'
+  }
+
+  getItems() {
+    return this.storage.get(this.key, [])
+  }
+
+  addItem(product) {
+    const items = this.getItems()
+    const existing = items.find(item => item.id === product.id)
+
+    if (existing) {
+      existing.quantity += product.quantity || 1
+    } else {
+      items.push({ ...product, quantity: product.quantity || 1 })
+    }
+
+    this.storage.set(this.key, items)
+    return items
+  }
+
+  removeItem(productId) {
+    const items = this.getItems().filter(item => item.id !== productId)
+    this.storage.set(this.key, items)
+    return items
+  }
+
+  updateQuantity(productId, quantity) {
+    const items = this.getItems()
+    const item = items.find(item => item.id === productId)
+
+    if (item) {
+      item.quantity = quantity
+      if (quantity <= 0) {
+        return this.removeItem(productId)
+      }
+    }
+
+    this.storage.set(this.key, items)
+    return items
+  }
+
+  getTotal() {
+    return this.getItems().reduce((sum, item) => {
+      return sum + (item.price * item.quantity)
+    }, 0)
+  }
+
+  clear() {
+    this.storage.remove(this.key)
+  }
+
+  getItemsCount() {
+    return this.getItems().reduce((sum, item) => sum + item.quantity, 0)
+  }
+}
+
+// Использование
+const cart = new ShoppingCart()
+cart.addItem({ id: 1, name: 'Product A', price: 10 })
+cart.addItem({ id: 2, name: 'Product B', price: 20, quantity: 2 })
+console.log(`Total: $${cart.getTotal()}`) // Total: $50
+console.log(`Items: ${cart.getItemsCount()}`) // Items: 3
+
+// 3. КЭШИРОВАНИЕ API ОТВЕТОВ С TTL
+class CacheStorage {
+  constructor(ttl = 3600000) { // 1 час по умолчанию
+    this.storage = new StorageHelper(localStorage)
+    this.ttl = ttl
+  }
+
+  set(key, value, customTTL) {
+    const ttl = customTTL || this.ttl
+    const expiry = Date.now() + ttl
+
+    this.storage.set(`cache.${key}`, {
+      value: value,
+      expiry: expiry
+    })
+  }
+
+  get(key) {
+    const cached = this.storage.get(`cache.${key}`)
+
+    if (!cached) return null
+
+    // Проверяем срок действия
+    if (Date.now() > cached.expiry) {
+      this.remove(key)
+      return null
+    }
+
+    return cached.value
+  }
+
+  remove(key) {
+    this.storage.remove(`cache.${key}`)
+  }
+
+  // Очистка просроченных записей
+  cleanup() {
+    const keys = this.storage.keys()
+      .filter(key => key.startsWith('cache.'))
+
+    for (const key of keys) {
+      const value = this.storage.get(key)
+      if (value && Date.now() > value.expiry) {
+        this.storage.remove(key)
+      }
+    }
+  }
+
+  // Обёртка для fetch с кэшированием
+  async fetchWithCache(url, options = {}, ttl) {
+    const cacheKey = `fetch:${url}`
+    const cached = this.get(cacheKey)
+
+    if (cached) {
+      console.log('Returning cached data for:', url)
+      return cached
+    }
+
+    console.log('Fetching fresh data for:', url)
+    const response = await fetch(url, options)
+    const data = await response.json()
+
+    this.set(cacheKey, data, ttl)
+    return data
+  }
+}
+
+// Использование
+const cache = new CacheStorage(60000) // 1 минута
+
+// Кэширование на 5 минут
+cache.set('user:123', { name: 'John' }, 300000)
+
+// Получение с проверкой TTL
+const user = cache.get('user:123')
+console.log(user) // { name: 'John' } или null если истёк
+
+// Fetch с кэшированием
+const data = await cache.fetchWithCache(
+  'https://api.example.com/data',
+  {},
+  300000 // 5 минут
+)
+
+// Периодическая очистка
+setInterval(() => cache.cleanup(), 60000)
+
+// 4. ИСТОРИЯ ДЕЙСТВИЙ (UNDO/REDO)
+class HistoryManager {
+  constructor(maxSize = 50) {
+    this.storage = new StorageHelper(sessionStorage)
+    this.maxSize = maxSize
+    this.key = 'history'
+  }
+
+  getHistory() {
+    return this.storage.get(this.key, {
+      past: [],
+      present: null,
+      future: []
+    })
+  }
+
+  saveState(state) {
+    const history = this.getHistory()
+
+    // Добавляем текущее состояние в прошлое
+    if (history.present !== null) {
+      history.past.push(history.present)
+
+      // Ограничиваем размер истории
+      if (history.past.length > this.maxSize) {
+        history.past.shift()
+      }
+    }
+
+    history.present = state
+    history.future = [] // Очищаем будущее
+
+    this.storage.set(this.key, history)
+  }
+
+  undo() {
+    const history = this.getHistory()
+
+    if (history.past.length === 0) {
+      return null
+    }
+
+    const previous = history.past.pop()
+    history.future.unshift(history.present)
+    history.present = previous
+
+    this.storage.set(this.key, history)
+    return previous
+  }
+
+  redo() {
+    const history = this.getHistory()
+
+    if (history.future.length === 0) {
+      return null
+    }
+
+    const next = history.future.shift()
+    history.past.push(history.present)
+    history.present = next
+
+    this.storage.set(this.key, history)
+    return next
+  }
+
+  canUndo() {
+    return this.getHistory().past.length > 0
+  }
+
+  canRedo() {
+    return this.getHistory().future.length > 0
+  }
+
+  clear() {
+    this.storage.remove(this.key)
+  }
+}
+
+// Использование в текстовом редакторе
+const history = new HistoryManager()
+
+let content = ''
+
+function updateContent(newContent) {
+  history.saveState(content)
+  content = newContent
+}
+
+function undo() {
+  const previous = history.undo()
+  if (previous !== null) {
+    content = previous
+  }
+}
+
+function redo() {
+  const next = history.redo()
+  if (next !== null) {
+    content = next
+  }
+}
+
+// 5. СИНХРОНИЗАЦИЯ МЕЖДУ ВКЛАДКАМИ (localStorage)
+class TabSync {
+  constructor(channel) {
+    this.channel = channel
+    this.listeners = new Map()
+
+    // Слушаем события storage
+    window.addEventListener('storage', (e) => {
+      if (e.key && e.key.startsWith(`sync:${this.channel}:`)) {
+        const eventName = e.key.replace(`sync:${this.channel}:`, '')
+        const data = JSON.parse(e.newValue)
+
+        const handlers = this.listeners.get(eventName) || []
+        handlers.forEach(handler => handler(data))
+      }
+    })
+  }
+
+  // Отправить событие в другие вкладки
+  emit(eventName, data) {
+    const key = `sync:${this.channel}:${eventName}`
+    localStorage.setItem(key, JSON.stringify(data))
+
+    // Удаляем сразу, чтобы можно было отправить снова
+    setTimeout(() => localStorage.removeItem(key), 100)
+  }
+
+  // Подписаться на событие
+  on(eventName, handler) {
+    if (!this.listeners.has(eventName)) {
+      this.listeners.set(eventName, [])
+    }
+    this.listeners.get(eventName).push(handler)
+  }
+
+  // Отписаться
+  off(eventName, handler) {
+    const handlers = this.listeners.get(eventName)
+    if (handlers) {
+      const index = handlers.indexOf(handler)
+      if (index > -1) {
+        handlers.splice(index, 1)
+      }
+    }
+  }
+}
+
+// Использование
+const sync = new TabSync('app')
+
+// Вкладка 1
+sync.on('user-logged-in', (user) => {
+  console.log('User logged in another tab:', user)
+  // Обновляем UI
+})
+
+// Вкладка 2
+sync.emit('user-logged-in', { id: 1, name: 'John' })
+// Вкладка 1 получит событие!

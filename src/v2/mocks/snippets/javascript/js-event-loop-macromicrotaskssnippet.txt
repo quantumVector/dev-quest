@@ -1,0 +1,44 @@
+
+// Макрозадачи vs Микрозадачи
+console.log('=== Start ===');
+
+// Макрозадачи
+setTimeout(() => console.log('setTimeout 1'), 0);
+setInterval(() => {
+  console.log('setInterval');
+  clearInterval(this); // остановим после первого вызова
+}, 0);
+
+// Микрозадачи
+Promise.resolve().then(() => console.log('Promise 1'));
+Promise.resolve().then(() => {
+  console.log('Promise 2');
+  return Promise.resolve();
+}).then(() => console.log('Promise 3'));
+
+// queueMicrotask (современный способ добавить микрозадачу)
+queueMicrotask(() => console.log('queueMicrotask'));
+
+// MutationObserver (тоже микрозадача)
+const observer = new MutationObserver(() => {
+  console.log('MutationObserver');
+});
+const node = document.createElement('div');
+observer.observe(node, { childList: true });
+node.appendChild(document.createTextNode(''));
+
+setTimeout(() => console.log('setTimeout 2'), 0);
+
+console.log('=== End ===');
+
+// Вывод:
+// === Start ===
+// === End ===
+// Promise 1
+// Promise 2
+// queueMicrotask
+// MutationObserver
+// Promise 3
+// setTimeout 1
+// setInterval
+// setTimeout 2

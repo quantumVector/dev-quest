@@ -1,0 +1,29 @@
+
+// Современный синтаксис ES6+ классов
+class Animal {
+  constructor(name) {
+    this.name = name;
+  }
+
+  eat() {
+    return `${this.name} is eating`;
+  }
+}
+
+class Dog extends Animal {
+  constructor(name, breed) {
+    super(name);
+    this.breed = breed;
+  }
+
+  bark() {
+    return `${this.name} is barking`;
+  }
+}
+
+const rex = new Dog("Rex", "German Shepherd");
+
+// Под капотом все тот же prototype механизм
+console.log(rex.__proto__ === Dog.prototype); // true
+console.log(Dog.prototype.__proto__ === Animal.prototype); // true
+console.log(Animal.prototype.constructor === Animal); // true

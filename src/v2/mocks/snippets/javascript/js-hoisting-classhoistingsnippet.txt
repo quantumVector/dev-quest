@@ -1,0 +1,18 @@
+
+// ❌ НЕ РАБОТАЕТ - class declaration не всплывает
+const obj = new MyClass(); // ReferenceError: Cannot access 'MyClass' before initialization
+
+class MyClass {
+  constructor() {
+    this.name = "Test";
+  }
+}
+
+// ❌ НЕ РАБОТАЕТ - class expression тоже не всплывает
+const obj2 = new MyClassExpression(); // ReferenceError
+
+const MyClassExpression = class {
+  constructor() {
+    this.name = "Test";
+  }
+};

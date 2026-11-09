@@ -1,0 +1,23 @@
+
+<!-- Тестирование и валидация -->
+
+<!-- 1. Google Search Console -->
+<!-- Проверка индексации:
+     - Search Console → Международное таргетирование → Язык
+     - Проверяет корректность hreflang
+     - Показывает ошибки -->
+
+<!-- 2. Проверка в браузере -->
+<!-- Chrome DevTools → Elements → <head>
+     Убедитесь что все теги присутствуют -->
+
+<!-- 3. Онлайн валидаторы -->
+<!-- https://technicalseo.com/tools/hreflang/
+     https://www.aleydasolis.com/english/international-seo-tools/hreflang-tags-generator/
+     https://www.sistrix.com/hreflang-validator/ -->
+
+<!-- 4. Yandex Webmaster -->
+<!-- Для русскоязычных сайтов - проверка региональности -->
+
+<!-- 5. Screaming Frog SEO Spider -->
+<!-- Сканирование всего сайта на наличие hreflang -->

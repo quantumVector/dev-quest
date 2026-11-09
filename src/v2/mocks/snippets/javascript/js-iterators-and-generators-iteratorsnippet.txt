@@ -1,0 +1,58 @@
+
+// Итератор - объект с методом next()
+const customIterator = {
+  current: 0,
+  last: 5,
+
+  // Протокол Iterator
+  next() {
+    if (this.current <= this.last) {
+      return {
+        value: this.current++,
+        done: false
+      }
+    } else {
+      return {
+        value: undefined,
+        done: true
+      }
+    }
+  }
+}
+
+// Использование итератора
+let result = customIterator.next()
+while (!result.done) {
+  console.log(result.value) // 0, 1, 2, 3, 4, 5
+  result = customIterator.next()
+}
+
+// Итерируемый объект (Iterable)
+const iterable = {
+  data: [1, 2, 3, 4, 5],
+
+  // Метод Symbol.iterator делает объект итерируемым
+  [Symbol.iterator]() {
+    let index = 0
+    const data = this.data
+
+    return {
+      next() {
+        if (index < data.length) {
+          return { value: data[index++], done: false }
+        } else {
+          return { value: undefined, done: true }
+        }
+      }
+    }
+  }
+}
+
+// Можно использовать в for...of
+for (const value of iterable) {
+  console.log(value) // 1, 2, 3, 4, 5
+}
+
+// Или деструктурировать
+const [first, second, ...rest] = iterable
+console.log(first, second, rest) // 1, 2, [3, 4, 5]

@@ -1,0 +1,23 @@
+
+// __proto__ есть у всех объектов (экземпляров)
+function Person(name) {
+  this.name = name;
+}
+
+Person.prototype.greet = function() {
+  return `Hello, I'm ${this.name}`;
+};
+
+const john = new Person("John");
+
+// __proto__ указывает на prototype конструктора
+console.log(john.__proto__ === Person.prototype); // true
+console.log(john.__proto__.greet); // function
+console.log(john.greet()); // "Hello, I'm John"
+
+// У любого объекта есть __proto__
+const arr = [1, 2, 3];
+console.log(arr.__proto__ === Array.prototype); // true
+
+const obj = {};
+console.log(obj.__proto__ === Object.prototype); // true

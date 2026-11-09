@@ -1,0 +1,60 @@
+
+// IIFE (Immediately Invoked Function Expression) - модуль через замыкания (до ES6)
+
+// Простой IIFE модуль
+var MyModule = (function() {
+  // Приватные переменные и функции
+  var privateVar = 'Я скрыт!';
+  var privateCounter = 0;
+
+  function privateFunction() {
+    console.log('Приватная функция');
+  }
+
+  // Публичный API
+  return {
+    publicVar: 'Я доступен!',
+
+    increment: function() {
+      privateCounter++;
+      return privateCounter;
+    },
+
+    getCounter: function() {
+      return privateCounter;
+    },
+
+    publicMethod: function() {
+      privateFunction();
+      return 'Результат: ' + privateVar;
+    }
+  };
+})();
+
+// Использование
+console.log(MyModule.publicVar);        // "Я доступен!"
+console.log(MyModule.increment());       // 1
+console.log(MyModule.getCounter());      // 1
+console.log(MyModule.privateVar);        // undefined - недоступна!
+
+// Расширяемый IIFE модуль
+var ExtendedModule = (function(module) {
+  module.newMethod = function() {
+    return 'Новый функционал!';
+  };
+
+  return module;
+})(MyModule || {});
+
+// Module Pattern с зависимостями
+var DependentModule = (function($, _) {
+  // Используем jQuery и Lodash
+  function init() {
+    $('.element').hide();
+    console.log(_.shuffle([1, 2, 3]));
+  }
+
+  return {
+    init: init
+  };
+})(jQuery, _);

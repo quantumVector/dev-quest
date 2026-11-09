@@ -1,0 +1,3 @@
+scheduler.postTask(() => {
+  // Задача с приоритетом
+}, { priority: 'user-blocking' });

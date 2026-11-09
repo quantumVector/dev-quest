@@ -1,0 +1,39 @@
+
+<!-- Breadcrumb разметка (хлебные крошки) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+    "@type": "ListItem",
+    "position": 1,
+    "name": "Главная",
+    "item": "https://example.com/"
+  }, {
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Электроника",
+    "item": "https://example.com/electronics"
+  }, {
+    "@type": "ListItem",
+    "position": 3,
+    "name": "Ноутбуки",
+    "item": "https://example.com/electronics/laptops"
+  }, {
+    "@type": "ListItem",
+    "position": 4,
+    "name": "MacBook Pro",
+    "item": "https://example.com/electronics/laptops/macbook-pro"
+  }]
+}
+</script>
+
+<!-- Соответствующий HTML -->
+<nav aria-label="Breadcrumb">
+<ol>
+  <li><a href="/">Главная</a></li>
+  <li><a href="/electronics">Электроника</a></li>
+  <li><a href="/electronics/laptops">Ноутбуки</a></li>
+  <li aria-current="page">MacBook Pro</li>
+</ol>
+</nav>

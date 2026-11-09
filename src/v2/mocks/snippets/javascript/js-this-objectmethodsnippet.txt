@@ -1,0 +1,24 @@
+
+const user = {
+  name: 'Alice',
+  age: 30,
+
+  // Метод объекта - this ссылается на объект
+  greet() {
+    console.log(this); // { name: 'Alice', age: 30, greet: [Function] }
+    console.log(`Привет, я ${this.name}!`); // "Привет, я Alice!"
+  },
+
+  // Стрелочная функция - this наследуется из окружения
+  greetArrow: () => {
+    console.log(this); // Window или undefined (глобальный контекст)
+    // console.log(`Привет, я ${this.name}!`); // Ошибка!
+  }
+};
+
+user.greet(); // this = user
+user.greetArrow(); // this НЕ равен user!
+
+// Потеря контекста
+const greetFunc = user.greet;
+greetFunc(); // this = undefined (строгий режим) или Window

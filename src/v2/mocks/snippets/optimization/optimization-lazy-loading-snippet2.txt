@@ -1,0 +1,26 @@
+
+<!-- Lazy loading для iframe (YouTube, карты) -->
+
+<!-- YouTube видео -->
+<iframe
+  src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+  loading="lazy"
+  width="560"
+  height="315"
+  title="YouTube видео"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowfullscreen>
+</iframe>
+
+<!-- Google Maps -->
+<iframe
+  src="https://www.google.com/maps/embed?pb=..."
+  loading="lazy"
+  width="600"
+  height="450"
+  style="border:0;"
+  allowfullscreen
+  title="Google карта">
+</iframe>
+
+<!-- Экономия: ~500KB на YouTube, ~1-2MB на Maps -->

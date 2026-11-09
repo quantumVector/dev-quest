@@ -1,0 +1,83 @@
+
+// Реальные примеры использования асинхронности
+
+// 1. Работа с API
+async function loadUserData(userId) {
+  try {
+    // Параллельные запросы - не блокируем друг друга
+    const [user, posts, followers] = await Promise.all([
+      fetch(`/api/users/${userId}`),
+      fetch(`/api/users/${userId}/posts`),
+      fetch(`/api/users/${userId}/followers`)
+    ])
+
+    return {
+      user: await user.json(),
+      posts: await posts.json(),
+      followers: await followers.json()
+    }
+  } catch (error) {
+    console.error("Ошибка загрузки данных:", error)
+    throw error
+  }
+}
+
+// 2. Обработка файлов
+async function processFiles(files) {
+  const results = []
+
+  // Последовательная обработка
+  for (const file of files) {
+    const processed = await processFile(file)
+    results.push(processed)
+    updateProgressBar(results.length, files.length)
+  }
+
+  return results
+}
+
+// 3. Работа с базой данных
+async function createUser(userData) {
+  const transaction = await db.beginTransaction()
+
+  try {
+    const user = await db.users.create(userData)
+    await db.profiles.create({ userId: user.id, ...userData.profile })
+    await db.permissions.create({ userId: user.id, role: 'user' })
+
+    await transaction.commit()
+    return user
+  } catch (error) {
+    await transaction.rollback()
+    throw error
+  }
+}
+
+// 4. Анимации и UI
+async function smoothScroll(element, targetY, duration = 1000) {
+  const startY = element.scrollTop
+  const distance = targetY - startY
+  let startTime = null
+
+  return new Promise((resolve) => {
+    function animate(currentTime) {
+      if (!startTime) startTime = currentTime
+
+      const elapsed = currentTime - startTime
+      const progress = Math.min(elapsed / duration, 1)
+
+      // Easing function
+      const easeProgress = 1 - Math.pow(1 - progress, 3)
+
+      element.scrollTop = startY + distance * easeProgress
+
+      if (progress < 1) {
+        requestAnimationFrame(animate)
+      } else {
+        resolve()
+      }
+    }
+
+    requestAnimationFrame(animate)
+  })
+}

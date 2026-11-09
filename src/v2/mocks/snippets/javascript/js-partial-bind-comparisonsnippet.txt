@@ -1,0 +1,53 @@
+
+// СРАВНЕНИЕ ПОДХОДОВ К ДЕФОЛТНЫМ АРГУМЕНТАМ
+
+// 1. ES6 дефолтные параметры (рекомендуется)
+function greet(name = 'Guest', greeting = 'Hello') {
+  return `${greeting}, ${name}!`;
+}
+
+console.log(greet()); // "Hello, Guest!"
+console.log(greet('Alice')); // "Hello, Alice!"
+console.log(greet('Bob', 'Hi')); // "Hi, Bob!"
+
+// 2. bind с частичным применением
+const greetGuest = greet.bind(null, 'Guest');
+console.log(greetGuest()); // "Hello, Guest!"
+console.log(greetGuest('Hi')); // "Hi, Guest!"
+
+// 3. Обертка для гибкости
+function createGreeter(defaultName = 'Guest', defaultGreeting = 'Hello') {
+  return function(name = defaultName, greeting = defaultGreeting) {
+    return `${greeting}, ${name}!`;
+  };
+}
+
+const politeGreeter = createGreeter('Sir', 'Good day');
+console.log(politeGreeter()); // "Good day, Sir!"
+console.log(politeGreeter('Madam')); // "Good day, Madam!"
+
+// 4. Конфигурационный объект (для множества параметров)
+function processData(data, options = {}) {
+  const config = {
+    format: 'json',
+    timeout: 5000,
+    retries: 3,
+    ...options
+  };
+
+  return `Processing ${data} with ${JSON.stringify(config)}`;
+}
+
+const quickProcess = processData.bind(null, undefined, { timeout: 1000 });
+// ❌ Проблема: первый аргумент undefined
+
+// ✅ Лучше использовать обертку:
+function createProcessor(defaultOptions = {}) {
+  return function(data, options = {}) {
+    return processData(data, { ...defaultOptions, ...options });
+  };
+}
+
+const fastProcessor = createProcessor({ timeout: 1000, retries: 1 });
+console.log(fastProcessor('user-data'));
+// Processing user-data with {"format":"json","timeout":1000,"retries":1}

@@ -1,0 +1,188 @@
+
+// ============================================
+// РЕАЛИЗАЦИЯ OAUTH 2.0 В REACT/VUE ПРИЛОЖЕНИИ
+// ============================================
+
+// === ВАРИАНТ 1: Auth0 (Рекомендуется для production) ===
+
+// 1. Установка
+// npm install @auth0/auth0-react
+
+// 2. Настройка провайдера (React)
+import { Auth0Provider } from '@auth0/auth0-react'
+
+function App() {
+  return (
+    <Auth0Provider
+      domain="your-domain.auth0.com"
+      clientId="YOUR_CLIENT_ID"
+      authorizationParams={{
+        redirect_uri: window.location.origin,
+        audience: "https://your-api.com",
+        scope: "openid profile email"
+      }}
+      cacheLocation="memory"  // Безопасное хранение
+      useRefreshTokens={true}
+    >
+      <YourApp />
+    </Auth0Provider>
+  )
+}
+
+// 3. Компонент входа
+import { useAuth0 } from '@auth0/auth0-react'
+
+function LoginButton() {
+  const { loginWithRedirect, logout, user, isAuthenticated, isLoading } = useAuth0()
+
+  if (isLoading) return <div>Loading...</div>
+
+  return isAuthenticated ? (
+    <div>
+      <img src={user.picture} alt={user.name} />
+      <h2>{user.name}</h2>
+      <p>{user.email}</p>
+      <button onClick={() => logout({
+        logoutParams: { returnTo: window.location.origin }
+      })}>
+        Выйти
+      </button>
+    </div>
+  ) : (
+    <button onClick={() => loginWithRedirect()}>
+      Войти через Auth0
+    </button>
+  )
+}
+
+// 4. Защищенные API запросы
+import { useAuth0 } from '@auth0/auth0-react'
+
+function ProtectedComponent() {
+  const { getAccessTokenSilently } = useAuth0()
+
+  const fetchProtectedData = async () => {
+    try {
+      const token = await getAccessTokenSilently()
+
+      const response = await fetch('https://your-api.com/data', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+
+      const data = await response.json()
+      return data
+    } catch (error) {
+      console.error('Error fetching protected data:', error)
+    }
+  }
+
+  return <button onClick={fetchProtectedData}>Загрузить данные</button>
+}
+
+// === ВАРИАНТ 2: Supabase Auth ===
+
+// npm install @supabase/supabase-js
+
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  'https://your-project.supabase.co',
+  'your-anon-key'
+)
+
+// Вход через OAuth провайдера
+async function signInWithGoogle() {
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: 'https://your-app.com/auth/callback',
+      scopes: 'email profile',
+      queryParams: {
+        access_type: 'offline',
+        prompt: 'consent'
+      }
+    }
+  })
+}
+
+// Получение пользователя
+const { data: { user } } = await supabase.auth.getUser()
+
+// Выход
+await supabase.auth.signOut()
+
+// === ВАРИАНТ 3: NextAuth.js (для Next.js) ===
+
+// pages/api/auth/[...nextauth].js
+import NextAuth from "next-auth"
+import GoogleProvider from "next-auth/providers/google"
+import GitHubProvider from "next-auth/providers/github"
+
+export default NextAuth({
+  providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code"
+        }
+      }
+    }),
+    GitHubProvider({
+      clientId: process.env.GITHUB_ID,
+      clientSecret: process.env.GITHUB_SECRET
+    })
+  ],
+
+  callbacks: {
+    async jwt({ token, account }) {
+      if (account) {
+        token.accessToken = account.access_token
+        token.refreshToken = account.refresh_token
+      }
+      return token
+    },
+
+    async session({ session, token }) {
+      session.accessToken = token.accessToken
+      return session
+    }
+  },
+
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60 // 30 days
+  }
+})
+
+// Компонент
+import { useSession, signIn, signOut } from "next-auth/react"
+
+function Component() {
+  const { data: session } = useSession()
+
+  if (session) {
+    return (
+      <>
+        Вошли как {session.user.email} <br />
+        <button onClick={() => signOut()}>Выйти</button>
+      </>
+    )
+  }
+
+  return (
+    <>
+      <button onClick={() => signIn('google')}>
+        Войти через Google
+      </button>
+      <button onClick={() => signIn('github')}>
+        Войти через GitHub
+      </button>
+    </>
+  )
+}

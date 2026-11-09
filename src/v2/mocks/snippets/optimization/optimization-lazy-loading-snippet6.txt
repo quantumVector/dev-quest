@@ -1,0 +1,30 @@
+
+<!-- Vue пример с v-lazy директивой -->
+<template>
+  <div>
+    <!-- Hero - eager loading -->
+    <img
+      src="hero.jpg"
+      alt="Hero"
+      loading="eager">
+
+    <!-- Галерея - lazy loading -->
+    <img
+      v-for="image in images"
+      :key="image.id"
+      v-lazy="image.src"
+      :alt="image.alt"
+      loading="lazy">
+  </div>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+import VueLazyload from 'vue-lazyload';
+
+const images = ref([
+  { id: 1, src: 'gallery-1.jpg', alt: 'Изображение 1' },
+  { id: 2, src: 'gallery-2.jpg', alt: 'Изображение 2' },
+  // ...
+]);
+</script>

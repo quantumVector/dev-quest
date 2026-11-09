@@ -1,0 +1,34 @@
+
+// Распространенные ошибки и ловушки
+
+// ❌ Забывание экранирования
+const wrong1 = /www.example.com/; // . означает любой символ!
+const correct1 = /www\.example\.com/; // правильно
+
+// ❌ Жадные квантификаторы
+const html = '<div class="test">content</div>';
+const wrong2 = /<.*>/;  // захватит всю строку
+const correct2 = /<.*?>/; // захватит только <div class="test">
+
+// ❌ Неправильное использование глобального флага
+const regex = /\d+/g;
+console.log(regex.test("123")); // true
+console.log(regex.test("123")); // false! (lastIndex сохраняется)
+
+// Решение: сброс или создание нового
+regex.lastIndex = 0; // сброс
+// или
+const freshRegex = /\d+/g; // новый экземпляр
+
+// ❌ Игнорирование специальных символов
+const userInput = "user@example.com";
+const wrong3 = new RegExp(userInput); // опасно если ввод содержит спецсимволы
+const correct3 = new RegExp(userInput.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+
+// ❌ Неправильная работа с многострочным текстом
+const multiText = `line1
+line2
+line3`;
+
+const wrong4 = /^line2$/;   // не найдет
+const correct4 = /^line2$/m; // найдет с флагом m

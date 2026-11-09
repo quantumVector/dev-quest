@@ -1,0 +1,235 @@
+
+// =====================================
+// ЛУЧШИЕ ПРАКТИКИ СУЖЕНИЯ ТИПОВ
+// =====================================
+
+// 1. Предпочитайте discriminated unions обычным unions
+// ❌ Плохо
+type Shape = Circle | Rectangle | Triangle
+
+interface Circle {
+  radius: number
+}
+
+interface Rectangle {
+  width: number
+  height: number
+}
+
+interface Triangle {
+  base: number
+  height: number
+}
+
+// ✅ Хорошо
+type Shape2 =
+  | { kind: 'circle'; radius: number }
+  | { kind: 'rectangle'; width: number; height: number }
+  | { kind: 'triangle'; base: number; height: number }
+
+// 2. Используйте readonly для безопасности
+function processReadonly(arr: readonly number[]): number {
+  // arr.push(5)  // ❌ Error: нельзя изменить
+  return arr.reduce((sum, n) => sum + n, 0)  // ✅ OK
+}
+
+// 3. Создавайте утилитарные type guards
+// Библиотека type guards для переиспользования
+const TypeGuards = {
+  isString(value: unknown): value is string {
+    return typeof value === 'string'
+  },
+
+  isNumber(value: unknown): value is number {
+    return typeof value === 'number'
+  },
+
+  isArray<T>(
+    value: unknown,
+    itemGuard: (item: unknown) => item is T
+  ): value is T[] {
+    return Array.isArray(value) && value.every(itemGuard)
+  },
+
+  isNonNull<T>(value: T | null | undefined): value is T {
+    return value !== null && value !== undefined
+  }
+}
+
+// Использование
+function example(value: unknown) {
+  if (TypeGuards.isString(value)) {
+    console.log(value.toUpperCase())
+  }
+}
+
+// 4. Документируйте сложные type guards
+/**
+ * Проверяет, является ли значение валидным пользователем.
+ * @param value - Значение для проверки
+ * @returns true, если value является User
+ * @example
+ * const user = { id: 1, name: 'John', email: 'john@example.com' }
+ * if (isValidUser(user)) {
+ *   console.log(user.email) // TypeScript знает тип
+ * }
+ */
+function isValidUser(value: unknown): value is User {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'id' in value &&
+    'name' in value &&
+    'email' in value &&
+    typeof (value as any).id === 'number' &&
+    typeof (value as any).name === 'string' &&
+    typeof (value as any).email === 'string' &&
+    (value as any).email.includes('@')
+  )
+}
+
+// 5. Используйте exhaustiveness checking везде
+type HttpStatus = 200 | 404 | 500
+
+function getStatusMessage(status: HttpStatus): string {
+  switch (status) {
+    case 200:
+      return 'OK'
+    case 404:
+      return 'Not Found'
+    case 500:
+      return 'Server Error'
+    default:
+      // Если добавим новый статус и забудем обработать,
+      // TypeScript выдаст ошибку здесь
+      const exhaustive: never = status
+      throw new Error(`Unhandled status: ${exhaustive}`)
+  }
+}
+
+// 6. Комбинируйте type guards для сложных проверок
+type ComplexType = {
+  type: 'user' | 'admin'
+  data: User | Admin
+  metadata?: {
+    created: Date
+    modified?: Date
+  }
+}
+
+function isComplexType(value: unknown): value is ComplexType {
+  if (typeof value !== 'object' || value === null) {
+    return false
+  }
+
+  const obj = value as any
+
+  if (obj.type !== 'user' && obj.type !== 'admin') {
+    return false
+  }
+
+  if (typeof obj.data !== 'object' || obj.data === null) {
+    return false
+  }
+
+  if (obj.metadata !== undefined) {
+    if (typeof obj.metadata !== 'object' || obj.metadata === null) {
+      return false
+    }
+
+    if (!(obj.metadata.created instanceof Date)) {
+      return false
+    }
+
+    if (obj.metadata.modified !== undefined &&
+        !(obj.metadata.modified instanceof Date)) {
+      return false
+    }
+  }
+
+  return true
+}
+
+// 7. Используйте branded types для type safety
+type EmailAddress = string & { readonly __brand: 'EmailAddress' }
+type PhoneNumber = string & { readonly __brand: 'PhoneNumber' }
+
+function isValidEmail(str: string): str is EmailAddress {
+  return /^[^s@]+@[^s@]+.[^s@]+$/.test(str)
+}
+
+function createEmail(str: string): EmailAddress {
+  if (!isValidEmail(str)) {
+    throw new Error('Invalid email')
+  }
+  return str
+}
+
+function sendEmail(to: EmailAddress, message: string) {
+  console.log(`Sending to ${to}: ${message}`)
+}
+
+// ✅ Type-safe
+const email = createEmail('user@example.com')
+sendEmail(email, 'Hello!')
+
+// ❌ Не скомпилируется
+// sendEmail('invalid', 'Hello!')
+
+// 8. Централизуйте validation логику
+class Validator {
+  static isPositiveNumber(value: unknown): value is number {
+    return typeof value === 'number' && value > 0
+  }
+
+  static isNonEmptyString(value: unknown): value is string {
+    return typeof value === 'string' && value.length > 0
+  }
+
+  static isValidDate(value: unknown): value is Date {
+    return value instanceof Date && !isNaN(value.getTime())
+  }
+
+  static hasProperties<T extends object>(
+    obj: unknown,
+    props: (keyof T)[]
+  ): obj is T {
+    if (typeof obj !== 'object' || obj === null) {
+      return false
+    }
+
+    return props.every(prop => prop in obj)
+  }
+}
+
+// 9. Используйте conditional types для advanced narrowing
+type ExtractStrings<T> = T extends string ? T : never
+
+type OnlyStrings = ExtractStrings<'a' | 1 | 'b' | 2>  // 'a' | 'b'
+
+// 10. Создавайте builder pattern с type narrowing
+class QueryBuilder<TSelect = never> {
+  private selectFields: string[] = []
+
+  select<T extends string>(field: T): QueryBuilder<TSelect | T> {
+    this.selectFields.push(field)
+    return this as any
+  }
+
+  build(): TSelect extends never ? never : { [K in TSelect]: unknown } {
+    if (this.selectFields.length === 0) {
+      throw new Error('No fields selected')
+    }
+
+    // Создание объекта запроса
+    return {} as any
+  }
+}
+
+// TypeScript знает, какие поля были выбраны
+const query = new QueryBuilder()
+  .select('name')
+  .select('email')
+  .build()  // Type: { name: unknown; email: unknown }
+
+// const invalid = new QueryBuilder().build()  // ❌ Error: never

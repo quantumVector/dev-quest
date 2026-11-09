@@ -1,0 +1,58 @@
+export const patternsSources = [
+  {
+    id: 'patterns-basic-fp',
+    file: 'BasicFP',
+    legacyPath: '/patterns/basic-fp',
+    codeCount: 9,
+    tableCount: 1,
+  },
+  {
+    id: 'patterns-dry-kiss-yagni',
+    file: 'DryKissYagni',
+    legacyPath: '/patterns/dry-kiss-yagni',
+    codeCount: 9,
+    tableCount: 1,
+  },
+  {
+    id: 'patterns-flux-architecture',
+    file: 'FluxArchitecture',
+    legacyPath: '/patterns/flux-architecture',
+    codeCount: 7,
+    tableCount: 1,
+  },
+  {
+    id: 'patterns-mvc-mvp-mvvm',
+    file: 'MvcMvpMvvm',
+    legacyPath: '/patterns/mvc-mvp-mvvm',
+    codeCount: 5,
+    tableCount: 2,
+  },
+  {
+    id: 'patterns-solid-principles',
+    file: 'SolidPrinciples',
+    legacyPath: '/patterns/solid-principles',
+    codeCount: 14,
+    tableCount: 2,
+  },
+  {
+    id: 'patterns-structural-patterns',
+    file: 'StructuralPatterns',
+    legacyPath: '/patterns/structural-patterns',
+    codeCount: 14,
+    tableCount: 1,
+  },
+  {
+    id: 'patterns-behavioral-patterns',
+    file: 'BehavioralPatterns',
+    legacyPath: '/patterns/behavioral-patterns',
+    codeCount: 9,
+    tableCount: 2,
+  },
+  {
+    id: 'patterns-creational-patterns',
+    file: 'CreationalPatterns',
+    legacyPath: '/patterns/creational-patterns',
+    codeCount: 7,
+    tableCount: 1,
+  },
+]

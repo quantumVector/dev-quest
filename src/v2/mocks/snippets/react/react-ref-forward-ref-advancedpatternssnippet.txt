@@ -1,0 +1,107 @@
+
+import { useRef, useEffect, useCallback, useState } from 'react';
+
+// Продвинутые паттерны с ref
+
+// 1. Debounced ref
+function useDebounce(value, delay) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  const timerRef = useRef(null);
+
+  useEffect(() => {
+    timerRef.current = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(timerRef.current);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
+// 2. Intersection Observer с ref
+function useIntersectionObserver(options) {
+  const [isIntersecting, setIsIntersecting] = useState(false);
+  const targetRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      setIsIntersecting(entry.isIntersecting);
+    }, options);
+
+    const current = targetRef.current;
+    if (current) {
+      observer.observe(current);
+    }
+
+    return () => {
+      if (current) {
+        observer.unobserve(current);
+      }
+    };
+  }, [options]);
+
+  return [targetRef, isIntersecting];
+}
+
+// 3. Resize Observer с ref
+function useResizeObserver() {
+  const [size, setSize] = useState({ width: 0, height: 0 });
+  const targetRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new ResizeObserver((entries) => {
+      const { width, height } = entries[0].contentRect;
+      setSize({ width, height });
+    });
+
+    const current = targetRef.current;
+    if (current) {
+      observer.observe(current);
+    }
+
+    return () => {
+      if (current) {
+        observer.unobserve(current);
+      }
+    };
+  }, []);
+
+  return [targetRef, size];
+}
+
+// 4. Мемоизация функции с актуальными значениями
+function useEventCallback(fn) {
+  const ref = useRef(fn);
+
+  useEffect(() => {
+    ref.current = fn;
+  });
+
+  return useCallback((...args) => {
+    const fn = ref.current;
+    return fn(...args);
+  }, []);
+}
+
+// Использование
+function ChatRoom({ roomId, serverUrl }) {
+  const [message, setMessage] = useState('');
+
+  const sendMessage = useEventCallback(() => {
+    // Всегда актуальные значения без добавления в deps
+    fetch(`${serverUrl}/rooms/${roomId}/messages`, {
+      method: 'POST',
+      body: JSON.stringify({ text: message })
+    });
+  });
+
+  return (
+    <div>
+      <input value={message} onChange={(e) => setMessage(e.target.value)} />
+      <button onClick={sendMessage}>Send</button>
+    </div>
+  );
+}

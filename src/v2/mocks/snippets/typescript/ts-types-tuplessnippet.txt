@@ -1,0 +1,86 @@
+
+// =====================================
+// TUPLES - КОРТЕЖИ
+// =====================================
+
+// 1. Базовое определение
+// Tuple - массив фиксированной длины с типами для каждого элемента
+let tuple: [string, number] = ["hello", 42]
+
+console.log(tuple[0].toUpperCase())  // "HELLO"
+console.log(tuple[1].toFixed(2))     // "42.00"
+
+// Ошибки при неправильном использовании
+// tuple[0] = 42            // ошибка! ожидается string
+// tuple[1] = "text"        // ошибка! ожидается number
+// let third = tuple[2]     // ошибка! только 2 элемента
+
+// 2. Различия с массивами
+// Массив - произвольная длина, один тип
+let array: number[] = [1, 2, 3, 4, 5]
+array.push(6)  // OK
+array[10] = 100  // OK
+
+// Tuple - фиксированная длина, разные типы
+let pair: [string, number] = ["age", 30]
+// pair.push("extra")  // компилируется (баг TS), но не рекомендуется!
+// pair[2]  // ошибка при чтении
+
+// 3. Доступ к элементам
+let employee: [string, number, boolean] = ["John", 30, true]
+
+const [name, age, isActive] = employee  // деструктуризация
+console.log(name)      // "John", тип string
+console.log(age)       // 30, тип number
+console.log(isActive)  // true, тип boolean
+
+// 4. Optional элементы в tuple
+let point: [number, number, number?] = [10, 20]
+point = [10, 20, 30]  // OK
+
+// 5. Rest элементы в tuple
+let tuple1: [string, ...number[]] = ["hello", 1, 2, 3, 4]
+let tuple2: [boolean, ...string[], number] = [true, "a", "b", "c", 42]
+
+// 6. Readonly tuples
+let readonlyTuple: readonly [string, number] = ["name", 30]
+// readonlyTuple[0] = "new"  // ошибка!
+// readonlyTuple.push(42)     // ошибка!
+
+// 7. Именованные элементы tuple (TS 4.0+)
+type Range = [start: number, end: number]
+type Coordinates = [x: number, y: number, z?: number]
+
+function createRange(start: number, end: number): Range {
+  return [start, end]
+}
+
+const [start, end] = createRange(1, 10)
+
+// 8. Практические примеры
+// useState в React
+type State = [value: number, setValue: (n: number) => void]
+
+function useState(initial: number): State {
+  let value = initial
+  const setValue = (n: number) => { value = n }
+  return [value, setValue]
+}
+
+const [count, setCount] = useState(0)
+
+// Возврат множественных значений
+function getUserInfo(): [string, number, string] {
+  return ["John Doe", 30, "john@example.com"]
+}
+
+const [fullName, userAge, email] = getUserInfo()
+
+// Словарь с типизированными ключами
+type RGB = [red: number, green: number, blue: number]
+
+const colors: Map<string, RGB> = new Map([
+  ["red", [255, 0, 0]],
+  ["green", [0, 255, 0]],
+  ["blue", [0, 0, 255]]
+])

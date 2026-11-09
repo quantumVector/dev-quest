@@ -1,0 +1,41 @@
+
+// apply() - то же что call, но аргументы передаются массивом
+const calculator = {
+  result: 0,
+  calculate(operation, numbers) {
+    switch(operation) {
+      case 'sum':
+        this.result = numbers.reduce((a, b) => a + b, 0)
+        break
+      case 'multiply':
+        this.result = numbers.reduce((a, b) => a * b, 1)
+        break
+    }
+    return this.result
+  }
+}
+
+const mathProcessor = {
+  result: 100 // другое начальное значение
+}
+
+// call - аргументы по отдельности
+calculator.calculate.call(mathProcessor, 'sum', [1, 2, 3, 4, 5])
+console.log(mathProcessor.result) // 15
+
+// apply - аргументы массивом
+const args = ['multiply', [2, 3, 4]]
+calculator.calculate.apply(mathProcessor, args)
+console.log(mathProcessor.result) // 24
+
+// Практический пример с Math.max
+const numbers = [1, 5, 3, 9, 2, 8]
+
+// Без apply - не работает с массивом
+console.log(Math.max(numbers)) // NaN
+
+// С apply - передаем массив как отдельные аргументы
+console.log(Math.max.apply(null, numbers)) // 9
+
+// Современная альтернатива с spread
+console.log(Math.max(...numbers)) // 9

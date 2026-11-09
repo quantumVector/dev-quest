@@ -1,0 +1,164 @@
+
+// Web Vitals и SEO: влияние на ранжирование в Google
+
+// 1. Page Experience сигналы ранжирования (с 2021)
+const pageExperienceSignals = {
+coreWebVitals: {
+lcp: 'Largest Contentful Paint',
+inp: 'Interaction to Next Paint',
+cls: 'Cumulative Layout Shift'
+},
+mobileFriendly: 'Mobile-friendliness',
+safeeBrowsing: 'No intrusive interstitials',
+https: 'HTTPS security',
+noIntrusiveInterstitials: 'No popups blocking content'
+};
+
+// 2. Как Google использует Web Vitals для ранжирования
+/*
+Факторы влияния:
+- Core Web Vitals - прямой фактор ранжирования
+- Данные берутся из Chrome UX Report (реальные пользователи)
+- Оценка на уровне URL, не всего сайта
+- Используются 75-й перцентиль метрик
+- Мобильная и десктопная версии оцениваются отдельно
+
+Важно:
+- Качество контента остается основным фактором
+- Web Vitals - tie-breaker между схожими по контенту страницами
+- Плохие метрики могут снизить позиции
+*/
+
+// 3. Проверка статуса в Google Search Console
+/*
+Search Console → Core Web Vitals report:
+- Показывает URL с проблемами
+- Разделение на Mobile и Desktop
+- Группировка по типам проблем
+- Исторические данные
+
+Категории:
+✅ Good URLs - все метрики в норме
+⚠️  Needs Improvement - некоторые метрики требуют улучшения
+❌ Poor URLs - критические проблемы
+*/
+
+// 4. Structured Data для богатых результатов
+// Web Vitals важны для показа rich snippets
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Page Title",
+  "description": "Page description",
+  "speakable": {
+    "@type": "SpeakableSpecification",
+    "cssSelector": ["#main-content", ".article-body"]
+  }
+}
+</script>
+
+// 5. Мониторинг влияния на позиции
+class SEOPerformanceTracker {
+async trackRankings(url) {
+// Получаем Web Vitals
+const vitals = await this.getWebVitals(url);
+
+// Получаем позиции в поиске
+const rankings = await this.getSearchRankings(url);
+
+// Корреляционный анализ
+return {
+url,
+vitals,
+rankings,
+correlation: this.calculateCorrelation(vitals, rankings)
+};
+}
+
+calculateCorrelation(vitals, rankings) {
+// Упрощенный пример
+const vitalsScore = (
+(vitals.lcp < 2500 ? 1 : 0) +
+(vitals.inp < 200 ? 1 : 0) +
+(vitals.cls < 0.1 ? 1 : 0)
+) / 3;
+
+return {
+vitalsScore,
+averagePosition: rankings.averagePosition,
+trend: rankings.trend
+};
+}
+}
+
+// 6. Рекомендации для SEO
+const seoOptimizationChecklist = {
+technical: [
+'✅ Все Core Web Vitals в зеленой зоне',
+'✅ HTTPS включен',
+'✅ Mobile-friendly дизайн',
+'✅ Нет intrusive interstitials',
+'✅ Safe browsing (без malware)'
+],
+
+content: [
+'✅ Качественный, уникальный контент',
+'✅ Правильная структура заголовков (H1-H6)',
+'✅ Оптимизированные meta теги',
+'✅ Structured data разметка',
+'✅ Внутренняя перелинковка'
+],
+
+monitoring: [
+'✅ Google Search Console настроен',
+'✅ Регулярный мониторинг Web Vitals',
+'✅ Отслеживание позиций',
+'✅ Анализ конкурентов',
+'✅ A/B тестирование оптимизаций'
+]
+};
+
+// 7. Приоритеты для максимального SEO эффекта
+/*
+Высокий приоритет:
+1. LCP < 2.5s - самый важный для пользовательского опыта
+2. CLS < 0.1 - критичен для мобильных устройств
+3. INP < 200ms - важен для интерактивных страниц
+
+Средний приоритет:
+4. FCP < 1.8s - первое впечатление
+5. TTFB < 800ms - серверная производительность
+
+Низкий приоритет (но желательно):
+6. TBT < 200ms
+7. Speed Index < 3.4s
+*/
+
+// 8. Кейс: улучшение ранжирования через Web Vitals
+/*
+Пример результатов оптимизации:
+
+До оптимизации:
+- LCP: 4.2s
+- INP: 450ms
+- CLS: 0.18
+- Средняя позиция: 12
+
+После оптимизации:
+- LCP: 2.1s (-50%)
+- INP: 150ms (-67%)
+- CLS: 0.05 (-72%)
+- Средняя позиция: 7 (+5 позиций)
+
+Действия:
+1. Оптимизация изображений (LCP)
+2. Code splitting (INP)
+3. Резервирование пространства (CLS)
+4. CDN и кэширование (TTFB)
+
+Результат через 3 месяца:
+- Органический трафик +35%
+- Время на сайте +22%
+- Bounce rate -15%
+*/

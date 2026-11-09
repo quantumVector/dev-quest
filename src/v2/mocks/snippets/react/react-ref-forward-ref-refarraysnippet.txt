@@ -1,0 +1,52 @@
+
+import { useRef } from 'react';
+
+// Массив refs для динамических списков
+function TodoList({ todos }) {
+  const todoRefs = useRef([]);
+
+  const focusTodo = (index) => {
+    todoRefs.current[index]?.focus();
+  };
+
+  return (
+    <div>
+      {todos.map((todo, index) => (
+        <input
+          key={todo.id}
+          ref={(el) => todoRefs.current[index] = el}
+          defaultValue={todo.text}
+        />
+      ))}
+      <button onClick={() => focusTodo(0)}>Focus First</button>
+    </div>
+  );
+}
+
+// Лучше: Map для динамических списков
+function BetterTodoList({ todos }) {
+  const todoRefs = useRef(new Map());
+
+  const focusTodo = (id) => {
+    todoRefs.current.get(id)?.focus();
+  };
+
+  return (
+    <div>
+      {todos.map((todo) => (
+        <input
+          key={todo.id}
+          ref={(node) => {
+            if (node) {
+              todoRefs.current.set(todo.id, node);
+            } else {
+              todoRefs.current.delete(todo.id);
+            }
+          }}
+          defaultValue={todo.text}
+        />
+      ))}
+      <button onClick={() => focusTodo(todos[0]?.id)}>Focus First</button>
+    </div>
+  );
+}

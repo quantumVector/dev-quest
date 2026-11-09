@@ -1,0 +1,61 @@
+
+// Однонаправленный поток данных в Flux
+
+/*
+┌──────────────────────────────────────────────────┐
+│                                                  │
+│  Action → Dispatcher → Store → View → Action    │
+│     ↑                              │             │
+│     └──────────────────────────────┘             │
+│                                                  │
+└──────────────────────────────────────────────────┘
+
+Детализация:
+
+1. View создает Action
+   ↓
+2. Action отправляется в Dispatcher
+   ↓
+3. Dispatcher рассылает Action всем Store
+   ↓
+4. Store обрабатывает Action и обновляет состояние
+   ↓
+5. Store уведомляет View об изменениях
+   ↓
+6. View запрашивает новое состояние из Store
+   ↓
+7. View перерисовывается с новыми данными
+*/
+
+// Пошаговый пример потока данных
+
+// Шаг 1: Пользователь вводит имя в input
+const handleInput = (event) => {
+  const name = event.target.value
+
+  // Шаг 2: View создает Action
+  const action = {
+    type: 'USER_UPDATE_NAME',
+    payload: { name }
+  }
+
+  // Шаг 3: Action отправляется в Dispatcher
+  dispatcher.dispatch(action)
+}
+
+// Шаг 4: Dispatcher рассылает всем Store
+dispatcher.register((action) => {
+  if (action.type === 'USER_UPDATE_NAME') {
+    // Шаг 5: Store обновляет состояние
+    userStore.state.name = action.payload.name
+
+    // Шаг 6: Store уведомляет подписчиков
+    userStore.emitChange()
+  }
+})
+
+// Шаг 7: View получает уведомление и обновляется
+userStore.addListener(() => {
+  const newState = userStore.getState()
+  renderView(newState)
+})

@@ -1,0 +1,151 @@
+
+// =====================================
+// CONTROL FLOW ANALYSIS (АНАЛИЗ ПОТОКА УПРАВЛЕНИЯ)
+// =====================================
+
+// 1. Сужение через if/else
+function example1(value: string | number) {
+  if (typeof value === 'string') {
+    // Здесь value: string
+    console.log(value.length)
+  } else {
+    // Здесь value: number
+    console.log(value.toFixed(2))
+  }
+  // После блока value снова: string | number
+}
+
+// 2. Сужение через return
+function example2(value: string | number) {
+  if (typeof value === 'string') {
+    console.log(value.length)
+    return
+  }
+
+  // После return TypeScript знает, что value: number
+  console.log(value.toFixed(2))
+}
+
+// 3. Сужение через throw
+function example3(value: string | null) {
+  if (value === null) {
+    throw new Error('Value is null')
+  }
+
+  // После throw TypeScript знает, что value: string
+  console.log(value.toUpperCase())
+}
+
+// 4. Сужение через switch
+type Action =
+  | { type: 'increment'; amount: number }
+  | { type: 'decrement'; amount: number }
+  | { type: 'reset' }
+
+function reducer(state: number, action: Action): number {
+  switch (action.type) {
+    case 'increment':
+      // TypeScript знает, что action имеет свойство amount
+      return state + action.amount
+
+    case 'decrement':
+      return state - action.amount
+
+    case 'reset':
+      return 0
+  }
+}
+
+// 5. Truthiness narrowing
+function printAll(values: string | string[] | null) {
+  // Проверка на truthy значение
+  if (values) {
+    // TypeScript знает, что values: string | string[]
+    if (typeof values === 'string') {
+      console.log(values)
+    } else {
+      console.log(values.join(', '))
+    }
+  }
+}
+
+// 6. Equality narrowing
+function example6(x: string | number, y: string | boolean) {
+  if (x === y) {
+    // TypeScript знает, что оба имеют тип string
+    console.log(x.toUpperCase(), y.toUpperCase())
+  } else {
+    // x: string | number, y: string | boolean
+    console.log(x, y)
+  }
+}
+
+// 7. Narrowing через присваивание
+function example7() {
+  let value: string | number
+
+  value = 'hello'
+  // TypeScript знает, что value: string
+  console.log(value.length)
+
+  value = 42
+  // TypeScript знает, что value: number
+  console.log(value.toFixed(2))
+}
+
+// 8. Narrowing в callback функциях
+function filterStrings(items: (string | number)[]): string[] {
+  return items.filter((item): item is string => {
+    return typeof item === 'string'
+  })
+}
+
+// 9. Narrowing через деструктуризацию
+type Result<T, E> =
+  | { ok: true; value: T }
+  | { ok: false; error: E }
+
+function processResult<T, E>(result: Result<T, E>) {
+  if (result.ok) {
+    // TypeScript знает, что result.value существует
+    console.log('Success:', result.value)
+  } else {
+    // TypeScript знает, что result.error существует
+    console.log('Error:', result.error)
+  }
+}
+
+// 10. Narrowing для optional свойств
+interface Config {
+  host: string
+  port?: number
+  timeout?: number
+}
+
+function setupServer(config: Config) {
+  console.log(`Host: ${config.host}`)
+
+  // Optional chaining с narrowing
+  if (config.port !== undefined) {
+    // TypeScript знает, что config.port: number
+    console.log(`Port: ${config.port}`)
+  }
+
+  // Значение по умолчанию
+  const timeout = config.timeout ?? 5000
+  console.log(`Timeout: ${timeout}`)
+}
+
+// 11. Narrowing через try-catch
+function parseJSON(json: string): unknown {
+  try {
+    return JSON.parse(json)
+  } catch (error) {
+    // TypeScript знает, что error: unknown
+    if (error instanceof Error) {
+      // TypeScript знает, что error: Error
+      console.error('Parse error:', error.message)
+    }
+    return null
+  }
+}

@@ -1,0 +1,8 @@
+setTimeout(() => console.log('Macro 1'), 0);
+setTimeout(() => console.log('Macro 2'), 0);
+Promise.resolve().then(() => console.log('Micro'));
+
+// Выполнение:
+// 1. Micro (все микрозадачи)
+// 2. Macro 1 (одна макрозадача)
+// 3. Macro 2 (следующая итерация)

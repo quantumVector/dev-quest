@@ -1,0 +1,64 @@
+
+// React + React Helmet для мультиязычности
+import { Helmet } from 'react-helmet'
+import { useTranslation } from 'react-i18next'
+
+const languages = [
+  { code: 'en', name: 'English', region: 'US' },
+  { code: 'ru', name: 'Русский', region: '' },
+  { code: 'de', name: 'Deutsch', region: '' },
+  { code: 'fr', name: 'Français', region: '' },
+]
+
+function ProductPage() {
+  const { i18n } = useTranslation()
+  const currentLang = i18n.language
+  const pathname = window.location.pathname
+
+  // Убираем код языка из pathname
+  const pathWithoutLang = pathname.replace(/^/(en|ru|de|fr)/, '')
+
+  const getUrl = (lang) => {
+    return `https://example.com/${lang}${pathWithoutLang}`
+  }
+
+  return (
+    <>
+      <Helmet>
+        {/* Canonical */}
+        <link rel="canonical" href={getUrl(currentLang)} />
+
+        {/* hreflang теги */}
+        {languages.map((lang) => (
+          <link
+            key={lang.code}
+            rel="alternate"
+            hrefLang={lang.region ? `${lang.code}-${lang.region}` : lang.code}
+            href={getUrl(lang.code)}
+          />
+        ))}
+
+        {/* x-default */}
+        <link
+          rel="alternate"
+          hrefLang="x-default"
+          href={getUrl('en')}
+        />
+
+        {/* Open Graph для соцсетей */}
+        <meta property="og:locale" content={currentLang} />
+        {languages
+          .filter(lang => lang.code !== currentLang)
+          .map((lang) => (
+            <meta
+              key={lang.code}
+              property="og:locale:alternate"
+              content={lang.code}
+            />
+          ))}
+      </Helmet>
+
+      {/* Контент страницы */}
+    </>
+  )
+}

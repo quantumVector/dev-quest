@@ -1,0 +1,43 @@
+
+# robots.txt - управление доступом поисковых роботов
+
+# Разрешить всем роботам все
+User-agent: *
+Allow: /
+
+# Запретить определенные директории
+Disallow: /admin/
+Disallow: /private/
+Disallow: /api/
+Disallow: /temp/
+
+# Запретить файлы определенного типа
+Disallow: /*.json$
+Disallow: /*.pdf$
+
+# Для конкретного робота (например, Google)
+User-agent: Googlebot
+Allow: /
+Disallow: /no-google/
+
+# Указание на sitemap
+Sitemap: https://example.com/sitemap.xml
+
+# Задержка между запросами (для вежливых ботов)
+Crawl-delay: 10
+
+# Примеры для различных сценариев:
+
+# Блокировка всех роботов
+# User-agent: *
+# Disallow: /
+
+# Блокировка конкретного бота
+# User-agent: BadBot
+# Disallow: /
+
+# Разрешить только Google
+# User-agent: Googlebot
+# Allow: /
+# User-agent: *
+# Disallow: /

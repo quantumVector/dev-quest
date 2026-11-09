@@ -1,0 +1,56 @@
+
+// Синтаксис useMemo
+const memoizedValue = useMemo(
+  () => {
+    // Вычисления
+    return computeExpensiveValue(a, b);
+  },
+  [a, b] // Зависимости
+);
+
+// Полный пример с useMemo
+import { useMemo, useState } from 'react';
+
+function ProductList({ products }) {
+  const [filterText, setFilterText] = useState('');
+  const [sortOrder, setSortOrder] = useState('asc');
+
+  // useMemo для фильтрации
+  const filteredProducts = useMemo(() => {
+    console.log('Filtering products...');
+    return products.filter(product =>
+      product.name.toLowerCase().includes(filterText.toLowerCase())
+    );
+  }, [products, filterText]);
+
+  // useMemo для сортировки
+  const sortedProducts = useMemo(() => {
+    console.log('Sorting products...');
+    return [...filteredProducts].sort((a, b) => {
+      if (sortOrder === 'asc') {
+        return a.price - b.price;
+      }
+      return b.price - a.price;
+    });
+  }, [filteredProducts, sortOrder]);
+
+  return (
+    <div>
+      <input
+        value={filterText}
+        onChange={(e) => setFilterText(e.target.value)}
+        placeholder="Search..."
+      />
+      <button onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}>
+        Sort: {sortOrder}
+      </button>
+      <ul>
+        {sortedProducts.map(product => (
+          <li key={product.id}>
+            {product.name} - ${product.price}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}

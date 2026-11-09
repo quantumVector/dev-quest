@@ -1,0 +1,50 @@
+
+// Частичное применение (partial application) с замыканием
+function partial(fn, ...presetArgs) {
+  return function(...laterArgs) {
+    return fn(...presetArgs, ...laterArgs);
+  };
+}
+
+function greet(greeting, name, punctuation) {
+  return `${greeting}, ${name}${punctuation}`;
+}
+
+const sayHello = partial(greet, 'Привет');
+const sayHelloAnna = partial(greet, 'Привет', 'Анна');
+
+console.log(sayHello('Иван', '!')); // "Привет, Иван!"
+console.log(sayHelloAnna('.')); // "Привет, Анна."
+
+// Каррирование с замыканием
+function curry(fn) {
+  return function curried(...args) {
+    if (args.length >= fn.length) {
+      return fn.apply(this, args);
+    } else {
+      return function(...args2) {
+        return curried.apply(this, args.concat(args2));
+      };
+    }
+  };
+}
+
+const curriedSum = curry((a, b, c) => a + b + c);
+
+console.log(curriedSum(1)(2)(3)); // 6
+console.log(curriedSum(1, 2)(3)); // 6
+console.log(curriedSum(1)(2, 3)); // 6
+
+// Композиция функций с замыканием
+function compose(...functions) {
+  return function(value) {
+    return functions.reduceRight((acc, fn) => fn(acc), value);
+  };
+}
+
+const addOne = x => x + 1;
+const multiplyByTwo = x => x * 2;
+const square = x => x * x;
+
+const transform = compose(square, multiplyByTwo, addOne);
+console.log(transform(3)); // ((3 + 1) * 2)² = 64

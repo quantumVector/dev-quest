@@ -1,0 +1,148 @@
+
+// =====================================
+// ПОЛЬЗОВАТЕЛЬСКИЕ TYPE GUARDS
+// =====================================
+
+// 1. Функция-предикат с "is"
+interface User {
+  name: string
+  email: string
+}
+
+interface Admin extends User {
+  permissions: string[]
+}
+
+// Type Guard функция
+function isAdmin(user: User | Admin): user is Admin {
+  return 'permissions' in user
+}
+
+function printUserInfo(user: User | Admin) {
+  console.log(`Name: ${user.name}`)
+
+  if (isAdmin(user)) {
+    // TypeScript знает, что user - Admin
+    console.log(`Permissions: ${user.permissions.join(', ')}`)
+  } else {
+    // TypeScript знает, что user - User (не Admin)
+    console.log('Regular user')
+  }
+}
+
+// 2. Type Guard для массивов
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every(item => typeof item === 'string')
+}
+
+function processValue(value: unknown) {
+  if (isStringArray(value)) {
+    // TypeScript знает, что value - string[]
+    console.log(value.map(s => s.toUpperCase()))
+  }
+}
+
+// 3. Type Guard для объектов
+interface ApiResponse {
+  data: unknown
+  error?: string
+}
+
+interface SuccessResponse extends ApiResponse {
+  data: { id: number; name: string }
+  error: undefined
+}
+
+interface ErrorResponse extends ApiResponse {
+  data: null
+  error: string
+}
+
+function isSuccessResponse(
+  response: ApiResponse
+): response is SuccessResponse {
+  return response.error === undefined && response.data !== null
+}
+
+function handleResponse(response: ApiResponse) {
+  if (isSuccessResponse(response)) {
+    // TypeScript знает точный тип data
+    console.log(`ID: ${response.data.id}, Name: ${response.data.name}`)
+  } else {
+    // TypeScript знает, что error существует
+    console.error(`Error: ${response.error || 'Unknown error'}`)
+  }
+}
+
+// 4. Type Guard с дженериками
+function isArrayOf<T>(
+  value: unknown,
+  check: (item: unknown) => item is T
+): value is T[] {
+  return Array.isArray(value) && value.every(check)
+}
+
+function isNumber(value: unknown): value is number {
+  return typeof value === 'number'
+}
+
+const mixed: unknown = [1, 2, 3]
+
+if (isArrayOf(mixed, isNumber)) {
+  // TypeScript знает, что mixed - number[]
+  const sum = mixed.reduce((a, b) => a + b, 0)
+  console.log(sum)
+}
+
+// 5. Type Guard для union типов с дискриминантом
+type Circle = {
+  kind: 'circle'
+  radius: number
+}
+
+type Rectangle = {
+  kind: 'rectangle'
+  width: number
+  height: number
+}
+
+type Shape = Circle | Rectangle
+
+function isCircle(shape: Shape): shape is Circle {
+  return shape.kind === 'circle'
+}
+
+function getArea(shape: Shape): number {
+  if (isCircle(shape)) {
+    // TypeScript знает, что shape - Circle
+    return Math.PI * shape.radius ** 2
+  } else {
+    // TypeScript знает, что shape - Rectangle
+    return shape.width * shape.height
+  }
+}
+
+// 6. Type Guard для проверки типа класса
+class Vehicle {
+  move() { console.log('Moving...') }
+}
+
+class Car extends Vehicle {
+  drive() { console.log('Driving...') }
+}
+
+class Boat extends Vehicle {
+  sail() { console.log('Sailing...') }
+}
+
+function isCar(vehicle: Vehicle): vehicle is Car {
+  return vehicle instanceof Car
+}
+
+function operate(vehicle: Vehicle) {
+  vehicle.move()
+
+  if (isCar(vehicle)) {
+    vehicle.drive()  // TypeScript знает, что это Car
+  }
+}

@@ -1,0 +1,49 @@
+
+// React 19: use() - универсальный хук для промисов и контекста
+import { use, Suspense } from 'react'
+
+// 1. Использование с промисами
+function UserProfile({ userPromise }) {
+  // use() может читать промисы напрямую!
+  const user = use(userPromise)
+
+  return (
+    <div>
+      <h1>{user.name}</h1>
+      <p>{user.email}</p>
+    </div>
+  )
+}
+
+function App() {
+  const userPromise = fetch('/api/user').then(r => r.json())
+
+  return (
+    <Suspense fallback={<div>Загрузка...</div>}>
+      <UserProfile userPromise={userPromise} />
+    </Suspense>
+  )
+}
+
+// 2. Условное использование (!) - нарушает правила хуков, но работает с use()
+function ConditionalData({ shouldFetch }) {
+  let data = null
+
+  // use() можно вызывать условно!
+  if (shouldFetch) {
+    const dataPromise = fetch('/api/data').then(r => r.json())
+    data = use(dataPromise)
+  }
+
+  return <div>{data ? data.value : 'Нет данных'}</div>
+}
+
+// 3. Использование с контекстом
+const ThemeContext = React.createContext('light')
+
+function ThemedButton() {
+  // use() работает и с контекстом
+  const theme = use(ThemeContext)
+
+  return <button className={theme}>Кнопка</button>
+}

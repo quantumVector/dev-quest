@@ -1,0 +1,22 @@
+
+// Контекст функции (Function Execution Context)
+function outerFunction(x) {
+    var outerVar = 'Внешняя переменная';
+
+    function innerFunction(y) {
+        var innerVar = 'Внутренняя переменная';
+
+        // Доступ к переменным всех уровней
+        console.log(innerVar);  // 'Внутренняя переменная'
+        console.log(outerVar);  // 'Внешняя переменная' (замыкание)
+        console.log(x);         // параметр внешней функции
+        console.log(y);         // собственный параметр
+
+        return innerVar + ' + ' + outerVar;
+    }
+
+    return innerFunction;
+}
+
+const closure = outerFunction('параметр');
+closure('аргумент'); // Функция сохраняет доступ к внешнему контексту

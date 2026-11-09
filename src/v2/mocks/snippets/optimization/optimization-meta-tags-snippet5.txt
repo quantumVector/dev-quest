@@ -1,0 +1,28 @@
+
+<!-- Robots meta-тег: управление индексацией -->
+
+<!-- Разрешить всё (по умолчанию) -->
+<meta name="robots" content="index, follow">
+
+<!-- Запретить индексацию страницы -->
+<meta name="robots" content="noindex, follow">
+
+<!-- Запретить переход по ссылкам -->
+<meta name="robots" content="index, nofollow">
+
+<!-- Запретить всё -->
+<meta name="robots" content="noindex, nofollow">
+
+<!-- Дополнительные директивы -->
+<meta name="robots" content="index, follow, max-snippet:-1,
+max-image-preview:large, max-video-preview:-1">
+
+<!-- Для конкретных ботов -->
+<meta name="googlebot" content="noindex">
+<meta name="yandex" content="noyaca">  <!-- Запретить Яндекс.Каталог -->
+
+<!-- Когда использовать noindex: -->
+<!-- - Страницы с дублированным контентом -->
+<!-- - Личные кабинеты, админки -->
+<!-- - Страницы с параметрами фильтрации -->
+<!-- - Технические страницы (спасибо за заказ) -->

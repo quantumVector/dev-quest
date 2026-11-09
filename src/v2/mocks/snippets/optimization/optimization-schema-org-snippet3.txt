@@ -1,0 +1,53 @@
+
+<!-- Product разметка для товара -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "MacBook Pro 16" M3 Max",
+  "image": [
+    "https://example.com/macbook-pro-front.jpg",
+    "https://example.com/macbook-pro-side.jpg",
+    "https://example.com/macbook-pro-back.jpg"
+  ],
+  "description": "Мощный ноутбук для профессионалов с процессором M3 Max",
+  "sku": "MBP16-M3MAX-1TB",
+  "mpn": "MRW13",
+  "brand": {
+    "@type": "Brand",
+    "name": "Apple"
+  },
+  "offers": {
+    "@type": "Offer",
+    "url": "https://example.com/products/macbook-pro-m3-max",
+    "priceCurrency": "RUB",
+    "price": "299990",
+    "priceValidUntil": "2025-12-31",
+    "availability": "https://schema.org/InStock",
+    "itemCondition": "https://schema.org/NewCondition",
+    "seller": {
+      "@type": "Organization",
+      "name": "Tech Store"
+    }
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.8",
+    "reviewCount": "127"
+  },
+  "review": [{
+    "@type": "Review",
+    "reviewRating": {
+      "@type": "Rating",
+      "ratingValue": "5",
+      "bestRating": "5"
+    },
+    "author": {
+      "@type": "Person",
+      "name": "Алексей Смирнов"
+    },
+    "reviewBody": "Отличный ноутбук для разработки. Очень быстрый и тихий.",
+    "datePublished": "2025-01-15"
+  }]
+}
+</script>

@@ -1,0 +1,108 @@
+
+// =====================================
+// РЕШЕНИЕ ЗАДАЧИ ИЗ ВОПРОСА
+// =====================================
+
+// Задача: тип для функции, которая принимает другую функцию
+// и возвращает ее результат
+
+// 1. Базовое решение
+type FunctionResult<T> = T extends () => infer R ? R : never
+
+// Тестирование
+function getString(): string {
+  return "Hello"
+}
+
+function getNumber(): number {
+  return 42
+}
+
+function getUser(): { name: string; age: number } {
+  return { name: "Alice", age: 25 }
+}
+
+type StringResult = FunctionResult<typeof getString>  // string
+type NumberResult = FunctionResult<typeof getNumber>  // number
+type UserResult = FunctionResult<typeof getUser>      // { name: string; age: number }
+
+// 2. Улучшенное решение - поддержка функций с параметрами
+type BetterFunctionResult<T> = T extends (...args: any[]) => infer R ? R : never
+
+function add(a: number, b: number): number {
+  return a + b
+}
+
+type AddResult = BetterFunctionResult<typeof add>  // number
+
+// 3. Практическое применение - функция-обертка
+function executeAndGetResult<T extends (...args: any[]) => any>(
+  fn: T
+): BetterFunctionResult<T> {
+  return fn()
+}
+
+// Использование
+const result1 = executeAndGetResult(getString)  // string
+const result2 = executeAndGetResult(getNumber)  // number
+const result3 = executeAndGetResult(getUser)    // { name: string; age: number }
+
+// 4. Более сложный пример - с параметрами функции
+function executeWithArgs<T extends (...args: any[]) => any>(
+  fn: T,
+  ...args: Parameters<T>  // Используем Parameters для получения типов аргументов
+): ReturnType<T> {  // Используем ReturnType для получения типа возврата
+  return fn(...args)
+}
+
+// Использование
+const sum = executeWithArgs(add, 5, 10)  // number, args правильно типизированы!
+// executeWithArgs(add, "5", 10)  // ❌ Ошибка! Первый аргумент должен быть number
+
+// 5. Безопасная версия с обработкой ошибок
+type SafeFunctionResult<T> =
+  T extends (...args: any[]) => infer R
+    ? R extends Promise<infer U>
+      ? Promise<{ success: true; data: U } | { success: false; error: Error }>
+      : { success: true; data: R } | { success: false; error: Error }
+    : never
+
+async function safeExecute<T extends (...args: any[]) => any>(
+  fn: T,
+  ...args: Parameters<T>
+): SafeFunctionResult<T> {
+  try {
+    const result = await fn(...args)
+    return { success: true, data: result } as any
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error : new Error(String(error))
+    } as any
+  }
+}
+
+// 6. Цепочка функций с выводом типов
+type ChainedResult<T1, T2> =
+  T1 extends (...args: any[]) => infer R1
+    ? T2 extends (arg: R1) => infer R2
+      ? R2
+      : never
+    : never
+
+function chain<
+  T1 extends (...args: any[]) => any,
+  T2 extends (arg: ReturnType<T1>) => any
+>(
+  fn1: T1,
+  fn2: T2
+): (...args: Parameters<T1>) => ReturnType<T2> {
+  return (...args) => fn2(fn1(...args))
+}
+
+// Использование
+const getLength = (s: string) => s.length
+const double = (n: number) => n * 2
+
+const getLengthAndDouble = chain(getLength, double)
+const result = getLengthAndDouble("hello")  // number (10)

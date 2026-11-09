@@ -1,0 +1,93 @@
+
+// =====================================
+// HTTP STATUS CODES (Коды состояния)
+// =====================================
+
+// 1xx - Информационные
+100 Continue              // Продолжайте отправку
+101 Switching Protocols   // Переключение протоколов (WebSocket)
+103 Early Hints           // Ранние подсказки для предзагрузки
+
+// 2xx - Успешные
+200 OK                    // Успешный запрос
+201 Created               // Ресурс создан (POST)
+202 Accepted              // Принято в обработку (асинхронно)
+204 No Content            // Успешно, но нет контента (DELETE)
+206 Partial Content       // Частичный контент (Range запросы)
+
+// 3xx - Перенаправления
+301 Moved Permanently     // Постоянное перенаправление
+302 Found                 // Временное перенаправление
+304 Not Modified          // Не изменено (кэш валиден)
+307 Temporary Redirect    // Временное перенаправление (метод сохраняется)
+308 Permanent Redirect    // Постоянное перенаправление (метод сохраняется)
+
+// 4xx - Ошибки клиента
+400 Bad Request           // Неверный синтаксис запроса
+401 Unauthorized          // Требуется аутентификация
+403 Forbidden             // Доступ запрещен
+404 Not Found             // Ресурс не найден
+405 Method Not Allowed    // Метод не поддерживается
+408 Request Timeout       // Таймаут запроса
+409 Conflict              // Конфликт (например, версий)
+410 Gone                  // Ресурс удален навсегда
+413 Payload Too Large     // Слишком большое тело запроса
+415 Unsupported Media Type // Неподдерживаемый тип контента
+422 Unprocessable Entity  // Невалидные данные
+429 Too Many Requests     // Слишком много запросов (rate limit)
+
+// 5xx - Ошибки сервера
+500 Internal Server Error // Внутренняя ошибка сервера
+501 Not Implemented       // Метод не реализован
+502 Bad Gateway           // Ошибка шлюза (proxy)
+503 Service Unavailable   // Сервис недоступен
+504 Gateway Timeout       // Таймаут шлюза
+507 Insufficient Storage  // Недостаточно места
+
+// Обработка в JavaScript
+fetch('https://api.example.com/users')
+  .then(response => {
+    console.log('Status:', response.status)
+    console.log('Status Text:', response.statusText)
+    console.log('OK:', response.ok) // true для 200-299
+
+    if (response.status === 200) {
+      return response.json()
+    } else if (response.status === 404) {
+      throw new Error('User not found')
+    } else if (response.status === 401) {
+      // Перенаправление на логин
+      window.location.href = '/login'
+    } else if (response.status >= 500) {
+      throw new Error('Server error')
+    }
+  })
+  .catch(error => console.error('Error:', error))
+
+// Правильная обработка всех кодов
+async function makeRequest(url) {
+  try {
+    const response = await fetch(url)
+
+    // 2xx - успех
+    if (response.ok) {
+      return await response.json()
+    }
+
+    // 4xx - ошибки клиента
+    if (response.status >= 400 && response.status < 500) {
+      const error = await response.json()
+      throw new Error(error.message || 'Client error')
+    }
+
+    // 5xx - ошибки сервера
+    if (response.status >= 500) {
+      throw new Error('Server error, please try again later')
+    }
+
+    // 3xx обычно обрабатываются браузером автоматически
+  } catch (error) {
+    console.error('Request failed:', error)
+    throw error
+  }
+}

@@ -1,0 +1,45 @@
+
+// 1. Приватные свойства и методы
+const _private = Symbol('private');
+
+class User {
+  constructor(name) {
+    this.name = name;
+    this[_private] = {
+      password: 'secret',
+      lastLogin: new Date()
+    };
+  }
+
+  [_private + 'Method']() {
+    return 'This is private!';
+  }
+}
+
+// 2. Константы для состояний
+const States = {
+  LOADING: Symbol('loading'),
+  SUCCESS: Symbol('success'),
+  ERROR: Symbol('error')
+};
+
+function handleState(state) {
+  switch (state) {
+    case States.LOADING:
+      return 'Loading...';
+    case States.SUCCESS:
+      return 'Success!';
+    case States.ERROR:
+      return 'Error occurred';
+  }
+}
+
+// 3. Метаданные для объектов
+const METADATA = Symbol('metadata');
+
+function addMetadata(obj, data) {
+  obj[METADATA] = data;
+}
+
+const product = { name: 'iPhone' };
+addMetadata(product, { version: '1.0', author: 'Apple' });

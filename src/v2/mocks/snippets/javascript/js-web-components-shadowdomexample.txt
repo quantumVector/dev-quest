@@ -1,0 +1,17 @@
+
+// Создание Shadow DOM
+const element = document.createElement('div');
+const shadowRoot = element.attachShadow({ mode: 'open' });
+
+shadowRoot.innerHTML = `
+  <style>
+    /* Изолированные стили */
+    h2 { color: red; }
+    p { color: blue; }
+  </style>
+  <h2>Shadow DOM содержимое</h2>
+  <p>Стили изолированы от внешнего документа</p>
+  <slot></slot> <!-- Место для внешнего контента -->
+`;
+
+document.body.appendChild(element);

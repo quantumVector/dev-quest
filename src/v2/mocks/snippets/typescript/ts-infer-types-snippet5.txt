@@ -1,0 +1,305 @@
+
+// =====================================
+// СЛОЖНЫЕ ПАТТЕРНЫ С INFER
+// =====================================
+
+// 1. Curried функции
+type Curried<P, R> = P extends [infer First, ...infer Rest]
+  ? Rest extends []
+    ? (arg: First) => R
+    : (arg: First) => Curried<Rest, R>
+  : never
+
+function curry<P extends any[], R>(
+  fn: (...args: P) => R
+): Curried<P, R> {
+  return ((arg: any) => {
+    if (fn.length <= 1) {
+      return fn(arg)
+    }
+    return curry(fn.bind(null, arg) as any)
+  }) as any
+}
+
+// Использование
+function add3(a: number, b: number, c: number): number {
+  return a + b + c
+}
+
+const curriedAdd = curry(add3)
+const result = curriedAdd(1)(2)(3)  // number
+
+// 2. Pipe функции с выводом типов
+type PipeReturnType<F extends any[], T = any> = F extends [
+  (arg: T) => infer R,
+  ...infer Rest
+]
+  ? Rest extends []
+    ? R
+    : PipeReturnType<Rest, R>
+  : never
+
+function pipe<F extends [(arg: any) => any, ...Array<(arg: any) => any>]>(
+  ...fns: F
+): (arg: Parameters<F[0]>[0]) => PipeReturnType<F> {
+  return (arg: any) => fns.reduce((acc, fn) => fn(acc), arg) as any
+}
+
+// Использование
+const addOne = (x: number) => x + 1
+const toString = (x: number) => x.toString()
+const addExclamation = (x: string) => x + "!"
+
+const transform = pipe(addOne, toString, addExclamation)
+const pipeResult = transform(5)  // string: "6!"
+
+// 3. Deep Partial с infer
+type DeepPartial<T> = T extends object
+  ? T extends (infer U)[]
+    ? DeepPartial<U>[]
+    : { [P in keyof T]?: DeepPartial<T[P]> }
+  : T
+
+interface NestedUser {
+  name: string
+  address: {
+    street: string
+    city: string
+    country: {
+      code: string
+      name: string
+    }
+  }
+  tags: string[]
+}
+
+type PartialUser = DeepPartial<NestedUser>
+// {
+//   name?: string
+//   address?: {
+//     street?: string
+//     city?: string
+//     country?: {
+//       code?: string
+//       name?: string
+//     }
+//   }
+//   tags?: string[]
+// }
+
+// 4. Async функции - извлечение типа из async/await
+type AsyncReturnType<T> = T extends (...args: any[]) => Promise<infer R>
+  ? R
+  : T extends (...args: any[]) => infer R
+    ? R
+    : never
+
+async function fetchUserData(): Promise<{ id: number; name: string }> {
+  return { id: 1, name: "Alice" }
+}
+
+function syncGetUser(): { id: number; name: string } {
+  return { id: 1, name: "Bob" }
+}
+
+type AsyncUser = AsyncReturnType<typeof fetchUserData>
+// { id: number; name: string }
+
+type SyncUser = AsyncReturnType<typeof syncGetUser>
+// { id: number; name: string }
+
+// 5. Мемоизация с выводом типов
+type MemoizedFunction<T> = T extends (...args: infer P) => infer R
+  ? (...args: P) => R
+  : never
+
+function memoize<T extends (...args: any[]) => any>(
+  fn: T
+): MemoizedFunction<T> {
+  const cache = new Map<string, any>()
+
+  return ((...args: any[]) => {
+    const key = JSON.stringify(args)
+
+    if (cache.has(key)) {
+      return cache.get(key)
+    }
+
+    const result = fn(...args)
+    cache.set(key, result)
+    return result
+  }) as any
+}
+
+// Использование
+const expensiveCalc = (x: number, y: number): number => {
+  console.log('Calculating...')
+  return x * y
+}
+
+const memoized = memoize(expensiveCalc)
+memoized(5, 10)  // Calculating... 50
+memoized(5, 10)  // 50 (из кэша, без лога)
+
+// 6. Debounce с типами
+type DebouncedFunction<T> = T extends (...args: infer P) => infer R
+  ? (...args: P) => void
+  : never
+
+function debounce<T extends (...args: any[]) => any>(
+  fn: T,
+  delay: number
+): DebouncedFunction<T> {
+  let timeoutId: NodeJS.Timeout | null = null
+
+  return ((...args: any[]) => {
+    if (timeoutId) {
+      clearTimeout(timeoutId)
+    }
+
+    timeoutId = setTimeout(() => {
+      fn(...args)
+    }, delay)
+  }) as any
+}
+
+// Использование
+const handleSearch = (query: string): void => {
+  console.log('Searching for:', query)
+}
+
+const debouncedSearch = debounce(handleSearch, 300)
+debouncedSearch("hello")  // void, правильные типы!
+
+// 7. Throttle с выводом типов
+type ThrottledFunction<T> = T extends (...args: infer P) => infer R
+  ? (...args: P) => void
+  : never
+
+function throttle<T extends (...args: any[]) => any>(
+  fn: T,
+  limit: number
+): ThrottledFunction<T> {
+  let inThrottle = false
+
+  return ((...args: any[]) => {
+    if (!inThrottle) {
+      fn(...args)
+      inThrottle = true
+      setTimeout(() => {
+        inThrottle = false
+      }, limit)
+    }
+  }) as any
+}
+
+// 8. Retry функция с типами
+type RetryFunction<T> = T extends (...args: infer P) => Promise<infer R>
+  ? (...args: P) => Promise<R>
+  : never
+
+function retry<T extends (...args: any[]) => Promise<any>>(
+  fn: T,
+  attempts: number = 3
+): RetryFunction<T> {
+  return (async (...args: any[]) => {
+    for (let i = 0; i < attempts; i++) {
+      try {
+        return await fn(...args)
+      } catch (error) {
+        if (i === attempts - 1) {
+          throw error
+        }
+        await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)))
+      }
+    }
+  }) as any
+}
+
+// Использование
+const fetchData = async (url: string): Promise<{ data: string }> => {
+  const response = await fetch(url)
+  return response.json()
+}
+
+const retryableFetch = retry(fetchData, 3)
+const data = await retryableFetch("https://api.example.com")
+// Promise<{ data: string }>
+
+// 9. Compose с полным выводом типов
+type Compose<F extends any[], T = any> = F extends [
+  ...infer Rest,
+  (arg: infer A) => T
+]
+  ? Rest extends []
+    ? (arg: A) => T
+    : Rest extends [...any[], (arg: any) => infer B]
+      ? Compose<Rest, B> extends (arg: infer C) => any
+        ? (arg: C) => T
+        : never
+      : never
+  : never
+
+function compose<F extends Array<(arg: any) => any>>(
+  ...fns: F
+): Compose<F> {
+  return ((arg: any) => fns.reduceRight((acc, fn) => fn(acc), arg)) as any
+}
+
+// Использование
+const multiplyBy2 = (x: number) => x * 2
+const subtract1 = (x: number) => x - 1
+const toStr = (x: number) => x.toString()
+
+const composed = compose(toStr, subtract1, multiplyBy2)
+const composedResult = composed(5)  // string: "9"
+
+// 10. Type-safe event emitter
+type EventMap = Record<string, any>
+
+type EventHandler<T> = T extends (...args: infer P) => any
+  ? (...args: P) => void
+  : T extends any[]
+    ? (...args: T) => void
+    : (arg: T) => void
+
+class TypedEventEmitter<Events extends EventMap> {
+  private listeners: { [K in keyof Events]?: Array<EventHandler<Events[K]>> } = {}
+
+  on<K extends keyof Events>(
+    event: K,
+    handler: EventHandler<Events[K]>
+  ): void {
+    if (!this.listeners[event]) {
+      this.listeners[event] = []
+    }
+    this.listeners[event]!.push(handler)
+  }
+
+  emit<K extends keyof Events>(
+    event: K,
+    ...args: Events[K] extends any[] ? Events[K] : [Events[K]]
+  ): void {
+    const handlers = this.listeners[event]
+    if (handlers) {
+      handlers.forEach(handler => handler(...args as any))
+    }
+  }
+}
+
+// Использование
+interface MyEvents {
+  userLogin: [username: string, timestamp: number]
+  userLogout: string
+  dataUpdate: { id: number; data: any }
+}
+
+const emitter = new TypedEventEmitter<MyEvents>()
+
+emitter.on('userLogin', (username, timestamp) => {
+  // username: string, timestamp: number - типы выведены!
+  console.log(`User ${username} logged in at ${timestamp}`)
+})
+
+emitter.emit('userLogin', 'alice', Date.now())  // ✅ Правильно
+// emitter.emit('userLogin', 'alice')  // ❌ Ошибка! Не хватает аргумента

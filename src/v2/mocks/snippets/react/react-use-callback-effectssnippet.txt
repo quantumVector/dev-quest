@@ -1,0 +1,35 @@
+
+// useCallback с useEffect
+
+function DataFetcher({ userId }) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  // ✅ Стабильная функция для useEffect
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/users/${userId}`);
+      const result = await response.json();
+      setData(result);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  }, [userId]); // Пересоздается только при изменении userId
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]); // fetchData в зависимостях
+
+  // Без useCallback fetchData пересоздавалась бы каждый рендер
+  // → бесконечный цикл: fetchData меняется → effect запускается → рендер → fetchData меняется...
+
+  return (
+    <div>
+      {loading ? <Spinner /> : <UserData data={data} />}
+      <button onClick={fetchData}>Refresh</button>
+    </div>
+  );
+}

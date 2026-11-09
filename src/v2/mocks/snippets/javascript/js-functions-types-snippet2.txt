@@ -1,0 +1,77 @@
+
+// =====================================
+// 2. FUNCTION EXPRESSION
+// =====================================
+
+// Анонимное функциональное выражение
+const greet = function(name) {
+  return "Привет, " + name + "!";
+};
+
+// Именованное функциональное выражение
+const factorial = function fact(n) {
+  return n <= 1 ? 1 : n * fact(n - 1);
+};
+
+// НЕ работает hoisting
+console.log(typeof notHoisted); // undefined
+// console.log(notHoisted()); // TypeError: notHoisted is not a function
+
+const notHoisted = function() {
+  return "Я не поднимусь!";
+};
+
+// Теперь можно вызывать
+console.log(notHoisted()); // "Я не поднимусь!"
+
+// Условное создание функций
+let condition = true;
+let conditionalFunc;
+
+if (condition) {
+  conditionalFunc = function() {
+    return "Создана по условию";
+  };
+} else {
+  conditionalFunc = function() {
+    return "Альтернативная функция";
+  };
+}
+
+// Функции как значения переменных
+const functions = {
+  add: function(a, b) {
+    return a + b;
+  },
+  multiply: function(a, b) {
+    return a * b;
+  }
+};
+
+// Передача функции как аргумента
+function executeOperation(operation, a, b) {
+  return operation(a, b);
+}
+
+const add = function(x, y) {
+  return x + y;
+};
+
+console.log(executeOperation(add, 5, 3)); // 8
+
+// IIFE (Immediately Invoked Function Expression)
+(function(name) {
+  console.log("IIFE: Привет, " + name + "!");
+})("Мир");
+
+// Функциональное выражение в переменной
+let currentFunction = function version1() {
+  return "Версия 1";
+};
+
+// Можно переназначить
+currentFunction = function version2() {
+  return "Версия 2";
+};
+
+console.log(currentFunction()); // "Версия 2"

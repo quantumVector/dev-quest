@@ -1,0 +1,163 @@
+
+// =====================================
+// LITERAL TYPES - ЛИТЕРАЛЬНЫЕ ТИПЫ
+// =====================================
+
+// 1. String literal types
+let direction: "up" | "down" | "left" | "right"
+direction = "up"    // OK
+// direction = "forward"  // ошибка!
+
+type HttpMethod = "GET" | "POST" | "PUT" | "DELETE"
+
+function request(url: string, method: HttpMethod) {
+  console.log(`${method} ${url}`)
+}
+
+request("/api/users", "GET")  // OK
+// request("/api/users", "PATCH")  // ошибка!
+
+// 2. Numeric literal types
+type DiceRoll = 1 | 2 | 3 | 4 | 5 | 6
+
+function rollDice(): DiceRoll {
+  return (Math.floor(Math.random() * 6) + 1) as DiceRoll
+}
+
+let result: DiceRoll = 3  // OK
+// let result2: DiceRoll = 7  // ошибка!
+
+// 3. Boolean literal types
+type Yes = true
+type No = false
+
+let agree: Yes = true
+// let agree2: Yes = false  // ошибка!
+
+// 4. Mixed literal types
+type Status = "success" | "error" | 200 | 404 | 500
+
+function handleStatus(status: Status) {
+  if (status === "success" || status === 200) {
+    console.log("Operation successful")
+  } else {
+    console.log("Operation failed")
+  }
+}
+
+// 5. Literal inference
+// const - литеральный тип
+const constantString = "hello"  // тип: "hello"
+const constantNumber = 42       // тип: 42
+
+// let - расширенный тип
+let variableString = "hello"    // тип: string
+let variableNumber = 42         // тип: number
+
+// Решение - as const
+let literalString = "hello" as const  // тип: "hello"
+let literalNumber = 42 as const       // тип: 42
+
+// 6. as const для объектов
+const config = {
+  host: "localhost",
+  port: 3000,
+  protocol: "http"
+} as const
+
+// Тип config:
+// {
+//   readonly host: "localhost"
+//   readonly port: 3000
+//   readonly protocol: "http"
+// }
+
+// config.host = "example.com"  // ошибка! readonly
+
+// 7. Template literal types (TS 4.1+)
+type EventName = "click" | "focus" | "blur"
+type HandlerName = `on${Capitalize<EventName>}`
+// тип: "onClick" | "onFocus" | "onBlur"
+
+type HTTPMethod = "GET" | "POST"
+type Endpoint = "/users" | "/posts"
+type APIRoute = `${HTTPMethod} ${Endpoint}`
+// тип: "GET /users" | "GET /posts" | "POST /users" | "POST /posts"
+
+// 8. Практические примеры
+// Цвета
+type PrimaryColor = "red" | "green" | "blue"
+type RGB = `rgb(${number}, ${number}, ${number})`
+type HEX = `#${string}`
+
+type Color = PrimaryColor | RGB | HEX
+
+const color1: Color = "red"
+const color2: Color = "rgb(255, 0, 0)"
+const color3: Color = "#ff0000"
+
+// CSS размеры
+type CSSUnit = "px" | "em" | "rem" | "%" | "vh" | "vw"
+type CSSSize = `${number}${CSSUnit}`
+
+const width: CSSSize = "100px"
+const height: CSSSize = "50vh"
+
+// Состояние загрузки
+type LoadingState =
+  | { status: "idle" }
+  | { status: "loading"; progress: number }
+  | { status: "success"; data: any }
+  | { status: "error"; error: string }
+
+function handleLoading(state: LoadingState) {
+  switch (state.status) {
+    case "idle":
+      console.log("Not started")
+      break
+    case "loading":
+      console.log(`Loading: ${state.progress}%`)
+      break
+    case "success":
+      console.log("Data:", state.data)
+      break
+    case "error":
+      console.log("Error:", state.error)
+      break
+  }
+}
+
+// 9. Дискриминированные union с литералами
+type Shape =
+  | { kind: "circle"; radius: number }
+  | { kind: "square"; size: number }
+  | { kind: "rectangle"; width: number; height: number }
+
+function getArea(shape: Shape): number {
+  switch (shape.kind) {  // kind - дискриминант
+    case "circle":
+      return Math.PI * shape.radius ** 2
+    case "square":
+      return shape.size ** 2
+    case "rectangle":
+      return shape.width * shape.height
+  }
+}
+
+// 10. Брендированные типы (branded types)
+type UserId = string & { readonly __brand: "UserId" }
+type PostId = string & { readonly __brand: "PostId" }
+
+function getUserById(id: UserId) {
+  // ...
+}
+
+function getPostById(id: PostId) {
+  // ...
+}
+
+const userId = "user-123" as UserId
+const postId = "post-456" as PostId
+
+getUserById(userId)  // OK
+// getUserById(postId)  // ошибка! PostId не UserId

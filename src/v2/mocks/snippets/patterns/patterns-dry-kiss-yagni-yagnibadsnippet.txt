@@ -1,0 +1,62 @@
+
+// ❌ НАРУШЕНИЕ YAGNI - преждевременная оптимизация
+class UserService {
+  constructor() {
+    // Кэширование для будущего масштабирования
+    this.cache = new Map();
+    this.cacheExpiry = new Map();
+
+    // Пул соединений (пока не нужен)
+    this.connectionPool = [];
+
+    // Очередь задач (может пригодится)
+    this.taskQueue = [];
+
+    // Метрики производительности
+    this.metrics = {
+      requests: 0,
+      cacheHits: 0,
+      cacheMisses: 0,
+      avgResponseTime: 0
+    };
+  }
+
+  async getUser(id) {
+    this.metrics.requests++;
+    const startTime = Date.now();
+
+    // Проверка кэша
+    if (this.cache.has(id)) {
+      const expiry = this.cacheExpiry.get(id);
+      if (expiry > Date.now()) {
+        this.metrics.cacheHits++;
+        return this.cache.get(id);
+      }
+    }
+
+    this.metrics.cacheMisses++;
+
+    // Реальный запрос
+    const user = await fetch(`/api/users/${id}`).then(r => r.json());
+
+    // Сохранение в кэш
+    this.cache.set(id, user);
+    this.cacheExpiry.set(id, Date.now() + 60000);
+
+    // Обновление метрик
+    const responseTime = Date.now() - startTime;
+    this.metrics.avgResponseTime =
+      (this.metrics.avgResponseTime + responseTime) / 2;
+
+    return user;
+  }
+
+  // Множество неиспользуемых методов
+  async bulkGetUsers(ids) { /* ... */ }
+  async getUserWithCache(id, ttl) { /* ... */ }
+  async prefetchUsers(ids) { /* ... */ }
+  clearCache() { /* ... */ }
+  getMetrics() { /* ... */ }
+}
+
+// Проблема: 90% кода не используется!

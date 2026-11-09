@@ -1,0 +1,36 @@
+
+// Throttling для тестирования медленных соединений
+// DevTools → Network → Throttling → Slow 3G
+
+// Проверка размера ресурсов
+fetch('/api/data')
+  .then(response => {
+    console.log('Size:', response.headers.get('content-length'));
+    return response.json();
+  });
+
+// Service Worker для отладки кэширования
+self.addEventListener('fetch', (event) => {
+  console.log('[Service Worker] Fetching:', event.request.url);
+
+  event.respondWith(
+    caches.match(event.request).then((response) => {
+      if (response) {
+        console.log('[Service Worker] Cache hit:', event.request.url);
+        return response;
+      }
+      return fetch(event.request);
+    })
+  );
+});
+
+// Проверка CORS
+fetch('https://api.example.com/data', {
+  method: 'GET',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  mode: 'cors' // 'no-cors', 'same-origin'
+})
+.then(response => response.json())
+.catch(error => console.error('CORS Error:', error));

@@ -1,0 +1,34 @@
+
+// Object.defineProperties для множественного определения
+const car = {};
+
+Object.defineProperties(car, {
+  brand: {
+    value: "Toyota",
+    writable: false,
+    enumerable: true,
+    configurable: false
+  },
+  model: {
+    value: "Camry",
+    writable: true,
+    enumerable: true,
+    configurable: true
+  },
+  vin: {
+    value: "ABC123456789",
+    writable: false,
+    enumerable: false, // скрытый VIN
+    configurable: false
+  }
+});
+
+// Полезные методы для работы с дескрипторами
+console.log(Object.getOwnPropertyDescriptors(car));
+// Получить все дескрипторы объекта
+
+console.log(Object.getOwnPropertyNames(car));
+// ["brand", "model", "vin"] - все свойства, включая неперечисляемые
+
+console.log(Object.keys(car));
+// ["brand", "model"] - только перечисляемые

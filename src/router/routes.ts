@@ -1,4 +1,5 @@
 import AllQuestionPage from '@/views/AllQuestionPage.vue'
+import { v2Routes } from '@/v2/routes'
 import { aiArticlePath, aiDevelopmentArticles } from '@/data/ai-development-articles'
 import { aiDevelopmentTestPath } from '@/data/ai-development-questions'
 import HtmlQuestionsPage from '@/views/HtmlQuestionsPage.vue'
@@ -217,6 +218,7 @@ import JotaiPracticeInterviewPage from '@/views/interview/JotaiPracticeInterview
 import JotaiCookbook from '@/views/jotai/JotaiCookbook.vue'
 
 export const routes = [
+  ...v2Routes,
   {
     path: aiDevelopmentTestPath,
     name: 'ai-development-test',

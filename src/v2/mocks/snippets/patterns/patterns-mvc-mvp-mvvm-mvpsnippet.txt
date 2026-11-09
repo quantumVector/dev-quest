@@ -1,0 +1,133 @@
+
+// MVP - Model-View-Presenter
+// Модель: только данные, без бизнес-логики отображения
+class TaskModel {
+  constructor() {
+    this.tasks = []
+  }
+
+  getTasks() {
+    return [...this.tasks]
+  }
+
+  addTask(task) {
+    this.tasks.push({ ...task, id: Date.now(), completed: false })
+  }
+
+  toggleTask(id) {
+    const task = this.tasks.find(t => t.id === id)
+    if (task) task.completed = !task.completed
+  }
+
+  deleteTask(id) {
+    this.tasks = this.tasks.filter(t => t.id !== id)
+  }
+}
+
+// View: пассивное представление (интерфейс)
+// View не содержит логики, только методы для обновления UI
+class TaskView {
+  constructor() {
+    this.app = document.getElementById('app')
+  }
+
+  // View предоставляет методы для Presenter
+  displayTasks(tasks) {
+    this.app.innerHTML = `
+      <div class="task-list">
+        ${tasks.map(task => `
+          <div class="task ${task.completed ? 'completed' : ''}">
+            <input
+              type="checkbox"
+              data-id="${task.id}"
+              ${task.completed ? 'checked' : ''}
+            >
+            <span>${task.title}</span>
+            <button data-id="${task.id}" class="delete">×</button>
+          </div>
+        `).join('')}
+      </div>
+      <form id="task-form">
+        <input type="text" name="title" placeholder="New task" required>
+        <button type="submit">Add</button>
+      </form>
+    `
+  }
+
+  // Геттеры для элементов (Presenter запрашивает значения)
+  getTaskInput() {
+    return document.querySelector('#task-form input[name="title"]').value
+  }
+
+  clearTaskInput() {
+    document.querySelector('#task-form input[name="title"]').value = ''
+  }
+
+  // View уведомляет Presenter о событиях через колбэки
+  bindAddTask(handler) {
+    document.getElementById('task-form').addEventListener('submit', (e) => {
+      e.preventDefault()
+      handler()
+    })
+  }
+
+  bindToggleTask(handler) {
+    this.app.addEventListener('change', (e) => {
+      if (e.target.type === 'checkbox') {
+        handler(parseInt(e.target.dataset.id))
+      }
+    })
+  }
+
+  bindDeleteTask(handler) {
+    this.app.addEventListener('click', (e) => {
+      if (e.target.classList.contains('delete')) {
+        handler(parseInt(e.target.dataset.id))
+      }
+    })
+  }
+}
+
+// Presenter: вся логика взаимодействия
+// Presenter управляет View и обновляет Model
+class TaskPresenter {
+  constructor(model, view) {
+    this.model = model
+    this.view = view
+
+    // Presenter подписывается на события View
+    this.view.bindAddTask(this.handleAddTask.bind(this))
+    this.view.bindToggleTask(this.handleToggleTask.bind(this))
+    this.view.bindDeleteTask(this.handleDeleteTask.bind(this))
+
+    // Начальная отрисовка
+    this.updateView()
+  }
+
+  updateView() {
+    const tasks = this.model.getTasks()
+    this.view.displayTasks(tasks)
+  }
+
+  handleAddTask() {
+    const title = this.view.getTaskInput()
+    if (title.trim()) {
+      this.model.addTask({ title })
+      this.view.clearTaskInput()
+      this.updateView()
+    }
+  }
+
+  handleToggleTask(id) {
+    this.model.toggleTask(id)
+    this.updateView()
+  }
+
+  handleDeleteTask(id) {
+    this.model.deleteTask(id)
+    this.updateView()
+  }
+}
+
+// Инициализация MVP
+const taskApp = new TaskPresenter(new TaskModel(), new TaskView())

@@ -1,0 +1,29 @@
+
+// ❌ ПЛОХО - Нарушение LSP
+interface Bird {
+  fly(): void
+  eat(): void
+}
+
+class Sparrow implements Bird {
+  fly() {
+    console.log('Sparrow flies')
+  }
+  eat() {
+    console.log('Sparrow eats')
+  }
+}
+
+class Penguin implements Bird {
+  fly() {
+    throw new Error('Penguins cannot fly!') // Нарушение LSP!
+  }
+  eat() {
+    console.log('Penguin eats')
+  }
+}
+
+// Код ожидает, что все Bird могут летать
+const makeBirdFly = (bird: Bird) => {
+  bird.fly() // Упадет для Penguin!
+}

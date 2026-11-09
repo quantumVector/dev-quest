@@ -1,0 +1,30 @@
+
+// Частые вопросы на собеседовании:
+
+// 1. Как проверить, что значение это символ?
+const sym = Symbol('test');
+console.log(typeof sym === 'symbol'); // true
+
+// 2. Можно ли сконвертировать символ в строку?
+console.log(String(sym));     // "Symbol(test)"
+console.log(sym.toString());  // "Symbol(test)"
+// console.log(sym + '');     // TypeError!
+
+// 3. Можно ли использовать символы в качестве значений объекта?
+const obj = {
+  key: Symbol('value') // Да, символ как значение
+};
+
+// 4. Как получить все ключи объекта включая символьные?
+const allKeys = [
+  ...Object.keys(obj),
+  ...Object.getOwnPropertySymbols(obj)
+];
+
+// 5. Символы в JSON
+const objWithSymbol = {
+  name: 'test',
+  [Symbol('hidden')]: 'secret'
+};
+
+console.log(JSON.stringify(objWithSymbol)); // {"name":"test"} - символы игнорируются

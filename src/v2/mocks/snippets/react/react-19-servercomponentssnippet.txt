@@ -1,0 +1,53 @@
+
+// React 19: Server Components (стабильные)
+// app/ProductList.server.js
+
+import { db } from './database'
+
+// Server Component - выполняется ТОЛЬКО на сервере
+export default async function ProductList() {
+// Прямой доступ к базе данных
+const products = await db.query('SELECT * FROM products')
+
+// Чтение файловой системы
+const config = await fs.readFile('./config.json', 'utf-8')
+
+return (
+<div>
+<h1>Продукты</h1>
+{products.map(product => (
+<ProductCard key={product.id} product={product} />
+))}
+</div>
+)
+}
+
+// Client Component - для интерактивности
+'use client'
+
+function ProductCard({ product }) {
+const [liked, setLiked] = useState(false)
+
+return (
+<div>
+<h3>{product.name}</h3>
+<p>{product.price}</p>
+<button onClick={() => setLiked(!liked)}>
+{liked ? '❤️' : '🤍'}
+</button>
+</div>
+)
+}
+
+// Композиция Server и Client компонентов
+export default async function Page() {
+return (
+<>
+{/* Server Component - данные на сервере */}
+<ProductList />
+
+{/* Client Component - интерактивность */}
+<ShoppingCart />
+</>
+)
+}

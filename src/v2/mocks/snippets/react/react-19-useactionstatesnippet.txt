@@ -1,0 +1,63 @@
+
+// React 19: useActionState - управление состоянием форм
+import { useActionState } from 'react'
+
+function UpdateNameForm() {
+  const [error, submitAction, isPending] = useActionState(
+    async (previousState, formData) => {
+      const name = formData.get('name')
+
+      // Валидация
+      if (!name || name.length < 3) {
+        return 'Имя должно быть не менее 3 символов'
+      }
+
+      // Асинхронная отправка
+      const response = await fetch('/api/update-name', {
+        method: 'POST',
+        body: JSON.stringify({ name })
+      })
+
+      if (!response.ok) {
+        return 'Ошибка сервера'
+      }
+
+      return null // Успех
+    },
+    null // Начальное состояние ошибки
+  )
+
+  return (
+    <form action={submitAction}>
+      <input type="text" name="name" />
+      <button type="submit" disabled={isPending}>
+        {isPending ? 'Сохранение...' : 'Сохранить'}
+      </button>
+      {error && <p className="error">{error}</p>}
+    </form>
+  )
+}
+
+// До React 19 требовалось:
+function OldWay() {
+  const [error, setError] = useState(null)
+  const [isPending, setIsPending] = useState(false)
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setIsPending(true)
+    setError(null)
+
+    try {
+      const formData = new FormData(e.target)
+      const name = formData.get('name')
+      // ... остальная логика
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setIsPending(false)
+    }
+  }
+
+  return <form onSubmit={handleSubmit}>...</form>
+}

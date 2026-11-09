@@ -1,0 +1,49 @@
+
+// React 19: useOptimistic - оптимистичные обновления UI
+import { useOptimistic } from 'react'
+
+function TodoList({ todos }) {
+  const [optimisticTodos, addOptimisticTodo] = useOptimistic(
+    todos,
+    (state, newTodo) => [...state, { ...newTodo, pending: true }]
+  )
+
+  async function createTodo(formData) {
+    const title = formData.get('title')
+    const tempId = Math.random()
+
+    // Оптимистичное обновление - мгновенно
+    addOptimisticTodo({ id: tempId, title, completed: false })
+
+    // Реальный запрос
+    try {
+      const response = await fetch('/api/todos', {
+        method: 'POST',
+        body: JSON.stringify({ title })
+      })
+      const realTodo = await response.json()
+      // React автоматически заменит оптимистичное обновление реальными данными
+    } catch (error) {
+      // При ошибке оптимистичное обновление откатится
+      console.error('Failed to create todo')
+    }
+  }
+
+  return (
+    <div>
+      <form action={createTodo}>
+        <input name="title" />
+        <button type="submit">Добавить</button>
+      </form>
+
+      <ul>
+        {optimisticTodos.map(todo => (
+          <li key={todo.id} style={{ opacity: todo.pending ? 0.5 : 1 }}>
+            {todo.title}
+            {todo.pending && ' (сохранение...)'}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}

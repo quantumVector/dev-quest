@@ -1,0 +1,48 @@
+
+// useCallback с обработчиками событий
+
+function Form() {
+  const [formData, setFormData] = useState({ name: '', email: '' });
+
+  // Обработчик для конкретного поля
+  const handleNameChange = useCallback((e) => {
+    setFormData(prev => ({ ...prev, name: e.target.value }));
+  }, []);
+
+  const handleEmailChange = useCallback((e) => {
+    setFormData(prev => ({ ...prev, email: e.target.value }));
+  }, []);
+
+  // Универсальный обработчик
+  const handleChange = useCallback((field) => {
+    return (e) => {
+      setFormData(prev => ({ ...prev, [field]: e.target.value }));
+    };
+  }, []);
+
+  // Обработчик отправки с валидацией
+  const handleSubmit = useCallback((e) => {
+    e.preventDefault();
+
+    if (!formData.name || !formData.email) {
+      alert('Fill all fields');
+      return;
+    }
+
+    submitForm(formData);
+  }, [formData]); // Пересоздается при изменении formData
+
+  return (
+    <form onSubmit={handleSubmit}>
+      {/* Вариант 1: Отдельные обработчики */}
+      <input value={formData.name} onChange={handleNameChange} />
+      <input value={formData.email} onChange={handleEmailChange} />
+
+      {/* Вариант 2: Универсальный обработчик */}
+      <input value={formData.name} onChange={handleChange('name')} />
+      <input value={formData.email} onChange={handleChange('email')} />
+
+      <button type="submit">Submit</button>
+    </form>
+  );
+}

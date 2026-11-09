@@ -1,0 +1,48 @@
+
+<!-- CSR (Client-Side Rendering) - традиционный подход -->
+
+<!-- 1. Сервер отдает минимальный HTML -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My App</title>
+</head>
+<body>
+  <div id="root"></div>
+  <!-- Контент пустой! -->
+  <script src="bundle.js"></script>
+</body>
+</html>
+
+<!-- 2. Браузер загружает JS бандл (~500KB+) -->
+<!-- 3. React/Vue монтирует приложение -->
+<!-- 4. Делает запросы к API -->
+<!-- 5. ТОЛЬКО ПОТОМ пользователь видит контент -->
+
+// React CSR пример
+import React from 'react'
+import ReactDOM from 'react-dom'
+
+function App() {
+const [data, setData] = React.useState(null)
+
+React.useEffect(() => {
+// API запрос ПОСЛЕ загрузки JS
+fetch('/api/products')
+.then(res => res.json())
+.then(setData)
+}, [])
+
+if (!data) return <div>Loading...</div>
+
+return (
+<div>
+<h1>Products</h1>
+{data.map(product => (
+<ProductCard key={product.id} {...product} />
+))}
+</div>
+)
+}
+
+ReactDOM.render(<App />, document.getElementById('root'))

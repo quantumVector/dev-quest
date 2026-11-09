@@ -1,0 +1,35 @@
+
+// Сокращенный синтаксис конструктора
+class User {
+  // Свойства объявляются прямо в параметрах конструктора
+  constructor(
+    public name: string,
+    public age: number,
+    private email: string,
+    protected id: number = Math.random(),
+    readonly createdAt: Date = new Date()
+  ) {
+    // Тело конструктора может быть пустым
+    // Свойства уже инициализированы автоматически
+  }
+
+  getEmail(): string {
+    return this.email
+  }
+}
+
+// Эквивалентно предыдущему примеру, но короче!
+const user = new User('John', 30, 'john@example.com')
+
+// Пример с дефолтными значениями и необязательными параметрами
+class Product {
+  constructor(
+    public name: string,
+    public price: number,
+    public category: string = 'general', // значение по умолчанию
+    public description?: string // необязательный параметр
+  ) {}
+}
+
+const product1 = new Product('Laptop', 1000)
+const product2 = new Product('Phone', 500, 'electronics', 'Smartphone')

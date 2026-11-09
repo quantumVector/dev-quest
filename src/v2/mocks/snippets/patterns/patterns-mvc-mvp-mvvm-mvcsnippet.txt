@@ -1,0 +1,102 @@
+
+// MVC - Model-View-Controller
+// Модель: бизнес-логика и данные
+class UserModel {
+  constructor() {
+    this.users = []
+  }
+
+  async fetchUsers() {
+    const response = await fetch('/api/users')
+    this.users = await response.json()
+    return this.users
+  }
+
+  addUser(user) {
+    this.users.push(user)
+    // Сохранение на сервере
+    fetch('/api/users', {
+      method: 'POST',
+      body: JSON.stringify(user)
+    })
+  }
+
+  getUsers() {
+    return this.users
+  }
+}
+
+// Представление: отображение данных
+class UserView {
+  constructor() {
+    this.container = document.getElementById('user-list')
+  }
+
+  render(users) {
+    this.container.innerHTML = `
+      <ul>
+        ${users.map(user => `
+          <li>
+            <span>${user.name}</span>
+            <button data-id="${user.id}" class="delete">Delete</button>
+          </li>
+        `).join('')}
+      </ul>
+      <form id="add-user-form">
+        <input type="text" name="name" placeholder="Name" required>
+        <button type="submit">Add User</button>
+      </form>
+    `
+  }
+
+  bindAddUser(handler) {
+    const form = document.getElementById('add-user-form')
+    form.addEventListener('submit', (e) => {
+      e.preventDefault()
+      const formData = new FormData(e.target)
+      handler({ name: formData.get('name'), id: Date.now() })
+      e.target.reset()
+    })
+  }
+
+  bindDeleteUser(handler) {
+    this.container.addEventListener('click', (e) => {
+      if (e.target.classList.contains('delete')) {
+        handler(e.target.dataset.id)
+      }
+    })
+  }
+}
+
+// Контроллер: посредник между Model и View
+class UserController {
+  constructor(model, view) {
+    this.model = model
+    this.view = view
+
+    // View сообщает Controller о действиях пользователя
+    this.view.bindAddUser(this.handleAddUser.bind(this))
+    this.view.bindDeleteUser(this.handleDeleteUser.bind(this))
+
+    // Инициализация
+    this.loadUsers()
+  }
+
+  async loadUsers() {
+    const users = await this.model.fetchUsers()
+    this.view.render(users)
+  }
+
+  handleAddUser(user) {
+    this.model.addUser(user)
+    this.view.render(this.model.getUsers())
+  }
+
+  handleDeleteUser(id) {
+    // Логика удаления
+    this.view.render(this.model.getUsers())
+  }
+}
+
+// Инициализация MVC
+const app = new UserController(new UserModel(), new UserView())

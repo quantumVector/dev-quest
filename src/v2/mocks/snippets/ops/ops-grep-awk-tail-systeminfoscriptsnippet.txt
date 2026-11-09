@@ -1,0 +1,149 @@
+
+#!/bin/bash
+
+# ===================================================================
+# Скрипт для записи информации о системе
+# CPU модель, версия ядра, дата ядра
+# ===================================================================
+
+# Определяем выходной файл
+OUTPUT_FILE="system_info.txt"
+
+# ===================================================================
+# МЕТОД 1: Пошаговое извлечение с grep и awk
+# ===================================================================
+
+echo "=== Метод 1: Пошаговое извлечение ==="
+
+# Получаем модель CPU
+# Ищем строку "model name" в /proc/cpuinfo и берем первое вхождение
+CPU=$(grep "model name" /proc/cpuinfo | head -n 1 | awk -F: '{print $2}' | sed 's/^ *//')
+echo "CPU: $CPU"
+
+# Получаем версию ядра
+# uname -r выводит версию ядра (например: 5.15.0-91-generic)
+KERNEL_VERSION=$(uname -r)
+echo "Kernel: $KERNEL_VERSION"
+
+# Получаем дату компиляции ядра
+# uname -v выводит информацию о сборке, извлекаем дату
+KERNEL_DATE=$(uname -v | awk '{print $3, $4, $5, $6, $7}')
+echo "Date: $KERNEL_DATE"
+
+# Формируем результат
+RESULT="CPU: $CPU Kernel: $KERNEL_VERSION Date: $KERNEL_DATE"
+echo "$RESULT"
+
+# ===================================================================
+# МЕТОД 2: Компактная запись в одну строку
+# ===================================================================
+
+echo -e "\n=== Метод 2: Одной строкой ==="
+
+# Все в одной команде с подстановкой
+echo "CPU: $(grep 'model name' /proc/cpuinfo | head -n 1 | awk -F: '{print $2}' | sed 's/^ *//') Kernel: $(uname -r) Date: $(uname -v | awk '{print $3, $4, $5, $6, $7}')"
+
+# ===================================================================
+# МЕТОД 3: Запись в файл с временной меткой
+# ===================================================================
+
+echo -e "\n=== Метод 3: Запись в файл ==="
+
+{
+  echo "=== System Information ==="
+  echo "Timestamp: $(date '+%Y-%m-%d %H:%M:%S')"
+  echo "CPU: $(grep 'model name' /proc/cpuinfo | head -n 1 | awk -F: '{print $2}' | sed 's/^ *//')"
+  echo "Kernel: $(uname -r)"
+  echo "Kernel Date: $(uname -v | awk '{print $3, $4, $5, $6, $7}')"
+  echo "========================="
+} > "$OUTPUT_FILE"
+
+echo "Information saved to $OUTPUT_FILE"
+cat "$OUTPUT_FILE"
+
+# ===================================================================
+# МЕТОД 4: С дополнительной информацией
+# ===================================================================
+
+echo -e "\n=== Метод 4: Расширенная информация ==="
+
+{
+  echo "=== Detailed System Information ==="
+  echo "Generated: $(date '+%Y-%m-%d %H:%M:%S')"
+  echo ""
+
+  # CPU информация
+  echo "CPU Model: $(grep 'model name' /proc/cpuinfo | head -n 1 | awk -F: '{print $2}' | sed 's/^ *//')"
+  echo "CPU Cores: $(grep -c processor /proc/cpuinfo)"
+  echo "CPU Architecture: $(uname -m)"
+
+  # Kernel информация
+  echo "Kernel Version: $(uname -r)"
+  echo "Kernel Build Date: $(uname -v | awk '{print $3, $4, $5, $6, $7}')"
+  echo "Kernel Name: $(uname -s)"
+
+  # OS информация
+  if [ -f /etc/os-release ]; then
+    echo "OS: $(grep PRETTY_NAME /etc/os-release | awk -F= '{print $2}' | tr -d '"')"
+  fi
+
+  # Память
+  echo "Total RAM: $(free -h | awk '/^Mem:/ {print $2}')"
+
+  echo "===================================="
+} > "system_info_detailed.txt"
+
+cat "system_info_detailed.txt"
+
+# ===================================================================
+# МЕТОД 5: Функция для переиспользования
+# ===================================================================
+
+echo -e "\n=== Метод 5: Через функцию ==="
+
+get_system_info() {
+  local cpu=$(grep 'model name' /proc/cpuinfo | head -n 1 | awk -F: '{print $2}' | sed 's/^ *//')
+  local kernel=$(uname -r)
+  local kernel_date=$(uname -v | awk '{print $3, $4, $5, $6, $7}')
+
+  echo "CPU: $cpu Kernel: $kernel Date: $kernel_date"
+}
+
+# Использование функции
+SYSTEM_INFO=$(get_system_info)
+echo "$SYSTEM_INFO"
+
+# Сохранение в файл
+echo "$SYSTEM_INFO" > system_info_function.txt
+
+# ===================================================================
+# МЕТОД 6: С проверками и обработкой ошибок
+# ===================================================================
+
+echo -e "\n=== Метод 6: С обработкой ошибок ==="
+
+safe_get_cpu() {
+  if [ -f /proc/cpuinfo ]; then
+    grep 'model name' /proc/cpuinfo | head -n 1 | awk -F: '{print $2}' | sed 's/^ *//' || echo "Unknown"
+  else
+    echo "N/A"
+  fi
+}
+
+safe_get_kernel() {
+  uname -r 2>/dev/null || echo "Unknown"
+}
+
+safe_get_kernel_date() {
+  uname -v 2>/dev/null | awk '{print $3, $4, $5, $6, $7}' || echo "Unknown"
+}
+
+echo "CPU: $(safe_get_cpu) Kernel: $(safe_get_kernel) Date: $(safe_get_kernel_date)"
+
+# ===================================================================
+# Завершение
+# ===================================================================
+
+echo -e "\n=== Script completed ==="
+echo "Output files created:"
+ls -lh system_info*.txt 2>/dev/null || echo "No files created"

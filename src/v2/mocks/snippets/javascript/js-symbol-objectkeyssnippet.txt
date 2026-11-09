@@ -1,0 +1,19 @@
+
+// Символы как ключи объектов
+const SECRET_KEY = Symbol("secret");
+const PUBLIC_KEY = "public";
+
+const user = {
+  name: "John",
+  [PUBLIC_KEY]: "visible data",
+  [SECRET_KEY]: "hidden data"
+};
+
+// Обычные методы не видят символьные ключи
+console.log(Object.keys(user));           // ["name", "public"]
+console.log(Object.getOwnPropertyNames(user)); // ["name", "public"]
+console.log(JSON.stringify(user));        // {"name":"John","public":"visible data"}
+
+// Специальные методы для символов
+console.log(Object.getOwnPropertySymbols(user)); // [Symbol(secret)]
+console.log(Reflect.ownKeys(user));       // ["name", "public", Symbol(secret)]

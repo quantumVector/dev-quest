@@ -1,0 +1,347 @@
+
+// =====================================
+// АЛЬТЕРНАТИВЫ И FALLBACK СТРАТЕГИИ
+// =====================================
+
+// 1. Универсальный клиент с автоматическим fallback
+class UniversalRealtimeClient {
+  constructor(url, options = {}) {
+    this.url = url
+    this.options = options
+    this.connection = null
+    this.connectionType = null
+
+    this.onmessage = null
+    this.onerror = null
+    this.onopen = null
+    this.onclose = null
+
+    this.connect()
+  }
+
+  async connect() {
+    // Пробуем методы по приоритету
+    const methods = [
+      { type: 'websocket', test: () => this.tryWebSocket() },
+      { type: 'eventsource', test: () => this.tryEventSource() },
+      { type: 'longpolling', test: () => this.tryLongPolling() }
+    ]
+
+    for (const method of methods) {
+      try {
+        console.log(`Пробуем ${method.type}...`)
+        await method.test()
+        this.connectionType = method.type
+        console.log(`Подключено через ${method.type}`)
+        return
+      } catch (error) {
+        console.error(`${method.type} не удался:`, error)
+      }
+    }
+
+    throw new Error('Все методы подключения не удались')
+  }
+
+  tryWebSocket() {
+    return new Promise((resolve, reject) => {
+      const wsUrl = this.url.replace(/^http/, 'ws')
+      const ws = new WebSocket(wsUrl)
+
+      const timeout = setTimeout(() => {
+        ws.close()
+        reject(new Error('WebSocket timeout'))
+      }, 5000)
+
+      ws.onopen = () => {
+        clearTimeout(timeout)
+        this.connection = ws
+
+        ws.onmessage = (event) => {
+          if (this.onmessage) {
+            this.onmessage(JSON.parse(event.data))
+          }
+        }
+
+        ws.onerror = (error) => {
+          if (this.onerror) this.onerror(error)
+        }
+
+        ws.onclose = () => {
+          if (this.onclose) this.onclose()
+        }
+
+        if (this.onopen) this.onopen()
+        resolve()
+      }
+
+      ws.onerror = (error) => {
+        clearTimeout(timeout)
+        reject(error)
+      }
+    })
+  }
+
+  tryEventSource() {
+    return new Promise((resolve, reject) => {
+      const eventSource = new EventSource(this.url)
+
+      const timeout = setTimeout(() => {
+        eventSource.close()
+        reject(new Error('EventSource timeout'))
+      }, 5000)
+
+      eventSource.onopen = () => {
+        clearTimeout(timeout)
+        this.connection = eventSource
+
+        eventSource.onmessage = (event) => {
+          if (this.onmessage) {
+            this.onmessage(JSON.parse(event.data))
+          }
+        }
+
+        eventSource.onerror = (error) => {
+          if (this.onerror) this.onerror(error)
+        }
+
+        if (this.onopen) this.onopen()
+        resolve()
+      }
+
+      eventSource.onerror = (error) => {
+        clearTimeout(timeout)
+        eventSource.close()
+        reject(error)
+      }
+    })
+  }
+
+  tryLongPolling() {
+    return new Promise((resolve) => {
+      this.connection = new LongPolling(this.url)
+
+      this.connection.onmessage = (data) => {
+        if (this.onmessage) {
+          this.onmessage(data)
+        }
+      }
+
+      this.connection.onerror = (error) => {
+        if (this.onerror) this.onerror(error)
+      }
+
+      this.connection.start()
+
+      if (this.onopen) this.onopen()
+      resolve()
+    })
+  }
+
+  send(data) {
+    if (this.connectionType === 'websocket') {
+      this.connection.send(JSON.stringify(data))
+    } else if (this.connectionType === 'longpolling') {
+      return this.connection.send(data)
+    } else {
+      // EventSource не поддерживает отправку
+      // Используем обычный HTTP POST
+      return fetch(this.url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+    }
+  }
+
+  close() {
+    if (this.connection) {
+      if (this.connectionType === 'websocket') {
+        this.connection.close()
+      } else if (this.connectionType === 'eventsource') {
+        this.connection.close()
+      } else if (this.connectionType === 'longpolling') {
+        this.connection.stop()
+      }
+    }
+  }
+}
+
+// Использование
+const client = new UniversalRealtimeClient('/api/realtime')
+
+client.onopen = () => {
+  console.log('Подключено')
+  console.log('Тип соединения:', client.connectionType)
+}
+
+client.onmessage = (data) => {
+  console.log('Сообщение:', data)
+}
+
+client.onerror = (error) => {
+  console.error('Ошибка:', error)
+}
+
+// Отправка
+client.send({ message: 'Hello!' })
+
+// 2. Polling как самый базовый fallback
+class SimplePolling {
+  constructor(url, interval = 5000) {
+    this.url = url
+    this.interval = interval
+    this.timer = null
+    this.lastData = null
+
+    this.onmessage = null
+  }
+
+  start() {
+    this.poll() // Первый запрос сразу
+
+    this.timer = setInterval(() => {
+      this.poll()
+    }, this.interval)
+  }
+
+  async poll() {
+    try {
+      const response = await fetch(this.url)
+      const data = await response.json()
+
+      // Проверяем, изменились ли данные
+      const dataStr = JSON.stringify(data)
+      if (dataStr !== this.lastData) {
+        this.lastData = dataStr
+
+        if (this.onmessage) {
+          this.onmessage(data)
+        }
+      }
+    } catch (error) {
+      console.error('Polling error:', error)
+    }
+  }
+
+  stop() {
+    if (this.timer) {
+      clearInterval(this.timer)
+      this.timer = null
+    }
+  }
+}
+
+// 3. Библиотеки для автоматического fallback
+// Socket.IO - популярная библиотека с автоматическим fallback
+/*
+import io from 'socket.io-client'
+
+const socket = io('http://localhost:3000', {
+  transports: ['websocket', 'polling'], // Попробует WebSocket, fallback на polling
+  upgrade: true,                        // Апгрейд с polling на WebSocket если возможно
+  reconnection: true,                   // Автопереподключение
+  reconnectionDelay: 1000,
+  reconnectionAttempts: Infinity
+})
+
+socket.on('connect', () => {
+  console.log('Connected via', socket.io.engine.transport.name)
+})
+
+socket.on('message', (data) => {
+  console.log('Message:', data)
+})
+
+socket.emit('message', { text: 'Hello!' })
+*/
+
+// 4. Проверка поддержки технологий
+const checkSupport = {
+  webSocket: () => {
+    return 'WebSocket' in window
+  },
+
+  eventSource: () => {
+    return 'EventSource' in window
+  },
+
+  fetch: () => {
+    return 'fetch' in window
+  },
+
+  all: () => {
+    return {
+      webSocket: checkSupport.webSocket(),
+      eventSource: checkSupport.eventSource(),
+      fetch: checkSupport.fetch()
+    }
+  }
+}
+
+// Использование
+const support = checkSupport.all()
+console.log('Browser support:', support)
+
+if (support.webSocket) {
+  // Используем WebSocket
+} else if (support.eventSource) {
+  // Используем EventSource
+} else {
+  // Fallback на polling
+}
+
+// 5. Graceful degradation стратегия
+class GracefulRealtimeConnection {
+  constructor(url) {
+    this.url = url
+    this.connection = null
+    this.setupConnection()
+  }
+
+  setupConnection() {
+    if ('WebSocket' in window) {
+      console.log('Используем WebSocket')
+      this.connection = this.setupWebSocket()
+    } else if ('EventSource' in window) {
+      console.log('Используем EventSource')
+      this.connection = this.setupEventSource()
+    } else if ('fetch' in window) {
+      console.log('Используем Long Polling')
+      this.connection = this.setupLongPolling()
+    } else {
+      console.log('Используем Simple Polling')
+      this.connection = this.setupSimplePolling()
+    }
+  }
+
+  setupWebSocket() {
+    const ws = new WebSocket(this.url.replace(/^http/, 'ws'))
+    ws.onmessage = (e) => this.handleMessage(JSON.parse(e.data))
+    return ws
+  }
+
+  setupEventSource() {
+    const es = new EventSource(this.url)
+    es.onmessage = (e) => this.handleMessage(JSON.parse(e.data))
+    return es
+  }
+
+  setupLongPolling() {
+    const lp = new LongPolling(this.url)
+    lp.onmessage = (data) => this.handleMessage(data)
+    lp.start()
+    return lp
+  }
+
+  setupSimplePolling() {
+    const sp = new SimplePolling(this.url, 5000)
+    sp.onmessage = (data) => this.handleMessage(data)
+    sp.start()
+    return sp
+  }
+
+  handleMessage(data) {
+    console.log('Message received:', data)
+    // Обработка сообщения одинаково для всех методов
+  }
+}

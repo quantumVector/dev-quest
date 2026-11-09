@@ -1,0 +1,24 @@
+
+// Механизм CORS - как браузер проверяет разрешения
+
+// Шаг 1: Браузер определяет, что запрос cross-origin
+const response = await fetch('https://api.example.com/data', {
+  method: 'GET',
+  headers: {
+    'Content-Type': 'application/json'
+  }
+})
+
+// Шаг 2: Браузер отправляет запрос с заголовком Origin
+// Request Headers:
+// Origin: https://myapp.com
+// (браузер автоматически добавляет этот заголовок)
+
+// Шаг 3: Сервер проверяет Origin и отвечает с CORS заголовками
+// Response Headers:
+// Access-Control-Allow-Origin: https://myapp.com
+// Access-Control-Allow-Credentials: true
+
+// Шаг 4: Браузер проверяет ответ
+// ✅ Если Access-Control-Allow-Origin совпадает - разрешает доступ
+// ❌ Если нет - блокирует и выдает ошибку CORS

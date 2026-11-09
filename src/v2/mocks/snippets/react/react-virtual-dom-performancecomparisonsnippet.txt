@@ -1,0 +1,81 @@
+
+// Сравнение производительности: Real DOM vs Virtual DOM
+
+// Задача: обновить список из 1000 элементов
+
+// ❌ Прямая работа с DOM:
+function updateWithRealDOM(items) {
+  const start = performance.now();
+  const list = document.getElementById('list');
+
+  // Полная очистка
+  list.innerHTML = ''; // Reflow!
+
+  // Добавление элементов
+  items.forEach(item => {
+    const li = document.createElement('li');
+    li.className = item.active ? 'active' : 'inactive';
+    li.textContent = item.text;
+    list.appendChild(li); // 1000 reflows!
+  });
+
+  const end = performance.now();
+  console.log('Real DOM:', end - start, 'ms');
+  // Результат: ~150-300ms
+}
+
+// ✅ React с Virtual DOM:
+function TodoList({ items }) {
+  return (
+    <ul id="list">
+      {items.map(item => (
+        <li
+          key={item.id}
+          className={item.active ? 'active' : 'inactive'}
+        >
+          {item.text}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+// React производит:
+// 1. Создание Virtual DOM: ~5-10ms
+// 2. Diffing со старым деревом: ~10-20ms
+// 3. Батчинг и применение изменений: ~20-50ms
+// Итого: ~35-80ms
+
+// ✅ Оптимизация с React:
+function OptimizedTodoList({ items }) {
+  // Мемоизация списка
+  const memoizedList = useMemo(() => (
+    items.map(item => (
+      <TodoItem key={item.id} item={item} />
+    ))
+  ), [items]);
+
+  return <ul id="list">{memoizedList}</ul>;
+}
+
+// Мемоизированный компонент элемента
+const TodoItem = memo(({ item }) => (
+  <li className={item.active ? 'active' : 'inactive'}>
+    {item.text}
+  </li>
+));
+
+// С оптимизацией:
+// - Если items не изменились: ~0ms (skip render)
+// - Если изменился 1 элемент: ~5-15ms (partial update)
+// - Если изменились все: ~35-80ms (full update)
+
+// Бенчмарк (обновление 1 элемента из 1000):
+// Real DOM (императивный): ~150ms
+// Vanilla JS (оптимизированный): ~5ms
+// React Virtual DOM: ~10ms
+// React + memoization: ~5ms
+
+// Вывод: Virtual DOM не всегда быстрее чистого JS,
+// но обеспечивает хороший баланс между производительностью
+// и удобством разработки (декларативность)

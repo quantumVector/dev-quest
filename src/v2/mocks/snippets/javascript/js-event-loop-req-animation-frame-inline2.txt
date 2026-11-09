@@ -1,0 +1,7 @@
+console.log('Start');
+let x = 5 + 3;
+function calc() {
+  return x * 2;
+}
+let result = calc();
+console.log('End');

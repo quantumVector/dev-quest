@@ -1,0 +1,22 @@
+
+const user = {}
+
+// Создаем свойство с геттером и сеттером
+Object.defineProperty(user, 'fullName', {
+  get() {
+    return `${this.firstName} ${this.lastName}`
+  },
+  set(value) {
+    [this.firstName, this.lastName] = value.split(' ')
+  },
+  enumerable: true,
+  configurable: true
+})
+
+user.firstName = 'John'
+user.lastName = 'Doe'
+console.log(user.fullName) // 'John Doe'
+
+user.fullName = 'Jane Smith'
+console.log(user.firstName) // 'Jane'
+console.log(user.lastName)  // 'Smith'

@@ -1,0 +1,67 @@
+
+// Next.js - автоматическая генерация hreflang
+// next.config.js
+module.exports = {
+  i18n: {
+    locales: ['en', 'ru', 'de', 'fr'],
+    defaultLocale: 'en',
+    localeDetection: true,
+  },
+}
+
+// pages/_document.js
+import { Html, Head, Main, NextScript } from 'next/document'
+
+export default function Document({ locale }) {
+  return (
+    <Html lang={locale}>
+      <Head>
+        {/* Next.js автоматически добавит hreflang теги */}
+      </Head>
+      <body>
+        <Main />
+        <NextScript />
+      </body>
+    </Html>
+  )
+}
+
+// Или вручную в Head компоненте
+import Head from 'next/head'
+import { useRouter } from 'next/router'
+
+function MyPage() {
+  const router = useRouter()
+  const { pathname, asPath, locales, locale, defaultLocale } = router
+
+  return (
+    <>
+      <Head>
+        {/* Canonical */}
+        <link
+          rel="canonical"
+          href={`https://example.com${locale === defaultLocale ? '' : '/' + locale}${pathname}`}
+        />
+
+        {/* hreflang для всех языков */}
+        {locales.map((loc) => (
+          <link
+            key={loc}
+            rel="alternate"
+            hrefLang={loc}
+            href={`https://example.com${loc === defaultLocale ? '' : '/' + loc}${pathname}`}
+          />
+        ))}
+
+        {/* x-default */}
+        <link
+          rel="alternate"
+          hrefLang="x-default"
+          href={`https://example.com${pathname}`}
+        />
+      </Head>
+
+      {/* Контент страницы */}
+    </>
+  )
+}

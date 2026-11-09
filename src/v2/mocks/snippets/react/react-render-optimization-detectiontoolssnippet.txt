@@ -1,0 +1,68 @@
+
+// Инструменты для обнаружения лишних рендеров
+
+// 1. React DevTools Profiler
+// Запустить профилирование:
+// 1. Открыть React DevTools
+// 2. Перейти во вкладку "Profiler"
+// 3. Нажать "Start profiling"
+// 4. Выполнить действия в приложении
+// 5. Нажать "Stop profiling"
+// 6. Анализировать Flamegraph и Ranked chart
+
+// 2. why-did-you-render библиотека
+import whyDidYouRender from '@welldone-software/why-did-you-render'
+
+if (process.env.NODE_ENV === 'development') {
+  whyDidYouRender(React, {
+    trackAllPureComponents: true,
+    trackHooks: true,
+    logOnDifferentValues: true,
+  })
+}
+
+// Отметить компонент для отслеживания
+function MyComponent() {
+  // ...
+}
+MyComponent.whyDidYouRender = true
+
+// 3. Кастомный хук useWhyDidYouUpdate
+function useWhyDidYouUpdate(name, props) {
+  const previousProps = useRef()
+
+  useEffect(() => {
+    if (previousProps.current) {
+      const allKeys = Object.keys({ ...previousProps.current, ...props })
+      const changedProps = {}
+
+      allKeys.forEach(key => {
+        if (previousProps.current[key] !== props[key]) {
+          changedProps[key] = {
+            from: previousProps.current[key],
+            to: props[key]
+          }
+        }
+      })
+
+      if (Object.keys(changedProps).length > 0) {
+        console.log('[why-did-you-update]', name, changedProps)
+      }
+    }
+
+    previousProps.current = props
+  })
+}
+
+// Использование
+function Child({ name, age, onClick }) {
+  useWhyDidYouUpdate('Child', { name, age, onClick })
+  return <div>{name}, {age}</div>
+}
+
+// 4. console.log в компонентах
+function Child({ name }) {
+  console.log('Child rendered with:', name)
+  console.trace('Child render stack')
+  return <div>{name}</div>
+}

@@ -1,0 +1,29 @@
+
+# =====================================
+# ОСНОВНЫЕ КОМАНДЫ DOCKER
+# =====================================
+
+# Работа с образами
+docker build -t my-app:1.0 .          # Создать образ
+docker images                          # Список образов
+docker pull nginx:latest               # Скачать образ
+docker rmi my-app:1.0                  # Удалить образ
+docker tag my-app:1.0 my-app:latest    # Создать тег
+
+# Работа с контейнерами
+docker run -d -p 3000:3000 my-app:1.0 # Запустить контейнер
+docker ps                              # Запущенные контейнеры
+docker ps -a                           # Все контейнеры
+docker stop container_id               # Остановить контейнер
+docker start container_id              # Запустить контейнер
+docker rm container_id                 # Удалить контейнер
+
+# Интерактивная работа
+docker exec -it container_id /bin/bash # Зайти в контейнер
+docker logs container_id               # Посмотреть логи
+docker inspect container_id            # Информация о контейнере
+
+# Очистка
+docker system prune                    # Удалить неиспользуемые ресурсы
+docker container prune                 # Удалить остановленные контейнеры
+docker image prune                     # Удалить неиспользуемые образы

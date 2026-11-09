@@ -1,0 +1,22 @@
+
+# Dockerfile - инструкция по сборке образа
+FROM node:18-alpine
+
+# Создаем рабочую директорию
+WORKDIR /app
+
+# Копируем package.json (из контекста сборки)
+COPY package*.json ./
+
+# Устанавливаем зависимости
+RUN npm ci --only=production
+
+# Копируем исходный код (из контекста сборки)
+COPY src/ ./src/
+COPY public/ ./public/
+
+# Открываем порт
+EXPOSE 3000
+
+# Команда запуска
+CMD ["npm", "start"]

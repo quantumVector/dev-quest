@@ -1,0 +1,6 @@
+// В render методе React
+render() {
+  return items.map(item =>
+    <Item onClick={this.handleClick.bind(this)} />
+  )
+}

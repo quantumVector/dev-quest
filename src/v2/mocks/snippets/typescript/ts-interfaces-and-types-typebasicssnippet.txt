@@ -1,0 +1,92 @@
+
+// =====================================
+// TYPE ALIAS - основы
+// =====================================
+
+// 1. Простой тип
+type UserID = number
+type UserName = string
+
+const id: UserID = 123
+const name: UserName = 'John'
+
+// 2. Объектный тип
+type User = {
+  id: number
+  name: string
+  email: string
+}
+
+const user: User = {
+  id: 1,
+  name: 'John',
+  email: 'john@example.com'
+}
+
+// 3. Union Types - объединение типов
+type Status = 'pending' | 'approved' | 'rejected'
+type ID = number | string
+
+const status: Status = 'pending'  // ✅ OK
+// const status2: Status = 'invalid'  // ❌ Error
+
+const userId: ID = 123      // ✅ OK
+const orderId: ID = 'ORD-456'  // ✅ OK
+
+// 4. Intersection Types - пересечение типов
+type Person = {
+  name: string
+  age: number
+}
+
+type Employee = {
+  employeeId: number
+  department: string
+}
+
+type EmployeePerson = Person & Employee
+
+const employee: EmployeePerson = {
+  name: 'John',
+  age: 30,
+  employeeId: 12345,
+  department: 'IT'
+}
+
+// 5. Tuple Types - кортежи
+type Point = [number, number]
+type RGB = [number, number, number]
+type NamedPoint = [x: number, y: number]  // С именами (TS 4.0+)
+
+const point: Point = [10, 20]
+const color: RGB = [255, 128, 0]
+
+// 6. Функциональные типы
+type MathOperation = (a: number, b: number) => number
+
+const add: MathOperation = (a, b) => a + b
+const multiply: MathOperation = (a, b) => a * b
+
+// 7. Литеральные типы
+type Direction = 'north' | 'south' | 'east' | 'west'
+type DiceRoll = 1 | 2 | 3 | 4 | 5 | 6
+type Success = true
+
+const direction: Direction = 'north'
+const roll: DiceRoll = 4
+const isSuccess: Success = true
+
+// 8. Mapped Types
+type Readonly<T> = {
+  readonly [P in keyof T]: T[P]
+}
+
+type User = {
+  id: number
+  name: string
+}
+
+type ReadonlyUser = Readonly<User>
+
+const user: ReadonlyUser = { id: 1, name: 'John' }
+// user.name = 'Jane'  // ❌ Error: Cannot assign to 'name'

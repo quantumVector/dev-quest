@@ -1,0 +1,70 @@
+
+// useSyncExternalStore - подписка на внешние хранилища
+import { useSyncExternalStore } from 'react';
+
+// Пример: Redux-подобное хранилище
+const store = {
+  state: { count: 0 },
+  listeners: new Set(),
+
+  getState() {
+    return this.state;
+  },
+
+  setState(newState) {
+    this.state = newState;
+    this.listeners.forEach(listener => listener());
+  },
+
+  subscribe(listener) {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
+};
+
+// Использование в компоненте
+function Counter() {
+  const state = useSyncExternalStore(
+    store.subscribe.bind(store),  // subscribe
+    store.getState.bind(store),   // getSnapshot
+    store.getState.bind(store)    // getServerSnapshot (для SSR)
+  );
+
+  return (
+    <div>
+      <p>Count: {state.count}</p>
+      <button onClick={() => store.setState({ count: state.count + 1 })}>
+        Increment
+      </button>
+    </div>
+  );
+}
+
+// Подписка на browser API
+function useOnlineStatus() {
+  const isOnline = useSyncExternalStore(
+    (callback) => {
+      window.addEventListener('online', callback);
+      window.addEventListener('offline', callback);
+      return () => {
+        window.removeEventListener('online', callback);
+        window.removeEventListener('offline', callback);
+      };
+    },
+    () => navigator.onLine,  // getSnapshot
+    () => true               // getServerSnapshot
+  );
+
+  return isOnline;
+}
+
+// Использование
+function NetworkStatus() {
+  const isOnline = useOnlineStatus();
+
+  return (
+    <div>
+      {isOnline ? '🟢 Online' : '🔴 Offline'}
+    </div>
+  );
+}

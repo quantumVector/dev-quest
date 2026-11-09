@@ -1,0 +1,121 @@
+
+// Отладка лексического окружения
+console.log("=== Отладка лексического окружения ===");
+
+// Инструменты для отладки
+function debugLexicalEnvironment() {
+  var debugVar = "Переменная для отладки";
+  let debugLet = "Let для отладки";
+  const debugConst = "Const для отладки";
+
+  function innerDebug() {
+    var innerVar = "Внутренняя переменная";
+
+    // 1. Использование debugger для остановки выполнения
+    debugger; // Откроет инструменты разработчика
+
+    // 2. Анализ области видимости в консоли
+    console.log("=== Доступные переменные ===");
+    console.log("debugVar:", debugVar);
+    console.log("debugLet:", debugLet);
+    console.log("debugConst:", debugConst);
+    console.log("innerVar:", innerVar);
+
+    // 3. Использование console.trace() для трассировки
+    console.trace("Трассировка вызовов функций");
+
+    return function() {
+      // 4. Замыкание сохраняет доступ ко всем переменным
+      console.log("\n=== В замыкании доступны ===");
+      console.log("debugVar:", debugVar);
+      console.log("debugLet:", debugLet);
+      console.log("debugConst:", debugConst);
+      console.log("innerVar:", innerVar);
+
+      // 5. Проверка существования переменных
+      console.log("\n=== Проверка существования ===");
+      console.log("typeof debugVar:", typeof debugVar);
+      console.log("typeof innerVar:", typeof innerVar);
+      console.log("typeof nonExistent:", typeof nonExistent);
+    };
+  }
+
+  return innerDebug();
+}
+
+const closureFunction = debugLexicalEnvironment();
+closureFunction();
+
+// Анализ производительности и памяти
+function memoryLeakExample() {
+  console.log("\n=== Пример утечки памяти ===");
+
+  function createLeakyFunction() {
+    // Большой объект, который может вызвать утечку памяти
+    const largeObject = new Array(1000000).fill("memory leak");
+    const smallValue = "важная информация";
+
+    // ❌ Плохо: замыкание держит ссылку на весь largeObject
+    const badClosure = function() {
+      console.log("smallValue:", smallValue);
+      // largeObject остается в памяти, хотя не используется!
+    };
+
+    // ✅ Хорошо: извлекаем только нужные данные
+    const necessaryData = largeObject.length; // Только размер
+    const goodClosure = function() {
+      console.log("smallValue:", smallValue);
+      console.log("array length was:", necessaryData);
+      // largeObject может быть собран сборщиком мусора
+    };
+
+    return goodClosure; // Возвращаем оптимизированное замыкание
+  }
+
+  const optimizedFunction = createLeakyFunction();
+  optimizedFunction();
+}
+
+memoryLeakExample();
+
+// Инструменты для отладки области видимости
+function debugScope(param) {
+  var scopeVar = "scope variable";
+
+  function printScopeInfo(functionName) {
+    console.log(`\n=== Информация об области видимости: ${functionName} ===`);
+
+    // Список всех доступных переменных (кроме this)
+    const availableVars = [];
+
+    try { console.log("param:", param); availableVars.push("param"); } catch(e) {}
+    try { console.log("scopeVar:", scopeVar); availableVars.push("scopeVar"); } catch(e) {}
+    try { console.log("arguments:", typeof arguments !== 'undefined' ? "available" : "not available"); } catch(e) {}
+
+    console.log("Доступные переменные:", availableVars.join(", "));
+
+    // Информация о this
+    console.log("this ===",
+      this === globalThis ? "globalThis" :
+      this === undefined ? "undefined" :
+      typeof this
+    );
+  }
+
+  return {
+    analyze: () => printScopeInfo("analyze method"),
+    nested: function() {
+      var nestedVar = "nested variable";
+      return () => {
+        printScopeInfo("nested arrow function");
+        console.log("nestedVar:", nestedVar);
+      };
+    }
+  };
+}
+
+const debugger1 = debugScope("test parameter");
+debugger1.analyze();
+
+const nestedDebugger = debugger1.nested();
+nestedDebugger();

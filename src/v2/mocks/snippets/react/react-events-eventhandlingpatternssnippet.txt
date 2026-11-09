@@ -1,0 +1,301 @@
+
+// Паттерны обработки событий в React
+
+// ========================================
+// 1. Класс-компоненты: биндинг this
+// ========================================
+
+// Проблема: потеря контекста this
+class BadButton extends React.Component {
+  handleClick() {
+    console.log(this); // undefined! (в strict mode)
+  }
+
+  render() {
+    return <button onClick={this.handleClick}>Клик</button>;
+  }
+}
+
+// Решение 1: Биндинг в конструкторе (рекомендуется)
+class GoodButton1 extends React.Component {
+  constructor(props) {
+    super(props);
+    this.handleClick = this.handleClick.bind(this);
+  }
+
+  handleClick() {
+    console.log(this); // ✅ Экземпляр компонента
+  }
+
+  render() {
+    return <button onClick={this.handleClick}>Клик</button>;
+  }
+}
+
+// Решение 2: Arrow function в render (создает новую функцию каждый раз)
+class GoodButton2 extends React.Component {
+  handleClick() {
+    console.log(this); // ✅ Экземпляр компонента
+  }
+
+  render() {
+    // ⚠️ Новая функция при каждом рендере - может влиять на производительность
+    return <button onClick={() => this.handleClick()}>Клик</button>;
+  }
+}
+
+// Решение 3: Class field (public class field) - ЛУЧШИЙ вариант
+class GoodButton3 extends React.Component {
+  // Arrow function автоматически привязывает this
+  handleClick = () => {
+    console.log(this); // ✅ Экземпляр компонента
+  }
+
+  render() {
+    return <button onClick={this.handleClick}>Клик</button>;
+  }
+}
+
+// ========================================
+// 2. Функциональные компоненты: useCallback
+// ========================================
+
+// Без useCallback - новая функция каждый рендер
+function ButtonWithoutCallback({ onSave }) {
+  const [count, setCount] = useState(0);
+
+  // ⚠️ Новая функция при каждом рендере
+  function handleClick() {
+    console.log('Count:', count);
+    setCount(count + 1);
+  }
+
+  // Child перерендеривается каждый раз, даже если onSave не изменился
+  return (
+    <div>
+      <button onClick={handleClick}>Клик ({count})</button>
+      <ExpensiveChild onSave={handleClick} />
+    </div>
+  );
+}
+
+// С useCallback - мемоизированная функция
+function ButtonWithCallback({ onSave }) {
+  const [count, setCount] = useState(0);
+
+  // ✅ Функция создается только при изменении зависимостей
+  const handleClick = useCallback(() => {
+    console.log('Count:', count);
+    setCount(count + 1);
+  }, [count]); // Пересоздается только когда count изменяется
+
+  // Child перерендеривается только при изменении handleClick
+  return (
+    <div>
+      <button onClick={handleClick}>Клик ({count})</button>
+      <ExpensiveChild onSave={handleClick} />
+    </div>
+  );
+}
+
+// Оптимизированный вариант с функциональным обновлением
+function OptimizedButton({ onSave }) {
+  const [count, setCount] = useState(0);
+
+  // ✅ Функция создается один раз и никогда не пересоздается!
+  const handleClick = useCallback(() => {
+    setCount(c => c + 1); // Функциональное обновление
+  }, []); // Пустой массив зависимостей
+
+  return (
+    <div>
+      <button onClick={handleClick}>Клик ({count})</button>
+      <ExpensiveChild onSave={handleClick} />
+    </div>
+  );
+}
+
+// ========================================
+// 3. Обработка форм
+// ========================================
+
+// Контролируемые компоненты
+function ControlledForm() {
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    password: ''
+  });
+
+  // Универсальный обработчик для всех полей
+  function handleChange(event) {
+    const { name, value } = event.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    console.log('Form data:', formData);
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        name="username"
+        value={formData.username}
+        onChange={handleChange}
+      />
+      <input
+        name="email"
+        type="email"
+        value={formData.email}
+        onChange={handleChange}
+      />
+      <input
+        name="password"
+        type="password"
+        value={formData.password}
+        onChange={handleChange}
+      />
+      <button type="submit">Отправить</button>
+    </form>
+  );
+}
+
+// Неконтролируемые компоненты с useRef
+function UncontrolledForm() {
+  const usernameRef = useRef(null);
+  const emailRef = useRef(null);
+  const passwordRef = useRef(null);
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    console.log({
+      username: usernameRef.current.value,
+      email: emailRef.current.value,
+      password: passwordRef.current.value
+    });
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input ref={usernameRef} name="username" />
+      <input ref={emailRef} name="email" type="email" />
+      <input ref={passwordRef} name="password" type="password" />
+      <button type="submit">Отправить</button>
+    </form>
+  );
+}
+
+// ========================================
+// 4. Дебаунсинг и троттлинг
+// ========================================
+
+// Debounce - выполнение после паузы
+function SearchWithDebounce() {
+  const [query, setQuery] = useState('');
+
+  // Дебаунс с useCallback и useEffect
+  const debouncedSearch = useCallback(
+    debounce((value) => {
+      console.log('Поиск:', value);
+      // API запрос
+    }, 500),
+    []
+  );
+
+  function handleChange(event) {
+    const value = event.target.value;
+    setQuery(value);
+    debouncedSearch(value);
+  }
+
+  return <input value={query} onChange={handleChange} />;
+}
+
+// Throttle - ограничение частоты вызовов
+function ScrollWithThrottle() {
+  const throttledScroll = useCallback(
+    throttle((event) => {
+      console.log('Scroll Y:', window.scrollY);
+    }, 200),
+    []
+  );
+
+  return (
+    <div onScroll={throttledScroll} style={{ height: '200vh' }}>
+      Прокрутите вниз
+    </div>
+  );
+}
+
+// Хелперы debounce и throttle
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+function throttle(func, limit) {
+  let inThrottle;
+  return function executedFunction(...args) {
+    if (!inThrottle) {
+      func(...args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
+  };
+}
+
+// ========================================
+// 5. Композиция обработчиков
+// ========================================
+
+// Множественные обработчики для одного события
+function MultipleHandlers() {
+  function handleClick(event) {
+    console.log('Handler 1');
+  }
+
+  function handleClickAnalytics(event) {
+    console.log('Analytics tracked');
+  }
+
+  function handleClickValidation(event) {
+    console.log('Validation passed');
+  }
+
+  // Композиция обработчиков
+  function composedHandler(event) {
+    handleClick(event);
+    handleClickAnalytics(event);
+    handleClickValidation(event);
+  }
+
+  return <button onClick={composedHandler}>Клик</button>;
+}
+
+// HOC для добавления обработчиков
+function withAnalytics(Component) {
+  return function WrappedComponent(props) {
+    function handleClick(event) {
+      console.log('Analytics: click tracked');
+      if (props.onClick) {
+        props.onClick(event);
+      }
+    }
+
+    return <Component {...props} onClick={handleClick} />;
+  };
+}
+
+const ButtonWithAnalytics = withAnalytics(Button);

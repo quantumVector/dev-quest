@@ -1,0 +1,145 @@
+
+// =====================================
+// КОММУНИКАЦИЯ МЕЖДУ КОМПОНЕНТАМИ
+// =====================================
+
+// 1. EventBus для глобальной коммуникации
+class EventBus {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(eventName, callback) {
+    if (!this.events.has(eventName)) {
+      this.events.set(eventName, []);
+    }
+    this.events.get(eventName).push(callback);
+  }
+
+  emit(eventName, data) {
+    if (this.events.has(eventName)) {
+      this.events.get(eventName).forEach(callback => callback(data));
+    }
+  }
+
+  off(eventName, callback) {
+    if (this.events.has(eventName)) {
+      const callbacks = this.events.get(eventName);
+      const index = callbacks.indexOf(callback);
+      if (index !== -1) {
+        callbacks.splice(index, 1);
+      }
+    }
+  }
+}
+
+const eventBus = new EventBus();
+
+// 2. Компонент-издатель
+class DataProvider extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+    this.data = { users: [], loading: false };
+    this.render();
+  }
+
+  render() {
+    this.shadowRoot.innerHTML = `
+      <style>
+        button {
+          padding: 10px 20px;
+          background: #28a745;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+      </style>
+      <button id="load-data">Load Users</button>
+    `;
+
+    this.shadowRoot.getElementById('load-data')
+      .addEventListener('click', this.loadData.bind(this));
+  }
+
+  async loadData() {
+    this.data.loading = true;
+    eventBus.emit('data-loading', { loading: true });
+
+    // Симуляция API запроса
+    setTimeout(() => {
+      this.data = {
+        loading: false,
+        users: [
+          { id: 1, name: 'Alice' },
+          { id: 2, name: 'Bob' },
+          { id: 3, name: 'Charlie' }
+        ]
+      };
+
+      // Уведомляем все заинтересованные компоненты
+      eventBus.emit('data-loaded', this.data);
+    }, 1000);
+  }
+}
+
+// 3. Компонент-подписчик
+class UserList extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+    this.users = [];
+    this.loading = false;
+
+    // Подписываемся на события
+    eventBus.on('data-loading', this.handleLoading.bind(this));
+    eventBus.on('data-loaded', this.handleDataLoaded.bind(this));
+
+    this.render();
+  }
+
+  handleLoading(data) {
+    this.loading = data.loading;
+    this.render();
+  }
+
+  handleDataLoaded(data) {
+    this.users = data.users;
+    this.loading = data.loading;
+    this.render();
+  }
+
+  render() {
+    this.shadowRoot.innerHTML = `
+      <style>
+        .loading { color: #666; font-style: italic; }
+        .user { padding: 8px; border: 1px solid #ddd; margin: 4px 0; }
+      </style>
+      <div>
+        <h3>Users:</h3>
+        ${this.loading
+          ? '<div class="loading">Loading...</div>'
+          : this.users.map(user =>
+              `<div class="user">${user.name} (ID: ${user.id})</div>`
+            ).join('')
+        }
+      </div>
+    `;
+  }
+
+  disconnectedCallback() {
+    // Отписываемся при удалении компонента
+    eventBus.off('data-loading', this.handleLoading);
+    eventBus.off('data-loaded', this.handleDataLoaded);
+  }
+}
+
+customElements.define('data-provider', DataProvider);
+customElements.define('user-list', UserList);
+
+/*
+HTML для использования:
+<data-provider></data-provider>
+<user-list></user-list>
+*/

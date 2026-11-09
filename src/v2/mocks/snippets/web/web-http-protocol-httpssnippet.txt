@@ -1,0 +1,126 @@
+
+// =====================================
+// HTTPS - HTTP Secure
+// =====================================
+
+// HTTP - незащищенное соединение
+┌─────────┐                           ┌─────────┐
+│ Browser │──── Plain Text (HTTP) ────│ Server  │
+└─────────┘      Видно всем!          └─────────┘
+    ↑                                       ↑
+    └───────── Перехват данных ─────────────┘
+           (Man-in-the-Middle Attack)
+
+// HTTPS - защищенное соединение
+┌─────────┐                           ┌─────────┐
+│ Browser │──── Encrypted (HTTPS) ────│ Server  │
+└─────────┘      TLS/SSL шифрование   └─────────┘
+                 Защищено! 🔒
+
+// Основные отличия HTTP vs HTTPS
+
+// 1. Порты
+HTTP:  порт 80
+HTTPS: порт 443
+
+// 2. URL схемы
+http://example.com   // Незащищенный
+https://example.com  // Защищенный
+
+// 3. Безопасность
+HTTP:  Нет шифрования, данные в открытом виде
+HTTPS: TLS/SSL шифрование, защита от перехвата
+
+// 4. Сертификаты
+HTTP:  Не требуются
+HTTPS: Требуется SSL/TLS сертификат
+
+// 5. Производительность
+HTTP:  Быстрее (нет шифрования)
+HTTPS: Чуть медленнее (overhead шифрования)
+       Но HTTP/2 + HTTPS часто быстрее HTTP/1.1
+
+// 6. SEO
+HTTP:  Поисковики понижают в рейтинге
+HTTPS: Поисковики повышают в рейтинге
+
+// Процесс HTTPS соединения (TLS Handshake)
+
+// 1. Client Hello
+Client → Server: "Я хочу HTTPS, вот мои алгоритмы шифрования"
+
+// 2. Server Hello + Certificate
+Server → Client: "Вот мой сертификат и выбранный алгоритм"
+
+// 3. Certificate Verification
+Client: Проверяет сертификат через Certificate Authority (CA)
+
+// 4. Key Exchange
+Client → Server: Генерация общего секретного ключа
+
+// 5. Encrypted Communication
+Client ↔ Server: Обмен данными с шифрованием
+
+// Проверка HTTPS в JavaScript
+const url = new URL('https://example.com')
+console.log('Protocol:', url.protocol) // "https:"
+console.log('Is Secure:', url.protocol === 'https:')
+
+// Проверка Mixed Content
+if (window.location.protocol === 'https:') {
+  console.log('Page is secure')
+
+  // ❌ ПЛОХО - Mixed Content
+  // const img = '<img src="http://example.com/image.jpg">'
+
+  // ✅ ХОРОШО - Все ресурсы через HTTPS
+  const img = '<img src="https://example.com/image.jpg">'
+}
+
+// Принудительное использование HTTPS
+// 1. HSTS заголовок (сервер)
+Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+
+// 2. Редирект с HTTP на HTTPS
+// Server-side (Node.js/Express)
+app.use((req, res, next) => {
+  if (req.protocol !== 'https') {
+    return res.redirect(301, 'https://' + req.headers.host + req.url)
+  }
+  next()
+})
+
+// 3. Content Security Policy
+Content-Security-Policy: upgrade-insecure-requests
+
+// Проблемы Mixed Content
+// HTTPS страница загружает HTTP ресурс = БЛОКИРОВКА
+
+// ❌ Заблокируется браузером
+<script src="http://example.com/script.js"></script>
+<iframe src="http://example.com/frame.html"></iframe>
+
+// ⚠️ Предупреждение в консоли
+<img src="http://example.com/image.jpg">
+
+// ✅ Правильно - все через HTTPS
+<script src="https://example.com/script.js"></script>
+<img src="https://example.com/image.jpg">
+
+// Проверка сертификата в fetch
+fetch('https://example.com', {
+// credentials: 'include' // отправка cookies через HTTPS
+}).then(response => {
+// Проверка безопасности соединения
+if (response.url.startsWith('https://')) {
+console.log('Secure connection')
+}
+})
+
+// Типы SSL/TLS сертификатов
+// 1. Domain Validation (DV) - базовая проверка домена
+// 2. Organization Validation (OV) - проверка организации
+// 3. Extended Validation (EV) - расширенная проверка (зеленая адресная строка)
+
+// Let's Encrypt - бесплатные SSL сертификаты
+// Автоматическое обновление, поддержка всех браузеров

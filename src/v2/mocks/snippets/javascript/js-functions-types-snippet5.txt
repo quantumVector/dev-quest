@@ -1,0 +1,202 @@
+
+// =====================================
+// 5. КОГДА ЧТО ИСПОЛЬЗОВАТЬ?
+// =====================================
+
+// FUNCTION DECLARATION - используйте когда:
+// ✅ Нужна функция доступная до объявления (hoisting)
+// ✅ Главные функции модуля
+// ✅ Утилитарные функции общего назначения
+// ✅ Когда важна читаемость и структура кода
+
+function calculateTax(amount, rate) {
+  return amount * rate;
+}
+
+function validateEmail(email) {
+  const emailRegex = /^[^s@]+@[^s@]+.[^s@]+$/;
+  return emailRegex.test(email);
+}
+
+// FUNCTION EXPRESSION - используйте когда:
+// ✅ Условное создание функций
+// ✅ Функции как значения переменных
+// ✅ Callback функции с контекстом
+// ✅ Методы объектов
+
+const mathOperations = {
+  add: function(a, b) { return a + b; },
+  subtract: function(a, b) { return a - b; }
+};
+
+// Условное создание
+const isProduction = process.env.NODE_ENV === 'production';
+const logger = isProduction
+  ? function() { /* no logging */ }
+  : function(message) { console.log(message); };
+
+// ARROW FUNCTION - используйте когда:
+// ✅ Короткие функции (особенно одно выражение)
+// ✅ Callback функции в массивах
+// ✅ Функции без собственного контекста
+// ✅ React компоненты и хуки
+// ✅ Promise chains
+
+// Обработка массивов
+const numbers = [1, 2, 3, 4, 5];
+const processedNumbers = numbers
+  .filter(n => n > 2)
+  .map(n => n * 2)
+  .reduce((sum, n) => sum + n, 0);
+
+// React компоненты
+const UserCard = ({ user }) => (
+  <div className="user-card">
+    <h3>{user.name}</h3>
+    <p>{user.email}</p>
+  </div>
+);
+
+// Promise chains
+const fetchUserData = (userId) =>
+  fetch(`/api/users/${userId}`)
+    .then(response => response.json())
+    .then(data => data.user)
+    .catch(error => console.error('Error:', error));
+
+// Async/await
+const getUserData = async (userId) => {
+  try {
+    const response = await fetch(`/api/users/${userId}`);
+    const data = await response.json();
+    return data.user;
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+// =====================================
+// АНТИ-ПАТТЕРНЫ И ОШИБКИ
+// =====================================
+
+// ❌ Стрелочные функции как методы объекта
+const badObject = {
+  name: "Плохой объект",
+  greet: () => {
+    console.log(`Привет от ${this.name}`); // this = undefined
+  }
+};
+
+// ✅ Правильно
+const goodObject = {
+  name: "Хороший объект",
+  greet() {
+    console.log(`Привет от ${this.name}`); // this = goodObject
+  }
+};
+
+// ❌ Стрелочные функции как конструкторы
+const BadConstructor = (name) => {
+  this.name = name; // TypeError при использовании new
+};
+
+// ✅ Правильно
+function GoodConstructor(name) {
+  this.name = name;
+}
+
+// ❌ Переопределение Function Declaration в блоках
+if (condition) {
+  function badFunction() {
+    return "Плохо";
+  }
+}
+
+// ✅ Правильно - используйте Function Expression
+let goodFunction;
+if (condition) {
+  goodFunction = function() {
+    return "Хорошо";
+  };
+}
+
+// ❌ Слишком сложные стрелочные функции
+const complexArrow = (data) => {
+  // Много строк кода...
+  const processed = data.map(item => {
+    // Еще больше кода...
+    return item.value > 0 ? item.value * 2 : 0;
+  });
+
+  const filtered = processed.filter(value => {
+    // И еще код...
+    return value !== 0;
+  });
+
+  return filtered.reduce((sum, value) => sum + value, 0);
+};
+
+// ✅ Правильно - разбейте на части или используйте обычную функцию
+function processComplexData(data) {
+  const processed = data
+    .map(item => item.value > 0 ? item.value * 2 : 0)
+    .filter(value => value !== 0);
+
+  return processed.reduce((sum, value) => sum + value, 0);
+}
+
+// =====================================
+// СОВРЕМЕННЫЕ ПАТТЕРНЫ
+// =====================================
+
+// Комбинирование разных типов функций
+class DataProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  // Обычный метод для сложной логики
+  processData() {
+    return this.data
+      .filter(this.isValid) // Обычный метод
+      .map(item => this.transform(item)) // Обычный метод
+      .sort((a, b) => a.priority - b.priority); // Arrow для простого сравнения
+  }
+
+  // Стрелочная функция сохраняет контекст
+  isValid = (item) => {
+    return item.value > 0 && item.status === 'active';
+  }
+
+  // Обычный метод для читаемости
+  transform(item) {
+    return {
+      ...item,
+      processedAt: new Date(),
+      processed: true
+    };
+  }
+}
+
+// Functional programming с arrow functions
+const pipe = (...functions) => (value) =>
+  functions.reduce((acc, fn) => fn(acc), value);
+
+const addOne = x => x + 1;
+const double = x => x * 2;
+const square = x => x * x;
+
+const transform = pipe(addOne, double, square);
+console.log(transform(3)); // ((3 + 1) * 2)² = 64
+
+// Higher-order functions
+const withLogging = (fn) => (...args) => {
+  console.log(`Calling ${fn.name} with`, args);
+  const result = fn(...args);
+  console.log(`Result:`, result);
+  return result;
+};
+
+const add = (a, b) => a + b;
+const loggedAdd = withLogging(add);
+loggedAdd(2, 3); // Логирует вызов и результат

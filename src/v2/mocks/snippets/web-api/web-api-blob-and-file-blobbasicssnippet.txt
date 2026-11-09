@@ -1,0 +1,34 @@
+
+// =====================================
+// BLOB - Binary Large Object
+// =====================================
+
+// 1. Создание Blob из строки
+const textBlob = new Blob(['Привет, мир!'], { type: 'text/plain' })
+console.log(textBlob.size)  // 23 (в байтах, UTF-8)
+console.log(textBlob.type)  // "text/plain"
+
+// 2. Создание Blob из нескольких частей
+const multiPartBlob = new Blob(
+  ['<html><body>', '<h1>Hello</h1>', '</body></html>'],
+  { type: 'text/html' }
+)
+
+// 3. Создание Blob из типизированного массива
+const bytes = new Uint8Array([72, 101, 108, 108, 111]) // "Hello"
+const binaryBlob = new Blob([bytes], { type: 'application/octet-stream' })
+
+// 4. Создание Blob из JSON
+const jsonData = { name: 'John', age: 30 }
+const jsonBlob = new Blob([JSON.stringify(jsonData)], { type: 'application/json' })
+
+// 5. Свойства Blob
+console.log(textBlob instanceof Blob)  // true
+console.log(textBlob.size)             // размер в байтах
+console.log(textBlob.type)             // MIME тип
+
+// 6. Создание Blob URL
+const blobURL = URL.createObjectURL(textBlob)
+console.log(blobURL)  // blob:http://localhost:3000/uuid
+// ⚠️ Важно: освобождать память после использования
+URL.revokeObjectURL(blobURL)
